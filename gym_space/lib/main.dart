@@ -1,5 +1,5 @@
 // tab
-import 'tabs/home.dart';
+import 'home.dart';
 
 // colors
 // import 'colors.dart' as _colors;

@@ -3,6 +3,7 @@ import 'tabs/me.dart';
 import 'tabs/newsfeed.dart';
 import 'tabs/workouts.dart';
 import 'tabs/widget_tab.dart';
+import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
