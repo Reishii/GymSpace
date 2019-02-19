@@ -10,7 +10,7 @@ class WorkoutsTab extends WidgetTab {
   Widget build(BuildContext context) {
 
     return Container(
-      color: mainColor,
+      
     );
   }
 }
