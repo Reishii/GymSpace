@@ -1,5 +1,6 @@
 // tab
 import 'home.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // colors
 // import 'colors.dart' as _colors;
@@ -7,9 +8,9 @@ import 'home.dart';
 // misc
 import 'package:flutter/material.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(GymSpace());
 
-class MyApp extends StatelessWidget {
+class GymSpace extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
