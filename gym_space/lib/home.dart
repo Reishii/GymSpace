@@ -3,6 +3,7 @@ import 'tabs/me.dart';
 import 'tabs/newsfeed.dart';
 import 'tabs/workouts.dart';
 import 'tabs/widget_tab.dart';
+import 'drawer.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -27,73 +28,146 @@ class _HomeState extends State<Home> {
         actions: <Widget>[      // for search and messages buttons
           IconButton(
             icon: Icon(
-              Icons.search, 
+              Icons.search,
               color: Colors.white,
-              ),
+            ),
             onPressed: () {},
           ),
           IconButton(
             icon: Icon(
               Icons.message,
               color: Colors.white,
-              ),
+            ),
             onPressed: () {},
           ),
         ],
       ),
       body: _children[_currentIndex],
+      // DRAWER START
       drawer: Drawer( // ListTiles are used for entries in the Drawer Widget
         child: ListView(
+          padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
               child: CircleAvatar(
                 child: Icon(
                   Icons.person_outline,
                   size: 50,
-                  ),
+                ),
                 backgroundColor: Colors.blue,
               ),
             ),
+
+            // Notifications Drawer
             ListTile(
               leading: Icon(Icons.notifications),
               title: Text("Notifications"),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute<void> (
+                  builder: (BuildContext context) {
+                    return Scaffold (
+                      appBar: AppBar(title: Text('Notifications')),
+                    );
+                  }, // Builder
+                ));
+              },
             ),
+
+            // Account Drawer
+            ListTile(
+              leading: Icon(Icons.account_circle),
+              title: Text("Account"),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute<void> (
+                  builder: (BuildContext context) {
+                    return Scaffold (
+                      appBar: AppBar(title: Text('Account Settings')),
+                    );
+                  }, // Builder
+                ));
+              },
+            ),
+
+            // Friends Drawer
             ListTile(
               leading: Icon(Icons.people),
               title: Text("Friends"),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute<void> (
+                  builder: (BuildContext context) {
+                    return Scaffold (
+                      appBar: AppBar(title: Text('Friends List')),
+                    );
+                  }, // Builder
+                ));
+              }, // On Tap
             ),
+
+            // Groups Drawer
             ListTile(
               leading: Icon(Icons.group_work),
               title: Text("Groups"),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute<void> (
+                  builder: (BuildContext context) {
+                    return Scaffold (
+                      appBar: AppBar(title: Text('Groups')),
+                    );
+                  }, // Builder
+                ));
+              }, // On Tap
             ),
+
+            // Progress Drawer
+            ListTile(
+              leading: Icon(Icons.local_dining),
+              title: Text("Progress"),
+              onTap:() {
+                Navigator.push(context, MaterialPageRoute<void> (
+                  builder: (BuildContext context) {
+                    return Scaffold (
+                      appBar: AppBar(title: Text('Overall Progress')),
+                    );
+                  }, // Builder
+                ));
+              }, // On Tap
+            ),
+
+            // Settings Drawer
             ListTile(
               leading: Icon(Icons.settings),
               title: Text("Settings"),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute<void> (
+                  builder: (BuildContext context) {
+                    return Scaffold (
+                      appBar: AppBar(title: Text('Settings')),
+                    );
+                  }, // Builder
+                ));
+              }, // On Tap
             ),
           ],
         ),
       ),
+
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped,
         currentIndex: _currentIndex,
         items: [
           BottomNavigationBarItem(
-            icon: new Icon(Icons.rss_feed),
-            title: Text("News Feed")
+              icon: new Icon(Icons.rss_feed),
+              title: Text("News Feed")
           ),
           BottomNavigationBarItem(
-            icon: new Icon(Icons.account_circle),
-            title: Text("Profile")
+              icon: new Icon(Icons.account_circle),
+              title: Text("Profile")
           ),
           BottomNavigationBarItem(
-            icon: new Icon(Icons.fitness_center),
-            title: Text("Workouts")
+              icon: new Icon(Icons.fitness_center),
+              title: Text("Workouts")
           ),
-          
+
         ],
       ),
     );
