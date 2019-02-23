@@ -65,8 +65,11 @@ class _HomeState extends State<Home> {
               onTap: () {
                 Navigator.push(context, MaterialPageRoute<void> (
                   builder: (BuildContext context) {
-                    return Scaffold (
+                    return new Scaffold (
                       appBar: AppBar(title: Text('Notifications')),
+                        body: new Center(
+                          child: new Text("Hello"),
+                      ),
                     );
                   }, // Builder
                 ));
