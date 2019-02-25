@@ -1,6 +1,7 @@
 // tab
 import 'home.dart';
-import 'login.dart';
+import 'status.dart';
+import 'auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // colors
@@ -22,7 +23,7 @@ class GymSpace extends StatelessWidget {
       routes: <String, WidgetBuilder> {
         '/home': (BuildContext context) => new Home()
       },
-      home: LoginPage(),
+      home: new StatusPage(auth: new Auth())
     );
   }
 }
