@@ -4,9 +4,17 @@ import 'tabs/newsfeed.dart';
 import 'tabs/workouts.dart';
 import 'tabs/widget_tab.dart';
 import 'drawer.dart';
+import 'auth.dart';
 import 'package:flutter/material.dart';
 
+
 class Home extends StatefulWidget {
+
+  // Status of checking if user logged out
+  Home({this.auth, this.onLoggedOut});
+  final BaseAuth auth;
+  final VoidCallback onLoggedOut;
+
   _HomeState createState() => _HomeState();
 }
 
@@ -18,6 +26,15 @@ class _HomeState extends State<Home> {
     WorkoutsTab("Workouts"),
   ];
 
+  void _loggedOut() async {
+    try {
+      await widget.auth.signOut();
+      widget.onLoggedOut();
+    }
+    catch (e) {
+      print(e);
+    }
+  }  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +42,13 @@ class _HomeState extends State<Home> {
         centerTitle: true,
         title: Text(_children[_currentIndex].getTitle()),
         backgroundColor: _children[_currentIndex].mainColor,
-        actions: <Widget>[      // for search and messages buttons
+        actions: <Widget>[ // for search and messages buttons
+          new RaisedButton(
+            shape:CircleBorder(),
+            color: Colors.redAccent,
+            child: new Text ('Logout', style: new TextStyle(fontSize: 15.0, color: Colors.white)),
+            onPressed: _loggedOut,
+          ),     
           IconButton(
             icon: Icon(
               Icons.search,
