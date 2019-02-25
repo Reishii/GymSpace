@@ -1,29 +1,21 @@
-import 'user.dart';
-import 'challenge.dart';
-import 'post.dart';
 import 'package:flutter/material.dart';
-
+import 'package:GymSpace/logic/profile_data.dart';
 
 class Profile extends StatefulWidget {
-  User forUser;
-  
-  Profile(this.forUser);
-  _ProfileState createState() => _ProfileState(forUser);
+  final ProfileData profileData;
+
+  Profile({Key key, this.profileData}) : super(key: key);
+
+  @override
+  _ProfileState createState() => _ProfileState(profileData);
 }
 
 class _ProfileState extends State<Profile> {
-  String _description;
-  String _quote;
-  String _avatarImage; // changed from UML Image -> String
-  double _progress;
-  final User _forUser;
-  List<Challenge> _challenges;
-  List<Post> _posts; // new from UML
-  Map _weightLog = {DateTime: 0};
+  final ProfileData _profileData;
 
-  _ProfileState(this._forUser);
+  _ProfileState(this._profileData);
 
-  @override
+   @override
   Widget build(BuildContext context) {
     return Container(
       child: ListView(
@@ -57,7 +49,7 @@ class _ProfileState extends State<Profile> {
                   Container(
                     margin: EdgeInsets.only(bottom: 10),
                     child: Text(
-                      "FIRST LAST",
+                      _profileData.getUser().getName(),
                       style: TextStyle(
                           color: Colors.black,
                           fontFamily: 'Roboto',
@@ -68,6 +60,7 @@ class _ProfileState extends State<Profile> {
                   ),
                   CircleAvatar(
                     radius: 80,
+                    backgroundImage: NetworkImage(_profileData.getProfilePic()),
                   )
                 ],
               )),
@@ -76,7 +69,7 @@ class _ProfileState extends State<Profile> {
           flex: 1,
           child: Container(
             margin: EdgeInsets.only(top: 50),
-            child: Text("Lifter Type"),
+            child: Text(_profileData.getUser().getLiftingType()),
           ),
         ),
       ],
@@ -89,7 +82,7 @@ class _ProfileState extends State<Profile> {
       children: <Widget>[
         Container(
           margin: EdgeInsets.all(20),
-          child: Text('"THIS IS A MOTIVATIONAL QUOTE"'),
+          child: Text(_profileData.getQuote()),
         )
       ],
     );
@@ -147,23 +140,5 @@ class _ProfileState extends State<Profile> {
           ],
         ));
   }
-
-  void addPost(Post post) => _posts.add(post);
-  void addFriend() {}
-  void block() {}
-  void calculateDietInfo() {}
-  void displayGraph() {}
-  String getDescription() => _description;
-  double getProgress() => _progress;
-  List<Challenge> getChallenges() => _challenges;
-  User getUser() => _forUser;
-  String getQuote() => _quote;
-  String getAvatarImage() => _avatarImage;
-  Map getWeightLog() => _weightLog;
-  void removePost(Post post) => _posts.remove(post); // might need to have this actually return a bool to check
-  void setAvatarImage(String image) => _avatarImage = image;
-  void setDescription(String description) => _description = description;
-  void setQuote(String quote) => _quote = quote;
-  void updateProgress(double progress) => _progress = progress;  // unsure if this works
-  
 }
+

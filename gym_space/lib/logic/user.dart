@@ -32,7 +32,7 @@ class User {
       this._age,
       this._goals,
       this._joinedGroups,
-      this._diet
+      this._diet,
     ]);
 
   String getName() => _name;
