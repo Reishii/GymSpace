@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/profile_data.dart';
+import 'package:GymSpace/logic/meal.dart';
 
 class Profile extends StatefulWidget {
   final ProfileData profileData;
@@ -102,9 +103,9 @@ class _ProfileState extends State<Profile> {
           child: Column(
             // Macros
             children: <Widget>[
-              Text("Protein:  "),
-              Text("Carbs:  "),
-              Text("Fats: "),
+              Text("Protein: " + _getDailyProtein().toString() + 'g'),
+              Text("Carbs:  " + _getDailyCarbs().toString() + 'g'),
+              Text("Fats: " + _getDailyFats().toString() + 'g'),
             ],
           ),
         )
@@ -139,6 +140,45 @@ class _ProfileState extends State<Profile> {
             // List of challenges here (may need to use the ListBuilder Widget for this)
           ],
         ));
+  }
+
+  double _getDailyProtein() {
+    if (_profileData.getUser().getDiet()[DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)] == null) {
+      return 0;
+    }
+
+    double totalProtein = 0;
+    for (Meal meal in _profileData.getUser().getDiet()[DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)]) {
+      totalProtein += meal.getProtein();
+    }
+
+    return totalProtein;
+  }
+
+  double _getDailyCarbs() {
+    if (_profileData.getUser().getDiet()[DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)] == null) {
+      return 0;
+    }
+
+    double totalCarbs = 0;
+    for (Meal meal in _profileData.getUser().getDiet()[DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)]) {
+      totalCarbs += meal.getCarbs();
+    }
+
+    return totalCarbs;
+  }
+
+  double _getDailyFats() {
+    if (_profileData.getUser().getDiet()[DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)] == null) {
+      return 0;
+    }
+
+    double totalFats = 0;
+    for (Meal meal in _profileData.getUser().getDiet()[DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)]) {
+      totalFats += meal.getFats();
+    }
+
+    return totalFats;
   }
 }
 

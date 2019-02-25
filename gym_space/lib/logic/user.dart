@@ -17,7 +17,7 @@ class User {
   };
   
   List<Group> _joinedGroups = new List();
-  List<Meal> _diet = new List();
+  Map _diet = new Map();
   List<User> _friends = new List(); // new from UML
 
   User(
@@ -45,7 +45,7 @@ class User {
   double getWeight() => _weight;
   Map getGoals() => _goals;
   List<Group> getJoinedGroups() => _joinedGroups;
-  List<Meal> getDiet() => _diet;
+  Map getDiet() => _diet;
   List<User> getFriends() => _friends; // new from UML
   void setName(String name) => _name = name;
   void setLiftingType(String type) => _liftingType = type;

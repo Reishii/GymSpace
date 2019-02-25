@@ -2,11 +2,16 @@ import 'logic/user.dart';
 import 'logic/group.dart';
 import 'logic/meal.dart';
 
-List<Meal> rollyDiet = [
-  Meal(),
-  Meal(),
-  Meal(),
+
+List<Meal> rollyTodayDiet = [
+  Meal(protein: 100, carbs: 700, fats: 300),
+  Meal(protein: 200, carbs: 300, fats: 200),
+  Meal(protein: 300, carbs: 600, fats: 400),
 ];
+
+Map rollyDiet = {
+  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day) : rollyTodayDiet,
+};
 
 Map rollyGoals = {};
 List<Group> rollyGroups = [];
