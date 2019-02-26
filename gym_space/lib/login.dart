@@ -66,7 +66,6 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
       _formType = FormType.login;
     });
   }
-
   // Animates the GymSpace Icon
   AnimationController _iconAnimationController;
   Animation<double> _iconAnimation;
