@@ -71,7 +71,20 @@ class _ProfileState extends State<Profile> {
                             radius: 80,
                             backgroundImage:
                                 NetworkImage(_profileData.getProfilePic()),
-                          ))
+                          )
+                        ),
+                      Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        child: Text(
+                          _profileData.getQuote(),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.w300,
+                              fontSize: 12,
+                              letterSpacing: 1),
+                        ),
+                      ),
                     ],
                   )),
             ),
@@ -86,7 +99,8 @@ class _ProfileState extends State<Profile> {
                       fontFamily: 'Roboto',
                       fontWeight: FontWeight.w300,
                       fontSize: 10,
-                      letterSpacing: 1),
+                      letterSpacing: 1,
+                  ),
                 ),
               ),
             ),
@@ -95,63 +109,71 @@ class _ProfileState extends State<Profile> {
   }
 
   Widget _buildQuote() {
-    return Row(
-      children: <Widget>[
-        Expanded(
-          flex: 1,
-          child: Container(),
-        ),
-        Expanded(
-          flex: 20,
-          child: Card(
-              // color: Colors.white24,
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Container(),
+          ),
+          Expanded(
+            flex: 48,
+            child: Card(
+              elevation: 3,
+                // color: Colors.white24,
               child: Container(
                   height: 100,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text(_profileData.getQuote(),
+                      Text("This is a motivational quote. Use quotes REST API.",
                           textAlign: TextAlign.center, style: TextStyle()),
                     ],
                   ))),
-        ),
-        Expanded(
-          flex: 1,
-          child: Container(),
-        ),
-      ],
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(),
+          ),
+        ],
+      )
     );
   }
 
   Widget _buildDietInfo() {
     return Container(
-        child: Row(
-      children: <Widget>[
-        Expanded(
-          flex: 1,
-          child: Container(),
-        ),
-        Expanded(
-          flex: 20,
-          child: Card(
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  flex: 4,
-                  child: Icon(Icons.fastfood, size: 120),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Container(),
+          ),
+          Expanded(
+            flex: 48,
+            child: Card(
+              elevation: 3,
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 4,
+                      child: Icon(Icons.fastfood, size: 100),
+                    ),
+                    Expanded(
+                      flex: 6,
+                      child: Column(
+                        children: <Widget>[
+                          Text("Protein: " + _getDailyProtein().toString() + 'g'),
+                          Text("Carbs:  " + _getDailyCarbs().toString() + 'g'),
+                          Text("Fats: " + _getDailyFats().toString() + 'g'),
+                        ],
+                      ),
+                    )
+                  ],
                 ),
-                Expanded(
-                  flex: 6,
-                  child: Column(
-                    children: <Widget>[
-                      Text("Protein: " + _getDailyProtein().toString() + 'g'),
-                      Text("Carbs:  " + _getDailyCarbs().toString() + 'g'),
-                      Text("Fats: " + _getDailyFats().toString() + 'g'),
-                    ],
-                  ),
-                )
-              ],
-            ),
+              ),
           ),
         ),
         Expanded(
@@ -163,12 +185,31 @@ class _ProfileState extends State<Profile> {
   }
 
   Widget _buildWeightGraph() {
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: Container(),
-        )
-      ],
+    return Container(
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Container(),
+          ),
+          Expanded(
+            flex: 8,
+            child: Column(
+              children: <Widget>[
+                Container(
+                  child: Card(
+                    child: Icon(Icons.show_chart),
+                  ),
+                )
+              ],
+            )
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(),
+          ),
+        ],
+      )
     );
   }
 
