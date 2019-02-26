@@ -13,7 +13,7 @@ enum FormType {
   login,
   register
 }
-class LoginPageState extends State<LoginPage>{
+class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin{
   
   final formKey = new GlobalKey<FormState>();
   // User info
@@ -66,7 +66,24 @@ class LoginPageState extends State<LoginPage>{
       _formType = FormType.login;
     });
   }
+  // Animates the GymSpace Icon
+  AnimationController _iconAnimationController;
+  Animation<double> _iconAnimation;
 
+  @override
+  void initState(){
+    super.initState();
+    _iconAnimationController = new AnimationController(
+      vsync: this, 
+      duration: new Duration(milliseconds: 500)
+    );
+    _iconAnimation = new CurvedAnimation(
+      parent: _iconAnimationController,
+      curve: Curves.easeOut
+    );
+    _iconAnimation.addListener(()=> this.setState((){}));
+    _iconAnimationController.forward();
+  }
 
   @override
   Widget build(BuildContext context){
