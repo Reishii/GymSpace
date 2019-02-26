@@ -38,7 +38,7 @@ class _StatusPageState extends State<StatusPage> {
       authStatus = AuthStatus.notLoggedIn;
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     switch(authStatus) {
@@ -51,6 +51,11 @@ class _StatusPageState extends State<StatusPage> {
         return new LoginPage(
           auth: widget.auth,
           onLoggedIn: _loggedIn,
+        );
+      default: 
+        return new Home(
+          auth: widget.auth,
+          onLoggedOut: _loggedOut,
         );
     }
   }
