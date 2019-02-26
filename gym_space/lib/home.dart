@@ -183,7 +183,7 @@ class _HomeState extends State<Home> {
                         color: Colors.redAccent,
                         child: new Text('Logout',
                         style: new TextStyle(fontSize: 15.0, color: Colors.white)),
-                        onPressed: _loggedOut,
+                        onPressed: (){_loggedOut(); Navigator.pop(context, true);},
                       )
                     ]
                    )
