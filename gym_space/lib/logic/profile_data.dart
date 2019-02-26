@@ -32,7 +32,7 @@ class ProfileData {
       this._challenges = [];
     }
 
-    if (weightLog !=  null) {
+    if (weightLog != null) {
       this._weightLog = weightLog;
     } else {
       this._weightLog = {};
@@ -51,11 +51,9 @@ class ProfileData {
   String getQuote() => _quote;
   String getProfilePic() => _profilePic;
   Map getWeightLog() => _weightLog;
-  void removePost(Post post) => _posts
-      .remove(post); // might need to have this actually return a bool to check
+  void removePost(Post post) => _posts.remove(post); // might need to have this actually return a bool to check
   void setAvatarImage(String image) => _profilePic = image;
   void setDescription(String description) => _description = description;
   void setQuote(String quote) => _quote = quote;
-  void updateProgress(double progress) =>
-      _progress = progress; // unsure if this works
+  void updateProgress(double progress) => _progress = progress; // unsure if this works
 }
