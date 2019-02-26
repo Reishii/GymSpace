@@ -3,6 +3,7 @@ import 'widget_tab.dart';
 import 'package:GymSpace/widgets/profile_widget.dart';
 import 'package:GymSpace/logic/profile_data.dart';
 import 'package:GymSpace/logic/user.dart';
+import 'package:GymSpace/colors.dart';
 import 'package:GymSpace/test_users.dart';
 
 class MeTab extends WidgetTab {
@@ -13,7 +14,7 @@ class MeTab extends WidgetTab {
     quote: 'They hate us cause they ain\'t us'
   );
 
-  MeTab(String title) : super(title, mainColor: Colors.green) {
+  MeTab(String title) : super(title, mainColor: GSColors.darkBlue) {
     _me.setAvatarImage(
       'https://cdn.pixabay.com/photo/2016/12/13/16/17/dancer-1904467_960_720.png'
     );

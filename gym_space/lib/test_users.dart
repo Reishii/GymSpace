@@ -2,7 +2,6 @@ import 'logic/user.dart';
 import 'logic/group.dart';
 import 'logic/meal.dart';
 
-
 List<Meal> rollyTodayDiet = [
   Meal(protein: 100, carbs: 700, fats: 300),
   Meal(protein: 200, carbs: 300, fats: 200),
@@ -29,7 +28,7 @@ User rolly = new User(
   rollyGoals,
   rollyGroups,
   rollyDiet
-  );
+);
 
 User john = new User('johnd', 'john@gmail.com');
 
