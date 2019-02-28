@@ -7,18 +7,23 @@ import 'drawer.dart';
 import 'auth.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/colors.dart';
+import 'package:GymSpace/logic/profile_data.dart';
 
 class Home extends StatefulWidget {
   // Status of checking if user logged out
   Home({this.auth, this.onLoggedOut});
+
   final BaseAuth auth;
   final VoidCallback onLoggedOut;
+  //final ProfileData profileData;
 
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
+  //final ProfileData _profileData;
+
   final List<WidgetTab> _children = [
     NewsFeedTab("News Feed"),
     MeTab("My Profile"),
@@ -104,12 +109,17 @@ class _HomeState extends State<Home> {
                   // Account Drawer
                   ListTile(
                     leading: Icon(Icons.account_circle),
-                    title: Text("Account"),
+                    title: Text("Edit Profile"),
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute<void>(
                         builder: (BuildContext context) {
                           return Scaffold(
-                            appBar: AppBar(title: Text('Account Settings')),
+                            appBar: AppBar(title: Text('Edit Profile')),
+                              body: ListView(
+                                children: <Widget>[
+                                  _buildEditProfile(),
+                                ],
+                              )
                           );
                         }, // Builder
                       ));
@@ -267,6 +277,49 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildEditProfile(){
+    return Container(
+      decoration: BoxDecoration(color: GSColors.cloud),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Container(
+              margin: EdgeInsets.only(top: 5),
+              child: Column(
+                children: <Widget>[
+                  // CHANGE PROFILE PHOTO
+                  new MaterialButton(
+                    child: Text(
+                      "Change Profile Photo",
+                      style: TextStyle(
+                          color: Colors.blue,
+                          fontFamily: 'Roboto',
+                          fontSize: 12,
+                          letterSpacing: 1),
+                    ),
+                    onPressed:() {
+
+                    }
+                  ),
+
+                  // CURRENT PROFILE PHOTO
+                  Container(
+                    margin: EdgeInsets.only(bottom: 10),
+                    child: CircleAvatar(
+                      radius: 55,
+                      backgroundImage: new AssetImage("lib/assets/armshake.jpg"),
+                    )
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      )
     );
   }
 
