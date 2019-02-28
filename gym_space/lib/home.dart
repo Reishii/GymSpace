@@ -37,7 +37,16 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: _buildAppBar(),
+      body: _children[_currentIndex],
+      // DRAWER START
+      drawer: _buildDrawer(),
+      bottomNavigationBar: _buildBottomNavBar(),
+    );  
+  }
+
+  Widget _buildAppBar() {
+    return AppBar(
         centerTitle: true,
         title: Text(_children[_currentIndex].getTitle()),
         backgroundColor: _children[_currentIndex].mainColor,
@@ -69,10 +78,11 @@ class _HomeState extends State<Home> {
             },
           ),
         ],
-      ),
-      body: _children[_currentIndex],
-      // DRAWER START
-      drawer: new Drawer(
+      );
+  }
+
+  Widget _buildDrawer() {
+    return new Drawer(
         // ListTiles are used for entries in the Drawer Widget
         child: Column(
           children: <Widget>[
@@ -204,8 +214,11 @@ class _HomeState extends State<Home> {
              )   
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
+      );
+  }
+
+  Widget _buildBottomNavBar() {
+    return BottomNavigationBar(
         onTap: onTabTapped,
         currentIndex: _currentIndex,
         items: [
@@ -216,10 +229,8 @@ class _HomeState extends State<Home> {
           BottomNavigationBarItem(
               icon: new Icon(Icons.fitness_center), title: Text("Workouts")),
         ],
-      ),
-    );  
+      );
   }
-
 
   void onTabTapped(int index) {
     setState(() {
