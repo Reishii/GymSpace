@@ -6,6 +6,7 @@ import 'tabs/widget_tab.dart';
 import 'drawer.dart';
 import 'auth.dart';
 import 'package:flutter/material.dart';
+import 'chatscreen.dart';
 
 class Home extends StatefulWidget {
   // Status of checking if user logged out
@@ -54,7 +55,18 @@ class _HomeState extends State<Home> {
               Icons.message,
               color: Colors.white,
             ),
-            onPressed: () {},
+            onPressed: () {         //PS - press message icon to open chat
+              Navigator.push(context, MaterialPageRoute<void>(
+                builder: (BuildContext context){
+                    return new Scaffold(
+                      appBar: new AppBar(
+                        title: new Text("Flutter Chat"),
+                    ),
+                    body: new ChatScreen()
+                  ); 
+                }
+              ));
+            },
           ),
         ],
       ),
@@ -205,8 +217,9 @@ class _HomeState extends State<Home> {
               icon: new Icon(Icons.fitness_center), title: Text("Workouts")),
         ],
       ),
-    );
+    );  
   }
+
 
   void onTabTapped(int index) {
     setState(() {
