@@ -18,11 +18,11 @@ dependencies:
   cloud_firestore: ^0.8.2     # new
   firebase_auth: ^0.6.2+1
   google_sign_in: ^4.0.1+1
-  fluttertoast: ^3.0.1        #new PS
-  shared_preferences: ^0.5.1+1 #new PS
-  image_picker: ^0.5.0+3      #new PS
-  cached_network_image: ^0.6.1  #new PS
-  intl: ^0.15.7               #new PS
+  # fluttertoast: ^3.0.1        #new PS
+  # shared_preferences: ^0.5.1+1 #new PS
+  # image_picker: ^0.5.0+3      #new PS
+  # cached_network_image: ^0.6.1  #new PS
+  # intl: ^0.15.7               #new PS
 
 
 
