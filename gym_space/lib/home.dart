@@ -6,6 +6,7 @@ import 'tabs/widget_tab.dart';
 import 'drawer.dart';
 import 'auth.dart';
 import 'package:flutter/material.dart';
+import 'chatscreen.dart';
 
 class Home extends StatefulWidget {
   // Status of checking if user logged out
@@ -36,7 +37,16 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: _buildAppBar(),
+      body: _children[_currentIndex],
+      // DRAWER START
+      drawer: _buildDrawer(),
+      bottomNavigationBar: _buildBottomNavBar(),
+    );  
+  }
+
+  Widget _buildAppBar() {
+    return AppBar(
         centerTitle: true,
         title: Text(_children[_currentIndex].getTitle()),
         backgroundColor: _children[_currentIndex].mainColor,
@@ -54,13 +64,25 @@ class _HomeState extends State<Home> {
               Icons.message,
               color: Colors.white,
             ),
-            onPressed: () {},
+            onPressed: () {         //PS - press message icon to open chat
+              Navigator.push(context, MaterialPageRoute<void>(
+                builder: (BuildContext context){
+                    return new Scaffold(
+                      appBar: new AppBar(
+                        title: new Text("Flutter Chat"),
+                    ),
+                    body: new ChatScreen()
+                  ); 
+                }
+              ));
+            },
           ),
         ],
-      ),
-      body: _children[_currentIndex],
-      // DRAWER START
-      drawer: new Drawer(
+      );
+  }
+
+  Widget _buildDrawer() {
+    return new Drawer(
         // ListTiles are used for entries in the Drawer Widget
         child: Column(
           children: <Widget>[
@@ -192,8 +214,11 @@ class _HomeState extends State<Home> {
              )   
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
+      );
+  }
+
+  Widget _buildBottomNavBar() {
+    return BottomNavigationBar(
         onTap: onTabTapped,
         currentIndex: _currentIndex,
         items: [
@@ -204,8 +229,7 @@ class _HomeState extends State<Home> {
           BottomNavigationBarItem(
               icon: new Icon(Icons.fitness_center), title: Text("Workouts")),
         ],
-      ),
-    );
+      );
   }
 
   void onTabTapped(int index) {
