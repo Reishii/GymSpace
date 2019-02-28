@@ -110,15 +110,11 @@ class _ProfileState extends State<Profile> {
 
   Widget _buildQuote() {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
+      margin: EdgeInsets.all(5),
       child: Row(
         children: <Widget>[
           Expanded(
             flex: 1,
-            child: Container(),
-          ),
-          Expanded(
-            flex: 48,
             child: Card(
               elevation: 3,
                 // color: Colors.white24,
@@ -132,10 +128,6 @@ class _ProfileState extends State<Profile> {
                     ],
                   ))),
           ),
-          Expanded(
-            flex: 1,
-            child: Container(),
-          ),
         ],
       )
     );
@@ -143,14 +135,11 @@ class _ProfileState extends State<Profile> {
 
   Widget _buildDietInfo() {
     return Container(
+      margin: EdgeInsets.all(5),
       child: Row(
         children: <Widget>[
           Expanded(
             flex: 1,
-            child: Container(),
-          ),
-          Expanded(
-            flex: 48,
             child: Card(
               elevation: 3,
               child: Container(
@@ -176,37 +165,34 @@ class _ProfileState extends State<Profile> {
               ),
           ),
         ),
-        Expanded(
-          flex: 1,
-          child: Container(),
-        ),
       ],
     ));
   }
 
   Widget _buildWeightGraph() {
     return Container(
+      margin: EdgeInsets.all(5),
       child: Row(
         children: <Widget>[
           Expanded(
-            flex: 1,
-            child: Container(),
-          ),
-          Expanded(
-            flex: 8,
-            child: Column(
-              children: <Widget>[
-                Container(
-                  child: Card(
-                    child: Icon(Icons.show_chart),
+            flex: 48,
+            child: Card(
+              elevation: 3,
+              child: Column(
+                children: <Widget>[
+                  Icon(
+                    Icons.show_chart,
+                    size: 200,
                   ),
-                )
-              ],
-            )
-          ),
-          Expanded(
-            flex: 1,
-            child: Container(),
+                  Container(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      "Current Weight: " + _profileData.getUser().getWeight().toString() + " lbs",
+                    )
+                  )
+                ],
+              )
+            ),
           ),
         ],
       )
