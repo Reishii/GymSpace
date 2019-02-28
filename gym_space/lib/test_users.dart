@@ -1,6 +1,25 @@
 import 'logic/user.dart';
 import 'logic/group.dart';
 import 'logic/meal.dart';
+import 'logic/exercise.dart';
+import 'logic/workout.dart';
+import 'logic/workout_plan.dart';
+
+Exercise bicepCurls = new Exercise("bicep curls", "arms");
+Exercise tricepPulldown = new Exercise("tricep pulldowns", "arms");
+Exercise benchPress = new Exercise("bench press", "chest");
+Workout pushDay = new Workout(
+  "push day",
+  "Rolly Lacap",
+  "chest, arms",
+  [tricepPulldown, benchPress]
+);
+WorkoutPlan broPlan = new WorkoutPlan(
+  "bro plan",
+  "Rolly Lacap",
+  "",
+  [pushDay]
+);
 
 List<Meal> rollyTodayDiet = [
   Meal(protein: 100, carbs: 700, fats: 300),
@@ -27,7 +46,9 @@ User rolly = new User(
   22,   // age
   rollyGoals,
   rollyGroups,
-  rollyDiet
+  rollyDiet,
+  [],
+  [broPlan]
 );
 
 User john = new User('johnd', 'john@gmail.com');

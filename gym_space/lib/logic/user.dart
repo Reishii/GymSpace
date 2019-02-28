@@ -1,5 +1,6 @@
 import 'meal.dart';
 import 'group.dart';
+import 'workout_plan.dart';
 
 class User {
   String _name;
@@ -16,9 +17,10 @@ class User {
     'liftingWeight': 0
   };
   
-  List<Group> _joinedGroups = new List();
-  Map _diet = new Map();
-  List<User> _friends = new List(); // new from UML
+  List<Group> joinedGroups = new List();
+  Map diet = new Map();
+  List<User> friends = new List(); // new from UML
+  List<WorkoutPlan> workoutPlans = new List();
 
   User(
     this._username,
@@ -31,8 +33,10 @@ class User {
       this._weight,
       this._age,
       this._goals,
-      this._joinedGroups,
-      this._diet,
+      this.joinedGroups,
+      this.diet,
+      this.friends,
+      this.workoutPlans,
     ]);
 
   String getName() => _name;
@@ -43,10 +47,7 @@ class User {
   int getAge() => _age;
   double getHeight() => _height;
   double getWeight() => _weight;
-  Map getGoals() => _goals;
-  List<Group> getJoinedGroups() => _joinedGroups;
-  Map getDiet() => _diet;
-  List<User> getFriends() => _friends; // new from UML
+  Map getGoals() => _goals; // new from UML
   void setName(String name) => _name = name;
   void setLiftingType(String type) => _liftingType = type;
   void updatePoints(int points) => _points += points;

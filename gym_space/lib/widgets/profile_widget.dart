@@ -109,7 +109,7 @@ class _ProfileState extends State<Profile> {
 
   Widget _buildQuote() {
     return Container(
-        margin: EdgeInsets.all(5),
+        margin: EdgeInsets.all(3),
         child: Row(
           children: <Widget>[
             Expanded(
@@ -135,7 +135,7 @@ class _ProfileState extends State<Profile> {
 
   Widget _buildDietInfo() {
     return Container(
-        margin: EdgeInsets.all(5),
+        margin: EdgeInsets.all(3),
         child: Row(
           children: <Widget>[
             Expanded(
@@ -174,7 +174,7 @@ class _ProfileState extends State<Profile> {
 
   Widget _buildWeightGraph() {
     return Container(
-        margin: EdgeInsets.all(5),
+        margin: EdgeInsets.all(3),
         child: Row(
           children: <Widget>[
             Expanded(
@@ -203,20 +203,59 @@ class _ProfileState extends State<Profile> {
 
   Widget _buildChallenges() {
     return Container(
-      margin: EdgeInsets.only(top: 20),
+      margin: EdgeInsets.all(3),
       child: Column(
         children: <Widget>[
-          // Challenges
-          Container( 
-            child: Text(
-            "Challenges",
-            style: TextStyle(
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w600,
-                fontSize: 30,
-                letterSpacing: 3),
-           ),
-          // List of challenges here (may need to use the ListBuilder Widget for this)
+          Row(
+          children: <Widget>[
+            Expanded(
+              flex: 1,
+              child: Card(
+                elevation: 3,
+                child: Container( 
+                  padding: EdgeInsets.all(5),
+                  child: Text(
+                  "Challenges",
+                  style: TextStyle(
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 24,
+                      letterSpacing: 3),
+                  ),
+                ),
+              ),
+            // List of challenges here (may need to use the ListBuilder Widget for this)
+            ),
+          ],),
+          Card(
+            elevation: 3,
+            child: Container(
+              height: 40,
+            ),
+          ),
+          Card(
+            elevation: 3,
+            child: Container(
+              height: 40,
+            ),
+          ),
+          Card(
+            elevation: 3,
+            child: Container(
+              height: 40,
+            ),
+          ),
+          Card(
+            elevation: 3,
+            child: Container(
+              height: 40,
+            ),
+          ),
+          Card(
+            elevation: 3,
+            child: Container(
+              height: 40,
+            ),
           ),
         ],
       ),
@@ -224,14 +263,14 @@ class _ProfileState extends State<Profile> {
   }
 
   double _getDailyProtein() {
-    if (_profileData.getUser().getDiet()[DateTime(
+    if (_profileData.getUser().diet[DateTime(
             DateTime.now().year, DateTime.now().month, DateTime.now().day)] ==
         null) {
       return 0;
     }
 
     double totalProtein = 0;
-    for (Meal meal in _profileData.getUser().getDiet()[DateTime(
+    for (Meal meal in _profileData.getUser().diet[DateTime(
         DateTime.now().year, DateTime.now().month, DateTime.now().day)]) {
       totalProtein += meal.getProtein();
     }
@@ -240,14 +279,14 @@ class _ProfileState extends State<Profile> {
   }
 
   double _getDailyCarbs() {
-    if (_profileData.getUser().getDiet()[DateTime(
+    if (_profileData.getUser().diet[DateTime(
             DateTime.now().year, DateTime.now().month, DateTime.now().day)] ==
         null) {
       return 0;
     }
 
     double totalCarbs = 0;
-    for (Meal meal in _profileData.getUser().getDiet()[DateTime(
+    for (Meal meal in _profileData.getUser().diet[DateTime(
         DateTime.now().year, DateTime.now().month, DateTime.now().day)]) {
       totalCarbs += meal.getCarbs();
     }
@@ -256,14 +295,14 @@ class _ProfileState extends State<Profile> {
   }
 
   double _getDailyFats() {
-    if (_profileData.getUser().getDiet()[DateTime(
+    if (_profileData.getUser().diet[DateTime(
             DateTime.now().year, DateTime.now().month, DateTime.now().day)] ==
         null) {
       return 0;
     }
 
     double totalFats = 0;
-    for (Meal meal in _profileData.getUser().getDiet()[DateTime(
+    for (Meal meal in _profileData.getUser().diet[DateTime(
         DateTime.now().year, DateTime.now().month, DateTime.now().day)]) {
       totalFats += meal.getFats();
     }

@@ -1,16 +1,19 @@
 // tabs
 import 'tabs/me.dart';
 import 'tabs/newsfeed.dart';
-import 'tabs/workouts.dart';
+import 'tabs/workouts_tab.dart';
 import 'tabs/widget_tab.dart';
 import 'drawer.dart';
 import 'auth.dart';
 import 'package:flutter/material.dart';
 import 'chatscreen.dart';
+import 'global.dart';
 
 class Home extends StatefulWidget {
   // Status of checking if user logged out
-  Home({this.auth, this.onLoggedOut});
+  Home({this.auth, this.onLoggedOut}) {
+    GlobalSettings.currentUser = this.auth.currentUser();
+  }
   final BaseAuth auth;
   final VoidCallback onLoggedOut;
 
