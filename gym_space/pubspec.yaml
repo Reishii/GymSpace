@@ -23,6 +23,8 @@ dependencies:
   # image_picker: ^0.5.0+3      #new PS
   # cached_network_image: ^0.6.1  #new PS
   # intl: ^0.15.7               #new PS
+  fancy_bottom_navigation: ^0.3.2 # for the nice bottom nav bar
+
 
 
 

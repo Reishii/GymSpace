@@ -6,13 +6,17 @@ import 'tabs/widget_tab.dart';
 import 'drawer.dart';
 import 'auth.dart';
 import 'package:flutter/material.dart';
+import 'colors.dart';
 import 'chatscreen.dart';
 import 'global.dart';
+import 'test_users.dart';
+import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
 
 class Home extends StatefulWidget {
   // Status of checking if user logged out
   Home({this.auth, this.onLoggedOut}) {
     GlobalSettings.currentUser = this.auth.currentUser();
+    GlobalSettings.currentTestUser = rolly;
   }
   final BaseAuth auth;
   final VoidCallback onLoggedOut;
@@ -111,8 +115,13 @@ class _HomeState extends State<Home> {
                         builder: (BuildContext context) {
                           return new Scaffold(
                             appBar: AppBar(title: Text('Notifications')),
-                            body: new Center(
-                              child: new Text("Hello"),
+                            body: ListView(
+                              children: <Widget>[
+                                Column(children: <Widget>[
+                                  _buildNotifications(),
+                                  _buildNotificationsOld(),
+                                ],)
+                              ],
                             ),
                           );
                         }, // Builder
@@ -129,6 +138,11 @@ class _HomeState extends State<Home> {
                         builder: (BuildContext context) {
                           return Scaffold(
                             appBar: AppBar(title: Text('Account Settings')),
+                            body: ListView(
+                              children: <Widget>[
+                                _buildEditProfile(),
+                              ],
+                            ),
                           );
                         }, // Builder
                       ));
@@ -221,18 +235,121 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildBottomNavBar() {
-    return BottomNavigationBar(
-        onTap: onTabTapped,
-        currentIndex: _currentIndex,
-        items: [
-          BottomNavigationBarItem(
-              icon: new Icon(Icons.rss_feed), title: Text("News Feed")),
-          BottomNavigationBarItem(
-              icon: new Icon(Icons.account_circle), title: Text("Profile")),
-          BottomNavigationBarItem(
-              icon: new Icon(Icons.fitness_center), title: Text("Workouts")),
-        ],
+    return FancyBottomNavigation(
+      circleColor: GSColors.darkBlue,
+      inactiveIconColor: GSColors.blue,
+      tabs: [
+        TabData(
+          iconData: Icons.rss_feed, title: "News Feed"
+        ),
+        TabData(
+          iconData: Icons.account_circle, title: "Profile"
+        ),
+        TabData(
+          iconData: Icons.fitness_center, title: "Workouts"
+        )
+      ],
+      onTabChangedListener: onTabTapped,
       );
+  }
+
+  Widget _buildNotifications(){
+    return Container(
+      decoration: BoxDecoration(color: GSColors.darkCloud),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+              flex: 1,
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(top: 3, bottom: 3, right: 360),
+                    child: Text("New",
+                        textAlign: TextAlign.left, style:TextStyle(
+                            color: Colors.brown,
+                            fontFamily: 'Roboto',
+                            fontSize: 16,
+                            letterSpacing: 1
+                        )),
+                  ),
+                ],
+              )
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotificationsOld(){
+    return Container(
+      margin: EdgeInsets.only(top:300),
+      decoration: BoxDecoration(color: GSColors.darkCloud),
+      child: Row(
+        children: <Widget>[
+          // New Notifications
+          Expanded(
+              flex: 1,
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(top: 3, bottom: 3, right: 350),
+                    child: Text("Older",
+                        textAlign: TextAlign.left, style:TextStyle(
+                            color: Colors.brown,
+                            fontFamily: 'Roboto',
+                            fontSize: 16,
+                            letterSpacing: 1
+                        )),
+                  ),
+                ],
+              )
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEditProfile(){
+    return Container(
+        decoration: BoxDecoration(color: GSColors.cloud),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              flex: 1,
+              child: Container(
+                margin: EdgeInsets.only(top: 5),
+                child: Column(
+                  children: <Widget>[
+                    // CHANGE PROFILE PHOTO
+                    new MaterialButton(
+                        child: Text(
+                          "Change Profile Photo",
+                          style: TextStyle(
+                              color: Colors.blue,
+                              fontFamily: 'Roboto',
+                              fontSize: 12,
+                              letterSpacing: 1),
+                        ),
+                        onPressed:() {
+
+                        }
+                    ),
+
+                    // CURRENT PROFILE PHOTO
+                    Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        child: CircleAvatar(
+                          radius: 55,
+                          backgroundImage: new AssetImage("lib/assets/armshake.jpg"),
+                        )
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        )
+    );
   }
 
   void onTabTapped(int index) {
