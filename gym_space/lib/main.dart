@@ -2,6 +2,7 @@
 import 'home.dart';
 import 'status.dart';
 import 'auth.dart';
+import 'colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // colors
@@ -19,6 +20,7 @@ class GymSpace extends StatelessWidget {
       title: 'GymSpace',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        primaryColor: GSColors.darkBlue,
       ),
       routes: <String, WidgetBuilder> {
         '/home': (BuildContext context) => new Home()

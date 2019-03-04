@@ -32,6 +32,69 @@ class _HomeState extends State<Home> {
     WorkoutsTab("Workouts"),
   ];
 
+  final friendLeft = new Container(
+    margin: EdgeInsets.all(10),
+    child: new CircleAvatar(
+      backgroundColor: GSColors.darkCloud,
+      backgroundImage: new AssetImage("lib/assets/armshake.jpg"),
+      radius: 36.0,
+    ),
+  );
+
+  final friendMiddle =  new Expanded(
+    flex: 2,
+    child: new Container(
+      child: new Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          new Text("Name",
+              style: new TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              )),
+
+          new Text("3 mutual friends",
+              style: new TextStyle(
+                color: GSColors.darkBlue,
+              )),
+        ],
+      ),
+    ),
+  );
+
+  final friendRight = new Expanded(
+    flex: 1,
+    child: Container(
+      child: new Row(
+        children: <Widget>[
+          // Will check if friends or not
+          new MaterialButton(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 1.0,
+                  )
+                ),
+
+                  child: Text("Friends",
+                      style: new TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                      )),
+                    ),
+                  onPressed:() {
+                  }
+              ),
+            ],
+          ),
+      ),
+    );
+
   void _loggedOut() async {
     try {
       await widget.auth.signOut();
@@ -114,7 +177,12 @@ class _HomeState extends State<Home> {
                       Navigator.push(context, MaterialPageRoute<void>(
                         builder: (BuildContext context) {
                           return new Scaffold(
-                            appBar: AppBar(title: Text('Notifications')),
+                            appBar: AppBar(
+                              title: Text('Notifications'),
+                              actions: <Widget>[
+                                new IconButton(icon: new Icon(Icons.notifications_active)),
+                              ],
+                            ),
                             body: ListView(
                               children: <Widget>[
                                 Column(children: <Widget>[
@@ -137,7 +205,8 @@ class _HomeState extends State<Home> {
                       Navigator.push(context, MaterialPageRoute<void>(
                         builder: (BuildContext context) {
                           return Scaffold(
-                            appBar: AppBar(title: Text('Account Settings')),
+                            appBar: AppBar(
+                                title: Text('Account Settings')),
                             body: ListView(
                               children: <Widget>[
                                 _buildEditProfile(),
@@ -157,7 +226,13 @@ class _HomeState extends State<Home> {
                       Navigator.push(context, MaterialPageRoute<void>(
                         builder: (BuildContext context) {
                           return Scaffold(
-                            appBar: AppBar(title: Text('Friends List')),
+                            appBar: AppBar(
+                                title: Text('Friends List')),
+                            body: ListView(
+                              children: <Widget>[
+                                _buildFriendsList(),
+                              ],
+                            )
                           );
                         }, // Builder
                       ));
@@ -348,9 +423,21 @@ class _HomeState extends State<Home> {
               ),
             ),
           ],
-        )
+        ),
     );
   }
+
+  Widget _buildFriendsList(){
+    return new Container(
+        child: new Row(
+          children: <Widget>[
+            friendLeft,
+            friendMiddle,
+            friendRight,
+            ],
+          ),
+        );
+}
 
   void onTabTapped(int index) {
     setState(() {
