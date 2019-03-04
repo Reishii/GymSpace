@@ -9,11 +9,14 @@ import 'package:flutter/material.dart';
 import 'colors.dart';
 import 'chatscreen.dart';
 import 'global.dart';
+import 'test_users.dart';
+import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
 
 class Home extends StatefulWidget {
   // Status of checking if user logged out
   Home({this.auth, this.onLoggedOut}) {
     GlobalSettings.currentUser = this.auth.currentUser();
+    GlobalSettings.currentTestUser = rolly;
   }
   final BaseAuth auth;
   final VoidCallback onLoggedOut;
@@ -232,17 +235,21 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildBottomNavBar() {
-    return BottomNavigationBar(
-        onTap: onTabTapped,
-        currentIndex: _currentIndex,
-        items: [
-          BottomNavigationBarItem(
-              icon: new Icon(Icons.rss_feed), title: Text("News Feed")),
-          BottomNavigationBarItem(
-              icon: new Icon(Icons.account_circle), title: Text("Profile")),
-          BottomNavigationBarItem(
-              icon: new Icon(Icons.fitness_center), title: Text("Workouts")),
-        ],
+    return FancyBottomNavigation(
+      circleColor: GSColors.darkBlue,
+      inactiveIconColor: GSColors.blue,
+      tabs: [
+        TabData(
+          iconData: Icons.rss_feed, title: "News Feed"
+        ),
+        TabData(
+          iconData: Icons.account_circle, title: "Profile"
+        ),
+        TabData(
+          iconData: Icons.fitness_center, title: "Workouts"
+        )
+      ],
+      onTabChangedListener: onTabTapped,
       );
   }
 

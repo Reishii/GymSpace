@@ -4,6 +4,8 @@ import 'logic/meal.dart';
 import 'logic/exercise.dart';
 import 'logic/workout.dart';
 import 'logic/workout_plan.dart';
+import 'global.dart';
+
 
 Exercise bicepCurls = new Exercise("bicep curls", "arms");
 Exercise tricepPulldown = new Exercise("tricep pulldowns", "arms");
@@ -15,7 +17,20 @@ Workout pushDay = new Workout(
   [tricepPulldown, benchPress]
 );
 WorkoutPlan broPlan = new WorkoutPlan(
-  "bro plan",
+  "bro",
+  "Rolly Lacap",
+  "",
+  [pushDay]
+);
+WorkoutPlan bodyBuilding = new WorkoutPlan(
+  "body buliding",
+  "Rolly Lacap",
+  "",
+  [pushDay]
+);
+
+WorkoutPlan powerLifting = new WorkoutPlan(
+  "power lifting",
   "Rolly Lacap",
   "",
   [pushDay]
@@ -44,12 +59,11 @@ User rolly = new User(
   178,  // height
   200,  // weight
   22,   // age
-  rollyGoals,
-  rollyGroups,
-  rollyDiet,
-  [],
-  [broPlan]
+  rollyGoals,   // goals
+  rollyGroups,  // groups
+  rollyDiet,    // diet
+  [],           // friends
+  [broPlan, bodyBuilding, powerLifting]     // workout plans
 );
 
 User john = new User('johnd', 'john@gmail.com');
-
