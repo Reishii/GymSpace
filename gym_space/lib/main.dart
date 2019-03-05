@@ -5,7 +5,7 @@ import 'auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // colors
-// import 'colors.dart' as _colors;
+import 'colors.dart';
 
 // misc
 import 'package:flutter/material.dart';
@@ -18,7 +18,7 @@ class GymSpace extends StatelessWidget {
     return MaterialApp(
       title: 'GymSpace',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: GSColors.darkBlue,
       ),
       routes: <String, WidgetBuilder> {
         '/home': (BuildContext context) => new Home()
