@@ -32,6 +32,7 @@ class _HomeState extends State<Home> {
     WorkoutsTab("Workouts"),
   ];
 
+  // Friends List
   final friendLeft = new Container(
     margin: EdgeInsets.all(10),
     child: new CircleAvatar(
@@ -40,7 +41,6 @@ class _HomeState extends State<Home> {
       radius: 36.0,
     ),
   );
-
   final friendMiddle =  new Expanded(
     flex: 2,
     child: new Container(
@@ -63,23 +63,14 @@ class _HomeState extends State<Home> {
       ),
     ),
   );
-
   final friendRight = new Expanded(
-    flex: 1,
+    flex: 2,
     child: Container(
       child: new Row(
         children: <Widget>[
           // Will check if friends or not
-          new MaterialButton(
+          new RaisedButton(
               child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(
-                    color: Colors.black,
-                    width: 1.0,
-                  )
-                ),
-
                   child: Text("Friends",
                       style: new TextStyle(
                         color: Colors.black,
@@ -94,6 +85,77 @@ class _HomeState extends State<Home> {
           ),
       ),
     );
+
+  // Group Cards
+  final groupTitle = new Container(
+    margin: EdgeInsets.only(top: 25, left: 5, bottom: 10),
+    child: new Text("Collections",
+        style: TextStyle(
+          color: Colors.black,
+          fontFamily: 'Roboto',
+          fontSize: 32,
+          fontWeight: FontWeight.w600,
+        )),
+  );
+  final groupBackgroundImage = new Container(
+    decoration: new BoxDecoration(
+      image: new DecorationImage(
+        colorFilter: new ColorFilter.mode(
+            Colors.black.withOpacity(0.6),
+            BlendMode.luminosity),
+        image: new NetworkImage('https://cdn.pixabay.com/photo/2016/12/13/16/17/dancer-1904467_960_720.png'),
+        fit: BoxFit.cover,
+      ),
+    ),
+  );
+  final groupOnTopContent = new Container(
+    height: 80.0,
+    child: new Column(mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+
+      children: <Widget>[
+        new Container(
+          margin: EdgeInsets.only(left: 10),
+          child: new Text("Trending this week",
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'Roboto',
+                fontSize: 30,
+                letterSpacing: 1,
+              )),
+        ),
+
+        new Container(
+          margin: EdgeInsets.only(left: 10),
+          child: new Text("Zumba Classes near you",
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'Roboto',
+                fontSize: 16,
+                letterSpacing: 1,
+              )),
+        ),
+
+        new Container(
+          margin: EdgeInsets.only(left: 10),
+          height: 2.0,
+          width: 200.0,
+          color: Colors.redAccent,
+        ),
+
+        new Container(
+          margin: EdgeInsets.only(left: 10),
+          child:  new Text("5 Spots",
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'Roboto',
+                fontSize: 12,
+              )),
+        ),
+      ],
+    ),
+  );
 
   void _loggedOut() async {
     try {
@@ -247,7 +309,14 @@ class _HomeState extends State<Home> {
                       Navigator.push(context, MaterialPageRoute<void>(
                         builder: (BuildContext context) {
                           return Scaffold(
-                            appBar: AppBar(title: Text('Groups')),
+                            appBar: AppBar(
+                                title: Text('Groups')),
+                            body: ListView(
+                              children: <Widget>[
+                                groupTitle,
+                                _buildGroups(),
+                              ],
+                            ),
                           );
                         }, // Builder
                       ));
@@ -437,6 +506,19 @@ class _HomeState extends State<Home> {
             ],
           ),
         );
+}
+
+Widget _buildGroups(){
+    return new Container(
+      padding: new EdgeInsets.all(8.0),
+      height: 250.0,
+      child: new Stack(
+        children: <Widget>[
+          groupBackgroundImage,
+          groupOnTopContent,
+        ],
+      ),
+    );
 }
 
   void onTabTapped(int index) {
