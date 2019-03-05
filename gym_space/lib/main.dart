@@ -2,6 +2,7 @@
 import 'home.dart';
 import 'status.dart';
 import 'auth.dart';
+import 'colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // colors

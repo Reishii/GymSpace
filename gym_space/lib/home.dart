@@ -32,6 +32,175 @@ class _HomeState extends State<Home> {
     WorkoutsTab("Workouts"),
   ];
 
+  // Friends List
+  final friendRequestTitle = new Container(
+    margin: EdgeInsets.only(top: 25, bottom: 10),
+    child: new Column(
+      children: <Widget>[
+        new Container(
+          child: new Text("Requests",
+          style: TextStyle(
+            color: Colors.black,
+            fontFamily: 'Roboto',
+            fontSize: 26,
+            fontWeight: FontWeight.w600,
+          )),
+        ),
+
+        new Container(
+          height: 1.0,
+          width: 110.0,
+          color: Colors.black,
+        ),
+      ],
+    ),
+  );
+  final friendLeft = new Container(
+    margin: EdgeInsets.all(10),
+    child: new CircleAvatar(
+      backgroundColor: GSColors.darkCloud,
+      backgroundImage: new AssetImage("lib/assets/armshake.jpg"),
+      radius: 36.0,
+    ),
+  );
+  final friendMiddle =  new Expanded(
+    flex: 2,
+    child: new Container(
+      child: new Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          new Text("Name",
+              style: new TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              )),
+
+          new Text("3 mutual friends",
+              style: new TextStyle(
+                color: GSColors.darkBlue,
+              )),
+        ],
+      ),
+    ),
+  );
+  final friendRight = new Expanded(
+    flex: 2,
+    child: Container(
+      child: new Row(
+        children: <Widget>[
+          // Will check if friends or not
+          new RaisedButton(
+              child: Container(
+                  child: Text("Friends",
+                      style: new TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                      )),
+                    ),
+                  onPressed:() {
+                  }
+              ),
+            ],
+          ),
+      ),
+    );
+  final friendRealTitle = new Container(
+    margin: EdgeInsets.only(top: 25, bottom: 10),
+    child: new Column(
+      children: <Widget>[
+        new Container(
+          child: new Text("Friends",
+              style: TextStyle(
+                color: Colors.black,
+                fontFamily: 'Roboto',
+                fontSize: 26,
+                fontWeight: FontWeight.w600,
+              )),
+        ),
+
+        new Container(
+          height: 1.0,
+          width: 90.0,
+          color: Colors.black,
+        ),
+      ],
+    ),
+  );
+
+  // Group Cards
+  final groupTitle = new Container(
+    margin: EdgeInsets.only(top: 25, left: 5, bottom: 10),
+    child: new Text("Collections",
+        style: TextStyle(
+          color: Colors.black,
+          fontFamily: 'Roboto',
+          fontSize: 32,
+          fontWeight: FontWeight.w600,
+        )),
+  );
+  final groupBackgroundImage = new Container(
+    decoration: new BoxDecoration(
+      image: new DecorationImage(
+        colorFilter: new ColorFilter.mode(
+            Colors.black.withOpacity(0.6),
+            BlendMode.luminosity),
+        image: new NetworkImage('https://cdn.pixabay.com/photo/2016/12/13/16/17/dancer-1904467_960_720.png'),
+        fit: BoxFit.cover,
+      ),
+    ),
+  );
+  final groupOnTopContent = new Container(
+    height: 80.0,
+    child: new Column(mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+
+      children: <Widget>[
+        new Container(
+          margin: EdgeInsets.only(left: 10),
+          child: new Text("Trending this week",
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'Roboto',
+                fontSize: 30,
+                letterSpacing: 1,
+              )),
+        ),
+
+        new Container(
+          margin: EdgeInsets.only(left: 10),
+          child: new Text("Zumba Classes near you",
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'Roboto',
+                fontSize: 16,
+                letterSpacing: 1,
+              )),
+        ),
+
+        new Container(
+          margin: EdgeInsets.only(left: 10),
+          height: 2.0,
+          width: 200.0,
+          color: Colors.redAccent,
+        ),
+
+        new Container(
+          margin: EdgeInsets.only(left: 10),
+          child:  new Text("5 Spots",
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'Roboto',
+                fontSize: 12,
+              )),
+        ),
+      ],
+    ),
+  );
+
   void _loggedOut() async {
     try {
       await widget.auth.signOut();
@@ -114,7 +283,12 @@ class _HomeState extends State<Home> {
                       Navigator.push(context, MaterialPageRoute<void>(
                         builder: (BuildContext context) {
                           return new Scaffold(
-                            appBar: AppBar(title: Text('Notifications')),
+                            appBar: AppBar(
+                              title: Text('Notifications'),
+                              actions: <Widget>[
+                                new IconButton(icon: new Icon(Icons.notifications_active)),
+                              ],
+                            ),
                             body: ListView(
                               children: <Widget>[
                                 Column(children: <Widget>[
@@ -137,7 +311,8 @@ class _HomeState extends State<Home> {
                       Navigator.push(context, MaterialPageRoute<void>(
                         builder: (BuildContext context) {
                           return Scaffold(
-                            appBar: AppBar(title: Text('Account Settings')),
+                            appBar: AppBar(
+                                title: Text('Account Settings')),
                             body: ListView(
                               children: <Widget>[
                                 _buildEditProfile(),
@@ -157,7 +332,22 @@ class _HomeState extends State<Home> {
                       Navigator.push(context, MaterialPageRoute<void>(
                         builder: (BuildContext context) {
                           return Scaffold(
-                            appBar: AppBar(title: Text('Friends List')),
+                            appBar: AppBar(
+                                title: Text('Friends List')),
+                            body: ListView(
+                              children: <Widget>[
+                                friendRequestTitle,
+                                _buildFriendsList(),
+                                _buildFriendsList(),
+                                friendRealTitle,
+                                _buildFriendsList(),
+                                _buildFriendsList(),
+                                _buildFriendsList(),
+                                _buildFriendsList(),
+                                _buildFriendsList(),
+                                _buildFriendsList(),
+                              ],
+                            )
                           );
                         }, // Builder
                       ));
@@ -172,7 +362,14 @@ class _HomeState extends State<Home> {
                       Navigator.push(context, MaterialPageRoute<void>(
                         builder: (BuildContext context) {
                           return Scaffold(
-                            appBar: AppBar(title: Text('Groups')),
+                            appBar: AppBar(
+                                title: Text('Groups')),
+                            body: ListView(
+                              children: <Widget>[
+                                groupTitle,
+                                _buildGroups(),
+                              ],
+                            ),
                           );
                         }, // Builder
                       ));
@@ -348,9 +545,34 @@ class _HomeState extends State<Home> {
               ),
             ),
           ],
-        )
+        ),
     );
   }
+
+  Widget _buildFriendsList(){
+    return new Container(
+        child: new Row(
+          children: <Widget>[
+            friendLeft,
+            friendMiddle,
+            friendRight,
+            ],
+          ),
+        );
+}
+
+Widget _buildGroups(){
+    return new Container(
+      padding: new EdgeInsets.all(8.0),
+      height: 250.0,
+      child: new Stack(
+        children: <Widget>[
+          groupBackgroundImage,
+          groupOnTopContent,
+        ],
+      ),
+    );
+}
 
   void onTabTapped(int index) {
     setState(() {
