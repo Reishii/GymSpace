@@ -33,6 +33,28 @@ class _HomeState extends State<Home> {
   ];
 
   // Friends List
+  final friendRequestTitle = new Container(
+    margin: EdgeInsets.only(top: 25, bottom: 10),
+    child: new Column(
+      children: <Widget>[
+        new Container(
+          child: new Text("Requests",
+          style: TextStyle(
+            color: Colors.black,
+            fontFamily: 'Roboto',
+            fontSize: 26,
+            fontWeight: FontWeight.w600,
+          )),
+        ),
+
+        new Container(
+          height: 1.0,
+          width: 110.0,
+          color: Colors.black,
+        ),
+      ],
+    ),
+  );
   final friendLeft = new Container(
     margin: EdgeInsets.all(10),
     child: new CircleAvatar(
@@ -85,6 +107,28 @@ class _HomeState extends State<Home> {
           ),
       ),
     );
+  final friendRealTitle = new Container(
+    margin: EdgeInsets.only(top: 25, bottom: 10),
+    child: new Column(
+      children: <Widget>[
+        new Container(
+          child: new Text("Friends",
+              style: TextStyle(
+                color: Colors.black,
+                fontFamily: 'Roboto',
+                fontSize: 26,
+                fontWeight: FontWeight.w600,
+              )),
+        ),
+
+        new Container(
+          height: 1.0,
+          width: 90.0,
+          color: Colors.black,
+        ),
+      ],
+    ),
+  );
 
   // Group Cards
   final groupTitle = new Container(
@@ -292,6 +336,15 @@ class _HomeState extends State<Home> {
                                 title: Text('Friends List')),
                             body: ListView(
                               children: <Widget>[
+                                friendRequestTitle,
+                                _buildFriendsList(),
+                                _buildFriendsList(),
+                                friendRealTitle,
+                                _buildFriendsList(),
+                                _buildFriendsList(),
+                                _buildFriendsList(),
+                                _buildFriendsList(),
+                                _buildFriendsList(),
                                 _buildFriendsList(),
                               ],
                             )
