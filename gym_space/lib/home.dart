@@ -11,6 +11,7 @@ import 'chatscreen.dart';
 import 'global.dart';
 import 'test_users.dart';
 import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
+import 'message.dart';
 
 class Home extends StatefulWidget {
   // Status of checking if user logged out
@@ -241,13 +242,15 @@ class _HomeState extends State<Home> {
               color: Colors.white,
             ),
             onPressed: () {         //PS - press message icon to open chat
-              Navigator.push(context, MaterialPageRoute<void>(
+               Navigator.push(context, MaterialPageRoute<void>(
+                // Navigator.push(context, MaterialPageRoute(builder: (context) => Sec ))
                 builder: (BuildContext context){
                     return new Scaffold(
                       appBar: new AppBar(
                         title: new Text("Flutter Chat"),
                     ),
-                    body: new ChatScreen()
+                    // body: new ChatScreen()
+                    body: new MsgMain()
                   ); 
                 }
               ));
