@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'chatscreen.dart';
 import 'const.dart';
 import 'msglogin.dart';
-import 'settings.dart';
+import 'settingsMsg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'login.dart';
 import 'colors.dart';
