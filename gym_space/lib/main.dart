@@ -20,7 +20,7 @@ class GymSpace extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      routes: <String, WidgetBuilder> {
+      routes: <String, WidgetBuilder> { 
         '/home': (BuildContext context) => new Home()
       },
       home: new StatusPage(auth: new Auth())
