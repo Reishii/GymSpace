@@ -1,5 +1,5 @@
 # GymSpace
-![gymspace_logo_v2crop](https://user-images.githubusercontent.com/26011878/53592271-c299f880-3b4a-11e9-9dee-54ada1928b76.png)
+![gymspace_logocrop](https://user-images.githubusercontent.com/26011878/53974563-aef51180-40b7-11e9-94b8-4a7d6baefbef.png)
 
 
 

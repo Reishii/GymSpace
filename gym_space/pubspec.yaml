@@ -18,13 +18,15 @@ dependencies:
   cloud_firestore: ^0.8.2     # new
   firebase_auth: ^0.6.2+1
   google_sign_in: ^4.0.1+1
-  # fluttertoast: ^3.0.1        #new PS
-  # shared_preferences: ^0.5.1+1 #new PS
-  # image_picker: ^0.5.0+3      #new PS
-  # cached_network_image: ^0.6.1  #new PS
-  # intl: ^0.15.7               #new PS
-  fancy_bottom_navigation: ^0.3.2 # for the nice bottom nav bar
+  fluttertoast: ^2.2.11        #new PS
+  shared_preferences: ^0.4.3 #new PS
+  image_picker: ^0.4.12+1      #new PS
+  cached_network_image: ^0.4.2  #new PS
+  intl: ^0.15.7               #new PS
+  firebase_storage: ^1.1.0+1
 
+  fancy_bottom_navigation: ^0.3.2 # for the nice bottom nav bar
+  font_awesome_flutter: ^8.4.0
 
 
 
