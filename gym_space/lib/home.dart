@@ -412,17 +412,34 @@ class _HomeState extends State<Home> {
                child: Align(
                  alignment: FractionalOffset.bottomCenter,
                  child: Container(
-                   child:Column(
-                    children: <Widget> [
-                      Divider(),
-                      RaisedButton(
-                        color: Colors.redAccent,
-                        child: new Text('Logout',
-                        style: new TextStyle(fontSize: 15.0, color: Colors.white)),
-                        onPressed: _loggedOut,
-                      )
-                    ]
-                   )
+                  child:InkWell(
+                    onTap: _loggedOut,   
+                    child: Column(
+                      children: <Widget>[
+                        Divider(),
+                        Container(
+                          child: Row(
+                            children: <Widget>[
+                              Container(
+                                height: 40,
+                                margin: EdgeInsets.only(left: 20),
+                                child:Icon(Icons.exit_to_app, color: Colors.red)
+                                ),
+                                Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child:Text("Logout",
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 16
+                                    ),
+                                  )
+                                )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                   ),
                  )
                )
              )   

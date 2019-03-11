@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/workout.dart';
 import 'package:GymSpace/logic/exercise.dart';
+import 'package:GymSpace/colors.dart';
 
 class WorkoutWidget extends StatelessWidget {
   final Workout _workout;
@@ -10,7 +11,6 @@ class WorkoutWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 100,
       child: ExpansionTile (
         title: Text(_workout.getName()),
         children: _buildExercises()
@@ -19,11 +19,65 @@ class WorkoutWidget extends StatelessWidget {
   }
 
   List<Widget> _buildExercises() {
-    List<Widget> exercises;
+    List<Widget> exercises = new List();
 
     for (Exercise exercise in _workout.exercises) {
-      Text exerciseWidget = Text(exercise.getName());
-      exercises.add(exerciseWidget);
+      exercises.add(_buildExercise(exercise));
     }
+
+    return exercises;
+  }
+
+  Widget _buildExercise(Exercise exercise) {
+    return Column (
+      children: <Widget>[
+        Container(
+          alignment: Alignment.topLeft,
+          height: 60,
+          margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+          decoration: BoxDecoration(
+            color: GSColors.darkBlue,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: Container(
+            child: InkWell(
+              onTap: () {},
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    flex: 1,
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      margin: EdgeInsets.only(left: 10),
+                      child: Text(
+                        exercise.getName(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      )
+                    )
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Container(
+                      margin: EdgeInsets.only(left: 40),
+                      child: Text(
+                        exercise.sets.toString() + ' x ' + exercise.reps.toString(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              )
+            ),
+          ),
+        ),
+        
+      ],
+    );
   }
 }

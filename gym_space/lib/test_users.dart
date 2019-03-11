@@ -10,6 +10,7 @@ import 'global.dart';
 Exercise bicepCurls = new Exercise("bicep curls", "arms");
 Exercise tricepPulldown = new Exercise("tricep pulldowns", "arms");
 Exercise benchPress = new Exercise("bench press", "chest");
+
 Workout pushDay = new Workout(
   "push day",
   "Rolly Lacap",
