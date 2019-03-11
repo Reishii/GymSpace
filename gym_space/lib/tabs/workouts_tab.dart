@@ -17,15 +17,9 @@ class WorkoutsTab extends WidgetTab {
   }
 
   Widget _buildWorkoutPlans() {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Icon(Icons.add),
-      ),
-      body: Container(
-        margin: EdgeInsets.all(20),
-        child: _buildList(),
-      )
+    return Container(
+      margin: EdgeInsets.all(20),
+      child: _buildList(),
     );
   }
 

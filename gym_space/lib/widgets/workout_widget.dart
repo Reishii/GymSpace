@@ -1,18 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:GymSpace/logic/workout.dart';
+import 'package:GymSpace/logic/exercise.dart';
 
-class WorkoutWidget extends StatefulWidget {
-  final Widget child;
+class WorkoutWidget extends StatelessWidget {
+  final Workout _workout;
 
-  WorkoutWidget({Key key, this.child}) : super(key: key);
+  WorkoutWidget(this._workout, {Key key}) : super(key: key);
 
-  _WorkoutWidgetState createState() => _WorkoutWidgetState();
-}
-
-class _WorkoutWidgetState extends State<WorkoutWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-       child: widget.child,
+      height: 100,
+      child: ExpansionTile (
+        title: Text(_workout.getName()),
+        children: _buildExercises()
+      ),
     );
+  }
+
+  List<Widget> _buildExercises() {
+    List<Widget> exercises;
+
+    for (Exercise exercise in _workout.exercises) {
+      Text exerciseWidget = Text(exercise.getName());
+      exercises.add(exerciseWidget);
+    }
   }
 }

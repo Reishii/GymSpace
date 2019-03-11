@@ -13,14 +13,22 @@ Exercise benchPress = new Exercise("bench press", "chest");
 Workout pushDay = new Workout(
   "push day",
   "Rolly Lacap",
-  "chest, arms",
+  "chest, shoulders, triceps",
   [tricepPulldown, benchPress]
 );
+
+Workout pullDay = new Workout(
+  "pull day",
+  "Rolly Lacap",
+  "back, biceps",
+  [bicepCurls]
+);
+
 WorkoutPlan broPlan = new WorkoutPlan(
   "bro",
   "Rolly Lacap",
   "",
-  [pushDay]
+  [pushDay, pullDay]
 );
 WorkoutPlan bodyBuilding = new WorkoutPlan(
   "body buliding",
