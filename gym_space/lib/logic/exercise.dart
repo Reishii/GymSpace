@@ -1,17 +1,19 @@
 class Exercise {
-  String _name;
-  String _bodyPart;
-  String _description;
+  String name;
+  String bodyPart;
+  String description;
   int sets;
   int reps;
   double weight;
   
-  Exercise([this._name, this._bodyPart, this._description]);
+  Exercise({String name = "", String bodyPart = "", String description = "", int sets = 0, int reps = 0, double weight = 0}) {
+    this.name = name;
+    this.bodyPart = bodyPart;
+    this.description = description;
+    this.sets = sets;
+    this.reps = reps;
+    this.weight = weight;
+  }
 
-  String getName() => _name;
-  String getBodyPart() => _bodyPart;
-  String getDescription() => _description;
-  void setName(String name) => _name = name;
-  void setBodyPart(String bodyPart) => _bodyPart = bodyPart;
-  void setDescription(String description) => _description = description;
+  
 }

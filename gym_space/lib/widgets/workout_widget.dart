@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/workout.dart';
 import 'package:GymSpace/logic/exercise.dart';
-import 'package:GymSpace/colors.dart';
+import 'package:GymSpace/misc/colors.dart';
 
 class WorkoutWidget extends StatelessWidget {
   final Workout _workout;
@@ -12,7 +12,7 @@ class WorkoutWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: ExpansionTile (
-        title: Text(_workout.getName()),
+        title: Text(_workout.name),
         children: _buildExercises()
       ),
     );
@@ -50,7 +50,7 @@ class WorkoutWidget extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       margin: EdgeInsets.only(left: 10),
                       child: Text(
-                        exercise.getName(),
+                        exercise.name,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,

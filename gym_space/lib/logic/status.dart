@@ -1,17 +1,20 @@
+// This file needs to be updated 
+
 import 'package:flutter/material.dart';
-import 'login.dart';
+import 'package:GymSpace/page/login_page.dart';
 import 'auth.dart';
-import 'home.dart';
+import 'package:GymSpace/home.dart';
+
+enum AuthStatus {
+  loggedIn,
+  notLoggedIn
+}
 
 class StatusPage extends StatefulWidget {
   StatusPage({this.auth});
   final BaseAuth auth;
   @override
   State<StatefulWidget> createState() => new _StatusPageState();
-}
-enum AuthStatus {
-  loggedIn,
-  notLoggedIn
 }
 class _StatusPageState extends State<StatusPage> {
   // Status of checking if user is logged in
@@ -47,11 +50,11 @@ class _StatusPageState extends State<StatusPage> {
           auth: widget.auth,
           onLoggedOut: _loggedOut,
         );
-      case AuthStatus.notLoggedIn:
-        return new LoginPage(
-          auth: widget.auth,
-          onLoggedIn: _loggedIn,
-        );
+      // case AuthStatus.notLoggedIn:
+      //   return new LoginPage(
+      //     auth: widget.auth,
+      //     onLoggedIn: _loggedIn,
+      //   );
       default: 
         return new Home(
           auth: widget.auth,

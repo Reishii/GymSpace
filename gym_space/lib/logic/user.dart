@@ -19,7 +19,7 @@ class User {
   
   List<Group> joinedGroups = new List();
   Map diet = new Map();
-  List<User> friends = new List(); // new from UML
+  List<String> friends = new List(); // new from UML
   List<WorkoutPlan> workoutPlans = new List();
 
   User(

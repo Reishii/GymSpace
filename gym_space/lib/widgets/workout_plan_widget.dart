@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/workout_plan.dart';
-import 'package:GymSpace/colors.dart';
+import 'package:GymSpace/misc/colors.dart';
 import 'workout_widget.dart';
 
 
@@ -20,7 +20,7 @@ class WorkoutPlanWidget extends StatelessWidget {
           child: Container(
             child: Center (
               child: Text (
-                _workoutPlan.getName(),
+                _workoutPlan.name,
                 style: TextStyle(
                   letterSpacing: 2,
                   fontFamily: 'Roboto',
@@ -52,7 +52,7 @@ class WorkoutPlanPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_workoutPlan.getName()),
+        title: Text(_workoutPlan.name),
       ),
       body: _buildBody(),
     );

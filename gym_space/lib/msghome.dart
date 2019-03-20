@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'auth.dart';
+import 'logic/auth.dart';
 import 'chatscreen.dart';
 
 
@@ -11,7 +11,7 @@ class HomePage extends StatelessWidget {
       appBar: new AppBar(
         title: new Text("Chat"),
       ),
-      body: new ChatScreen()
+      // body: new ChatScreen()
     ); 
   }
 }

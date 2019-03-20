@@ -1,15 +1,10 @@
-// tab
 import 'home.dart';
-import 'status.dart';
-import 'auth.dart';
-import 'colors.dart';
+import 'logic/status.dart';
+import 'logic/auth.dart';
+import 'misc/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-// colors
-import 'colors.dart';
-
-// misc
 import 'package:flutter/material.dart';
+import 'package:GymSpace/page/profile_page.dart';
 
 void main() => runApp(GymSpace());
 
@@ -24,7 +19,8 @@ class GymSpace extends StatelessWidget {
       routes: <String, WidgetBuilder> { 
         '/home': (BuildContext context) => new Home()
       },
-      home: new StatusPage(auth: new Auth())
+      // home: new StatusPage(auth: new Auth())
+      home: ProfilePage(),
     );
   }
 }

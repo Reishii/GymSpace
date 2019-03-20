@@ -3,7 +3,7 @@ import 'widget_tab.dart';
 import 'package:GymSpace/widgets/profile_widget.dart';
 import 'package:GymSpace/logic/profile_data.dart';
 import 'package:GymSpace/logic/user.dart';
-import 'package:GymSpace/colors.dart';
+import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/test_users.dart';
 
 class MeTab extends WidgetTab {

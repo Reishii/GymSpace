@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/profile_data.dart';
 import 'package:GymSpace/logic/meal.dart';
-import 'package:GymSpace/colors.dart';
+import 'package:GymSpace/misc/colors.dart';
 
 class Profile extends StatefulWidget {
   final ProfileData profileData;
@@ -207,26 +207,27 @@ class _ProfileState extends State<Profile> {
       child: Column(
         children: <Widget>[
           Row(
-          children: <Widget>[
-            Expanded(
-              flex: 1,
-              child: Card(
-                elevation: 3,
-                child: Container( 
-                  padding: EdgeInsets.all(5),
-                  child: Text(
-                  "Challenges",
-                  style: TextStyle(
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 24,
-                      letterSpacing: 3),
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Card(
+                  elevation: 3,
+                  child: Container(
+                    padding: EdgeInsets.all(5),
+                    child: Text(
+                      "Challenges",
+                      style: TextStyle(
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 24,
+                          letterSpacing: 3),
+                    ),
                   ),
                 ),
+                // List of challenges here (may need to use the ListBuilder Widget for this)
               ),
-            // List of challenges here (may need to use the ListBuilder Widget for this)
-            ),
-          ],),
+            ],
+          ),
           Card(
             elevation: 3,
             child: Container(

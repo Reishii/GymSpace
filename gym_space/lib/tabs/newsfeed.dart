@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'widget_tab.dart';
-import 'package:GymSpace/colors.dart';
+import 'package:GymSpace/misc/colors.dart';
 
 class NewsFeedTab extends WidgetTab {
   NewsFeedTab(String title) : super(title, mainColor: GSColors.darkBlue);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'widget_tab.dart';
-import 'package:GymSpace/colors.dart';
+import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/workout_plan.dart';
 import 'package:GymSpace/widgets/workout_plan_widget.dart';

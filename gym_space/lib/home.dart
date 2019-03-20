@@ -3,10 +3,9 @@ import 'tabs/me.dart';
 import 'tabs/newsfeed.dart';
 import 'tabs/workouts_tab.dart';
 import 'tabs/widget_tab.dart';
-import 'drawer.dart';
-import 'auth.dart';
+import 'logic/auth.dart';
 import 'package:flutter/material.dart';
-import 'colors.dart';
+import 'misc/colors.dart';
 import 'chatscreen.dart';
 import 'global.dart';
 import 'test_users.dart';
@@ -250,7 +249,7 @@ class _HomeState extends State<Home> {
                         title: new Text("Flutter Chat"),
                     ),
                     // body: new ChatScreen()
-                    body: new MsgMain()
+                    // body: new MsgMain()
                   ); 
                 }
               ));
