@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ProfilePage extends StatelessWidget {
   final Widget child;
@@ -12,6 +13,7 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       drawer: AppDrawer(),
       appBar: _buildAppBar(),
+      body: _buildBody(),
     );
   }
 
@@ -71,4 +73,215 @@ class ProfilePage extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildBody() {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          _buildNutritionLabel(),
+          _buildNutritionInfo(),
+          _buildWeightInfo(),
+          _buildChallengesLabel(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNutritionLabel() {
+    return Container(
+      margin: EdgeInsets.only(top: 30),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            flex: 2,
+            child: Container(
+              height: 40,
+              // margin: EdgeInsets.symmetric(vertical: 20),
+              child: Container(
+                alignment: Alignment.center,
+                child: Text(
+                  "Daily Nutrition",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    letterSpacing: 1.2
+                    // fontWeight: FontWeight.w300
+                  ),
+                ),
+                decoration: ShapeDecoration(
+                  color: GSColors.darkBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      bottomRight: Radius.circular(20),
+                      topRight: Radius.circular(20)
+                    )
+                  )
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNutritionInfo() {
+    return Container(
+      margin: EdgeInsets.only(top: 30),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Container(
+              height: 140,
+              child: Container(
+                decoration: ShapeDecoration(
+                  shape: CircleBorder(
+                    side: BorderSide(
+                      width: 10,
+                      color: GSColors.darkBlue
+                    )
+                  )
+                ),
+              )
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+              child: Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      margin:EdgeInsets.symmetric(vertical: 5),
+                      child: Text("Protein:        100" + "g"),
+                    ),
+                    Container(
+                      margin:EdgeInsets.symmetric(vertical: 5),
+                      child: Text("Carbs:          60" + "g"),
+                    ),
+                    Container(
+                      margin:EdgeInsets.symmetric(vertical: 5),
+                      child: Text("Fats:             40" + "g"),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
+      )
+    );
+  }
+
+  Widget _buildWeightInfo() {
+    return Container(
+      height: 40,
+      margin: EdgeInsets.only(top: 30),
+      decoration: ShapeDecoration(
+        color: GSColors.darkBlue,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            topLeft: Radius.circular(20)
+          )
+        )
+      ),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            flex: 4,
+            child: Container(
+              margin: EdgeInsets.only(left: 20),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Current Weight",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  letterSpacing: 1.2
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+              alignment: Alignment.center,
+              child: Text(
+                "200 lbs",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14
+                ),
+              )
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+              alignment: Alignment.center,
+              child: Row(
+                children: <Widget>[
+                  Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
+                  Text(
+                    "5 lbs",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              )
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChallengesLabel() {
+    return Container(
+      margin: EdgeInsets.only(top: 30),
+      height: 40,
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Container(),
+          ),
+          Expanded(
+            flex: 2,
+            child: Container(
+              alignment: Alignment.center,
+              decoration: ShapeDecoration(
+                color: GSColors.darkBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    topLeft: Radius.circular(20),
+                  )
+                )
+              ),
+              child: Text(
+                "Challenges",
+                style:TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  letterSpacing: 1.2
+                )
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
 }

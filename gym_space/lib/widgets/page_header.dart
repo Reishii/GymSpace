@@ -5,21 +5,24 @@ import 'package:GymSpace/misc/colors.dart';
 class PageHeader extends StatelessWidget {
   final Widget child;
   final String title;
-  final Color color;
+  final Color backgroundColor;
+  final Color menuColor;
+  final bool showDrawer;
 
-  PageHeader(this.title, this.color, {Key key, this.child}) : super(key: key);
+  PageHeader(this.title, this.backgroundColor, {Key key, this.child, this.showDrawer = false, this.menuColor = Colors.white}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: AppBar(
-        backgroundColor: color,
+        iconTheme: IconThemeData(color: menuColor),
+        backgroundColor: backgroundColor,
         title: Text(title),
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(40))
         ),
-        leading: IconButton(
+        leading: showDrawer ? null : IconButton(
           icon: Icon(
             Icons.keyboard_arrow_left, 
             color: GSColors.darkBlue, 

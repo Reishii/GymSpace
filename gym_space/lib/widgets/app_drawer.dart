@@ -25,7 +25,10 @@ class _AppDrawerState extends State<AppDrawer> {
               child: Align(
                 alignment: FractionalOffset.centerLeft,
                 child: IconButton(
-                  icon: Icon(Icons.menu),
+                  icon: Icon(
+                    Icons.menu,
+                    color: GSColors.darkBlue,
+                  ),
                   onPressed: () {Navigator.pop(context);},
                 )
               )
@@ -75,26 +78,32 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   Widget _buildDrawerItem(String title, IconData icon, int page) {
-    if (_currentPage == page) {
-      return Container(
-        margin: EdgeInsets.symmetric(horizontal: 40),
-        decoration: ShapeDecoration(
-          color: GSColors.darkBlue,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(60),
-          ),
-        ),
-        child: ListTile(
-          title: Text(title, style: TextStyle(color: Colors.white),),
-          leading: Icon(icon, color: Colors.white,)
-        ),
-      );
-    }
+    // if (_currentPage == page) {
+    //   return Container(
+    //     margin: EdgeInsets.symmetric(horizontal: 40),
+    //     decoration: ShapeDecoration(
+    //       color: GSColors.darkBlue,
+    //       shape: RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.circular(60),
+    //       ),
+    //     ),
+    //     child: ListTile(
+    //       title: Text(title, style: TextStyle(color: Colors.white),),
+    //       leading: Icon(icon, color: Colors.white,)
+    //     ),
+    //   );
+    // }
 
     return Container(
       child: ListTile(
-        title: Text(title),
-        leading: Icon(icon),
+        title: Text(
+          title,
+          style: TextStyle(color: GSColors.darkBlue),
+        ),
+        leading: Icon(
+          icon,
+          color: GSColors.darkBlue,  
+        ),
         onTap: () {switchPage(page);},
       )
     );
@@ -110,6 +119,9 @@ class _AppDrawerState extends State<AppDrawer> {
               return WorkoutPlanHomePage();
             },
           ));
+          break;
+        case 2: // profile
+          Navigator.pop(context);
           break;
         default:
       }

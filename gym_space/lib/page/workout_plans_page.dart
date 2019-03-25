@@ -7,6 +7,7 @@ import 'package:GymSpace/logic/workout_plan.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/logic/workout.dart';
 import 'package:GymSpace/logic/exercise.dart';
+import 'package:GymSpace/widgets/app_drawer.dart';
 
 class WorkoutPlanHomePage extends StatelessWidget {
   final Widget child;
@@ -16,10 +17,16 @@ class WorkoutPlanHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: AppDrawer(),
       backgroundColor: GSColors.darkBlue,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(140),
-        child: PageHeader('Workout Plans', Colors.white),
+        child: PageHeader(
+          'Workout Plans', 
+          Colors.white, 
+          // showDrawer: true,
+          menuColor: GSColors.darkBlue,
+        ),
       ),
       // body: Text("data", style: TextStyle(color: Colors.white)),
       body: Container(
