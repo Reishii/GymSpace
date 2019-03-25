@@ -7,11 +7,10 @@ import 'drawer.dart';
 import 'auth.dart';
 import 'package:flutter/material.dart';
 import 'colors.dart';
-import 'chatscreen.dart';
+import 'widgets/chat_page.dart';
 import 'global.dart';
 import 'test_users.dart';
 import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
-import 'message.dart';
 
 class Home extends StatefulWidget {
   // Status of checking if user logged out
