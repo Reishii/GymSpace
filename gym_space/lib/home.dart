@@ -3,14 +3,14 @@ import 'tabs/me.dart';
 import 'tabs/newsfeed.dart';
 import 'tabs/workouts_tab.dart';
 import 'tabs/widget_tab.dart';
-import 'logic/auth.dart';
+import 'drawer.dart';
+import 'auth.dart';
 import 'package:flutter/material.dart';
-import 'misc/colors.dart';
-import 'chatscreen.dart';
+import 'colors.dart';
+import 'widgets/chat_page.dart';
 import 'global.dart';
 import 'test_users.dart';
 import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
-import 'message.dart';
 
 class Home extends StatefulWidget {
   // Status of checking if user logged out
@@ -249,7 +249,7 @@ class _HomeState extends State<Home> {
                         title: new Text("Flutter Chat"),
                     ),
                     // body: new ChatScreen()
-                    // body: new MsgMain()
+                    body: new MsgMain()
                   ); 
                 }
               ));
