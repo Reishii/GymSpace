@@ -2,17 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/page/workout_plans_page.dart';
+import 'package:GymSpace/page/profile_page.dart';
+import 'package:GymSpace/global.dart';
+import 'package:GymSpace/logic/auth.dart';
+import 'package:GymSpace/page/login_page.dart';
 
 class AppDrawer extends StatefulWidget {
   final Widget child;
+  int startPage;
 
-  AppDrawer({Key key, this.child}) : super(key: key);
+  AppDrawer({Key key, this.child, int startPage = 2}) : super(key: key) {
+    this.startPage = startPage;
+  }
 
-  _AppDrawerState createState() => _AppDrawerState();
+  _AppDrawerState createState() => _AppDrawerState(startPage);
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-  int _currentPage = 2; // 0-7 drawer items are assigned pages when they are built
+  int _currentPage; // 0-7 drawer items are assigned pages when they are built
+
+  _AppDrawerState(int startPage) {
+    _currentPage = startPage;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +74,7 @@ class _AppDrawerState extends State<AppDrawer> {
                 children: <Widget>[
                   Divider(),
                   ListTile(
+                    onTap: _loggedOut,
                     title: Text(
                       "Logout", style:TextStyle(color: Colors.red),
                     ),
@@ -110,21 +122,54 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   void switchPage(int page) {
+    if (_currentPage == page) {
+      Navigator.pop(context);
+      return;
+    }
+
     setState(() {
       _currentPage = page;
       switch (_currentPage) {
+        case 0: // newfeed
+          break;
         case 1: // workouts
-          Navigator.push(context, MaterialPageRoute<void> (
+          Navigator.pushReplacement(context, MaterialPageRoute<void> (
             builder: (BuildContext context) {
               return WorkoutPlanHomePage();
             },
           ));
           break;
         case 2: // profile
-          Navigator.pop(context);
+          Navigator.pushReplacement(context, MaterialPageRoute<void> (
+            builder: (BuildContext context) {
+              return ProfilePage();
+            },
+          ));
+          break;
+        case 3: // groups
+          break;
+        case 4: // friends
+          break;
+        case 5: // notifications
+          break;
+        case 6: // messages
+          break;
+        case 7: // settings
           break;
         default:
       }
     });
+  }
+
+  void _loggedOut() async {
+    try {
+      await GlobalSettings.auth.signOut();
+      GlobalSettings.authStatus = AuthStatus.notLoggedIn;
+      Navigator.pushReplacement(context, MaterialPageRoute(
+        builder: (BuildContext context) => LoginPage(),
+      ));
+    } catch (e) {
+      print(e);
+    }
   }
 }

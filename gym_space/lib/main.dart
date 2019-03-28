@@ -1,4 +1,4 @@
-import 'home.dart';
+// import 'home.dart';
 import 'logic/status.dart';
 import 'logic/auth.dart';
 import 'misc/colors.dart';
@@ -18,9 +18,9 @@ class GymSpace extends StatelessWidget {
       theme: ThemeData(
         primaryColor: GSColors.darkBlue,
       ),
-      routes: <String, WidgetBuilder> { 
-        '/home': (BuildContext context) => new Home()
-      },
+      // routes: <String, WidgetBuilder> { 
+      //   '/home': (BuildContext context) => new Home()
+      // },
       // builder: (context, child) {
       //   return Scaffold(
       //     drawer: AppDrawer(),
@@ -28,7 +28,8 @@ class GymSpace extends StatelessWidget {
       //   );
       // },
       // home: new StatusPage(auth: new Auth())
-      home: newHome(),
+      home: Home(),
+      // home:ProfilePage()
     );
   }
 }
