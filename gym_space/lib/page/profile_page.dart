@@ -21,15 +21,16 @@ class ProfilePage extends StatelessWidget {
     return PreferredSize(
       preferredSize: Size.fromHeight(300),
       child: AppBar(
-        elevation: 0,
+        elevation: 5,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search, color: Colors.white,),
+            onPressed: (){},
           )
         ],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(40))
-        ),
+        //shape: RoundedRectangleBorder(
+        //  borderRadius: BorderRadius.vertical(bottom: Radius.circular(40))
+        //),
         bottom: _buildProfileHeading(),
       )
     );
@@ -37,6 +38,7 @@ class ProfilePage extends StatelessWidget {
 
   Widget _buildProfileHeading() {
     return PreferredSize(
+      preferredSize: Size.fromHeight(0),
       child: Container(
         child: Column(
           children: <Widget>[
@@ -76,7 +78,7 @@ class ProfilePage extends StatelessWidget {
 
   Widget _buildBody() {
     return Container(
-      child: Column(
+      child: ListView(
         children: <Widget>[
           _buildNutritionLabel(),
           _buildNutritionInfo(),
