@@ -24,6 +24,7 @@ dependencies:
   cached_network_image: ^0.4.2  #new PS
   intl: ^0.15.7               #new PS
   firebase_storage: ^1.1.0+1
+  firebase_core: ^0.2.5
 
   fancy_bottom_navigation: ^0.3.2 # for the nice bottom nav bar
   font_awesome_flutter: ^8.4.0
