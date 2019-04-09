@@ -70,7 +70,8 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                     children: <Widget>[
                       new Container(
                         child: Text(
-                          'Nickname: ${document['last name']}',
+                          //'Nickname: ${document['last name']}',
+                          '${document['first name']} ${document['last name']}',   
                           style: TextStyle(color: GSColors.darkBlue),
                         ),
                         alignment: Alignment.centerLeft,
@@ -78,7 +79,7 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                       ),
                       new Container(
                         child: Text(
-                          'About me: ${document['aboutMe'] ?? 'Not available'}',
+                          ' ${document['aboutMe'] ?? 'Not available'}',
                           style: TextStyle(color: GSColors.darkBlue),
                         ),
                         alignment: Alignment.centerLeft,
