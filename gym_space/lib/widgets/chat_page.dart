@@ -71,7 +71,7 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                       new Container(
                         child: Text(
                           'Nickname: ${document['last name']}',
-                          style: TextStyle(color: GSColors.darkCloud),
+                          style: TextStyle(color: GSColors.darkBlue),
                         ),
                         alignment: Alignment.centerLeft,
                         margin: new EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 5.0),
@@ -79,7 +79,7 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                       new Container(
                         child: Text(
                           'About me: ${document['aboutMe'] ?? 'Not available'}',
-                          style: TextStyle(color: GSColors.darkCloud),
+                          style: TextStyle(color: GSColors.darkBlue),
                         ),
                         alignment: Alignment.centerLeft,
                         margin: new EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
@@ -117,8 +117,8 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
    return Scaffold(
       appBar: AppBar(
         title: Text(
-           //"chat",
-          null,
+           "Mango Time",
+          
           //style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
