@@ -168,12 +168,13 @@ class _AppDrawerState extends State<AppDrawer> {
         case 6: // messages
           Navigator.push(context, MaterialPageRoute<void>(
             builder: (BuildContext context){
-              return new Scaffold(
+              return ChatPage();
+              //return new Scaffold(
                 //appBar: new AppBar(
                   //title: new Text("Messenger")
                 //),
-                body: new MsgMain()
-              );
+                //body: new ChatPage();
+              //);
             }
           ));
 
