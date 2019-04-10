@@ -2,6 +2,7 @@ import 'package:GymSpace/widgets/page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
+import 'package:GymSpace/widgets/friend_widget.dart';
 import 'package:GymSpace/test_users.dart';
 import 'package:GymSpace/logic/friend.dart';
 import 'package:GymSpace/page/friend_profile_page.dart';
@@ -17,46 +18,55 @@ class FriendPage extends StatelessWidget {
     return Scaffold(
       drawer: AppDrawer(startPage: 4,),
       backgroundColor: GSColors.blue,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100),
-        child: PageHeader(
-          'Friends', 
-          Colors.white, 
-          showDrawer: true,
-          menuColor: GSColors.darkBlue,
-        ),  
-      ),
-      // body: Text("data", style: TextStyle(color: Colors.white)),
-      body: Stack(
-        children: <Widget>[
-          _buildFriendBackground(),
-          _buildFriendList(),
-        ],
+      appBar: _buildAppBar(),
+      body: _buildFriendBackground(),
+      );
+  }
+
+  Widget _buildAppBar() {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(100),
+      child: PageHeader(
+        'Friends', 
+        Colors.white, 
+        showDrawer: true,
+        menuColor: GSColors.darkBlue,
       )
-    );
+    );  
   }
 
   Widget _buildFriendBackground() {
-    return ListView(
+    return Stack(
       children: <Widget>[
-        Container(
-          height: (150 * 5.0),
-          margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-          decoration: ShapeDecoration(
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50),
-            ),
-          )
+        _whiteBackground(),
+
+        // Meant to be scalable
+        FriendWidget(
+          'David Rose',
+          "I'm the leading man",
+          Image.asset('assets/armshake.jpg'),
         ),
-      ],  
+      ]
     );
   }
+
+Widget _whiteBackground() {
+  return Container(
+    height: (150 * 7.0),
+    margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+    decoration: ShapeDecoration(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(50),
+      ),
+    ),
+  );
+}
 
   Widget _buildFriendList() {
     return ListView.builder(
       padding: EdgeInsets.only(top: 20),
-      itemCount: 5,
+      itemCount: 7,
       itemBuilder: (BuildContext context, int i) {
         return Container(
           height: 100,
