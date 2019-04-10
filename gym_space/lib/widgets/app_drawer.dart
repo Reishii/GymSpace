@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/page/workout_plans_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
+import 'package:GymSpace/page/friend_page.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/auth.dart';
 import 'package:GymSpace/page/login_page.dart';
@@ -147,8 +148,18 @@ class _AppDrawerState extends State<AppDrawer> {
           ));
           break;
         case 3: // groups
+        Navigator.pushReplacement(context, MaterialPageRoute<void> (
+          builder: (BuildContext context) {
+            return ProfilePage(); // Switch to groups when created
+          }
+        ));
           break;
         case 4: // friends
+        Navigator.pushReplacement(context, MaterialPageRoute<void> (
+          builder: (BuildContext context) {
+            return FriendPage(); // Switch to groups when created
+          }
+        ));
           break;
         case 5: // notifications
           break;
