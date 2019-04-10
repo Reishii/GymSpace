@@ -7,6 +7,8 @@ import 'package:GymSpace/page/friend_page.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/auth.dart';
 import 'package:GymSpace/page/login_page.dart';
+import 'package:GymSpace/widgets/chat_page.dart';
+
 
 class AppDrawer extends StatefulWidget {
   final Widget child;
@@ -164,6 +166,17 @@ class _AppDrawerState extends State<AppDrawer> {
         case 5: // notifications
           break;
         case 6: // messages
+          Navigator.push(context, MaterialPageRoute<void>(
+            builder: (BuildContext context){
+              return new Scaffold(
+                //appBar: new AppBar(
+                  //title: new Text("Messenger")
+                //),
+                body: new MsgMain()
+              );
+            }
+          ));
+
           break;
         case 7: // settings
           break;
