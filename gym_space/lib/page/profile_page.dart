@@ -28,9 +28,9 @@ class ProfilePage extends StatelessWidget {
             onPressed: (){},
           )
         ],
-        //shape: RoundedRectangleBorder(
-        //  borderRadius: BorderRadius.vertical(bottom: Radius.circular(40))
-        //),
+        shape: RoundedRectangleBorder(
+         borderRadius: BorderRadius.vertical(bottom: Radius.circular(40))
+        ),
         bottom: _buildProfileHeading(),
       )
     );

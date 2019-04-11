@@ -19,19 +19,23 @@ class WorkoutPlanHomePage extends StatelessWidget {
     return Scaffold(
       drawer: AppDrawer(startPage: 1,),
       backgroundColor: GSColors.darkBlue,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(140),
-        child: PageHeader(
-          'Workout Plans', 
-          Colors.white, 
-          showDrawer: true,
-          menuColor: GSColors.darkBlue,
-        ),
-      ),
+      appBar: _buildAppBar(),
       // body: Text("data", style: TextStyle(color: Colors.white)),
       body: Container(
         child: _buildWorkoutPlansList(),
       )
+    );
+  }
+
+  Widget _buildAppBar() {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(140),
+      child: PageHeader(
+        'Workout Plans', 
+        Colors.white, 
+        showDrawer: true,
+        menuColor: GSColors.darkBlue,
+      ),
     );
   }
 

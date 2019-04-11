@@ -10,6 +10,7 @@ import 'package:GymSpace/page/login_page.dart';
 class AppDrawer extends StatefulWidget {
   final Widget child;
   int startPage;
+  int currentPage;
 
   AppDrawer({Key key, this.child, int startPage = 2}) : super(key: key) {
     this.startPage = startPage;
@@ -26,10 +27,15 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   @override
+  void initState() {
+    _currentPage = widget.currentPage;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        child: Column(
+        child: ListView(
           children: <Widget>[
             Container(
               margin: EdgeInsets.only(top: 30, left: 8),
@@ -116,12 +122,12 @@ class _AppDrawerState extends State<AppDrawer> {
           icon,
           color: GSColors.darkBlue,  
         ),
-        onTap: () {switchPage(page);},
+        onTap: () {_switchPage(page);},
       )
     );
   }
 
-  void switchPage(int page) {
+  void _switchPage(int page) {
     if (_currentPage == page) {
       Navigator.pop(context);
       return;

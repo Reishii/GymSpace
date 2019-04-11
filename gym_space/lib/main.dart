@@ -30,18 +30,7 @@ class GymSpace extends StatelessWidget {
       theme: ThemeData(
         primaryColor: GSColors.darkBlue,
       ),
-      // routes: <String, WidgetBuilder> { 
-      //   '/home': (BuildContext context) => new Home()
-      // },
-      // builder: (context, child) {
-      //   return Scaffold(
-      //     drawer: AppDrawer(),
-      //     body: child,
-      //   );
-      // },
-      // home: new StatusPage(auth: new Auth())
       home: Home(),
-      // home:ProfilePage()
     );
   }
 }

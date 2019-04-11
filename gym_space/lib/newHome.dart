@@ -5,16 +5,6 @@ import 'logic/auth.dart';
 import 'package:GymSpace/page/login_page.dart';
 import 'global.dart';
 
-class newHome extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: AppDrawer(),
-      body: ProfilePage(),
-    );
-  }
-}
-
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
