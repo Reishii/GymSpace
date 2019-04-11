@@ -2,16 +2,16 @@ import 'package:GymSpace/widgets/page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
-import 'package:GymSpace/widgets/friend_widget.dart';
+import 'package:GymSpace/widgets/buddy_widget.dart';
 import 'package:GymSpace/test_users.dart';
-import 'package:GymSpace/logic/friend.dart';
-import 'package:GymSpace/page/friend_profile_page.dart';
+import 'package:GymSpace/logic/buddy.dart';
+import 'package:GymSpace/page/buddy_profile_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class FriendPage extends StatelessWidget {
+class BuddyPage extends StatelessWidget {
   final Widget child;
 
-  FriendPage({Key key, this.child}) : super(key: key);
+  BuddyPage({Key key, this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class FriendPage extends StatelessWidget {
       drawer: AppDrawer(startPage: 4,),
       backgroundColor: GSColors.blue,
       appBar: _buildAppBar(),
-      body: _buildFriendBackground(),
+      body: _buildBuddyBackground(),
       );
   }
 
@@ -27,7 +27,7 @@ class FriendPage extends StatelessWidget {
     return PreferredSize(
       preferredSize: Size.fromHeight(100),
       child: PageHeader(
-        'Friends', 
+        'Buddies', 
         Colors.white, 
         showDrawer: true,
         menuColor: GSColors.darkBlue,
@@ -35,13 +35,13 @@ class FriendPage extends StatelessWidget {
     );  
   }
 
-  Widget _buildFriendBackground() {
+  Widget _buildBuddyBackground() {
     return Stack(
       children: <Widget>[
         _whiteBackground(),
 
         // Meant to be scalable
-        FriendWidget(
+        BuddyWidget(
           'David Rose',
           "I'm the leading man",
           Image.asset('assets/armshake.jpg'),
@@ -63,7 +63,7 @@ Widget _whiteBackground() {
   );
 }
 
-  Widget _buildFriendList() {
+  Widget _buildBuddyList() {
     return ListView.builder(
       padding: EdgeInsets.only(top: 20),
       itemCount: 7,
@@ -81,7 +81,7 @@ Widget _whiteBackground() {
             onTap: () {
               Navigator.push(context, MaterialPageRoute<void>(
                 builder: (context) {
-                  _buildFriendProfile();
+                  _buildBuddyProfile();
                 }
               ));
             },
@@ -91,7 +91,7 @@ Widget _whiteBackground() {
     );
   }
 
-  Widget _buildFriendProfile() {
+  Widget _buildBuddyProfile() {
     return Scaffold(
 
     );

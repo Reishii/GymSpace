@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:GymSpace/logic/friend.dart';
-import 'package:GymSpace/logic/friend_profile.dart';
+import 'package:GymSpace/global.dart';
+import 'package:GymSpace/logic/buddy.dart';
 import 'package:GymSpace/misc/colors.dart';
 
-class FriendWidget extends StatelessWidget {
+class BuddyWidget extends StatelessWidget {
   final Widget child;
-  final String name;
-  final String quote;
-  final Image friendAvatar;
+  final String _buddyName;
+  final String _buddyQuote;
+  final Image _buddyAvatar;
 
-  FriendWidget(this.name, this.quote, this.friendAvatar, {Key key, this.child}) : super(key: key);
+  BuddyWidget(this._buddyName, this._buddyQuote, this._buddyAvatar, {Key key, this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
       padding: EdgeInsets.only(top: 20),
-      itemCount: 7,
+      itemCount: 3,
       itemBuilder: (BuildContext context, int i) {
         return Container(
             height: 100,
@@ -29,12 +29,12 @@ class FriendWidget extends StatelessWidget {
             child: ListTile(
               contentPadding: EdgeInsets.all(15.0),
               leading: Icon(Icons.account_balance_wallet),
-              title: const Text('Alexandra Eurova'),
-              subtitle: const Text('Quote goes here.'),
+              title: Text(_buddyName),
+              subtitle: Text(_buddyQuote),
               onTap: () {
                 // Navigator.push(context, MaterialPageRoute<void>(
                 //   builder: (context) {
-                //     //_buildFriendCard(name, quote, friendAvatar);
+                //     //_buildBuddyCard(name, quote, BuddyAvatar);
                 //   }
                 // ));
               }, // onTap
@@ -60,7 +60,7 @@ class FriendWidget extends StatelessWidget {
               onTap: () {
                 // Navigator.push(context, MaterialPageRoute<void>(
                 //   builder: (context) {
-                //     //_buildFriendCard(name, quote, friendAvatar);
+                //     //_buildBuddyCard(name, quote, BuddyAvatar);
                 //   }
                 // ));
               }, // onTap
@@ -74,7 +74,7 @@ class FriendWidget extends StatelessWidget {
   //     child: Card(
   //       elevation: 2,
   //       child:InkWell(
-  //         onTap: () => _displayFriend(context),
+  //         onTap: () => _displayBuddy(context),
   //         child: Container(
   //           child: Center(
   //             child: Text(
@@ -92,7 +92,7 @@ class FriendWidget extends StatelessWidget {
   //   );
   // }
 
-  Widget _buildFriendCard(String name, String quote, Image friendAvatar) {
+  Widget _buildBuddyCard(String name, String quote, Image buddyAvatar) {
 
   }
 }

@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/page/workout_plans_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
-import 'package:GymSpace/page/friend_page.dart';
+import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/auth.dart';
 import 'package:GymSpace/page/login_page.dart';
@@ -67,7 +67,7 @@ class _AppDrawerState extends State<AppDrawer> {
             _buildDrawerItem("Workouts", FontAwesomeIcons.dumbbell, 1),
             _buildDrawerItem("Profile", FontAwesomeIcons.userCircle, 2),
             _buildDrawerItem("Groups", FontAwesomeIcons.users, 3),
-            _buildDrawerItem("Friends", FontAwesomeIcons.userFriends, 4),
+            _buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 4),
             _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 5),
             _buildDrawerItem("Messages", FontAwesomeIcons.comments, 6),
             _buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 7),
@@ -159,7 +159,7 @@ class _AppDrawerState extends State<AppDrawer> {
         case 4: // friends
         Navigator.pushReplacement(context, MaterialPageRoute<void> (
           builder: (BuildContext context) {
-            return FriendPage(); // Switch to groups when created
+            return BuddyPage(); // Switch to groups when created
           }
         ));
           break;
