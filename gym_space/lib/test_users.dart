@@ -4,6 +4,7 @@ import 'logic/meal.dart';
 import 'logic/exercise.dart';
 import 'logic/workout.dart';
 import 'logic/workout_plan.dart';
+import 'logic/buddy.dart';
 
 
 Exercise bicepCurls = new Exercise(

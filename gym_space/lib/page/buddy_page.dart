@@ -2,61 +2,71 @@ import 'package:GymSpace/widgets/page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
+import 'package:GymSpace/widgets/buddy_widget.dart';
 import 'package:GymSpace/test_users.dart';
-import 'package:GymSpace/logic/friend.dart';
-import 'package:GymSpace/page/friend_profile_page.dart';
+import 'package:GymSpace/logic/buddy.dart';
+import 'package:GymSpace/page/buddy_profile_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class FriendPage extends StatelessWidget {
+class BuddyPage extends StatelessWidget {
   final Widget child;
 
-  FriendPage({Key key, this.child}) : super(key: key);
+  BuddyPage({Key key, this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(startPage: 4,),
       backgroundColor: GSColors.blue,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100),
-        child: PageHeader(
-          'Friends', 
-          Colors.white, 
-          showDrawer: true,
-          menuColor: GSColors.darkBlue,
-        ),  
-      ),
-      // body: Text("data", style: TextStyle(color: Colors.white)),
-      body: Stack(
-        children: <Widget>[
-          _buildFriendBackground(),
-          _buildFriendList(),
-        ],
+      appBar: _buildAppBar(),
+      body: _buildBuddyBackground(),
+      );
+  }
+
+  Widget _buildAppBar() {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(100),
+      child: PageHeader(
+        'Buddies', 
+        Colors.white, 
+        showDrawer: true,
+        menuColor: GSColors.darkBlue,
       )
-    );
+    );  
   }
 
-  Widget _buildFriendBackground() {
-    return ListView(
+  Widget _buildBuddyBackground() {
+    return Stack(
       children: <Widget>[
-        Container(
-          height: (150 * 5.0),
-          margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-          decoration: ShapeDecoration(
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50),
-            ),
-          )
+        _whiteBackground(),
+
+        // Meant to be scalable
+        BuddyWidget(
+          'David Rose',
+          "I'm the leading man",
+          Image.asset('assets/armshake.jpg'),
         ),
-      ],  
+      ]
     );
   }
 
-  Widget _buildFriendList() {
+Widget _whiteBackground() {
+  return Container(
+    height: (150 * 7.0),
+    margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+    decoration: ShapeDecoration(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(50),
+      ),
+    ),
+  );
+}
+
+  Widget _buildBuddyList() {
     return ListView.builder(
       padding: EdgeInsets.only(top: 20),
-      itemCount: 5,
+      itemCount: 7,
       itemBuilder: (BuildContext context, int i) {
         return Container(
           height: 100,
@@ -71,7 +81,7 @@ class FriendPage extends StatelessWidget {
             onTap: () {
               Navigator.push(context, MaterialPageRoute<void>(
                 builder: (context) {
-                  _buildFriendProfile();
+                  _buildBuddyProfile();
                 }
               ));
             },
@@ -81,7 +91,7 @@ class FriendPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFriendProfile() {
+  Widget _buildBuddyProfile() {
     return Scaffold(
 
     );

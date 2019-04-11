@@ -3,9 +3,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/page/workout_plans_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
+import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/auth.dart';
 import 'package:GymSpace/page/login_page.dart';
+import 'package:GymSpace/widgets/chat_page.dart';
+
 
 class AppDrawer extends StatefulWidget {
   final Widget child;
@@ -70,7 +73,7 @@ class _AppDrawerState extends State<AppDrawer> {
             _buildDrawerItem("Workouts", FontAwesomeIcons.dumbbell, 1),
             _buildDrawerItem("Profile", FontAwesomeIcons.userCircle, 2),
             _buildDrawerItem("Groups", FontAwesomeIcons.users, 3),
-            _buildDrawerItem("Friends", FontAwesomeIcons.userFriends, 4),
+            _buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 4),
             _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 5),
             _buildDrawerItem("Messages", FontAwesomeIcons.comments, 6),
             _buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 7),
@@ -153,12 +156,34 @@ class _AppDrawerState extends State<AppDrawer> {
           ));
           break;
         case 3: // groups
+        Navigator.pushReplacement(context, MaterialPageRoute<void> (
+          builder: (BuildContext context) {
+            return ProfilePage(); // Switch to groups when created
+          }
+        ));
           break;
         case 4: // friends
+        Navigator.pushReplacement(context, MaterialPageRoute<void> (
+          builder: (BuildContext context) {
+            return BuddyPage(); // Switch to groups when created
+          }
+        ));
           break;
         case 5: // notifications
           break;
         case 6: // messages
+          Navigator.push(context, MaterialPageRoute<void>(
+            builder: (BuildContext context){
+              return ChatPage();
+              //return new Scaffold(
+                //appBar: new AppBar(
+                  //title: new Text("Messenger")
+                //),
+                //body: new ChatPage();
+              //);
+            }
+          ));
+
           break;
         case 7: // settings
           break;
