@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'auth.dart';
-import 'colors.dart';
+import 'package:GymSpace/logic/auth.dart';
+import 'package:GymSpace/misc/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'bubblecontroller.dart';
+import 'package:GymSpace/misc/bubblecontroller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/services.dart';
+import 'package:GymSpace/newHome.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({this.auth, this.onLoggedIn});
+  LoginPage({@required this.auth, @required this.authStatus});
+  AuthStatus authStatus;
   final BaseAuth auth;
-  final VoidCallback onLoggedIn;
+  final VoidCallback onLoggedIn = null;
   @override
   LoginPageState createState () => new LoginPageState();
 }
@@ -50,6 +52,8 @@ class LoginPageState extends State<LoginPage>{
         if(_formType == FormType.login) {
           String userID = await widget.auth.signInWithEmailAndPassword(_email, _password);   
           print('Signed in: $userID');
+          widget.authStatus = AuthStatus.loggedIn;
+
         }
         else {
           String userID = await widget.auth.createUserWithEmailAndPassword(_email, _password);
@@ -63,7 +67,9 @@ class LoginPageState extends State<LoginPage>{
             );
           print('Registered User: $userID');
         }
-        widget.onLoggedIn();
+        // widget.onLoggedIn();
+        print(widget.authStatus);
+        Navigator.pop(context);
       }
       catch (e) {
         print('Error: $e');

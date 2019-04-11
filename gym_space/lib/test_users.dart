@@ -4,45 +4,61 @@ import 'logic/meal.dart';
 import 'logic/exercise.dart';
 import 'logic/workout.dart';
 import 'logic/workout_plan.dart';
-import 'global.dart';
+import 'logic/buddy.dart';
 
 
-Exercise bicepCurls = new Exercise("bicep curls", "arms");
-Exercise tricepPulldown = new Exercise("tricep pulldowns", "arms");
-Exercise benchPress = new Exercise("bench press", "chest");
+Exercise bicepCurls = new Exercise(
+  name: "bicep curls", 
+  bodyPart: "arms",
+  sets: 3,
+  reps: 8 
+);
+Exercise tricepPulldown = new Exercise(
+  name: "tricep pulldowns", 
+  bodyPart: "arms",
+  sets: 3,
+  reps: 8  
+);
+Exercise benchPress = new Exercise(
+  name: "bench press", 
+  bodyPart: "chest",
+  sets: 5,
+  reps: 5  
+);
 
 Workout pushDay = new Workout(
-  "push day",
-  "Rolly Lacap",
-  "chest, shoulders, triceps",
-  [tricepPulldown, benchPress]
+  name: "push day",
+  author: "Rolly Lacap",
+  muscleGroup: "chest, shoulders, triceps",
+  description: "This workout is designed for push exercises. Be ready to get a huge pump in your chest and triceps!",
+  exercises: [benchPress, tricepPulldown, bicepCurls, benchPress]
 );
 
 Workout pullDay = new Workout(
-  "pull day",
-  "Rolly Lacap",
-  "back, biceps",
-  [bicepCurls]
+  name: "pull day",
+  author: "Rolly Lacap",
+  muscleGroup: "back, biceps",
+  exercises: [bicepCurls]
 );
 
 WorkoutPlan broPlan = new WorkoutPlan(
-  "bro",
-  "Rolly Lacap",
-  "",
-  [pushDay, pullDay]
+  name: "bro",
+  author: "Rolly Lacap",
+  description: "A workout plan for the bros! This 3 day split includes: a push day, pull day, and a leg day.",
+  workouts: [pushDay, pullDay]
 );
 WorkoutPlan bodyBuilding = new WorkoutPlan(
-  "body buliding",
-  "Rolly Lacap",
-  "",
-  [pushDay]
+  name: "body buliding",
+  author: "Rolly Lacap",
+  description: "This workout plan is for the serious body builders. Get that lean and cut muscle in no time!",
+  workouts: [pushDay]
 );
 
 WorkoutPlan powerLifting = new WorkoutPlan(
-  "power lifting",
-  "Rolly Lacap",
-  "",
-  [pushDay]
+  name: "power lifting",
+  author: "Rolly Lacap",
+  description: "",
+  workouts: [pushDay]
 );
 
 List<Meal> rollyTodayDiet = [
