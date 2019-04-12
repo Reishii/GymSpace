@@ -19,9 +19,9 @@ class PageHeader extends StatelessWidget {
         backgroundColor: backgroundColor,
         title: Text(title),
         elevation: 0,
-        //shape: RoundedRectangleBorder(
-         // borderRadius: BorderRadius.vertical(bottom: Radius.circular(40))
-        //),
+        shape: RoundedRectangleBorder(
+         borderRadius: BorderRadius.vertical(bottom: Radius.circular(40))
+        ),
         leading: showDrawer ? null : IconButton(
           icon: Icon(
             Icons.keyboard_arrow_left, 

@@ -3,10 +3,10 @@ import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class ProfilePage extends StatelessWidget {
+class MePage extends StatelessWidget {
   final Widget child;
 
-  ProfilePage({Key key, this.child}) : super(key: key);
+  MePage({Key key, this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

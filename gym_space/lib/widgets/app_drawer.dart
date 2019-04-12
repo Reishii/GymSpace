@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/page/workout_plans_page.dart';
-import 'package:GymSpace/page/profile_page.dart';
+import 'package:GymSpace/page/me_page.dart';
 import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/auth.dart';
@@ -31,55 +31,72 @@ class _AppDrawerState extends State<AppDrawer> {
 
   @override
   void initState() {
-    _currentPage = widget.currentPage;
+    // _currentPage = widget.currentPage;
   }
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        child: ListView(
+        child: Column(
           children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(top: 30, left: 8),
-              child: Align(
-                alignment: FractionalOffset.centerLeft,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.menu,
-                    color: GSColors.darkBlue,
+            Expanded(
+              child: ListView(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(top: 30, left: 8),
+                    child: Align(
+                      alignment: FractionalOffset.centerLeft,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.menu,
+                          color: GSColors.darkBlue,
+                        ),
+                        onPressed: () {Navigator.pop(context);},
+                      )
+                    )
                   ),
-                  onPressed: () {Navigator.pop(context);},
-                )
-              )
-            ),
-            Container(height: 20),
-            CircleAvatar(
-              backgroundColor: GSColors.darkBlue,
-              radius: 40,
-              backgroundImage: NetworkImage("https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"),
-            ),
-            Container(height: 10),
-            Center(child: 
-              Text("Jane Doe",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
+                  Container(height: 20),
+                  Container(
+                    height: 100, // height and margin should == to make circle
+                    margin: EdgeInsets.symmetric(horizontal: 100),
+                    child: CircleAvatar(
+                    // child: ClipOval(
+                    //   child: Image.network(
+                    //     "https://cdn.pixabay.com/photo/2015/03/03/08/55/portrait-photography-657116_960_720.jpg",
+                    //     fit: BoxFit.fill,
+                    //     width: 140,
+                    //     height: 140,
+                    //   ),
+                    // ),
+                      backgroundColor: Colors.transparent,
+                      radius: 40,
+                      backgroundImage: NetworkImage("https://cdn.pixabay.com/photo/2015/03/03/08/55/portrait-photography-657116_960_720.jpg"),
+                    ),
+                  ),
+                  Container(height: 10),
+                  Center(child: 
+                    Text("Jane Doe",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                  Container(height: 20),
+                  _buildDrawerItem("Newsfeed", FontAwesomeIcons.newspaper, 0),
+                  _buildDrawerItem("Workouts", FontAwesomeIcons.dumbbell, 1),
+                  _buildDrawerItem("Profile", FontAwesomeIcons.userCircle, 2),
+                  _buildDrawerItem("Groups", FontAwesomeIcons.users, 3),
+                  _buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 4),
+                  _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 5),
+                  _buildDrawerItem("Messages", FontAwesomeIcons.comments, 6),
+                  _buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 7),
+                ],
               ),
             ),
-            Container(height: 20),
-            _buildDrawerItem("Newsfeed", FontAwesomeIcons.newspaper, 0),
-            _buildDrawerItem("Workouts", FontAwesomeIcons.dumbbell, 1),
-            _buildDrawerItem("Profile", FontAwesomeIcons.userCircle, 2),
-            _buildDrawerItem("Groups", FontAwesomeIcons.users, 3),
-            _buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 4),
-            _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 5),
-            _buildDrawerItem("Messages", FontAwesomeIcons.comments, 6),
-            _buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 7),
-            Expanded(
+            Container(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   Divider(),
                   ListTile(
@@ -91,7 +108,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   )
                 ],
               )
-            )
+            ),
           ],
         ),
       ),
@@ -151,14 +168,14 @@ class _AppDrawerState extends State<AppDrawer> {
         case 2: // profile
           Navigator.pushReplacement(context, MaterialPageRoute<void> (
             builder: (BuildContext context) {
-              return ProfilePage();
+              return MePage();
             },
           ));
           break;
         case 3: // groups
         Navigator.pushReplacement(context, MaterialPageRoute<void> (
           builder: (BuildContext context) {
-            return ProfilePage(); // Switch to groups when created
+            return MePage(); // Switch to groups when created
           }
         ));
           break;
@@ -172,7 +189,7 @@ class _AppDrawerState extends State<AppDrawer> {
         case 5: // notifications
           break;
         case 6: // messages
-          Navigator.push(context, MaterialPageRoute<void>(
+          Navigator.pushReplacement(context, MaterialPageRoute<void>(
             builder: (BuildContext context){
               return ChatPage();
               //return new Scaffold(

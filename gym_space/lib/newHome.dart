@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
-import 'package:GymSpace/page/profile_page.dart';
+import 'package:GymSpace/page/me_page.dart';
 import 'logic/auth.dart';
 import 'package:GymSpace/page/login_page.dart';
 import 'global.dart';
@@ -35,7 +35,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(),
-      body: ProfilePage(),
+      body: MePage(),
     );
   }
 
