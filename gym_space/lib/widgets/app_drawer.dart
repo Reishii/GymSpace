@@ -8,6 +8,7 @@ import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/auth.dart';
 import 'package:GymSpace/page/login_page.dart';
 import 'package:GymSpace/widgets/chat_page.dart';
+import 'package:GymSpace/page/group_page.dart';
 
 
 class AppDrawer extends StatefulWidget {
@@ -175,7 +176,7 @@ class _AppDrawerState extends State<AppDrawer> {
         case 3: // groups
         Navigator.pushReplacement(context, MaterialPageRoute<void> (
           builder: (BuildContext context) {
-            return MePage(); // Switch to groups when created
+            return GroupPage(); // Switch to groups when created
           }
         ));
           break;
