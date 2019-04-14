@@ -9,20 +9,9 @@ import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 
-// import 'package:GymSpace/settingsMsg.dart';
-
 class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be StatelessWidget that returns a Scaffold - move to page folder
-  // final String currentUserId;
-  // MainScreen({Key key, this.currentUserId}) : super(key: key)
 
   @override
-  //Widget build (BuildContext context) {
-    
-    //bool isLoading = false;
-    //List<Choice> choices = const <Choice>[
-     // const Choice(title: 'Settings', icon: Icons.settings),
-      //  ];
-
     Widget buildItem(BuildContext context, DocumentSnapshot document) {
 
     if (document['userID'] == FirebaseAuth.instance.currentUser()){
@@ -58,7 +47,7 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                       new Container(
                         child: Text(
                           '${document['first name']} ${document['last name']}',   
-                          style: TextStyle(color: GSColors.darkBlue),
+                          style: TextStyle(color: GSColors.cloud),
                         ),
                         alignment: Alignment.centerLeft,
                         margin: new EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 5.0),
@@ -66,7 +55,7 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                       new Container(
                         child: Text(
                           ' ${document['aboutMe'] ?? 'Not available'}',
-                          style: TextStyle(color: GSColors.darkBlue),
+                          style: TextStyle(color: GSColors.cloud),
                         ),
                         alignment: Alignment.centerLeft,
                         margin: new EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
@@ -89,10 +78,12 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                       peerLastName: document['last name'],
                     )));
           },
-          color: GSColors.cloud,
+          color: GSColors.darkBlue,
           padding: EdgeInsets.fromLTRB(25.0, 10.0, 25.0, 10.0),
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
+          // shape: OutlineInputBorder(
+          //   borderRadius:  BorderRadius.circular(50),
+          // )
         ),
         margin: EdgeInsets.only(bottom: 10.0, left: 5.0, right: 5.0),
       );
@@ -101,12 +92,6 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
 
   @override
   Widget build(BuildContext context) {
-    
-  // Future<bool> onBackPress() {
-  //     Navigator.pop(context);
-  //   return Future.value(false);
-  // }
-
    return Scaffold(
       drawer: AppDrawer(startPage: 4,),
        appBar: AppBar(
@@ -141,28 +126,10 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                 },
               ),
             ),
-
-            // Loading
-            // Positioned(
-            //   child: isLoading
-            //       ? Container(
-            //     child: Center(
-            //       child: CircularProgressIndicator(
-            //           valueColor:
-            //           AlwaysStoppedAnimation<Color>(GSColors.darkBlue)),
-            //     ),
-            //     color: Colors.white.withOpacity(0.8),
-            //   )
-            //       : Container(),
-            // )
           ],
         ),
-            //onWillPop: onBackPress,
             onWillPop: null,
       ),
     );
   }
-  //}
-  // State createState() => new MainScreenState(currentUserId: currentUserId);
-  // MsgMainState createState() => new MsgMainState();
 }
