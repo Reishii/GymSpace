@@ -41,6 +41,7 @@ class BuddyPage extends StatelessWidget {
         _whiteBackground(),
 
         // Meant to be scalable
+        // Plan to insert a List<BuddyWidget> that takes the itemCount.length of your buddies as input to show how many to print
         BuddyWidget(
           'David Rose',
           "I'm the leading man",
@@ -62,34 +63,6 @@ Widget _whiteBackground() {
     ),
   );
 }
-
-  Widget _buildBuddyList() {
-    return ListView.builder(
-      padding: EdgeInsets.only(top: 20),
-      itemCount: 7,
-      itemBuilder: (BuildContext context, int i) {
-        return Container(
-          height: 100,
-          margin: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-          decoration: ShapeDecoration(
-            color: GSColors.darkBlue,
-            shape: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(50),
-            )
-          ),
-          child: InkWell(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute<void>(
-                builder: (context) {
-                  _buildBuddyProfile();
-                }
-              ));
-            },
-          )
-        );
-      }
-    );
-  }
 
   Widget _buildBuddyProfile() {
     return Scaffold(
