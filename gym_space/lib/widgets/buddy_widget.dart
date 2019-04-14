@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/buddy.dart';
 import 'package:GymSpace/misc/colors.dart';
+import 'package:GymSpace/widgets/buddy_conditional.dart';
 
 class BuddyWidget extends StatelessWidget {
   final Widget child;
@@ -16,13 +17,8 @@ class BuddyWidget extends StatelessWidget {
     return ListView.separated(
       padding: EdgeInsets.only(top: 20),
       itemCount: 3,
-      itemBuilder: (BuildContext context, int i) {
-        return _displayBuddyPreview(_buddyName, _buddyQuote, i);
-      },
-
-      separatorBuilder: (BuildContext context, int i) {
-        return _displayBuddySepPreview(_buddyName, _buddyQuote, i);
-      },
+      itemBuilder: (BuildContext context, int i) => _displayBuddyPreview(_buddyName, _buddyQuote, i),
+      separatorBuilder: (BuildContext context, int i) =>  _displayBuddySepPreview(_buddyName, _buddyQuote, i),
     );
   }
 
