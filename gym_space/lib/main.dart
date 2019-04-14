@@ -16,9 +16,14 @@ Future<void> main() async{
       projectID: 'gymspace',
     ),
   );
+
+  /*
+  Paul: disabled to make messages work...
+  
   final Firestore firestore = Firestore(app: app);
   await firestore.settings(timestampsInSnapshotsEnabled: true);
-
+  
+  */
   runApp(GymSpace());
 }
 

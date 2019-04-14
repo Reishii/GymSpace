@@ -6,17 +6,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'chatscreen.dart';
 import 'package:GymSpace/misc/colors.dart';
+import 'package:GymSpace/widgets/page_header.dart';
+import 'package:GymSpace/widgets/app_drawer.dart';
+
 // import 'package:GymSpace/settingsMsg.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-//import 'package:GymSpace/login.dart';
-//import 'package:GymSpace/colors.dart';
-
-// void main() => runApp(new MyApp());
-
-// PS 3/7
-// Auth firebaseAuth;
-// String tmpID = "7j05qHZ9RXVIpYNphE7c";
-const String currentUserId = "7j05qHZ9RXVIpYNphE7c";
 
 class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be StatelessWidget that returns a Scaffold - move to page folder
   // final String currentUserId;
@@ -30,16 +23,11 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
      // const Choice(title: 'Settings', icon: Icons.settings),
       //  ];
 
-    //debugPrint("********************************** moo ***************************************");
-
-    Future<FirebaseUser> firebaseUser =  FirebaseAuth.instance.currentUser();
     Widget buildItem(BuildContext context, DocumentSnapshot document) {
 
     if (document['userID'] == FirebaseAuth.instance.currentUser()){
-      debugPrint("******************** moo if *********************");
       return Container();
     } else {
-      debugPrint("******************** moo *********************");
       return Container(
         child: FlatButton(
           child: Row(
@@ -56,7 +44,6 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                     padding: EdgeInsets.all(15.0),
                   ),
                   imageUrl: document['photoUrl'],
-                  //imageUrl: 'gs://gymspace.appspot.com/jGfeAI2v.jpg',
                   width: 50.0,
                   height: 50.0,
                   fit: BoxFit.cover,
@@ -70,7 +57,6 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                     children: <Widget>[
                       new Container(
                         child: Text(
-                          //'Nickname: ${document['last name']}',
                           '${document['first name']} ${document['last name']}',   
                           style: TextStyle(color: GSColors.darkBlue),
                         ),
@@ -96,10 +82,11 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
             Navigator.push(
                 context,
                 new MaterialPageRoute(
-                    builder: (context) => new MessageThread(
+                    builder: (context) => new MessageThreadPage(
                       peerId: document.documentID,
                       peerAvatar: document['photoUrl'],
-                      //peerAvatar: 'gs://gymspace.appspot.com/jGfeAI2v.jpg',
+                      peerFirstName: document['first name'],
+                      peerLastName: document['last name'],
                     )));
           },
           color: GSColors.cloud,
@@ -114,13 +101,18 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
 
   @override
   Widget build(BuildContext context) {
+    
+  // Future<bool> onBackPress() {
+  //     Navigator.pop(context);
+  //   return Future.value(false);
+  // }
 
    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-           "Mango Time",
-          
-          //style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      drawer: AppDrawer(startPage: 4,),
+       appBar: AppBar(
+         title: Text(
+           "Messages", 
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -165,8 +157,8 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
             // )
           ],
         ),
-          //  onWillPop: onBackPress,
-          onWillPop:null,
+            //onWillPop: onBackPress,
+            onWillPop: null,
       ),
     );
   }
