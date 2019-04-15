@@ -18,6 +18,7 @@ class AppDrawer extends StatefulWidget {
 
   AppDrawer({Key key, this.child, int startPage = 2}) : super(key: key) {
     this.startPage = startPage;
+    this.currentPage = startPage;
   }
 
   _AppDrawerState createState() => _AppDrawerState(startPage);
@@ -27,12 +28,12 @@ class _AppDrawerState extends State<AppDrawer> {
   int _currentPage; // 0-7 drawer items are assigned pages when they are built
 
   _AppDrawerState(int startPage) {
-    _currentPage = startPage;
+    // _currentPage = startPage;
   }
 
   @override
   void initState() {
-    // _currentPage = widget.currentPage;
+    _currentPage = widget.currentPage;
   }
 
   @override
