@@ -1,12 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:GymSpace/global.dart';
+// import 'package:firebase_core/firebase_core.dart';
 
 class MePage extends StatelessWidget {
   final Widget child;
+  Future<DocumentSnapshot> userInfo;
 
-  MePage({Key key, this.child}) : super(key: key);
+  MePage({Key key, this.child}) : super(key: key) {
+    userInfo = Firestore.instance.collection('users').document(CurrentUser.getCurrentUserID()).get().then(
+      (DocumentSnapshot ds) { 
+        // ds.data.entries['name'];
+      }
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +53,7 @@ class MePage extends StatelessWidget {
         child: Column(
           children: <Widget>[
             CircleAvatar(
-              backgroundImage: NetworkImage("https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"),
+              backgroundImage: ,
               backgroundColor: Colors.white,
               radius: 70,
             ),
