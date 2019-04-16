@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/profile_data.dart';
 import 'package:GymSpace/logic/meal.dart';
-import 'package:GymSpace/colors.dart';
+import 'package:GymSpace/misc/colors.dart';
 
 class Profile extends StatefulWidget {
   final ProfileData profileData;
@@ -71,8 +71,7 @@ class _ProfileState extends State<Profile> {
                             radius: 80,
                             backgroundImage:
                                 NetworkImage(_profileData.getProfilePic()),
-                          )
-                        ),
+                          )),
                       Container(
                         margin: EdgeInsets.only(bottom: 10),
                         child: Text(
@@ -95,11 +94,11 @@ class _ProfileState extends State<Profile> {
                 child: Text(
                   _profileData.getUser().getLiftingType(),
                   style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w300,
-                      fontSize: 10,
-                      letterSpacing: 1,
+                    color: Colors.white,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w300,
+                    fontSize: 10,
+                    letterSpacing: 1,
                   ),
                 ),
               ),
@@ -110,123 +109,169 @@ class _ProfileState extends State<Profile> {
 
   Widget _buildQuote() {
     return Container(
-      margin: EdgeInsets.all(5),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Card(
-              elevation: 3,
-                // color: Colors.white24,
-              child: Container(
-                  height: 100,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text("This is a motivational quote. Use quotes REST API.",
-                          textAlign: TextAlign.center, style: TextStyle()),
-                    ],
-                  ))),
-          ),
-        ],
-      )
-    );
-  }
-
-  Widget _buildDietInfo() {
-    return Container(
-      margin: EdgeInsets.all(5),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Card(
-              elevation: 3,
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      flex: 4,
-                      child: Icon(Icons.fastfood, size: 100),
-                    ),
-                    Expanded(
-                      flex: 6,
-                      child: Column(
-                        children: <Widget>[
-                          Text("Protein: " + _getDailyProtein().toString() + 'g'),
-                          Text("Carbs:  " + _getDailyCarbs().toString() + 'g'),
-                          Text("Fats: " + _getDailyFats().toString() + 'g'),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-          ),
-        ),
-      ],
-    ));
-  }
-
-  Widget _buildWeightGraph() {
-    return Container(
-      margin: EdgeInsets.all(5),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            flex: 48,
-            child: Card(
-              elevation: 3,
-              child: Column(
-                children: <Widget>[
-                  Icon(
-                    Icons.show_chart,
-                    size: 200,
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(bottom: 10),
-                    child: Text(
-                      "Current Weight: " + _profileData.getUser().getWeight().toString() + " lbs",
-                    )
-                  )
-                ],
-              )
-            ),
-          ),
-        ],
-      )
-    );
-  }
-
-  Widget _buildChallenges() {
-    return Container(
-        margin: EdgeInsets.only(top: 20),
+        margin: EdgeInsets.all(3),
         child: Row(
-          // Challenges
           children: <Widget>[
-            Text(
-              "Challenges",
-              style: TextStyle(
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w600,
-                  fontSize: 30,
-                  letterSpacing: 3),
+            Expanded(
+              flex: 1,
+              child: Card(
+                  elevation: 3,
+                  // color: Colors.white24,
+                  child: Container(
+                      height: 100,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                              "This is a motivational quote. Use quotes REST API.",
+                              textAlign: TextAlign.center,
+                              style: TextStyle()),
+                        ],
+                      ))),
             ),
-            // List of challenges here (may need to use the ListBuilder Widget for this)
           ],
         ));
   }
 
+  Widget _buildDietInfo() {
+    return Container(
+        margin: EdgeInsets.all(3),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              flex: 1,
+              child: Card(
+                elevation: 3,
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 4,
+                        child: Icon(Icons.fastfood, size: 100),
+                      ),
+                      Expanded(
+                        flex: 6,
+                        child: Column(
+                          children: <Widget>[
+                            Text("Protein: " +
+                                _getDailyProtein().toString() +
+                                'g'),
+                            Text(
+                                "Carbs:  " + _getDailyCarbs().toString() + 'g'),
+                            Text("Fats: " + _getDailyFats().toString() + 'g'),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  Widget _buildWeightGraph() {
+    return Container(
+        margin: EdgeInsets.all(3),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              flex: 48,
+              child: Card(
+                  elevation: 3,
+                  child: Column(
+                    children: <Widget>[
+                      Icon(
+                        Icons.show_chart,
+                        size: 200,
+                      ),
+                      Container(
+                          padding: EdgeInsets.only(bottom: 10),
+                          child: Text(
+                            "Current Weight: " +
+                                _profileData.getUser().getWeight().toString() +
+                                " lbs",
+                          ))
+                    ],
+                  )),
+            ),
+          ],
+        ));
+  }
+
+  Widget _buildChallenges() {
+    return Container(
+      margin: EdgeInsets.all(3),
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Card(
+                  elevation: 3,
+                  child: Container(
+                    padding: EdgeInsets.all(5),
+                    child: Text(
+                      "Challenges",
+                      style: TextStyle(
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 24,
+                          letterSpacing: 3),
+                    ),
+                  ),
+                ),
+                // List of challenges here (may need to use the ListBuilder Widget for this)
+              ),
+            ],
+          ),
+          Card(
+            elevation: 3,
+            child: Container(
+              height: 40,
+            ),
+          ),
+          Card(
+            elevation: 3,
+            child: Container(
+              height: 40,
+            ),
+          ),
+          Card(
+            elevation: 3,
+            child: Container(
+              height: 40,
+            ),
+          ),
+          Card(
+            elevation: 3,
+            child: Container(
+              height: 40,
+            ),
+          ),
+          Card(
+            elevation: 3,
+            child: Container(
+              height: 40,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   double _getDailyProtein() {
-    if (_profileData.getUser().getDiet()[DateTime(
+    if (_profileData.getUser().diet[DateTime(
             DateTime.now().year, DateTime.now().month, DateTime.now().day)] ==
         null) {
       return 0;
     }
 
     double totalProtein = 0;
-    for (Meal meal in _profileData.getUser().getDiet()[DateTime(
+    for (Meal meal in _profileData.getUser().diet[DateTime(
         DateTime.now().year, DateTime.now().month, DateTime.now().day)]) {
       totalProtein += meal.getProtein();
     }
@@ -235,14 +280,14 @@ class _ProfileState extends State<Profile> {
   }
 
   double _getDailyCarbs() {
-    if (_profileData.getUser().getDiet()[DateTime(
+    if (_profileData.getUser().diet[DateTime(
             DateTime.now().year, DateTime.now().month, DateTime.now().day)] ==
         null) {
       return 0;
     }
 
     double totalCarbs = 0;
-    for (Meal meal in _profileData.getUser().getDiet()[DateTime(
+    for (Meal meal in _profileData.getUser().diet[DateTime(
         DateTime.now().year, DateTime.now().month, DateTime.now().day)]) {
       totalCarbs += meal.getCarbs();
     }
@@ -251,14 +296,14 @@ class _ProfileState extends State<Profile> {
   }
 
   double _getDailyFats() {
-    if (_profileData.getUser().getDiet()[DateTime(
+    if (_profileData.getUser().diet[DateTime(
             DateTime.now().year, DateTime.now().month, DateTime.now().day)] ==
         null) {
       return 0;
     }
 
     double totalFats = 0;
-    for (Meal meal in _profileData.getUser().getDiet()[DateTime(
+    for (Meal meal in _profileData.getUser().diet[DateTime(
         DateTime.now().year, DateTime.now().month, DateTime.now().day)]) {
       totalFats += meal.getFats();
     }

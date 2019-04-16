@@ -1,16 +1,28 @@
-// tab
-import 'home.dart';
-import 'status.dart';
-import 'auth.dart';
+// import 'home.dart';
+import 'dart:async';
+import 'misc/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-// colors
-// import 'colors.dart' as _colors;
-
-// misc
 import 'package:flutter/material.dart';
+import 'package:GymSpace/home.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'database.dart';
 
-void main() => runApp(GymSpace());
+
+Future<void> main() async{
+  final FirebaseApp app = await FirebaseApp.configure(
+    name: 'gymspace',
+    options: DatabaseConnections.database // our database 
+  );
+
+  /*
+  Paul: disabled to make messages work...
+  
+  final Firestore firestore = Firestore(app: app);
+  await firestore.settings(timestampsInSnapshotsEnabled: true);
+  
+  */
+  runApp(GymSpace());
+}
 
 class GymSpace extends StatelessWidget {
   @override
@@ -18,12 +30,9 @@ class GymSpace extends StatelessWidget {
     return MaterialApp(
       title: 'GymSpace',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: GSColors.darkBlue,
       ),
-      routes: <String, WidgetBuilder> {
-        '/home': (BuildContext context) => new Home()
-      },
-      home: new StatusPage(auth: new Auth())
+      home: Home(),
     );
   }
 }
