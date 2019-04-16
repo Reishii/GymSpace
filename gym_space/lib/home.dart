@@ -47,8 +47,4 @@ class _HomeState extends State<Home> {
   //     print(e);
   //   }
   // }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 17fbe3fd801fe7ad56d9f66b17466c5c6e0abac8
