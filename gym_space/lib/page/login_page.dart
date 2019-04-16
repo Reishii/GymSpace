@@ -31,6 +31,7 @@ class LoginPageState extends State<LoginPage>{
   FormType _formType = FormType.login;
 
   PageController _pageController;
+  GlobalKey<FormFieldState> _passwordKey = GlobalKey<FormFieldState>();
 
   Color left = Colors.black;
   Color right = Colors.white;
@@ -580,9 +581,11 @@ Widget _buildLogin(BuildContext context) {
                         padding: EdgeInsets.only(
                             top: 2.0, bottom: 2.0, left: 25.0, right: 25.0),
                         child: TextFormField(
+                          key: _passwordKey,
                           keyboardType: TextInputType.text,
                           obscureText: true,
                           validator: (value) => value.isEmpty ? 'Error: Password is empty' : null,
+                          onFieldSubmitted: (value) => _password = value,
                           onSaved: (value) => _password = value,
                           style: TextStyle(
                               fontSize: 16.0,
@@ -610,7 +613,7 @@ Widget _buildLogin(BuildContext context) {
                           child: TextFormField(
                           keyboardType: TextInputType.text,
                           obscureText: true,
-                          validator: (value) {if (value != _password) {return 'Error: Password is not matching';}},
+                          validator: (value) => value != _passwordKey.currentState.value ? 'Error: Password is not matching' : null,
                           onSaved: (value) => _password = value,
                           style: TextStyle(
                               fontSize: 16.0,
