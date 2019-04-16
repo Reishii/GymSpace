@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:GymSpace/misc/bubblecontroller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/services.dart';
+import 'package:GymSpace/page/me_page.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({@required this.auth, @required this.authStatus});
@@ -57,25 +58,36 @@ class LoginPageState extends State<LoginPage>{
         }
         else {
           String userID = await widget.auth.createUserWithEmailAndPassword(_email, _password);
-          Firestore.instance.collection('users').document(userID).setData(
-              {'first name': '$_firstName',
-              'last name': '$_lastName',
-              'email': '$_email',
-              'password' : '$_password'
-              }
-
-            );
+          _addUserToDB(userID);
           print('Registered User: $userID');
         }
         // widget.onLoggedIn();
-        print(widget.authStatus);
+        widget.authStatus = AuthStatus.loggedIn;
         Navigator.pop(context);
+        Navigator.push(context, MaterialPageRoute(
+          builder: (BuildContext context) => MePage()
+        ));
       }
       catch (e) {
         print('Error: $e');
       }
     }
   }
+
+void _addUserToDB(String userID) {
+  Firestore.instance.collection('users').document(userID).setData(
+    {
+      'first name': '$_firstName',
+      'last name': '$_lastName',
+      'email': '$_email',
+      'buddies' : [],
+      'points': 0,
+      'bio': 'New User',
+      'lifting type': '',
+      'photoURL': '',
+    }
+  );
+}
 
 void moveToRegister() {
     formKey.currentState.reset();
