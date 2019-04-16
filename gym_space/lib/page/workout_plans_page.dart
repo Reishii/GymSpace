@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/test_users.dart';
@@ -20,7 +19,6 @@ class WorkoutPlanHomePage extends StatelessWidget {
       drawer: AppDrawer(startPage: 1,),
       backgroundColor: GSColors.darkBlue,
       appBar: _buildAppBar(),
-      // body: Text("data", style: TextStyle(color: Colors.white)),
       body: Container(
         child: _buildWorkoutPlansList(),
       )
@@ -29,12 +27,12 @@ class WorkoutPlanHomePage extends StatelessWidget {
 
   Widget _buildAppBar() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(140),
+      preferredSize: Size.fromHeight(100),
       child: PageHeader(
-        'Workout Plans', 
-        Colors.white, 
+        title: 'Workout Plans', 
+        backgroundColor: Colors.white,
         showDrawer: true,
-        menuColor: GSColors.darkBlue,
+        titleColor: GSColors.darkBlue,
       ),
     );
   }
@@ -113,8 +111,13 @@ class WorkoutPlanPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: GSColors.darkBlue,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(140),
-        child: PageHeader(_workoutPlan.name, Colors.white),
+        preferredSize: Size.fromHeight(100),
+        child: PageHeader(
+          title: _workoutPlan.name, 
+          backgroundColor: Colors.white,
+          // showDrawer: true,
+          titleColor: GSColors.darkBlue,
+        ),
       ),
       body: _buildWorkoutsList(),
     );

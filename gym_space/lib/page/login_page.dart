@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:GymSpace/misc/bubblecontroller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/services.dart';
-import 'package:GymSpace/home.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({@required this.auth, @required this.authStatus});

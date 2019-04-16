@@ -183,7 +183,7 @@ class MePage extends StatelessWidget {
 
   Widget _buildWeightInfo() {
     return Container(
-      height: 40,
+      height: 80,
       margin: EdgeInsets.only(top: 30),
       decoration: ShapeDecoration(
         color: GSColors.darkBlue,
@@ -194,56 +194,105 @@ class MePage extends StatelessWidget {
           )
         )
       ),
-      child: Row(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          Expanded(
-            flex: 4,
-            child: Container(
-              margin: EdgeInsets.only(left: 20),
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Current Weight",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  letterSpacing: 1.2
-                ),
+          _buildCurrentWeight(),
+          _buildStartingWeight(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCurrentWeight() {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          flex: 4,
+          child: Container(
+            margin: EdgeInsets.only(left: 20),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "Current Weight",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                letterSpacing: 1.2
               ),
             ),
           ),
-          Expanded(
-            flex: 1,
-            child: Container(
-              alignment: Alignment.center,
-              child: Text(
-                "200 lbs",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14
-                ),
-              )
-            ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Container(
+            alignment: Alignment.center,
+            child: Text(
+              "195 lbs",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14
+              ),
+            )
           ),
-          Expanded(
-            flex: 1,
-            child: Container(
-              alignment: Alignment.center,
-              child: Row(
-                children: <Widget>[
-                  Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
-                  Text(
-                    "5 lbs",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Container(
+            alignment: Alignment.center,
+            child: Row(
+              children: <Widget>[
+                Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
+                Text(
+                  "5 lbs",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
                   ),
-                ],
-              )
+                ),
+              ],
+            )
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStartingWeight() {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          flex: 4,
+          child: Container(
+            margin: EdgeInsets.only(left: 20),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "Starting Weight",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                letterSpacing: 1.2
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Container(
+            alignment: Alignment.center,
+            child: Text(
+              "200 lbs",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14
+              ),
+            )
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Container(),
+        ),
+      ],
     );
   }
 

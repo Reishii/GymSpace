@@ -39,12 +39,12 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void _loggedOut() async {
-    try {
-      GlobalSettings.auth.signOut();
-      GlobalSettings.authStatus = AuthStatus.notLoggedIn;
-    } catch (e) {
-      print(e);
-    }
-  }
+  // void _loggedOut() async {
+  //   try {
+  //     GlobalSettings.auth.signOut();
+  //     GlobalSettings.authStatus = AuthStatus.notLoggedIn;
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 }

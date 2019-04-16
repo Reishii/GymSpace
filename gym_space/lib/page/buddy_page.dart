@@ -27,10 +27,10 @@ class BuddyPage extends StatelessWidget {
     return PreferredSize(
       preferredSize: Size.fromHeight(100),
       child: PageHeader(
-        'Buddies', 
-        Colors.white, 
+        title: 'Buddies', 
+        backgroundColor: Colors.white, 
         showDrawer: true,
-        menuColor: GSColors.darkBlue,
+        titleColor: GSColors.darkBlue,
       )
     );  
   }

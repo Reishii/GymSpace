@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'logic/user.dart';
 import 'package:GymSpace/logic/auth.dart';
 

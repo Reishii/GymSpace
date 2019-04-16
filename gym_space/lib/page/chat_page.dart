@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'chatscreen.dart';
+import 'package:GymSpace/widgets/chatscreen.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
@@ -93,14 +93,8 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
   @override
   Widget build(BuildContext context) {
    return Scaffold(
-      drawer: AppDrawer(startPage: 4,),
-       appBar: AppBar(
-         title: Text(
-           "Messages", 
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
+      drawer: AppDrawer(startPage: 6,),
+      appBar: _buildAppBar(),
       body: WillPopScope(
         child: Stack(
           children: <Widget>[
@@ -129,6 +123,18 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
           ],
         ),
             onWillPop: null,
+      ),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(100),
+      child: PageHeader(
+        title: "Messages", 
+        backgroundColor: GSColors.darkBlue,
+        showDrawer: true,
+        titleColor: Colors.white,
       ),
     );
   }

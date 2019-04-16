@@ -7,33 +7,26 @@ import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/auth.dart';
 import 'package:GymSpace/page/login_page.dart';
-import 'package:GymSpace/widgets/chat_page.dart';
+import 'package:GymSpace/page/chat_page.dart';
 import 'package:GymSpace/page/group_page.dart';
 
 
 class AppDrawer extends StatefulWidget {
   final Widget child;
-  int startPage;
-  int currentPage;
+  final int startPage;
 
-  AppDrawer({Key key, this.child, int startPage = 2}) : super(key: key) {
-    this.startPage = startPage;
-    this.currentPage = startPage;
-  }
+  AppDrawer({Key key, this.child, this.startPage = 2}) : super(key: key);
 
-  _AppDrawerState createState() => _AppDrawerState(startPage);
+  _AppDrawerState createState() => _AppDrawerState();
 }
 
 class _AppDrawerState extends State<AppDrawer> {
   int _currentPage; // 0-7 drawer items are assigned pages when they are built
 
-  _AppDrawerState(int startPage) {
-    // _currentPage = startPage;
-  }
-
   @override
   void initState() {
-    _currentPage = widget.currentPage;
+    _currentPage = widget.startPage;
+    super.initState();
   }
 
   @override
@@ -46,7 +39,6 @@ class _AppDrawerState extends State<AppDrawer> {
               child: ListView(
                 children: <Widget>[
                   Container(
-                    margin: EdgeInsets.only(top: 30, left: 8),
                     child: Align(
                       alignment: FractionalOffset.centerLeft,
                       child: IconButton(
@@ -118,21 +110,22 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   Widget _buildDrawerItem(String title, IconData icon, int page) {
-    // if (_currentPage == page) {
-    //   return Container(
-    //     margin: EdgeInsets.symmetric(horizontal: 40),
-    //     decoration: ShapeDecoration(
-    //       color: GSColors.darkBlue,
-    //       shape: RoundedRectangleBorder(
-    //         borderRadius: BorderRadius.circular(60),
-    //       ),
-    //     ),
-    //     child: ListTile(
-    //       title: Text(title, style: TextStyle(color: Colors.white),),
-    //       leading: Icon(icon, color: Colors.white,)
-    //     ),
-    //   );
-    // }
+    // current page is given a blue background and indented
+    if (_currentPage == page) {
+      return Container(
+        margin: EdgeInsets.symmetric(horizontal: 40),
+        decoration: ShapeDecoration(
+          color: GSColors.darkBlue,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(60),
+          ),
+        ),
+        child: ListTile(
+          title: Text(title, style: TextStyle(color: Colors.white),),
+          leading: Icon(icon, color: Colors.white,)
+        ),
+      );
+    }
 
     return Container(
       child: ListTile(
