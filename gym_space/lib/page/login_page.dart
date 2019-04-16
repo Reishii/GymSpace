@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:GymSpace/misc/bubblecontroller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/services.dart';
+import 'package:GymSpace/page/me_page.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({@required this.auth, @required this.authStatus});
@@ -31,6 +32,7 @@ class LoginPageState extends State<LoginPage>{
   FormType _formType = FormType.login;
 
   PageController _pageController;
+  GlobalKey<FormFieldState> _passwordKey = GlobalKey<FormFieldState>();
 
   Color left = Colors.black;
   Color right = Colors.white;
@@ -56,25 +58,36 @@ class LoginPageState extends State<LoginPage>{
         }
         else {
           String userID = await widget.auth.createUserWithEmailAndPassword(_email, _password);
-          Firestore.instance.collection('users').document(userID).setData(
-              {'first name': '$_firstName',
-              'last name': '$_lastName',
-              'email': '$_email',
-              'password' : '$_password'
-              }
-
-            );
+          _addUserToDB(userID);
           print('Registered User: $userID');
         }
         // widget.onLoggedIn();
-        print(widget.authStatus);
+        widget.authStatus = AuthStatus.loggedIn;
         Navigator.pop(context);
+        Navigator.push(context, MaterialPageRoute(
+          builder: (BuildContext context) => MePage()
+        ));
       }
       catch (e) {
         print('Error: $e');
       }
     }
   }
+
+void _addUserToDB(String userID) {
+  Firestore.instance.collection('users').document(userID).setData(
+    {
+      'first name': '$_firstName',
+      'last name': '$_lastName',
+      'email': '$_email',
+      'buddies' : [],
+      'points': 0,
+      'bio': 'New User',
+      'lifting type': '',
+      'photoURL': '',
+    }
+  );
+}
 
 void moveToRegister() {
     formKey.currentState.reset();
@@ -580,9 +593,11 @@ Widget _buildLogin(BuildContext context) {
                         padding: EdgeInsets.only(
                             top: 2.0, bottom: 2.0, left: 25.0, right: 25.0),
                         child: TextFormField(
+                          key: _passwordKey,
                           keyboardType: TextInputType.text,
                           obscureText: true,
                           validator: (value) => value.isEmpty ? 'Error: Password is empty' : null,
+                          onFieldSubmitted: (value) => _password = value,
                           onSaved: (value) => _password = value,
                           style: TextStyle(
                               fontSize: 16.0,
@@ -610,7 +625,7 @@ Widget _buildLogin(BuildContext context) {
                           child: TextFormField(
                           keyboardType: TextInputType.text,
                           obscureText: true,
-                          validator: (value) {if (value != _password) {return 'Error: Password is not matching';}},
+                          validator: (value) => value != _passwordKey.currentState.value ? 'Error: Password is not matching' : null,
                           onSaved: (value) => _password = value,
                           style: TextStyle(
                               fontSize: 16.0,
