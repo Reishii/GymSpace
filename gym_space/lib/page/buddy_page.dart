@@ -45,7 +45,7 @@ class BuddyPage extends StatelessWidget {
         BuddyWidget(
           'David Rose',
           "I'm the leading man",
-          Image.asset('assets/armshake.jpg'),
+          Image.asset('assets/gymspace_logo.png'),
         ),
       ]
     );
