@@ -8,8 +8,18 @@ import 'package:GymSpace/widgets/chatscreen.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
+<<<<<<< HEAD
 
 class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be StatelessWidget that returns a Scaffold - move to page folder
+=======
+import 'package:GymSpace/global.dart';
+
+String defaultAvatar = 'https://firebasestorage.googleapis.com/v0/b/gymspace.appspot.com/o/default_icon.png?alt=media&token=af0d9f4b-cec3-4f05-87a5-5dd1bfc0eb5a';
+
+
+class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be StatelessWidget that returns a Scaffold - move to page folder
+  
+>>>>>>> 17fbe3fd801fe7ad56d9f66b17466c5c6e0abac8
 
   @override
     Widget buildItem(BuildContext context, DocumentSnapshot document) {
@@ -32,7 +42,11 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                     height: 50.0,
                     padding: EdgeInsets.all(15.0),
                   ),
+<<<<<<< HEAD
                   imageUrl: document['photoUrl'],
+=======
+                  imageUrl: document['photoUrl'] ?? defaultAvatar,
+>>>>>>> 17fbe3fd801fe7ad56d9f66b17466c5c6e0abac8
                   width: 50.0,
                   height: 50.0,
                   fit: BoxFit.cover,
@@ -73,7 +87,11 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                 new MaterialPageRoute(
                     builder: (context) => new MessageThreadPage(
                       peerId: document.documentID,
+<<<<<<< HEAD
                       peerAvatar: document['photoUrl'],
+=======
+                      peerAvatar: document['photoUrl'] ?? defaultAvatar,
+>>>>>>> 17fbe3fd801fe7ad56d9f66b17466c5c6e0abac8
                       peerFirstName: document['first name'],
                       peerLastName: document['last name'],
                     )));
@@ -95,6 +113,16 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
    return Scaffold(
       drawer: AppDrawer(startPage: 6,),
       appBar: _buildAppBar(),
+<<<<<<< HEAD
+=======
+      // floatingActionButton: new FloatingActionButton(
+      //   //IconButton(
+      //   elevation: 1.0,
+      //   child: new Icon(Icons.adb),
+      //   onPressed: ,
+
+      //   ),
+>>>>>>> 17fbe3fd801fe7ad56d9f66b17466c5c6e0abac8
       body: WillPopScope(
         child: Stack(
           children: <Widget>[
@@ -138,4 +166,8 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
       ),
     );
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 17fbe3fd801fe7ad56d9f66b17466c5c6e0abac8
 }
