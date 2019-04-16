@@ -5,7 +5,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:GymSpace/misc/bubblecontroller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/services.dart';
+<<<<<<< HEAD
+=======
 import 'package:GymSpace/page/me_page.dart';
+>>>>>>> 17fbe3fd801fe7ad56d9f66b17466c5c6e0abac8
 
 class LoginPage extends StatefulWidget {
   LoginPage({@required this.auth, @required this.authStatus});
@@ -58,6 +61,21 @@ class LoginPageState extends State<LoginPage>{
         }
         else {
           String userID = await widget.auth.createUserWithEmailAndPassword(_email, _password);
+<<<<<<< HEAD
+          Firestore.instance.collection('users').document(userID).setData(
+              {'first name': '$_firstName',
+              'last name': '$_lastName',
+              'email': '$_email',
+              'password' : '$_password'
+              }
+
+            );
+          print('Registered User: $userID');
+        }
+        // widget.onLoggedIn();
+        print(widget.authStatus);
+        Navigator.pop(context);
+=======
           _addUserToDB(userID);
           print('Registered User: $userID');
         }
@@ -67,6 +85,7 @@ class LoginPageState extends State<LoginPage>{
         Navigator.push(context, MaterialPageRoute(
           builder: (BuildContext context) => MePage()
         ));
+>>>>>>> 17fbe3fd801fe7ad56d9f66b17466c5c6e0abac8
       }
       catch (e) {
         print('Error: $e');
@@ -74,6 +93,8 @@ class LoginPageState extends State<LoginPage>{
     }
   }
 
+<<<<<<< HEAD
+=======
 void _addUserToDB(String userID) {
   Firestore.instance.collection('users').document(userID).setData(
     {
@@ -89,6 +110,7 @@ void _addUserToDB(String userID) {
   );
 }
 
+>>>>>>> 17fbe3fd801fe7ad56d9f66b17466c5c6e0abac8
 void moveToRegister() {
     formKey.currentState.reset();
     setState(() {
