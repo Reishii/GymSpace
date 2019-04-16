@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:GymSpace/global.dart';
 
 
 
@@ -136,10 +137,7 @@ class ChatScreenState extends State<ChatScreen> {
   Future<String> getFutureID() async{
       FirebaseUser currentuser =  await FirebaseAuth.instance.currentUser();
       return currentuser.uid;
-  }
-
-
- 
+  } 
 
   // void getSticker() {
   //   // Hide keyboard when sticker appear

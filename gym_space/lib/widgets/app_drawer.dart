@@ -9,6 +9,7 @@ import 'package:GymSpace/logic/auth.dart';
 import 'package:GymSpace/page/login_page.dart';
 import 'package:GymSpace/page/chat_page.dart';
 import 'package:GymSpace/page/group_page.dart';
+import 'package:GymSpace/page/newsfeed_page.dart';
 
 
 class AppDrawer extends StatefulWidget {
@@ -152,6 +153,11 @@ class _AppDrawerState extends State<AppDrawer> {
       _currentPage = page;
       switch (_currentPage) {
         case 0: // newfeed
+        Navigator.pushReplacement(context, MaterialPageRoute<void> (
+          builder: (BuildContext context) {
+            return NewsfeedPage();
+          }
+        ));
           break;
         case 1: // workouts
           Navigator.pushReplacement(context, MaterialPageRoute<void> (
