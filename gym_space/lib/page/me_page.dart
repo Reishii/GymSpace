@@ -29,7 +29,7 @@ class MePage extends StatelessWidget {
           )
         ],
         shape: RoundedRectangleBorder(
-         borderRadius: BorderRadius.vertical(bottom: Radius.circular(40))
+         borderRadius: BorderRadius.vertical(bottom: Radius.circular(75))
         ),
         bottom: _buildProfileHeading(),
       )
