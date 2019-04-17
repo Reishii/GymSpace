@@ -3,18 +3,15 @@ import 'dart:async';
 import 'misc/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:GymSpace/newHome.dart';
+import 'package:GymSpace/home.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'database.dart';
 
 
 Future<void> main() async{
   final FirebaseApp app = await FirebaseApp.configure(
     name: 'gymspace',
-    options: const FirebaseOptions(
-      googleAppID: '1:936699691309:android:3aeae822367bc185',
-      apiKey: 'AIzaSyD-Q_wLERYdlEBK97oe3qdHz7BVGMRKxFY',
-      projectID: 'gymspace',
-    ),
+    options: DatabaseConnections.database // our database 
   );
 
   /*

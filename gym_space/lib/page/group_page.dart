@@ -24,10 +24,10 @@ class GroupPage extends StatelessWidget {
     return PreferredSize(
       preferredSize: Size.fromHeight(100),
       child: PageHeader(
-        'Groups',
-        Colors.white,
+        title: 'Groups',
+        backgroundColor: Colors.white,
         showDrawer: true,
-        menuColor: GSColors.darkBlue,
+        titleColor: GSColors.darkBlue,
       )
     );
   }

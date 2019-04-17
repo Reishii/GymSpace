@@ -27,10 +27,10 @@ class BuddyPage extends StatelessWidget {
     return PreferredSize(
       preferredSize: Size.fromHeight(100),
       child: PageHeader(
-        'Buddies', 
-        Colors.white, 
+        title: 'Buddies', 
+        backgroundColor: Colors.white, 
         showDrawer: true,
-        menuColor: GSColors.darkBlue,
+        titleColor: GSColors.darkBlue,
       )
     );  
   }
@@ -45,7 +45,7 @@ class BuddyPage extends StatelessWidget {
         BuddyWidget(
           'David Rose',
           "I'm the leading man",
-          Image.asset('assets/armshake.jpg'),
+          Image.asset('assets/gymspace_logo.png'),
         ),
       ]
     );

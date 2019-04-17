@@ -1,12 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:GymSpace/global.dart';
+// import 'package:firebase_core/firebase_core.dart';
 
 class MePage extends StatelessWidget {
   final Widget child;
+  Future<DocumentSnapshot> userInfo;
 
-  MePage({Key key, this.child}) : super(key: key);
+  MePage({Key key, this.child}) : super(key: key) {
+    //userInfo = Firestore.instance.collection('users').document(CurrentUser.getCurrentUserID()).get().then(
+     // (DocumentSnapshot ds) { 
+        // ds.data.entries['name'];
+      //}
+    //);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +39,7 @@ class MePage extends StatelessWidget {
           )
         ],
         shape: RoundedRectangleBorder(
-         borderRadius: BorderRadius.vertical(bottom: Radius.circular(75))
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(40))
         ),
         bottom: _buildProfileHeading(),
       )
@@ -43,7 +53,7 @@ class MePage extends StatelessWidget {
         child: Column(
           children: <Widget>[
             CircleAvatar(
-              backgroundImage: NetworkImage("https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"),
+              backgroundImage: NetworkImage(CurrentUser.getCurrentUserID()),
               backgroundColor: Colors.white,
               radius: 70,
             ),
@@ -83,7 +93,10 @@ class MePage extends StatelessWidget {
           _buildNutritionLabel(),
           _buildNutritionInfo(),
           _buildWeightInfo(),
+          _buildTodaysEventsLabel(),
+          _buildTodaysEventsInfo(),
           _buildChallengesLabel(),
+          _buildChallengesInfo()
         ],
       ),
     );
@@ -98,7 +111,6 @@ class MePage extends StatelessWidget {
             flex: 2,
             child: Container(
               height: 40,
-              // margin: EdgeInsets.symmetric(vertical: 20),
               child: Container(
                 alignment: Alignment.center,
                 child: Text(
@@ -107,7 +119,6 @@ class MePage extends StatelessWidget {
                     color: Colors.white,
                     fontSize: 14,
                     letterSpacing: 1.2
-                    // fontWeight: FontWeight.w300
                   ),
                 ),
                 decoration: ShapeDecoration(
@@ -183,7 +194,7 @@ class MePage extends StatelessWidget {
 
   Widget _buildWeightInfo() {
     return Container(
-      height: 40,
+      height: 80,
       margin: EdgeInsets.only(top: 30),
       decoration: ShapeDecoration(
         color: GSColors.darkBlue,
@@ -194,53 +205,150 @@ class MePage extends StatelessWidget {
           )
         )
       ),
-      child: Row(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          _buildStartingWeight(),
+          _buildCurrentWeight(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCurrentWeight() {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          flex: 4,
+          child: Container(
+            margin: EdgeInsets.only(left: 20),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "Current Weight",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                letterSpacing: 1.2
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Container(
+            alignment: Alignment.center,
+            child: Text(
+              "195 lbs",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14
+              ),
+            )
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Container(
+            alignment: Alignment.center,
+            child: Row(
+              children: <Widget>[
+                Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
+                Text(
+                  "5 lbs",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            )
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStartingWeight() {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          flex: 4,
+          child: Container(
+            margin: EdgeInsets.only(left: 20),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "Starting Weight",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                letterSpacing: 1.2
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Container(
+            alignment: Alignment.center,
+            child: Text(
+              "200 lbs",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14
+              ),
+            )
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Container(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTodaysEventsInfo() {
+    return Container (
+      margin: EdgeInsets.only(top: 30),
+      child: Text("Update this to be workout or group event."),
+    );
+  }
+
+  Widget _buildTodaysEventsLabel() {
+    return Container (
+      margin: EdgeInsets.only(top: 30),
+      height: 40,
+      child: Row (
         children: <Widget>[
           Expanded(
-            flex: 4,
+            flex: 2,
             child: Container(
-              margin: EdgeInsets.only(left: 20),
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Current Weight",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  letterSpacing: 1.2
+              height: 40,
+              child: Container(
+                alignment: Alignment.center,
+                child: Text(
+                  "Today's Events",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    letterSpacing: 1.2
+                  ),
+                ),
+                decoration: ShapeDecoration(
+                  color: GSColors.darkBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(20),
+                      bottomRight: Radius.circular(20)
+                    )
+                  )
                 ),
               ),
             ),
           ),
           Expanded(
             flex: 1,
-            child: Container(
-              alignment: Alignment.center,
-              child: Text(
-                "200 lbs",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14
-                ),
-              )
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Container(
-              alignment: Alignment.center,
-              child: Row(
-                children: <Widget>[
-                  Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
-                  Text(
-                    "5 lbs",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              )
-            ),
+            child: Container(),
           ),
         ],
       ),
@@ -285,5 +393,9 @@ class MePage extends StatelessWidget {
     );
   }
 
-
+  Widget _buildChallengesInfo() {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 30),
+    );
+  }
 }
