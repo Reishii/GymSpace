@@ -45,15 +45,15 @@ class User {
       'liftingType': liftingType,
       'photoURL': photoURL,
       'bio': bio,
-      'buddies': buddies,
+      'buddies': buddies.isEmpty ? [] : buddies,
       'points': points,
       'age': age,
       'startingWeight': startingWeight,
       'currentWeight': currentWeight,
       'height': height,
-      'joinedGroups': joinedGroups,
-      'diet': diet,
-      'workoutPlans': workoutPlans,
+      'joinedGroups': joinedGroups.isEmpty ? [] : joinedGroups,
+      'diet': diet.isEmpty ? Map() : diet,
+      'workoutPlans': workoutPlans.isEmpty ? [] : workoutPlans,
     };
   }
 }

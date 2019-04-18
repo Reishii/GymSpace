@@ -7,11 +7,21 @@ class WorkoutPlan {
   String description = "";
   List<Workout> workouts = List();
 
-  WorkoutPlan({String name = "", String author = "", String muscleGroup = "", String description = "", List<Workout> workouts}) {
-    this.name = name;
-    this.author = author;
-    this.muscleGroup = muscleGroup;
-    this.description = description;
-    this.workouts = workouts;
+  WorkoutPlan({
+    this.name = "",
+    this.author = "",
+    this.muscleGroup = "",
+    this.description = "",
+    this.workouts,
+  });
+
+  Map<String, dynamic> toJSON() {
+    return <String, dynamic>{
+      'name': name,
+      'author': author,
+      'muscleGroup': muscleGroup,
+      'description': description,
+      'workouts': workouts.isEmpty ? [] : workouts,
+    };
   }
 }

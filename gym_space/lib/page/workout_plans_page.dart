@@ -11,15 +11,95 @@ import 'package:GymSpace/global.dart';
 
 class WorkoutPlanHomePage extends StatelessWidget {
   final Widget child;
+  GlobalKey _formKey;
   Future<DocumentSnapshot> _futureUser = Users.getUserSnapshot(Users.currentUserID);
 
   WorkoutPlanHomePage({Key key, this.child}) : super(key: key);
+
+  void _addPressed(BuildContext currentContext) {
+    showDialog(
+      context: currentContext,
+      builder: (context) {
+        return SafeArea(
+          child: SimpleDialog(
+            title: Text("Add Workout Plan", textAlign: TextAlign.center),
+            titlePadding: EdgeInsets.all(20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            children: <Widget>[
+              Divider(
+                color: GSColors.darkBlue,
+                height: 1,
+              ),
+              SafeArea(
+                child:Container(
+                  height: double.maxFinite,
+                  width: double.maxFinite,
+                  child: _buildForm(),
+                ),
+              ),
+              SimpleDialogOption(
+                child: Text("Hello"),
+              )
+            ],
+          )
+        );
+      },
+    );
+  }
+
+  Widget _buildForm() {
+    WorkoutPlan newWorkoutPlan = WorkoutPlan(author: Users.currentUserID);
+    return Form(
+      key: _formKey,
+      autovalidate: true,
+      child: ListView(
+        children: <Widget>[
+          TextFormField( // name
+            decoration: InputDecoration(
+              icon: Icon(Icons.title),
+              hintText: "e.g. Best workout plan!",
+              labelText: "Name",
+            ),
+            onSaved: (name) => newWorkoutPlan.name = name,
+          ),
+          TextFormField( // muscleGroup
+            decoration: InputDecoration(
+              icon: Icon(Icons.title),
+              hintText: "e.g. Chest",
+              labelText: "Muscle Group",
+            ),
+            onSaved: (muscleGroup) => newWorkoutPlan.muscleGroup = muscleGroup,
+          ),
+          TextFormField( // description
+            decoration: InputDecoration(
+              icon: Icon(Icons.title),
+              hintText: "e.g. This plan is for chest day.",
+              labelText: "Description",
+            ),
+            onSaved: (desc) => newWorkoutPlan.description = desc,
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(startPage: 1,),
       backgroundColor: GSColors.darkBlue,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(
+          FontAwesomeIcons.plus,
+          size: 14,
+          color: Colors.white
+        ),
+        backgroundColor: GSColors.purple,
+        onPressed: () => _addPressed(context),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: _buildAppBar(),
       body: Container(
         child: _buildWorkoutPlansList(),
