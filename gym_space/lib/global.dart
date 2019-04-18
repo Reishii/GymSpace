@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'logic/user.dart';
 import 'package:GymSpace/logic/auth.dart';
@@ -12,19 +13,26 @@ class GlobalSettings {
   static AuthStatus authStatus = AuthStatus.notLoggedIn;
 }
 
-class CurrentUser {
+class Users {
   static String _currentUserID = "";
   
-  static String getCurrentUserID() {
-    if (_currentUserID.isEmpty) {
-      _fetchCurrentUserID();
-    }
-
-    return _currentUserID;
-  }
-
-  static void _fetchCurrentUserID() async {
+  static Future<String> getCurrentUserID() async {
     FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
-    _currentUserID = currentUser.uid;
+    return currentUser.uid;
   }
+
+  // static void _fetchCurrentUserID() async {
+  //   FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
+  //   _currentUserID = currentUser.uid;
+  // }
+
+  static Future<DocumentSnapshot> getUserSnapshot(String userID) {
+    return Firestore.instance.collection('users').document(userID).get();
+  }
+
+  // static void _fetchCurrentUserInfo() {
+  //   var doc = Firestore.instance.collection('users');
+  //   getCurrentUserID().then((s) => print('user: $s'));
+    
+  // }
 }

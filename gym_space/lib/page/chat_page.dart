@@ -12,7 +12,6 @@ import 'package:GymSpace/global.dart';
 
 String defaultAvatar = 'https://firebasestorage.googleapis.com/v0/b/gymspace.appspot.com/o/default_icon.png?alt=media&token=af0d9f4b-cec3-4f05-87a5-5dd1bfc0eb5a';
 
-
 class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be StatelessWidget that returns a Scaffold - move to page folder
   
 
@@ -150,4 +149,8 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
       ),
     );
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> d0cacee5b99925ef1af443970471b3d40ab8597c

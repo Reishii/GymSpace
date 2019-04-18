@@ -21,6 +21,7 @@ Future<void> main() async{
   await firestore.settings(timestampsInSnapshotsEnabled: true);
   
   */
+  
   runApp(GymSpace());
 }
 
