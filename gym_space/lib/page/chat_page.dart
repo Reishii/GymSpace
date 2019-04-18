@@ -149,8 +149,4 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
       ),
     );
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> d0cacee5b99925ef1af443970471b3d40ab8597c

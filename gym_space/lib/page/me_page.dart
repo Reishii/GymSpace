@@ -12,15 +12,7 @@ class MePage extends StatelessWidget {
   Map<String, dynamic> userInfo;
 
   MePage({Key key, this.child}) : super(key: key) {
-<<<<<<< HEAD
-    //userInfo = Firestore.instance.collection('users').document(CurrentUser.getCurrentUserID()).get().then(
-     // (DocumentSnapshot ds) { 
-        // ds.data.entries['name'];
-      //}
-    //);
-=======
     // userInfo = Users.getCurrentUserInfo();
->>>>>>> d0cacee5b99925ef1af443970471b3d40ab8597c
   }
 
   @override
@@ -57,12 +49,6 @@ class MePage extends StatelessWidget {
       child: Container(
         child: Column(
           children: <Widget>[
-<<<<<<< HEAD
-            CircleAvatar(
-              backgroundImage: NetworkImage(CurrentUser.getCurrentUserID()),
-              backgroundColor: Colors.white,
-              radius: 70,
-=======
             FutureBuilder(
               future: Users.getCurrentUserID().then((id) => Users.getUserSnapshot(id)
               ),
@@ -73,7 +59,6 @@ class MePage extends StatelessWidget {
                   radius: 70,
                 );
               },
->>>>>>> d0cacee5b99925ef1af443970471b3d40ab8597c
             ),
             Divider(),
             FutureBuilder(
