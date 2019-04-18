@@ -54,7 +54,6 @@ class MePage extends StatelessWidget {
               future: Firestore.instance.collection('users').document(Users.currentUserID).get(),
               builder: (context, snapshot) {
                 String url = Defaults.photoURL;
-                if( snapshot.hasData ) { print("User has data"); }
                 if (snapshot.hasData && snapshot.data['photoURL']) {
                   url = snapshot.data['photoURL'];
                   print("Using user photo");
