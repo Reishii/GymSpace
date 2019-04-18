@@ -49,23 +49,26 @@ class MePage extends StatelessWidget {
       child: Container(
         child: Column(
           children: <Widget>[
-            // FutureBuilder(
-            //   future: Users.getUserSnapshot(Users.currentUserID).catchError((e) => print("Error: $e")),
-            //   builder: (context, snapshot) {
-            //     String url = Defaults.photoURL;
-            //     if (snapshot.hasData && snapshot.data['photoURL']) {
-            //       url = snapshot.data['photoURL'];
-            //     } else {
-            //       print('Using default photo');
-            //     }
+            FutureBuilder(
+              //future: Users.getUserSnapshot(Users.currentUserID).catchError((e) => print("Error: $e")),
+              future: Firestore.instance.collection('users').document(Users.currentUserID).get(),
+              builder: (context, snapshot) {
+                String url = Defaults.photoURL;
+                if( snapshot.hasData ) { print("User has data"); }
+                if (snapshot.hasData && snapshot.data['photoURL']) {
+                  url = snapshot.data['photoURL'];
+                  print("Using user photo");
+                } else {
+                  print('Using default photo');
+                }
 
-            //     return CircleAvatar(
-            //       backgroundImage: NetworkImage(url),
-            //       backgroundColor: Colors.white,
-            //       radius: 70,
-            //     );
-            //   },
-            // ),
+                return CircleAvatar(
+                  backgroundImage: NetworkImage(url),
+                  backgroundColor: Colors.white,
+                  radius: 70,
+                );
+              },
+            ),
             Divider(),
             // FutureBuilder(
             //   future: Users.getCurrentUserID().then((id) => Users.getUserSnapshot(id)),

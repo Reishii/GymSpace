@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:GymSpace/global.dart';
-import 'package:GymSpace/logic/buddy.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/buddy_conditional.dart';
 
@@ -31,7 +30,7 @@ class BuddyWidget extends StatelessWidget {
       height: 90,
       margin: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
       decoration: ShapeDecoration(
-        color: GSColors.darkBlue,
+        color: GSColors.darkCloud,
         shape: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50),
         )
@@ -48,7 +47,7 @@ class BuddyWidget extends StatelessWidget {
             buddyName,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white,
+              color: GSColors.darkBlue,
               fontSize: 28,
               fontWeight: FontWeight.bold,
               ),
@@ -80,7 +79,7 @@ class BuddyWidget extends StatelessWidget {
       height: 100,
       margin: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
       decoration: ShapeDecoration(
-        color: GSColors.darkBlue,
+        color: GSColors.darkCloud,
         shape: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50),
         )
@@ -93,7 +92,7 @@ class BuddyWidget extends StatelessWidget {
             'Patrick Brewer',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white,
+              color: GSColors.darkBlue,
               fontSize: 28,
               fontWeight: FontWeight.bold,
             ),

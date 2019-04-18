@@ -10,6 +10,7 @@ import 'package:GymSpace/page/login_page.dart';
 import 'package:GymSpace/page/chat_page.dart';
 import 'package:GymSpace/page/group_page.dart';
 import 'package:GymSpace/page/newsfeed_page.dart';
+import 'package:GymSpace/logic/user.dart';
 
 
 class AppDrawer extends StatefulWidget {
