@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'misc/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:GymSpace/home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'database.dart';
 import 'package:GymSpace/page/login_page.dart';
