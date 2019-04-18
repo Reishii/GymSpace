@@ -212,12 +212,12 @@ class _AppDrawerState extends State<AppDrawer> {
 
   void _loggedOut() async {
     try {
-      await GlobalSettings.auth.signOut();
-      GlobalSettings.authStatus = AuthStatus.notLoggedIn;
+      await  AuthSettings.auth.signOut();
+       AuthSettings.authStatus = AuthStatus.notLoggedIn;
       Navigator.pushReplacement(context, MaterialPageRoute(
         builder: (BuildContext context) => LoginPage(
-          auth: GlobalSettings.auth,
-          authStatus: GlobalSettings.authStatus,
+          auth:  AuthSettings.auth,
+          authStatus:  AuthSettings.authStatus,
         ),
       ));
     } catch (e) {

@@ -1,11 +1,12 @@
-// import 'home.dart';
 import 'dart:async';
 import 'misc/colors.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'database.dart';
+import 'package:GymSpace/page/login_page.dart';
+import 'package:GymSpace/global.dart';
+import 'package:GymSpace/page/me_page.dart';
 
 
 Future<void> main() async{
@@ -21,11 +22,22 @@ Future<void> main() async{
   await firestore.settings(timestampsInSnapshotsEnabled: true);
   
   */
+
+
+  String loggedIn = await AuthSettings.auth.currentUser();
+  Widget _defaultHome = loggedIn == null ? LoginPage(
+    auth: AuthSettings.auth,
+    authStatus: AuthSettings.authStatus,
+  ) : MePage();
   
-  runApp(GymSpace());
+  runApp(GymSpace(_defaultHome));
 }
 
 class GymSpace extends StatelessWidget {
+  final Widget home;
+
+  GymSpace(this.home);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -33,7 +45,7 @@ class GymSpace extends StatelessWidget {
       theme: ThemeData(
         primaryColor: GSColors.darkBlue,
       ),
-      home: Home(),
+      home: home,
     );
   }
 }

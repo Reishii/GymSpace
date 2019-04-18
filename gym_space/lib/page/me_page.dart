@@ -49,52 +49,58 @@ class MePage extends StatelessWidget {
       child: Container(
         child: Column(
           children: <Widget>[
-            FutureBuilder(
-              future: Users.getCurrentUserID().then((id) => Users.getUserSnapshot(id)
-              ),
-              builder: (context, snapshot) {
-                return CircleAvatar(
-                  backgroundImage: snapshot.hasData ? NetworkImage(snapshot.data['photoURL']) : null,
-                  backgroundColor: Colors.white,
-                  radius: 70,
-                );
-              },
-            ),
+            // FutureBuilder(
+            //   future: Users.getUserSnapshot(Users.currentUserID).catchError((e) => print("Error: $e")),
+            //   builder: (context, snapshot) {
+            //     String url = Defaults.photoURL;
+            //     if (snapshot.hasData && snapshot.data['photoURL']) {
+            //       url = snapshot.data['photoURL'];
+            //     } else {
+            //       print('Using default photo');
+            //     }
+
+            //     return CircleAvatar(
+            //       backgroundImage: NetworkImage(url),
+            //       backgroundColor: Colors.white,
+            //       radius: 70,
+            //     );
+            //   },
+            // ),
             Divider(),
-            FutureBuilder(
-              future: Users.getCurrentUserID().then((id) => Users.getUserSnapshot(id)),
-              builder: (context, snapshot) => 
-                Text( 
-                  snapshot.hasData ? snapshot.data['first name'] + ' ' + snapshot.data['last name'] : "" ,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20
-                  ),
-                )
-            ),
+            // FutureBuilder(
+            //   future: Users.getCurrentUserID().then((id) => Users.getUserSnapshot(id)),
+            //   builder: (context, snapshot) => 
+            //     Text( 
+            //       snapshot.hasData ? snapshot.data['first name'] + ' ' + snapshot.data['last name'] : "" ,
+            //       style: TextStyle(
+            //         color: Colors.white,
+            //         fontWeight: FontWeight.bold,
+            //         fontSize: 20
+            //       ),
+            //     )
+            // ),
             Divider(),
-            FutureBuilder(
-              future: Users.getCurrentUserID().then((id) => Users.getUserSnapshot(id)),
-              builder: (context, snapshot) => 
-              Text(snapshot.hasData ? snapshot.data['lifting type'] : "", // change this to current user's lifting type
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w300
-                ),
-              ),
-            ),
+            // FutureBuilder(
+            //   future: Users.getCurrentUserID().then((id) => Users.getUserSnapshot(id)),
+            //   builder: (context, snapshot) => 
+            //   Text(snapshot.hasData ? snapshot.data['lifting type'] : "", // change this to current user's lifting type
+            //     style: TextStyle(
+            //       color: Colors.white,
+            //       fontWeight: FontWeight.w300
+            //     ),
+            //   ),
+            // ),
             Divider(),
-            FutureBuilder(
-              future: Users.getCurrentUserID().then((id) => Users.getUserSnapshot(id)),
-              builder: (context, snapshot) =>
-                Text(snapshot.hasData ? snapshot.data['bio'] : "", // change this to current user's quote
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-            ),
+            // FutureBuilder(
+            //   future: Users.getCurrentUserID().then((id) => Users.getUserSnapshot(id)),
+            //   builder: (context, snapshot) =>
+            //     Text(snapshot.hasData ? snapshot.data['bio'] : "", // change this to current user's quote
+            //       style: TextStyle(
+            //         color: Colors.white,
+            //         fontStyle: FontStyle.italic,
+            //       ),
+            //     ),
+            // ),
             Divider()
           ],
         ),

@@ -6,6 +6,8 @@ import 'package:GymSpace/misc/bubblecontroller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:GymSpace/page/me_page.dart';
+import 'package:GymSpace/logic/user.dart';
+import 'package:GymSpace/global.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({@required this.auth, @required this.authStatus});
@@ -51,15 +53,14 @@ class LoginPageState extends State<LoginPage>{
     if(validateAndSave()) {
       try {
         if(_formType == FormType.login) {
-          String userID = await widget.auth.signInWithEmailAndPassword(_email, _password);   
-          print('Signed in: $userID');
+          Users.currentUserID = await widget.auth.signInWithEmailAndPassword(_email, _password);   
+          print('Signed in: ' + Users.currentUserID);
           widget.authStatus = AuthStatus.loggedIn;
-
         }
         else {
-          String userID = await widget.auth.createUserWithEmailAndPassword(_email, _password);
-          _addUserToDB(userID);
-          print('Registered User: $userID');
+          Users.currentUserID = await widget.auth.createUserWithEmailAndPassword(_email, _password);
+          _addUserToDB(Users.currentUserID);
+          print('Registered User: ' + Users.currentUserID);
         }
         // widget.onLoggedIn();
         widget.authStatus = AuthStatus.loggedIn;
@@ -74,19 +75,13 @@ class LoginPageState extends State<LoginPage>{
     }
   }
 
-void _addUserToDB(String userID) {
+void _addUserToDB(String userID) {  
   Firestore.instance.collection('users').document(userID).setData(
-    {
-      'first name': '$_firstName',
-      'last name': '$_lastName',
-      'email': '$_email',
-      'buddies' : [],
-      'points': 0,
-      'bio': 'New User',
-      'lifting type': '',
-      'photoURL': '',
-    }
-  );
+    User(
+      firstName: _firstName,
+      lastName: _lastName,
+      email: _email
+    ).toJSON());
 }
 
 void moveToRegister() {
