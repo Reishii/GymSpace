@@ -10,15 +10,15 @@ import 'package:GymSpace/global.dart';
 class MePage extends StatelessWidget {
   final Widget child;
   Map<String, dynamic> userInfo;
+  Future<DocumentSnapshot> _ds;
 
-  MePage({Key key, this.child}) : super(key: key) {
-    // userInfo = Users.getCurrentUserInfo();
-  }
+  MePage({Key key, this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: AppDrawer(startPage: 2,),
+      drawer: AppDrawer(startPage: 
+      2,),
       appBar: _buildAppBar(),
       body: _buildBody(),
     );
@@ -50,6 +50,7 @@ class MePage extends StatelessWidget {
         child: Column(
           children: <Widget>[
             FutureBuilder(
+<<<<<<< HEAD
               //future: Users.getUserSnapshot(Users.currentUserID).catchError((e) => print("Error: $e")),
               future: Firestore.instance.collection('users').document(Users.currentUserID).get(),
               builder: (context, snapshot) {
@@ -59,6 +60,13 @@ class MePage extends StatelessWidget {
                   print("Using user photo");
                 } else {
                   print('Using default photo');
+=======
+              future: Users.getUserSnapshot(Users.currentUserID),
+              builder: (context, snapshot) {
+                String url = Defaults.photoURL;
+                if (snapshot.hasData && snapshot.data['photoURL'] != null) {
+                  url = snapshot.data['photoURL'];
+>>>>>>> 527d3205a348e0aae3b3bc498fd7a199b94d48f5
                 }
 
                 return CircleAvatar(

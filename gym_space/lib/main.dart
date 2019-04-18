@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'misc/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -14,21 +16,19 @@ Future<void> main() async{
     options: DatabaseConnections.database // our database 
   );
 
-  /*
-  Paul: disabled to make messages work...
-  
-  final Firestore firestore = Firestore(app: app);
-  await firestore.settings(timestampsInSnapshotsEnabled: true);
-  
-  */
 
-
-  String loggedIn = await AuthSettings.auth.currentUser();
-  Widget _defaultHome = loggedIn == null ? LoginPage(
-    auth: AuthSettings.auth,
-    authStatus: AuthSettings.authStatus,
-  ) : MePage();
+  // Paul: disabled to make messages work...
   
+  // final Firestore firestore = Firestore(app: app);
+  // await firestore.settings(timestampsInSnapshotsEnabled: true);
+  
+  String _userID = await AuthSettings.auth.currentUser();
+  Widget _defaultHome = LoginPage(auth: AuthSettings.auth, authStatus: AuthSettings.authStatus,);
+  if (_userID != null) {
+    Users.currentUserID = _userID;
+    _defaultHome = MePage();
+  }
+
   runApp(GymSpace(_defaultHome));
 }
 

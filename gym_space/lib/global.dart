@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import 'logic/user.dart';
 import 'package:GymSpace/logic/auth.dart';
 
 class AuthSettings {
@@ -21,9 +19,12 @@ class Errors {
 class Users {
   static String currentUserID = "";
   
+  static Future<FirebaseUser> getCurrentUser() async {
+    return await FirebaseAuth.instance.currentUser();
+  }
+
   static Future<String> getCurrentUserID() async {
-    FirebaseUser currentUser = await FirebaseAuth.instance.currentUser().catchError((e) => print(e.error));
-    return currentUser.uid;
+    return await getCurrentUser().then((user) => user.uid);
   }
 
   // static void _fetchCurrentUserID() async {
@@ -31,9 +32,8 @@ class Users {
   //   _currentUserID = currentUser.uid;
   // }
 
-  static Future<DocumentSnapshot> getUserSnapshot(String userID) {
-    var future = Firestore.instance.collection('users').document(userID).get();
-        return future.catchError((e) => print('Error : $e'));
+  static Future<DocumentSnapshot> getUserSnapshot(String userID) async {
+    return Firestore.instance.collection('users').document(userID).get();
   }
 
   // static void _fetchCurrentUserInfo() {
