@@ -20,18 +20,21 @@ class User {
   List<WorkoutPlan> workoutPlans = List();
   
   User({
-    this.firstName,
-    this.lastName,
-    this.email,
-    this.bio,
-    this.liftingType,
-    this.photoURL,
+    this.firstName = "",
+    this.lastName = "",
+    this.email = "",
+    this.bio = "",
+    this.liftingType = "",
+    this.photoURL = "",
     this.buddies,
-    this.points,
-    this.age,
-    this.startingWeight,
-    this.currentWeight,
-    this.height,
+    this.points = 0,
+    this.age = 0,
+    this.startingWeight = 0,
+    this.currentWeight = 0,
+    this.height = 0,
+    this.joinedGroups,
+    this.diet,
+    this.workoutPlans,
   });
 
   Map<String, dynamic> toJSON() {

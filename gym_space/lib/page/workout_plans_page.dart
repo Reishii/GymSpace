@@ -1,15 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/misc/colors.dart';
-import 'package:GymSpace/test_users.dart';
 import 'package:GymSpace/logic/workout_plan.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/logic/workout.dart';
 import 'package:GymSpace/logic/exercise.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
+import 'package:GymSpace/global.dart';
 
 class WorkoutPlanHomePage extends StatelessWidget {
   final Widget child;
+  Future<DocumentSnapshot> _futureUser = Users.getUserSnapshot(Users.currentUserID);
 
   WorkoutPlanHomePage({Key key, this.child}) : super(key: key);
 
@@ -38,63 +40,72 @@ class WorkoutPlanHomePage extends StatelessWidget {
   }
 
   Widget _buildWorkoutPlansList() {
-    return ListView.builder(
-      padding: EdgeInsets.all(10),
-      itemCount: rolly.workoutPlans.length,
-      itemBuilder: (BuildContext context, int i) {
-        // return WorkoutPlanWidget(rolly.workoutPlans[i]);
-        return Container(
-          height: 200,
-          margin: EdgeInsets.symmetric(vertical: 16),
-          decoration: ShapeDecoration(
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            )
-          ),
-          child: InkWell(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute<void>(
-                builder: (context) {
-                  return WorkoutPlanPage(rolly.workoutPlans[i]);
-                }
-              ));
-            },
-            child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.only(top: 20),
-                child: Center(
-                  child: Text(
-                    rolly.workoutPlans[i].name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      letterSpacing: 2,
-                    ),
-                  ),
+    var userWorkoutPlans;
+    return FutureBuilder(
+      future: _futureUser,
+      builder: (context, snapshot) {
+        List<WorkoutPlan> userWorkoutPlans = snapshot.hasData && snapshot.data['workoutPlans'] != null ?
+          snapshot.data['workoutPlans'] : List();
+
+        return ListView.builder(
+          padding: EdgeInsets.all(10),
+          itemCount: userWorkoutPlans.length,
+          itemBuilder: (BuildContext context, int i) {
+            // return WorkoutPlanWidget(rolly.workoutPlans[i]);
+            return Container(
+              height: 200,
+              margin: EdgeInsets.symmetric(vertical: 16),
+              decoration: ShapeDecoration(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
                 )
               ),
-              Container(
-                margin: EdgeInsets.all(20),
-                child: Center(
-                  child: Text(
-                    rolly.workoutPlans[i].description,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w300,
-                      letterSpacing: 1.5
-                    ),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute<void>(
+                    builder: (context) {
+                      return WorkoutPlanPage(userWorkoutPlans[i]);
+                    }
+                  ));
+                },
+                child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(top: 20),
+                    child: Center(
+                      child: Text(
+                        userWorkoutPlans[i].name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                    )
                   ),
+                  Container(
+                    margin: EdgeInsets.all(20),
+                    child: Center(
+                      child: Text(
+                        userWorkoutPlans[i].description,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w300,
+                          letterSpacing: 1.5
+                        ),
+                      ),
+                    ),
+                  )
+                  ],
                 ),
-              )
-              ],
-            ),
-          ),
-        ); 
-      },
+              ),
+            ); 
+          },
+        );
+      }
     );
   }
 }

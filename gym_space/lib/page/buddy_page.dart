@@ -1,17 +1,26 @@
 import 'package:GymSpace/widgets/page_header.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/widgets/buddy_widget.dart';
 import 'package:GymSpace/test_users.dart';
-import 'package:GymSpace/logic/buddy.dart';
 import 'package:GymSpace/page/buddy_profile_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:GymSpace/global.dart';
 
 class BuddyPage extends StatelessWidget {
   final Widget child;
+  List<String> buddies;
 
-  BuddyPage({Key key, this.child}) : super(key: key);
+  BuddyPage({Key key, this.child}) : super(key: key) {
+    Firestore.instance.collection('users').document(Users.currentUserID)
+      .get().then( (ds) => buddies = ds.data['buddies'] );
+  }
+
+  Future<DocumentSnapshot> getBuddies() async {
+    return Firestore.instance.collection('users').document(Users.currentUserID).get();
+  }
 
   @override
   Widget build(BuildContext context) {
