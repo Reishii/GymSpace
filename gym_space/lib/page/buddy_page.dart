@@ -14,12 +14,12 @@ class BuddyPage extends StatelessWidget {
   List<String> buddies;
 
   BuddyPage({Key key, this.child}) : super(key: key) {
-    Firestore.instance.collection('users').document(Users.currentUserID)
+    Firestore.instance.collection('users').document( DatabaseHelper.currentUserID)
       .get().then( (ds) => buddies = ds.data['buddies'] );
   }
 
   Future<DocumentSnapshot> getBuddies() async {
-    return Firestore.instance.collection('users').document(Users.currentUserID).get();
+    return Firestore.instance.collection('users').document( DatabaseHelper.currentUserID).get();
   }
 
   @override

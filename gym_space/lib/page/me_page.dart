@@ -7,7 +7,7 @@ import 'package:GymSpace/global.dart';
 
 class MePage extends StatelessWidget {
   final Widget child;
-  Future<DocumentSnapshot> _futureUser = Users.getUserSnapshot(Users.currentUserID);
+  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
 
   MePage({Key key, this.child}) : super(key: key);
 

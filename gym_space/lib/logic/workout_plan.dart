@@ -21,7 +21,7 @@ class WorkoutPlan {
       'author': author,
       'muscleGroup': muscleGroup,
       'description': description,
-      'workouts': workouts.isEmpty ? [] : workouts,
+      'workouts': workouts == null ? [] : workouts,
     };
   }
 }

@@ -53,14 +53,14 @@ class LoginPageState extends State<LoginPage>{
     if(validateAndSave()) {
       try {
         if(_formType == FormType.login) {
-          Users.currentUserID = await widget.auth.signInWithEmailAndPassword(_email, _password);   
-          print('Signed in: ' + Users.currentUserID);
+           DatabaseHelper.currentUserID = await widget.auth.signInWithEmailAndPassword(_email, _password);   
+          print('Signed in: ' +  DatabaseHelper.currentUserID);
           widget.authStatus = AuthStatus.loggedIn;
         }
         else {
-          Users.currentUserID = await widget.auth.createUserWithEmailAndPassword(_email, _password);
-          _addUserToDB(Users.currentUserID);
-          print('Registered User: ' + Users.currentUserID);
+           DatabaseHelper.currentUserID = await widget.auth.createUserWithEmailAndPassword(_email, _password);
+          _addUserToDB( DatabaseHelper.currentUserID);
+          print('Registered User: ' +  DatabaseHelper.currentUserID);
         }
         // widget.onLoggedIn();
         widget.authStatus = AuthStatus.loggedIn;

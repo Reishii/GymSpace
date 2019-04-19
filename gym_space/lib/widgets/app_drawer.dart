@@ -23,7 +23,7 @@ class AppDrawer extends StatefulWidget {
 
 class _AppDrawerState extends State<AppDrawer> {
   int _currentPage = 2; // 0-7 drawer items are assigned pages when they are built
-  Future<DocumentSnapshot> _futureUser = Users.getUserSnapshot(Users.currentUserID);
+  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
 
   @override
   void initState() {

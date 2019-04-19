@@ -16,7 +16,7 @@ class Errors {
 
 }
 
-class Users {
+class DatabaseHelper {
   static String currentUserID = "";
   
   static Future<FirebaseUser> getCurrentUser() async {
@@ -25,5 +25,9 @@ class Users {
 
   static Future<DocumentSnapshot> getUserSnapshot(String userID) async {
     return Firestore.instance.collection('users').document(userID).get();
+  }
+
+  static Future<DocumentSnapshot> getWorkoutPlanSnapshot(String workoutPlanID) async {
+    return Firestore.instance.collection('workoutPlans').document(workoutPlanID).get();
   }
 }
