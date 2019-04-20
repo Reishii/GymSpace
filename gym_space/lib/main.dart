@@ -25,7 +25,7 @@ Future<void> main() async{
   String _userID = await AuthSettings.auth.currentUser();
   Widget _defaultHome = LoginPage(auth: AuthSettings.auth, authStatus: AuthSettings.authStatus,);
   if (_userID != null) {
-    Users.currentUserID = _userID;
+     DatabaseHelper.currentUserID = _userID;
     _defaultHome = MePage();
   }
 

@@ -10,8 +10,7 @@ import 'package:GymSpace/page/login_page.dart';
 import 'package:GymSpace/page/chat_page.dart';
 import 'package:GymSpace/page/group_page.dart';
 import 'package:GymSpace/page/newsfeed_page.dart';
-import 'package:GymSpace/logic/user.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AppDrawer extends StatefulWidget {
   final Widget child;
@@ -23,12 +22,13 @@ class AppDrawer extends StatefulWidget {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-  int _currentPage; // 0-7 drawer items are assigned pages when they are built
+  int _currentPage = 2; // 0-7 drawer items are assigned pages when they are built
+  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
 
   @override
   void initState() {
-    _currentPage = widget.startPage;
     super.initState();
+    _currentPage = widget.startPage;
   }
 
   @override
@@ -56,28 +56,41 @@ class _AppDrawerState extends State<AppDrawer> {
                   Container(
                     height: 100, // height and margin should == to make circle
                     margin: EdgeInsets.symmetric(horizontal: 100),
-                    child: CircleAvatar(
-                    // child: ClipOval(
-                    //   child: Image.network(
-                    //     "https://cdn.pixabay.com/photo/2015/03/03/08/55/portrait-photography-657116_960_720.jpg",
-                    //     fit: BoxFit.fill,
-                    //     width: 140,
-                    //     height: 140,
-                    //   ),
-                    // ),
-                      backgroundColor: Colors.transparent,
-                      radius: 40,
-                      backgroundImage: NetworkImage("https://cdn.pixabay.com/photo/2015/03/03/08/55/portrait-photography-657116_960_720.jpg"),
+                    child: FutureBuilder(
+                      future: _futureUser,
+                      builder: (context, snapshot) {
+                        String photoURL = snapshot.hasData && !snapshot.data['photoURL'].isEmpty? snapshot.data['photoURL'] : Defaults.photoURL;
+                        return CircleAvatar(
+                        // child: ClipOval(
+                        //   child: Image.network(
+                        //     "https://cdn.pixabay.com/photo/2015/03/03/08/55/portrait-photography-657116_960_720.jpg",
+                        //     fit: BoxFit.fill,
+                        //     width: 140,
+                        //     height: 140,
+                        //   ),
+                        // ),
+                          backgroundColor: Colors.transparent,
+                          radius: 40,
+                          backgroundImage: NetworkImage(photoURL),
+                        );
+                      },
                     ),
                   ),
                   Container(height: 10),
-                  Center(child: 
-                    Text("Jane Doe",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
+                  Center(
+                    child: FutureBuilder(
+                      future: _futureUser,
+                      builder: (contex, snapshot) {
+                        String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
+                        return Text(
+                          name,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        );
+                      }
+                    )
                   ),
                   Container(height: 20),
                   _buildDrawerItem("Newsfeed", FontAwesomeIcons.newspaper, 0),
@@ -124,7 +137,10 @@ class _AppDrawerState extends State<AppDrawer> {
         ),
         child: ListTile(
           title: Text(title, style: TextStyle(color: Colors.white),),
-          leading: Icon(icon, color: Colors.white,)
+          leading: Icon(icon, color: Colors.white,),
+          onTap: () {
+            Navigator.pop(context);
+          },
         ),
       );
     }
@@ -145,11 +161,6 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   void _switchPage(int page) {
-    if (_currentPage == page) {
-      Navigator.pop(context);
-      return;
-    }
-
     setState(() {
       _currentPage = page;
       switch (_currentPage) {
@@ -161,7 +172,7 @@ class _AppDrawerState extends State<AppDrawer> {
         ));
           break;
         case 1: // workouts
-          Navigator.pushReplacement(context, MaterialPageRoute<void> (
+          Navigator.pushReplacement(context, MaterialPageRoute(
             builder: (BuildContext context) {
               return WorkoutPlanHomePage();
             },

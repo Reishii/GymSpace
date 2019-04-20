@@ -20,18 +20,21 @@ class User {
   List<WorkoutPlan> workoutPlans = List();
   
   User({
-    this.firstName,
-    this.lastName,
-    this.email,
-    this.bio,
-    this.liftingType,
-    this.photoURL,
+    this.firstName = "",
+    this.lastName = "",
+    this.email = "",
+    this.bio = "",
+    this.liftingType = "",
+    this.photoURL = "",
     this.buddies,
-    this.points,
-    this.age,
-    this.startingWeight,
-    this.currentWeight,
-    this.height,
+    this.points = 0,
+    this.age = 0,
+    this.startingWeight = 0,
+    this.currentWeight = 0,
+    this.height = 0,
+    this.joinedGroups,
+    this.diet,
+    this.workoutPlans,
   });
 
   Map<String, dynamic> toJSON() {
@@ -42,15 +45,15 @@ class User {
       'liftingType': liftingType,
       'photoURL': photoURL,
       'bio': bio,
-      'buddies': buddies,
+      'buddies': buddies.isEmpty == null ? [] : buddies,
       'points': points,
       'age': age,
       'startingWeight': startingWeight,
       'currentWeight': currentWeight,
       'height': height,
-      'joinedGroups': joinedGroups,
-      'diet': diet,
-      'workoutPlans': workoutPlans,
+      'joinedGroups': joinedGroups == null ? [] : joinedGroups,
+      'diet': diet == null ? Map() : diet,
+      'workoutPlans': workoutPlans == null ? [] : workoutPlans,
     };
   }
 }

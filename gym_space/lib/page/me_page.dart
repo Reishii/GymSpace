@@ -5,12 +5,9 @@ import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 
-// import 'package:firebase_core/firebase_core.dart';
-
 class MePage extends StatelessWidget {
   final Widget child;
-  Map<String, dynamic> userInfo;
-  Future<DocumentSnapshot> _ds;
+  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
 
   MePage({Key key, this.child}) : super(key: key);
 
@@ -50,55 +47,82 @@ class MePage extends StatelessWidget {
         child: Column(
           children: <Widget>[
             FutureBuilder(
-              future: Users.getUserSnapshot(Users.currentUserID),
+              future: _futureUser,
               builder: (context, snapshot) {
-                String url = Defaults.photoURL;
-                if (snapshot.hasData && snapshot.data['photoURL'] != null) {
-                  url = snapshot.data['photoURL'];
-                }
+                String photoURL = 
+                  snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
 
                 return CircleAvatar(
-                  backgroundImage: NetworkImage(url),
+                  backgroundImage: NetworkImage(photoURL),
                   backgroundColor: Colors.white,
                   radius: 70,
                 );
               },
             ),
             Divider(),
-            // FutureBuilder(
-            //   future: Users.getCurrentUserID().then((id) => Users.getUserSnapshot(id)),
-            //   builder: (context, snapshot) => 
-            //     Text( 
-            //       snapshot.hasData ? snapshot.data['first name'] + ' ' + snapshot.data['last name'] : "" ,
-            //       style: TextStyle(
-            //         color: Colors.white,
-            //         fontWeight: FontWeight.bold,
-            //         fontSize: 20
-            //       ),
-            //     )
-            // ),
+            FutureBuilder(
+              future: _futureUser,
+              builder: (context, snapshot) {
+                String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
+                String points = snapshot.hasData ? snapshot.data['points'].toString() : '0';
+
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      name,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 10),
+                      child: Icon(
+                        Icons.stars,
+                        size: 14,
+                        color: Colors.yellow,
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 4),
+                      child: Text(
+                        points,
+                        style: TextStyle(
+                          color: Colors.yellow,
+                          fontSize: 14
+                        ),
+                      )
+                    )
+                  ],
+                );
+              }
+            ),
             Divider(),
-            // FutureBuilder(
-            //   future: Users.getCurrentUserID().then((id) => Users.getUserSnapshot(id)),
-            //   builder: (context, snapshot) => 
-            //   Text(snapshot.hasData ? snapshot.data['lifting type'] : "", // change this to current user's lifting type
-            //     style: TextStyle(
-            //       color: Colors.white,
-            //       fontWeight: FontWeight.w300
-            //     ),
-            //   ),
-            // ),
+            FutureBuilder(
+              future: _futureUser,
+              builder: (context, snapshot) => 
+                Text(
+                  snapshot.hasData ? snapshot.data['liftingType'] : "", // change this to current user's lifting type
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w300
+                  ),
+                ),
+            ),
             Divider(),
-            // FutureBuilder(
-            //   future: Users.getCurrentUserID().then((id) => Users.getUserSnapshot(id)),
-            //   builder: (context, snapshot) =>
-            //     Text(snapshot.hasData ? snapshot.data['bio'] : "", // change this to current user's quote
-            //       style: TextStyle(
-            //         color: Colors.white,
-            //         fontStyle: FontStyle.italic,
-            //       ),
-            //     ),
-            // ),
+            FutureBuilder(
+              future: _futureUser,
+              builder: (context, snapshot) =>
+                Text(
+                  snapshot.hasData ? snapshot.data['bio'] : "", // change this to current user's quote
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+            ),
             Divider()
           ],
         ),
@@ -163,52 +187,83 @@ class MePage extends StatelessWidget {
   }
 
   Widget _buildNutritionInfo() {
-    return Container(
-      margin: EdgeInsets.only(top: 30),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Container(
-              height: 140,
+    return InkWell(
+      onTap: () => print("Open nutrition info"),
+      child: Container(
+        margin: EdgeInsets.only(top: 30),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              flex: 2,
               child: Container(
-                decoration: ShapeDecoration(
-                  shape: CircleBorder(
-                    side: BorderSide(
-                      width: 10,
-                      color: GSColors.darkBlue
+                height: 140,
+                child: Container(
+                  decoration: ShapeDecoration(
+                    shape: CircleBorder(
+                      side: BorderSide(
+                        width: 16,
+                        color: GSColors.darkBlue
+                      )
                     )
-                  )
-                ),
-              )
+                  ),
+                )
+              ),
             ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Container(
+            Expanded(
+              flex: 1,
               child: Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      margin:EdgeInsets.symmetric(vertical: 5),
-                      child: Text("Protein:        100" + "g"),
-                    ),
-                    Container(
-                      margin:EdgeInsets.symmetric(vertical: 5),
-                      child: Text("Carbs:          60" + "g"),
-                    ),
-                    Container(
-                      margin:EdgeInsets.symmetric(vertical: 5),
-                      child: Text("Fats:             40" + "g"),
-                    ),
-                  ],
+                // margin: EdgeInsets.only(right: 100),
+                child: Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Container(
+                        margin:EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Protein: "),
+                            Text("100g")
+                          ],
+                        )
+                      ),
+                      Container(
+                        margin:EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Carbs: "),
+                            Text("60g")
+                          ],
+                        )
+                      ),Container(
+                        margin:EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Fats: "),
+                            Text("20g")
+                          ],
+                        )
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          )
-        ],
-      )
+            Expanded(
+              flex: 1,
+              child: Container(
+                alignment: FractionalOffset.center,
+                child: Icon(
+                  Icons.keyboard_arrow_right,
+                  color: GSColors.darkBlue,
+                ),
+              ),
+            ),
+          ],
+        )
+      ),
     );
   }
 
@@ -257,15 +312,19 @@ class MePage extends StatelessWidget {
           flex: 1,
           child: Container(
             alignment: Alignment.center,
-            child: Text(
-              "195 lbs",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14
+            child: FutureBuilder(
+              future: _futureUser,
+              builder: (context, snapshot) =>
+                Text(
+                  snapshot.hasData ? snapshot.data['currentWeight'].toString() + ' lbs' : '',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14
+                  ),
+                )
               ),
-            )
+            ),
           ),
-        ),
         Expanded(
           flex: 1,
           child: Container(
@@ -273,12 +332,18 @@ class MePage extends StatelessWidget {
             child: Row(
               children: <Widget>[
                 Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
-                Text(
-                  "5 lbs",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
+                FutureBuilder(
+                  future: _futureUser,
+                  builder: (context, snapshot) {
+                    double weightLost = snapshot.hasData ? (snapshot.data['startingWeight'] - snapshot.data['currentWeight']) : 0;
+                    return Text(
+                      weightLost.toStringAsFixed(2),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    );
+                  }
                 ),
               ],
             )
@@ -310,13 +375,17 @@ class MePage extends StatelessWidget {
           flex: 1,
           child: Container(
             alignment: Alignment.center,
-            child: Text(
-              "200 lbs",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14
-              ),
-            )
+            child: FutureBuilder(
+              future: _futureUser,
+              builder: (context, snapshot) =>
+              Text(
+                snapshot.hasData ? snapshot.data['startingWeight'].toString() + " lbs" : "",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14
+                ),
+              )
+            ),
           ),
         ),
         Expanded(
@@ -347,7 +416,7 @@ class MePage extends StatelessWidget {
               child: Container(
                 alignment: Alignment.center,
                 child: Text(
-                  "Today's Events",
+                  "Today's Activities",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14,

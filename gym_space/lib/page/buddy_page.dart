@@ -11,8 +11,16 @@ import 'package:GymSpace/global.dart';
 
 class BuddyPage extends StatelessWidget {
   final Widget child;
+  List<String> buddies;
 
-  BuddyPage({Key key, this.child}) : super(key: key);
+  BuddyPage({Key key, this.child}) : super(key: key) {
+    Firestore.instance.collection('users').document( DatabaseHelper.currentUserID)
+      .get().then( (ds) => buddies = ds.data['buddies'] );
+  }
+
+  Future<DocumentSnapshot> getBuddies() async {
+    return Firestore.instance.collection('users').document( DatabaseHelper.currentUserID).get();
+  }
 
   @override
   Widget build(BuildContext context) {

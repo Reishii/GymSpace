@@ -16,29 +16,18 @@ class Errors {
 
 }
 
-class Users {
+class DatabaseHelper {
   static String currentUserID = "";
   
   static Future<FirebaseUser> getCurrentUser() async {
     return await FirebaseAuth.instance.currentUser();
   }
 
-  static Future<String> getCurrentUserID() async {
-    return await getCurrentUser().then((user) => user.uid);
-  }
-
-  // static void _fetchCurrentUserID() async {
-  //   FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
-  //   _currentUserID = currentUser.uid;
-  // }
-
   static Future<DocumentSnapshot> getUserSnapshot(String userID) async {
     return Firestore.instance.collection('users').document(userID).get();
   }
 
-  // static void _fetchCurrentUserInfo() {
-  //   var doc = Firestore.instance.collection('users');
-  //   getCurrentUserID().then((s) => print('user: $s'));
-    
-  // }
+  static Future<DocumentSnapshot> getWorkoutPlanSnapshot(String workoutPlanID) async {
+    return Firestore.instance.collection('workoutPlans').document(workoutPlanID).get();
+  }
 }
