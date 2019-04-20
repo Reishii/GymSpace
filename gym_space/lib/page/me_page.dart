@@ -50,23 +50,11 @@ class MePage extends StatelessWidget {
         child: Column(
           children: <Widget>[
             FutureBuilder(
-<<<<<<< HEAD
-              //future: Users.getUserSnapshot(Users.currentUserID).catchError((e) => print("Error: $e")),
-              future: Firestore.instance.collection('users').document(Users.currentUserID).get(),
-              builder: (context, snapshot) {
-                String url = Defaults.photoURL;
-                if (snapshot.hasData && snapshot.data['photoURL']) {
-                  url = snapshot.data['photoURL'];
-                  print("Using user photo");
-                } else {
-                  print('Using default photo');
-=======
               future: Users.getUserSnapshot(Users.currentUserID),
               builder: (context, snapshot) {
                 String url = Defaults.photoURL;
                 if (snapshot.hasData && snapshot.data['photoURL'] != null) {
                   url = snapshot.data['photoURL'];
->>>>>>> 527d3205a348e0aae3b3bc498fd7a199b94d48f5
                 }
 
                 return CircleAvatar(

@@ -9,21 +9,10 @@ import 'package:GymSpace/page/buddy_profile_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 
-var db = new Users();
-
 class BuddyPage extends StatelessWidget {
   final Widget child;
-  List<String> buddies;
 
-  BuddyPage({Key key, this.child}) : super(key: key) {
-    print(Users.currentUserID);
-    //Firestore.instance.collection('users').document(Users.currentUserID).get().then( (ds) => buddies = ds.data['buddies'] );
-    Future<DocumentSnapshot> ds = getBuddies();
-  }
-
-  Future<DocumentSnapshot> getBuddies() async {
-    return Firestore.instance.collection('users').document(Users.currentUserID).get();
-  }
+  BuddyPage({Key key, this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -54,11 +43,7 @@ class BuddyPage extends StatelessWidget {
 
         // Meant to be scalable
         // Plan to insert a List<BuddyWidget> that takes the itemCount.length of your buddies as input to show how many to print
-        BuddyWidget(
-          'David Rose',
-          "I'm the leading man",
-          Image.asset('assets/gymspace_logo.png'),
-        ),
+        BuddyWidget(),
       ]
     );
   }

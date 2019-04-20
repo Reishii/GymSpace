@@ -2,22 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/buddy_conditional.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+
+Future<DocumentSnapshot> ds;
 
 class BuddyWidget extends StatelessWidget {
   final Widget child;
-  final String _buddyName;
-  final String _buddyQuote;
-  final Image _buddyAvatar;
+  List<String> buddies = new List();
 
-  BuddyWidget(this._buddyName, this._buddyQuote, this._buddyAvatar, {Key key, this.child}) : super(key: key);
+  BuddyWidget({Key key, this.child}) : super(key: key) {
+    print(Users.currentUserID);
+    Firestore.instance.collection('users').document(Users.currentUserID).get().then( (ds) => buddies = ds.data['buddies'] );
+    ds = getBuddies();
+  }
+
+  Future<DocumentSnapshot> getBuddies() async {
+    return Firestore.instance.collection('users').document(Users.currentUserID).get();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: EdgeInsets.only(top: 20),
-      itemCount: 3,
-      itemBuilder: (BuildContext context, int i) => _displayBuddyPreview(_buddyName, _buddyQuote, i),
-      separatorBuilder: (BuildContext context, int i) =>  _displayBuddySepPreview(_buddyName, _buddyQuote, i),
+    return FutureBuilder(
+      future: ds,
+      builder: (context, snapshot) {
+        if(snapshot.hasData != null) 
+        {
+          print("You have buddies");
+          buddies.add(snapshot.data['buddies']);
+        }
+      }
     );
   }
 
@@ -25,7 +39,7 @@ class BuddyWidget extends StatelessWidget {
 
   }
 
-  Widget _displayBuddyPreview(String buddyName, String buddyQuote, int index) {
+  Widget _displayBuddyPreview(List<String> buddies) {
     return Container(
       height: 90,
       margin: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
@@ -44,7 +58,7 @@ class BuddyWidget extends StatelessWidget {
           ),
 
           title: Text(
-            buddyName,
+            'David Rose',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: GSColors.darkBlue,
@@ -54,7 +68,7 @@ class BuddyWidget extends StatelessWidget {
             ),
 
           subtitle: Text(
-            buddyQuote,
+            'I/m the leading man',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.blueGrey,
@@ -74,7 +88,7 @@ class BuddyWidget extends StatelessWidget {
     );
   }
 
-  Widget _displayBuddySepPreview(String buddyName, String buddyQuote, int index) {
+  Widget _displayBuddySepPreview(List<String> buddies) {
     return Container(
       height: 100,
       margin: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
