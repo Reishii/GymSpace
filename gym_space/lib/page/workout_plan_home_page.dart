@@ -9,12 +9,18 @@ import 'package:GymSpace/logic/workout_plan.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 
-class WorkoutPlanHomePage extends StatelessWidget {
+class WorkoutPlanHomePage extends StatefulWidget {
   final Widget child;
+
+  WorkoutPlanHomePage({Key key, this.child}) : super(key: key);
+  _WorkoutPlanHomePageState createState() => _WorkoutPlanHomePageState();
+
+}
+
+class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
 
-  WorkoutPlanHomePage({Key key, this.child}) : super(key: key);
 
   void _addPressed(BuildContext currentContext) {
     showDialog(
@@ -68,6 +74,7 @@ class WorkoutPlanHomePage extends StatelessWidget {
                           print("Adding Workout Plan to database");
                           _addWorkoutPlanToDB(newWorkoutPlan);
                           Navigator.pop(context);
+                          setState(() {});
                         }
                       },
                     ),
@@ -179,8 +186,9 @@ class WorkoutPlanHomePage extends StatelessWidget {
   }
 
   Widget _buildWorkoutPlansList() {
-    return FutureBuilder(
-      future: DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID),
+    return StreamBuilder(
+      stream: _futureUser.asStream(),
+      // future: DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID),
       builder: (context, snapshot) {
          var userWorkoutPlansIDS = snapshot.hasData && snapshot.data['workoutPlans'] != null 
           ? snapshot.data['workoutPlans'] : List();
@@ -189,15 +197,16 @@ class WorkoutPlanHomePage extends StatelessWidget {
           padding: EdgeInsets.all(10),
           itemCount: userWorkoutPlansIDS.length,
           itemBuilder: (BuildContext context, int i) {
-            return FutureBuilder(
-              future: DatabaseHelper.getWorkoutPlanSnapshot(userWorkoutPlansIDS[i]),
+            return StreamBuilder(
+              stream: DatabaseHelper.getWorkoutPlanSnapshot(userWorkoutPlansIDS[i]).asStream(),
+              // future: DatabaseHelper.getWorkoutPlanSnapshot(userWorkoutPlansIDS[i]),
               builder: (context, snapshot) {
                 return snapshot.hasData
                   ? FutureBuilder(
-                    future: WorkoutPlan.jsonToWorkoutPlan(snapshot.data.data),
+                    future: WorkoutPlan.jsonToWorkoutPlan(snapshot.data.data, snapshot.data.documentID),
                     builder: (context, snapshot) => _buildWorkoutPlanItem(context, snapshot.data),
                   )
-                  : Container(child: Text("Fetching Workout Plan"),);
+                  : Container();
               },
             );
           },
@@ -211,77 +220,120 @@ class WorkoutPlanHomePage extends StatelessWidget {
       return Container();
     }
 
-    return Container(
-      height: 200,
-      margin: EdgeInsets.symmetric(vertical: 16),
-      decoration: ShapeDecoration(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        )
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(context, MaterialPageRoute(
-            builder: (context) {
-              return WorkoutPlanPage(workoutPlan: workoutPlan,);
-            }
-          ));
-        },
-        child: Container(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.only(top: 20),
-                child: Center(
-                  child: Text(
-                    workoutPlan.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                )
+    void _planTapped(BuildContext context) {
+      Navigator.push(context, MaterialPageRoute(
+        builder: (context) => WorkoutPlanPage(workoutPlan: workoutPlan,)
+      ));
+    }
+
+    Future<void> _removeWorkoutPlanFromDB() async {
+      await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
+        .updateData({'workoutPlans': FieldValue.arrayRemove([workoutPlan.documentID])})
+        .then((_) => print('Removed workout plan from current users workoutPlans'))
+        .catchError((e) => print('Failed to remove workout plan from user.\nError: $e'));
+
+      print('...Removing workoutPlan from collection');
+      await Firestore.instance.collection('workoutPlans').document(workoutPlan.documentID)
+        .delete().then((_) => print("Removed workout plan from workoutPlans collection"))
+        .catchError((e) => print('Failed to remove workout plan from collection.\nError: $e'));
+    }
+
+    void _planLongPressed(BuildContext context) async {
+      // remove from database
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Delete workout plan?'),
+            content: Text('Tap Delete to remove ' + workoutPlan.name),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            actions: <Widget>[
+              MaterialButton(
+                child: Text('Cancel'),
+                onPressed: () => Navigator.pop(context),
               ),
-              Container(
-                margin: EdgeInsets.all(20),
-                child: Center(
-                  child: Text(
-                    workoutPlan.description,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w300,
-                      letterSpacing: 1.5
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Text(
-                      workoutPlan.workouts.length.toString() + ' workouts'
-                    ),
-                    FutureBuilder(
-                      future: DatabaseHelper.getUserSnapshot(workoutPlan.author),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          String name = snapshot.data['firstName'] + ' ' + snapshot.data['lastName'];
-                          return Text('By: $name');
-                        }
-                        
-                        return Container(child: Text('Fetching Workout Plan'),);
-                      },
-                    )
-                  ],
-                ),
+              FlatButton(
+                child: Text('Delete'),
+                onPressed: () {
+                  _removeWorkoutPlanFromDB().then((_) {
+                    // now close dialog and refresh list
+                    Navigator.pop(context);
+                    setState((){});
+                  });
+                },
               )
             ],
-          ),
+          );
+        },
+      );
+    }
+
+    return InkWell(
+      onTap: () { _planTapped(context);},
+      onLongPress: () { _planLongPressed(context);},
+      child: Container(
+        height: 200,
+        margin: EdgeInsets.symmetric(vertical: 16),
+        decoration: ShapeDecoration(
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          )
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(top: 20),
+              child: Center(
+                child: Text(
+                  workoutPlan.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    letterSpacing: 2,
+                  ),
+                ),
+              )
+            ),
+            Container(
+              margin: EdgeInsets.all(20),
+              child: Center(
+                child: Text(
+                  workoutPlan.description,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w300,
+                    letterSpacing: 1.5
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Text(
+                    workoutPlan.workouts.length.toString() + ' workouts'
+                  ),
+                  FutureBuilder(
+                    future: DatabaseHelper.getUserSnapshot(workoutPlan.author),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        String name = snapshot.data['firstName'] + ' ' + snapshot.data['lastName'];
+                        return Text('By: $name');
+                      }
+                      
+                      return Container();
+                    },
+                  )
+                ],
+              ),
+            )
+          ],
         ),
       ),
     );
