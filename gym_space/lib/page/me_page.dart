@@ -25,11 +25,11 @@ class MePage extends StatelessWidget {
     return PreferredSize(
       preferredSize: Size.fromHeight(300),
       child: AppBar(
-        elevation: 5,
+        elevation: 4,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search, color: Colors.white,),
-            onPressed: (){},
+            onPressed: () {},
           )
         ],
         shape: RoundedRectangleBorder(

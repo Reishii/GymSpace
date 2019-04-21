@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/misc/colors.dart';
-import 'package:GymSpace/page/workout_plans_page.dart';
+import 'package:GymSpace/page/workout_plan_home_page.dart';
 import 'package:GymSpace/page/me_page.dart';
 import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/global.dart';

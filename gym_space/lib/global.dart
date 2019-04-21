@@ -30,4 +30,8 @@ class DatabaseHelper {
   static Future<DocumentSnapshot> getWorkoutPlanSnapshot(String workoutPlanID) async {
     return Firestore.instance.collection('workoutPlans').document(workoutPlanID).get();
   }
+
+  static Future<DocumentSnapshot> getWorkoutSnapshot(String workoutID) async {
+    return Firestore.instance.collection('workouts').document(workoutID).get();
+  }
 }

@@ -1,43 +1,43 @@
 import 'logic/user.dart';
 import 'logic/group.dart';
 import 'logic/meal.dart';
-import 'logic/exercise.dart';
+// import 'logic/exercise.dart';
 import 'logic/workout.dart';
 import 'logic/workout_plan.dart';
 
 
-Exercise bicepCurls = new Exercise(
-  name: "bicep curls", 
-  bodyPart: "arms",
-  sets: 3,
-  reps: 8 
-);
-Exercise tricepPulldown = new Exercise(
-  name: "tricep pulldowns", 
-  bodyPart: "arms",
-  sets: 3,
-  reps: 8  
-);
-Exercise benchPress = new Exercise(
-  name: "bench press", 
-  bodyPart: "chest",
-  sets: 5,
-  reps: 5  
-);
+// Exercise bicepCurls = new Exercise(
+//   name: "bicep curls", 
+//   bodyPart: "arms",
+//   sets: 3,
+//   reps: 8 
+// );
+// Exercise tricepPulldown = new Exercise(
+//   name: "tricep pulldowns", 
+//   bodyPart: "arms",
+//   sets: 3,
+//   reps: 8  
+// );
+// Exercise benchPress = new Exercise(
+//   name: "bench press", 
+//   bodyPart: "chest",
+//   sets: 5,
+//   reps: 5  
+// );
 
 Workout pushDay = new Workout(
   name: "push day",
   author: "Rolly Lacap",
   muscleGroup: "chest, shoulders, triceps",
   description: "This workout is designed for push exercises. Be ready to get a huge pump in your chest and triceps!",
-  exercises: [benchPress, tricepPulldown, bicepCurls, benchPress]
+  // exercises: [benchPress, tricepPulldown, bicepCurls, benchPress]
 );
 
 Workout pullDay = new Workout(
   name: "pull day",
   author: "Rolly Lacap",
   muscleGroup: "back, biceps",
-  exercises: [bicepCurls]
+  // exercises: [bicepCurls]
 );
 
 WorkoutPlan broPlan = new WorkoutPlan(
