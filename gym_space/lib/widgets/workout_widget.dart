@@ -191,7 +191,7 @@ class _WorkoutWidgetState extends State<WorkoutWidget> {
               height = _isExpanded ? 60.0 * 1.5 + workout.exercises.length * 70 : 60;
            });
          },
-         onLongPress: _showWorkoutDialog,
+        //  onLongPress: _showWorkoutDialog,
          child: Column(
            children: <Widget>[
              Row(
@@ -332,43 +332,94 @@ class _WorkoutWidgetState extends State<WorkoutWidget> {
     );
   }
 
-  void _showWorkoutDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Row(
-            children: <Widget>[
-              Container(
-                child: Text(workout.name),
-              ),
-              Container(
-                margin: EdgeInsets.only(left: 140),
-                child: Text(
-                  workout.author,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-              )
-            ],
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10)
-          ),
-          contentPadding: EdgeInsets.all(30),
-          children: <Widget>[
-            Text(
-              workout.description,
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontWeight: FontWeight.w300,
-              ),
-            )
-          ],
-        );
-      }
-    );
-  }
+
+  // void _showWorkoutDialog() {
+  //   void _deletePressed() {
+  //     Navigator.pop(context);
+  //     showDialog(
+  //       context: context,
+  //       builder: (context) {
+  //         return AlertDialog(
+  //           title: Text('Are you sure you want to delete ' + workout.name + '?'),
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(20)
+  //           ),
+  //           actions: <Widget>[
+  //             MaterialButton(
+  //               child: Text('Cancel'),
+  //               onPressed: () => Navigator.pop(context),
+  //             ),
+  //             MaterialButton(
+  //               child: Text('Delete'),
+  //               onPressed: () {
+  //                 _removeWorkoutFromDB().then((_) {
+  //                   Navigator.pop(context);
+  //                   setState((){});
+  //                 });
+  //               },
+  //             ),
+  //           ],
+  //         );
+  //       }
+  //     );
+  //   }
+
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Row(
+  //           children: <Widget>[
+  //             Container(
+  //               child: Text(workout.name),
+  //             ),
+  //             Container(
+  //               margin: EdgeInsets.only(left: 140),
+  //               child: Text(
+  //                 workout.author,
+  //                 style: TextStyle(
+  //                   fontSize: 12,
+  //                   fontWeight: FontWeight.w300,
+  //                 ),
+  //               ),
+  //             )
+  //           ],
+  //         ),
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(10)
+  //         ),
+  //         // contentPadding: EdgeInsets.all(30),
+  //         content: Text(
+  //           workout.description,
+  //           textAlign: TextAlign.left,
+  //           style: TextStyle(
+  //             fontWeight: FontWeight.w300,
+  //           ),
+  //         ),
+  //         actions: <Widget>[
+  //           MaterialButton(
+  //             child: Text("Close"),
+  //             onPressed: () => Navigator.pop(context),
+  //           ),
+  //           MaterialButton(
+  //             child: Text("Delete"),
+  //             onPressed: () {
+  //               print("Delete pressed");
+  //               _deletePressed();
+  //             },
+  //           )
+  //         ],
+  //         // children: <Widget>[
+  //         //   Text(
+  //         //     workout.description,
+  //         //     textAlign: TextAlign.left,
+  //         //     style: TextStyle(
+  //         //       fontWeight: FontWeight.w300,
+  //         //     ),
+  //         //   )
+  //         // ],
+  //       );
+  //     }
+  //   );
+  // }
 }

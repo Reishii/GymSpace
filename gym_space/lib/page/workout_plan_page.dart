@@ -172,8 +172,118 @@ class WorkoutPlanPage extends StatelessWidget {
       padding: EdgeInsets.all(10),
       itemCount: workoutPlan.workouts.length,
       itemBuilder: (BuildContext context, int i) {
-        return WorkoutWidget(workout: workoutPlan.workouts[i]);
+        Workout workout = workoutPlan.workouts[i];
+        return InkWell(
+          onLongPress: () {
+            _showWorkoutDialog(context, workout);
+          },
+          child: WorkoutWidget(workout: workout),
+        );
       },
+    );
+  }
+
+  Future<void> _removeWorkoutFromDB(Workout workout) async {
+    // may need to query to get ALL workout plans that contain this workout
+    await Firestore.instance.collection('workoutPlans').document(workoutPlan.documentID)
+      .updateData({'workouts': FieldValue.arrayRemove([workout.documentID])})
+      .then((_) => print('Removed workout from workout plan'))
+      .catchError((e) => print('Failed to remove workout from workout plan.\nError: $e'));
+
+    if (false) { // unsure if this is correct
+      await Firestore.instance.collection('workouts').document(workout.documentID).delete()
+        .then((_) => print('Removed workout from collection.'))
+        .catchError((e) => print('Failed to remove workout from colection.\nError: $e'));
+    }
+  }
+
+  void _showWorkoutDialog(BuildContext context, Workout workout) {
+    void _deletePressed() {
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Are you sure you want to delete ' + workout.name + '?'),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20)
+            ),
+            actions: <Widget>[
+              MaterialButton(
+                child: Text('Cancel'),
+                onPressed: () => Navigator.pop(context),
+              ),
+              MaterialButton(
+                child: Text('Delete'),
+                onPressed: () {
+                  _removeWorkoutFromDB(workout).then((_) {
+                    // now pop the dialog and refresh the list of workouts
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+            ],
+          );
+        }
+      );
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: <Widget>[
+              Container(
+                child: Text(workout.name),
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 140),
+                child: Text(
+                  workout.author,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              )
+            ],
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10)
+          ),
+          // contentPadding: EdgeInsets.all(30),
+          content: Text(
+            workout.description,
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+          actions: <Widget>[
+            MaterialButton(
+              child: Text("Close"),
+              onPressed: () => Navigator.pop(context),
+            ),
+            MaterialButton(
+              child: Text("Delete"),
+              onPressed: () {
+                print("Delete pressed");
+                _deletePressed();
+              },
+            )
+          ],
+          // children: <Widget>[
+          //   Text(
+          //     workout.description,
+          //     textAlign: TextAlign.left,
+          //     style: TextStyle(
+          //       fontWeight: FontWeight.w300,
+          //     ),
+          //   )
+          // ],
+        );
+      }
     );
   }
 }

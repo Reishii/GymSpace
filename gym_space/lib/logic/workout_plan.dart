@@ -27,7 +27,6 @@ class WorkoutPlan {
       'author': author,
       'muscleGroup': muscleGroup,
       'description': description,
-      'documentID': documentID,
       'workouts': workouts == null ? [] : workouts,
     };
   }
@@ -45,7 +44,7 @@ class WorkoutPlan {
     return workouts;
   }
 
-  static Future<WorkoutPlan> jsonToWorkoutPlan(Map<String, dynamic> data) async {
+  static Future<WorkoutPlan> jsonToWorkoutPlan(Map<String, dynamic> data, String workoutPlanID) async {
     // pull workout IDs and make Workout
     List<String> workoutIDs = data['workouts'].cast<String>();
     List<Workout> workouts = await getWorkouts(workoutIDs);
@@ -55,7 +54,7 @@ class WorkoutPlan {
         name: data['name'],
         description: data['description'],
         muscleGroup: data['muscleGroup'],
-        documentID: data['documentID'],
+        documentID: workoutPlanID,
         workouts: workouts,
       );
   }
