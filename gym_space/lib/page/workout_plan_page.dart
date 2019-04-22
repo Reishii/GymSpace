@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/workout.dart';
 import 'package:GymSpace/logic/workout_plan.dart';
@@ -8,21 +9,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class WorkoutPlanPage extends StatelessWidget {
+class WorkoutPlanPage extends StatefulWidget {
   final Widget child;
   final WorkoutPlan workoutPlan;
-  final GlobalKey<FormState> _workoutFormKey = GlobalKey<FormState>();
-  Future<DocumentSnapshot>_futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
 
   WorkoutPlanPage({
     @required this.workoutPlan, Key key, this.child
   }) : super(key: key);
 
+  @override
+  _WorkoutPlanPageState createState() => _WorkoutPlanPageState();
+}
+
+class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
+
+  WorkoutPlan get workoutPlan => widget.workoutPlan;
+  final GlobalKey<FormState> _workoutFormKey = GlobalKey<FormState>();
+  Future<DocumentSnapshot>_futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+  
   void _addPressed(BuildContext currentContext) {
     showDialog(
       context: currentContext,
       builder: (context) {
         Workout newWorkout = Workout();
+        newWorkout.exercises = Map();
         return SafeArea(
           child: SimpleDialog(
             title: Text("Add Workout", textAlign: TextAlign.center),
@@ -63,12 +73,14 @@ class WorkoutPlanPage extends StatelessWidget {
                   SimpleDialogOption(
                     child: MaterialButton(
                       child: Text("Add"),
-                      onPressed: () {
+                      onPressed: () async {
                         if (_workoutFormKey.currentState.validate()) {
-                          _workoutFormKey.currentState.save();
                           print("Adding Workout to database");
-                          _addWorkoutToDB(newWorkout);
-                          Navigator.pop(context);
+                          _workoutFormKey.currentState.save();
+                          await _addWorkoutToDB(newWorkout);
+                          setState(() {
+                            Navigator.pop(context);
+                          });
                         }
                       },
                     ),
@@ -82,16 +94,19 @@ class WorkoutPlanPage extends StatelessWidget {
     );
   }
 
-  void _addWorkoutToDB(Workout workout) async {
+  Future<void> _addWorkoutToDB(Workout workout) async {
+    // add to collection
     DocumentReference workoutDocument = await Firestore.instance.collection('workouts')
       .add(workout.toJSON()).then((ds) {
         print('Added ' + workout.name + ' to the database with id: ' + ds.documentID);
         return ds;
       }).catchError((e) => print('Error: $e'));
 
+    // add to workout plan
     _futureUser.then((ds) {
       Firestore.instance.collection('workoutPlans').document(workoutPlan.documentID)
         .updateData({'workouts': FieldValue.arrayUnion([workoutDocument.documentID])});
+        workoutPlan.workouts.add(workout);
     });
 
     _futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
@@ -172,6 +187,7 @@ class WorkoutPlanPage extends StatelessWidget {
       padding: EdgeInsets.all(10),
       itemCount: workoutPlan.workouts.length,
       itemBuilder: (BuildContext context, int i) {
+        // print("Currently there are $count workouts in this plan.");
         Workout workout = workoutPlan.workouts[i];
         return InkWell(
           onLongPress: () {
@@ -195,6 +211,12 @@ class WorkoutPlanPage extends StatelessWidget {
         .then((_) => print('Removed workout from collection.'))
         .catchError((e) => print('Failed to remove workout from colection.\nError: $e'));
     }
+
+    if (workoutPlan.workouts.remove(workout)) {
+      print('Removed');
+    } else {
+      print('Failed');
+    }
   }
 
   void _showWorkoutDialog(BuildContext context, Workout workout) {
@@ -215,10 +237,12 @@ class WorkoutPlanPage extends StatelessWidget {
               ),
               MaterialButton(
                 child: Text('Delete'),
-                onPressed: () {
-                  _removeWorkoutFromDB(workout).then((_) {
-                    // now pop the dialog and refresh the list of workouts
-                    Navigator.pop(context);
+                onPressed: () async  {
+                  await _removeWorkoutFromDB(workout).then((_) {
+                  // now pop the dialog and refresh the list of workouts
+                    setState(() {
+                      Navigator.pop(context);
+                    });
                   });
                 },
               ),

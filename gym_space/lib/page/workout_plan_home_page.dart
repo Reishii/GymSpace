@@ -70,11 +70,11 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
                       child: Text("Add"),
                       onPressed: () {
                         if (_formKey.currentState.validate()) {
-                          _formKey.currentState.save();
-                          print("Adding Workout Plan to database");
-                          _addWorkoutPlanToDB(newWorkoutPlan);
-                          Navigator.pop(context);
-                          setState(() {});
+                          setState(() {
+                            _formKey.currentState.save();
+                            print("Adding Workout Plan to database");
+                            _addWorkoutPlanToDB(newWorkoutPlan);
+                            Navigator.pop(context);});
                         }
                       },
                     ),
@@ -186,20 +186,20 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
   }
 
   Widget _buildWorkoutPlansList() {
-    return StreamBuilder(
-      stream: _futureUser.asStream(),
-      // future: DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID),
+    return FutureBuilder(
+      // stream: _futureUser.asStream(),
+      future: DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID),
       builder: (context, snapshot) {
-         var userWorkoutPlansIDS = snapshot.hasData && snapshot.data['workoutPlans'] != null 
+         var userWorkoutPlansIDs = snapshot.hasData && snapshot.data['workoutPlans'] != null 
           ? snapshot.data['workoutPlans'] : List();
 
         return ListView.builder(
           padding: EdgeInsets.all(10),
-          itemCount: userWorkoutPlansIDS.length,
+          itemCount: userWorkoutPlansIDs.length,
           itemBuilder: (BuildContext context, int i) {
-            return StreamBuilder(
-              stream: DatabaseHelper.getWorkoutPlanSnapshot(userWorkoutPlansIDS[i]).asStream(),
-              // future: DatabaseHelper.getWorkoutPlanSnapshot(userWorkoutPlansIDS[i]),
+            return FutureBuilder(
+              // stream: DatabaseHelper.getWorkoutPlanSnapshot(userWorkoutPlansIDs[i]).asStream(),
+              future: DatabaseHelper.getWorkoutPlanSnapshot(userWorkoutPlansIDs[i]),
               builder: (context, snapshot) {
                 return snapshot.hasData
                   ? FutureBuilder(
@@ -257,10 +257,11 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
               FlatButton(
                 child: Text('Delete'),
                 onPressed: () {
-                  _removeWorkoutPlanFromDB().then((_) {
-                    // now close dialog and refresh list
-                    Navigator.pop(context);
-                    setState((){});
+                    setState((){
+                      _removeWorkoutPlanFromDB().then((_) {
+                      // now close dialog and refresh list
+                        Navigator.pop(context);
+                    });
                   });
                 },
               )

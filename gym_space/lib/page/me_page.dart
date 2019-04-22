@@ -4,6 +4,7 @@ import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class MePage extends StatelessWidget {
   final Widget child;
@@ -53,7 +54,7 @@ class MePage extends StatelessWidget {
                   snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
 
                 return CircleAvatar(
-                  backgroundImage: NetworkImage(photoURL),
+                  backgroundImage: CachedNetworkImageProvider(photoURL),
                   backgroundColor: Colors.white,
                   radius: 70,
                 );
