@@ -13,13 +13,8 @@ import 'package:GymSpace/global.dart';
 String defaultAvatar =
     'https://firebasestorage.googleapis.com/v0/b/gymspace.appspot.com/o/default_icon.png?alt=media&token=af0d9f4b-cec3-4f05-87a5-5dd1bfc0eb5a';
 
-<<<<<<< HEAD
-class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be StatelessWidget that returns a Scaffold - move to page folder
-  
-=======
 class ChatPage extends StatelessWidget {
   // Change to ChatPage() - Must be StatelessWidget that returns a Scaffold - move to page folder
->>>>>>> dcbc1c218dc6339e5339ed30b22b9747d6c365c4
 
   @override
   Widget buildItem(BuildContext context, DocumentSnapshot document) {
@@ -42,11 +37,7 @@ class ChatPage extends StatelessWidget {
                     height: 50.0,
                     padding: EdgeInsets.all(15.0),
                   ),
-<<<<<<< HEAD
-                  imageUrl: document['photoUrl'] ?? defaultAvatar,
-=======
                   imageUrl: document['photoURL'].isEmpty ? defaultAvatar : document['photoURL'],
->>>>>>> dcbc1c218dc6339e5339ed30b22b9747d6c365c4
                   width: 50.0,
                   height: 50.0,
                   fit: BoxFit.cover,
@@ -90,19 +81,11 @@ class ChatPage extends StatelessWidget {
                 context,
                 new MaterialPageRoute(
                     builder: (context) => new MessageThreadPage(
-<<<<<<< HEAD
-                      peerId: document.documentID,
-                      peerAvatar: document['photoUrl'] ?? defaultAvatar,
-                      peerFirstName: document['first name'],
-                      peerLastName: document['last name'],
-                    )));
-=======
                           peerId: document.documentID,
                           peerAvatar: document['photoURL'] ?? defaultAvatar,
                           peerFirstName: document['firstName'],
                           peerLastName: document['lastName'],
                         )));
->>>>>>> dcbc1c218dc6339e5339ed30b22b9747d6c365c4
           },
           color: GSColors.darkBlue,
           padding: EdgeInsets.fromLTRB(25.0, 10.0, 25.0, 10.0),
@@ -186,8 +169,4 @@ class ChatPage extends StatelessWidget {
       ),
     );
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> dcbc1c218dc6339e5339ed30b22b9747d6c365c4

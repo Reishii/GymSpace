@@ -6,11 +6,8 @@ import 'package:GymSpace/misc/bubblecontroller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:GymSpace/page/me_page.dart';
-<<<<<<< HEAD
-=======
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/global.dart';
->>>>>>> dcbc1c218dc6339e5339ed30b22b9747d6c365c4
 
 class LoginPage extends StatefulWidget {
   LoginPage({@required this.auth, @required this.authStatus});
@@ -61,15 +58,9 @@ class LoginPageState extends State<LoginPage>{
           widget.authStatus = AuthStatus.loggedIn;
         }
         else {
-<<<<<<< HEAD
-          String userID = await widget.auth.createUserWithEmailAndPassword(_email, _password);
-          _addUserToDB(userID);
-          print('Registered User: $userID');
-=======
            DatabaseHelper.currentUserID = await widget.auth.createUserWithEmailAndPassword(_email, _password);
           _addUserToDB( DatabaseHelper.currentUserID);
           print('Registered User: ' +  DatabaseHelper.currentUserID);
->>>>>>> dcbc1c218dc6339e5339ed30b22b9747d6c365c4
         }
         // widget.onLoggedIn();
         widget.authStatus = AuthStatus.loggedIn;
@@ -84,11 +75,7 @@ class LoginPageState extends State<LoginPage>{
     }
   }
 
-<<<<<<< HEAD
-void _addUserToDB(String userID) {
-=======
 void _addUserToDB(String userID) {  
->>>>>>> dcbc1c218dc6339e5339ed30b22b9747d6c365c4
   Firestore.instance.collection('users').document(userID).setData(
     User(
       firstName: _firstName,
