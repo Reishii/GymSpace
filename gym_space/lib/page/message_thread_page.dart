@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:GymSpace/widgets/page_header.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -28,19 +29,23 @@ class MessageThreadPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(
-          //'CHAT',
-          '$peerFirstName $peerLastName',
-          style: TextStyle(color: GSColors.cloud, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
+      appBar: _buildAppBar(),
       body: new ChatScreen(
         peerId: peerId,
         peerAvatar: peerAvatar,
         peerFirstName: peerFirstName,
         peerLastName: peerLastName,
+      ),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(100),
+      child: PageHeader(
+        title: '$peerFirstName $peerLastName',
+        backgroundColor: GSColors.darkBlue,
+        titleColor: Colors.white,
       ),
     );
   }

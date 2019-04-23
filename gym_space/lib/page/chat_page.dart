@@ -37,7 +37,7 @@ class ChatPage extends StatelessWidget {
                     height: 50.0,
                     padding: EdgeInsets.all(15.0),
                   ),
-                  imageUrl: document['photoURL'] ?? defaultAvatar,
+                  imageUrl: document['photoURL'].isEmpty ? defaultAvatar : document['photoURL'],
                   width: 50.0,
                   height: 50.0,
                   fit: BoxFit.cover,
@@ -59,8 +59,12 @@ class ChatPage extends StatelessWidget {
                       ),
                       new Container(
                         child: Text(
-                          ' ${document['aboutMe'] ?? 'Not available'}',
-                          style: TextStyle(color: GSColors.cloud),
+                          ' ${document['bio'] ?? 'Not available'}',
+                          style: TextStyle(
+                            color: GSColors.cloud,
+                            fontWeight: FontWeight.w300,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
                         alignment: Alignment.centerLeft,
                         margin: new EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
