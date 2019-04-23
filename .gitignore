@@ -1,2 +1,6 @@
 
 \.vscode/
+
+gym_space/android/app/\.classpath
+
+gym_space/android/app/\.settings/org\.eclipse\.jdt\.core\.prefs

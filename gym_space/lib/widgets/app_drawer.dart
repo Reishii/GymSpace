@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/misc/colors.dart';
-import 'package:GymSpace/page/workout_plans_page.dart';
+import 'package:GymSpace/page/workout_plan_home_page.dart';
 import 'package:GymSpace/page/me_page.dart';
 import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/global.dart';
@@ -11,6 +11,7 @@ import 'package:GymSpace/page/chat_page.dart';
 import 'package:GymSpace/page/group_page.dart';
 import 'package:GymSpace/page/newsfeed_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AppDrawer extends StatefulWidget {
   final Widget child;
@@ -71,7 +72,7 @@ class _AppDrawerState extends State<AppDrawer> {
                         // ),
                           backgroundColor: Colors.transparent,
                           radius: 40,
-                          backgroundImage: NetworkImage(photoURL),
+                          backgroundImage: CachedNetworkImageProvider(photoURL),
                         );
                       },
                     ),

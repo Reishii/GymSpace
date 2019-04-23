@@ -285,7 +285,7 @@ Widget _buildLogin(BuildContext context) {
                             top: 5.0, bottom: 5.0, left: 25.0, right: 25.0),
                         child: TextFormField(
                           keyboardType: TextInputType.emailAddress,
-                          validator: (value) => value.isEmpty ? 'Error: Email is empty' : null,
+                          validator: (value) => value == null ? 'Error: Email is empty' : null,
                           onSaved: (value) => _email = value,
                           style: TextStyle(
                               fontSize: 16.0,
@@ -313,7 +313,7 @@ Widget _buildLogin(BuildContext context) {
                         child: TextFormField(
                           keyboardType: TextInputType.text,
                           obscureText: true,
-                          validator: (value) => value.isEmpty ? 'Error: Password is empty' : null,
+                          validator: (value) => value == null ? 'Error: Password is empty' : null,
                           onSaved: (value) => _password = value,
                           style: TextStyle(
                               fontSize: 16.0,
@@ -514,7 +514,7 @@ Widget _buildLogin(BuildContext context) {
                         child: TextFormField(
                           keyboardType: TextInputType.text,
                           textCapitalization: TextCapitalization.words,
-                          validator: (value) => value.isEmpty ? 'Error: First Name is empty' : null,
+                          validator: (value) => value == null ? 'Error: First Name is empty' : null,
                           onSaved: (value) => _firstName = value,
                           style: TextStyle(
                               fontSize: 16.0,
@@ -541,7 +541,7 @@ Widget _buildLogin(BuildContext context) {
                         child: TextFormField(
                           keyboardType: TextInputType.text,
                           textCapitalization: TextCapitalization.words,
-                          validator: (value) => value.isEmpty ? 'Error: Last Name is empty' : null,
+                          validator: (value) => value == null ? 'Error: Last Name is empty' : null,
                           onSaved: (value) => _lastName = value,
                           style: TextStyle(
                               fontSize: 16.0,
@@ -563,7 +563,7 @@ Widget _buildLogin(BuildContext context) {
                             top: 2.0, bottom: 2.0, left: 25.0, right: 25.0),
                         child: TextFormField(
                           keyboardType: TextInputType.emailAddress,
-                          validator: (value) => value.isEmpty ? 'Error: Email is empty' : null,
+                          validator: (value) => value == null ? 'Error: Email is empty' : null,
                           onSaved: (value) => _email = value,
                           style: TextStyle(
                               fontSize: 16.0,
@@ -591,7 +591,7 @@ Widget _buildLogin(BuildContext context) {
                           key: _passwordKey,
                           keyboardType: TextInputType.text,
                           obscureText: true,
-                          validator: (value) => value.isEmpty ? 'Error: Password is empty' : null,
+                          validator: (value) => value == null ? 'Error: Password is empty' : null,
                           onFieldSubmitted: (value) => _password = value,
                           onSaved: (value) => _password = value,
                           style: TextStyle(

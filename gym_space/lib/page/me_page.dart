@@ -4,6 +4,7 @@ import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class MePage extends StatelessWidget {
   final Widget child;
@@ -25,11 +26,11 @@ class MePage extends StatelessWidget {
     return PreferredSize(
       preferredSize: Size.fromHeight(300),
       child: AppBar(
-        elevation: 5,
+        elevation: 4,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search, color: Colors.white,),
-            onPressed: (){},
+            onPressed: () {},
           )
         ],
         shape: RoundedRectangleBorder(
@@ -49,11 +50,11 @@ class MePage extends StatelessWidget {
             FutureBuilder(
               future: _futureUser,
               builder: (context, snapshot) {
-                String photoURL = 
-                  snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
+                // String photoURL = 
+                //   snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
 
                 return CircleAvatar(
-                  backgroundImage: NetworkImage(photoURL),
+                  // backgroundImage: CachedNetworkImageProvider(photoURL),
                   backgroundColor: Colors.white,
                   radius: 70,
                 );

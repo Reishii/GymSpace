@@ -4,21 +4,21 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:GymSpace/widgets/chatscreen.dart';
+import 'package:GymSpace/page/message_thread_page.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/global.dart';
 
-String defaultAvatar = 'https://firebasestorage.googleapis.com/v0/b/gymspace.appspot.com/o/default_icon.png?alt=media&token=af0d9f4b-cec3-4f05-87a5-5dd1bfc0eb5a';
+String defaultAvatar =
+    'https://firebasestorage.googleapis.com/v0/b/gymspace.appspot.com/o/default_icon.png?alt=media&token=af0d9f4b-cec3-4f05-87a5-5dd1bfc0eb5a';
 
-class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be StatelessWidget that returns a Scaffold - move to page folder
-  
+class ChatPage extends StatelessWidget {
+  // Change to ChatPage() - Must be StatelessWidget that returns a Scaffold - move to page folder
 
   @override
-    Widget buildItem(BuildContext context, DocumentSnapshot document) {
-
-    if (document['userID'] == FirebaseAuth.instance.currentUser()){
+  Widget buildItem(BuildContext context, DocumentSnapshot document) {
+    if (document['userID'] == FirebaseAuth.instance.currentUser()) {
       return Container();
     } else {
       return Container(
@@ -30,13 +30,14 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                   placeholder: Container(
                     child: CircularProgressIndicator(
                       strokeWidth: 1.0,
-                      valueColor: AlwaysStoppedAnimation<Color>(GSColors.darkBlue),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(GSColors.darkBlue),
                     ),
                     width: 50.0,
                     height: 50.0,
                     padding: EdgeInsets.all(15.0),
                   ),
-                  imageUrl: document['photoUrl'] ?? defaultAvatar,
+                  imageUrl: document['photoURL'].isEmpty ? defaultAvatar : document['photoURL'],
                   width: 50.0,
                   height: 50.0,
                   fit: BoxFit.cover,
@@ -50,7 +51,7 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                     children: <Widget>[
                       new Container(
                         child: Text(
-                          '${document['first name']} ${document['last name']}',   
+                          '${document['firstName']} ${document['lastName']}',
                           style: TextStyle(color: GSColors.cloud),
                         ),
                         alignment: Alignment.centerLeft,
@@ -58,8 +59,12 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                       ),
                       new Container(
                         child: Text(
-                          ' ${document['aboutMe'] ?? 'Not available'}',
-                          style: TextStyle(color: GSColors.cloud),
+                          ' ${document['bio'] ?? 'Not available'}',
+                          style: TextStyle(
+                            color: GSColors.cloud,
+                            fontWeight: FontWeight.w300,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
                         alignment: Alignment.centerLeft,
                         margin: new EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
@@ -76,15 +81,16 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                 context,
                 new MaterialPageRoute(
                     builder: (context) => new MessageThreadPage(
-                      peerId: document.documentID,
-                      peerAvatar: document['photoUrl'] ?? defaultAvatar,
-                      peerFirstName: document['first name'],
-                      peerLastName: document['last name'],
-                    )));
+                          peerId: document.documentID,
+                          peerAvatar: document['photoURL'] ?? defaultAvatar,
+                          peerFirstName: document['firstName'],
+                          peerLastName: document['lastName'],
+                        )));
           },
           color: GSColors.darkBlue,
           padding: EdgeInsets.fromLTRB(25.0, 10.0, 25.0, 10.0),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
           // shape: OutlineInputBorder(
           //   borderRadius:  BorderRadius.circular(50),
           // )
@@ -96,8 +102,10 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
 
   @override
   Widget build(BuildContext context) {
-   return Scaffold(
-      drawer: AppDrawer(startPage: 6,),
+    return Scaffold(
+      drawer: AppDrawer(
+        startPage: 6,
+      ),
       appBar: _buildAppBar(),
       // floatingActionButton: new FloatingActionButton(
       //   //IconButton(
@@ -111,21 +119,33 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
           children: <Widget>[
             // List
             Container(
-              child: StreamBuilder(
-                stream: Firestore.instance.collection('users').snapshots(),
+              child: FutureBuilder(
+                // stream: Firestore.instance.collection('users').snapshots(),
+                future: DatabaseHelper.getCurrentUserBuddies(),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData) {  
+                  if (!snapshot.hasData) {
                     return Center(
                       child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(GSColors.darkBlue),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(GSColors.darkBlue),
                       ),
                     );
                   } else {
                     return ListView.builder(
                       padding: EdgeInsets.all(10.0),
-                      itemBuilder: (context, index) =>
-                          buildItem(context, snapshot.data.documents[index]),
-                      itemCount: snapshot.data.documents.length,
+                      itemCount: snapshot.data.length,
+                      itemBuilder: (context, index) {
+                        return FutureBuilder(
+                          future: DatabaseHelper.getUserSnapshot(snapshot.data[index]),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return buildItem(context, snapshot.data);
+                            } else {
+                              return Container();
+                            }
+                          },
+                        );
+                      },
                     );
                   }
                 },
@@ -133,7 +153,7 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
             ),
           ],
         ),
-            onWillPop: null,
+        onWillPop: null,
       ),
     );
   }
@@ -142,7 +162,7 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
     return PreferredSize(
       preferredSize: Size.fromHeight(100),
       child: PageHeader(
-        title: "Messages", 
+        title: "Messages",
         backgroundColor: GSColors.darkBlue,
         showDrawer: true,
         titleColor: Colors.white,

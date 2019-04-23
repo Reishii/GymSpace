@@ -45,7 +45,7 @@ class User {
       'liftingType': liftingType,
       'photoURL': photoURL,
       'bio': bio,
-      'buddies': buddies.isEmpty == null ? [] : buddies,
+      'buddies': buddies == null ? [] : buddies,
       'points': points,
       'age': age,
       'startingWeight': startingWeight,

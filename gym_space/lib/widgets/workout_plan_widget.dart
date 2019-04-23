@@ -66,7 +66,7 @@ class WorkoutPlanPage extends StatelessWidget {
         itemBuilder: (BuildContext context, int i) {
           return Container(
             margin: EdgeInsets.symmetric(vertical: 10),
-            child: WorkoutWidget(_workoutPlan.workouts[i]),
+            child: WorkoutWidget(workout: _workoutPlan.workouts[i]),
           );
         },
       )
