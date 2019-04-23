@@ -95,7 +95,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   ),
                   Container(height: 20),
                   _buildDrawerItem("Newsfeed", FontAwesomeIcons.newspaper, 0),
-                  _buildDrawerItem("Workouts", FontAwesomeIcons.dumbbell, 1),
+                  _buildDrawerItem("Workout Plans", FontAwesomeIcons.dumbbell, 1),
                   _buildDrawerItem("Profile", FontAwesomeIcons.userCircle, 2),
                   _buildDrawerItem("Groups", FontAwesomeIcons.users, 3),
                   _buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 4),
