@@ -8,8 +8,18 @@ class PageHeader extends StatelessWidget {
   final Color backgroundColor;
   final Color titleColor;
   final bool showDrawer;
+  final bool showSearch;
+  Function searchFunction;
 
-  PageHeader({this.title, this.backgroundColor, Key key, this.child, this.showDrawer = false, this.titleColor = Colors.white}) : super(key: key);
+  PageHeader({
+    this.title, 
+    this.backgroundColor, 
+    Key key, 
+    this.child, 
+    this.showDrawer = false, 
+    this.showSearch = false,
+    this.searchFunction,
+    this.titleColor = Colors.white}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +39,16 @@ class PageHeader extends StatelessWidget {
           ),
           onPressed: () {Navigator.pop(context);},
         ),
+        actions: <Widget>[
+          showSearch ? IconButton(
+            icon: Icon(
+              Icons.search,
+              color: titleColor,
+              size: 26,
+            ),
+            onPressed: searchFunction == null ? null : searchFunction,
+          ) : Container()
+        ],
         bottom: PreferredSize(
           child: Container(
             margin: EdgeInsets.only(bottom: 40),

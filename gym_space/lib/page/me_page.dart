@@ -29,7 +29,7 @@ class MePage extends StatelessWidget {
         elevation: 4,
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.search, color: Colors.white,),
+            icon: Icon(Icons.edit, color: Colors.white,),
             onPressed: () {},
           )
         ],

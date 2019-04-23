@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:GymSpace/global.dart';
+import 'package:photo_view/photo_view.dart';
 
 
 
@@ -73,7 +73,7 @@ class ChatScreenState extends State<ChatScreen> {
   Future<String> futureID;
   String id;
 
-  
+  PhotoViewScaleStateController _photoController = PhotoViewScaleStateController();
 
   List<Map<String, String>> listMessage; // var
   //var listMessage;
@@ -209,6 +209,7 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   Widget buildItem(int index, DocumentSnapshot document) { // buildMessage()
+    // _photoController.
     if (document['idFrom'] == id) {
       // Right (my message)
       return Row(
@@ -229,38 +230,44 @@ class ChatScreenState extends State<ChatScreen> {
           // Image
               ? Container(
             child: Material(
-              child: CachedNetworkImage(
-                placeholder: Container(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(GSColors.darkBlue),
-                  ),
-                  width: 200.0,
-                  height: 200.0,
-                  padding: EdgeInsets.all(70.0),
-                  decoration: BoxDecoration(
-                    color: GSColors.darkCloud,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(8.0),
-                    ),
-                  ),
+              child: PhotoView(
+                imageProvider: CachedNetworkImageProvider(
+                  document['content'],
                 ),
-                errorWidget: Material(
-                  child: Image.asset(
-                    'images/img_not_available.jpeg',
-                    width: 200.0,
-                    height: 200.0,
-                    fit: BoxFit.cover,
-                  ),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(8.0),
-                  ),
-                  clipBehavior: Clip.hardEdge,
-                ),
-                imageUrl: document['content'],
-                width: 200.0,
-                height: 200.0,
-                fit: BoxFit.cover,
+                scaleStateController: _photoController,
               ),
+              // child: CachedNetworkImage(
+              //   placeholder: Container(
+              //     child: CircularProgressIndicator(
+              //       valueColor: AlwaysStoppedAnimation<Color>(GSColors.darkBlue),
+              //     ),
+              //     width: 200.0,
+              //     height: 200.0,
+              //     padding: EdgeInsets.all(70.0),
+              //     decoration: BoxDecoration(
+              //       color: GSColors.darkCloud,
+              //       borderRadius: BorderRadius.all(
+              //         Radius.circular(8.0),
+              //       ),
+              //     ),
+              //   ),
+              //   errorWidget: Material(
+              //     child: Image.asset(
+              //       'images/img_not_available.jpeg',
+              //       width: 200.0,
+              //       height: 200.0,
+              //       fit: BoxFit.cover,
+              //     ),
+              //     borderRadius: BorderRadius.all(
+              //       Radius.circular(8.0),
+              //     ),
+              //     clipBehavior: Clip.hardEdge,
+              //   ),
+              //   imageUrl: document['content'],
+              //   width: 200.0,
+              //   height: 200.0,
+              //   fit: BoxFit.cover,
+              // ),
               borderRadius: BorderRadius.all(Radius.circular(8.0)),
               clipBehavior: Clip.hardEdge,
             ),
@@ -298,7 +305,7 @@ class ChatScreenState extends State<ChatScreen> {
                       height: 35.0,
                       padding: EdgeInsets.all(10.0),
                     ),
-                    imageUrl: peerAvatar,
+                    imageUrl: peerAvatar.isEmpty ? Defaults.photoURL : peerAvatar,
                     width: 35.0,
                     height: 35.0,
                     fit: BoxFit.cover,
