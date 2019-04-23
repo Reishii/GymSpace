@@ -6,6 +6,11 @@ import 'package:GymSpace/misc/bubblecontroller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:GymSpace/page/me_page.dart';
+<<<<<<< HEAD
+=======
+import 'package:GymSpace/logic/user.dart';
+import 'package:GymSpace/global.dart';
+>>>>>>> dcbc1c218dc6339e5339ed30b22b9747d6c365c4
 
 class LoginPage extends StatefulWidget {
   LoginPage({@required this.auth, @required this.authStatus});
@@ -51,15 +56,20 @@ class LoginPageState extends State<LoginPage>{
     if(validateAndSave()) {
       try {
         if(_formType == FormType.login) {
-          String userID = await widget.auth.signInWithEmailAndPassword(_email, _password);   
-          print('Signed in: $userID');
+           DatabaseHelper.currentUserID = await widget.auth.signInWithEmailAndPassword(_email, _password);   
+          print('Signed in: ' +  DatabaseHelper.currentUserID);
           widget.authStatus = AuthStatus.loggedIn;
-
         }
         else {
+<<<<<<< HEAD
           String userID = await widget.auth.createUserWithEmailAndPassword(_email, _password);
           _addUserToDB(userID);
           print('Registered User: $userID');
+=======
+           DatabaseHelper.currentUserID = await widget.auth.createUserWithEmailAndPassword(_email, _password);
+          _addUserToDB( DatabaseHelper.currentUserID);
+          print('Registered User: ' +  DatabaseHelper.currentUserID);
+>>>>>>> dcbc1c218dc6339e5339ed30b22b9747d6c365c4
         }
         // widget.onLoggedIn();
         widget.authStatus = AuthStatus.loggedIn;
@@ -74,19 +84,17 @@ class LoginPageState extends State<LoginPage>{
     }
   }
 
+<<<<<<< HEAD
 void _addUserToDB(String userID) {
+=======
+void _addUserToDB(String userID) {  
+>>>>>>> dcbc1c218dc6339e5339ed30b22b9747d6c365c4
   Firestore.instance.collection('users').document(userID).setData(
-    {
-      'first name': '$_firstName',
-      'last name': '$_lastName',
-      'email': '$_email',
-      'buddies' : [],
-      'points': 0,
-      'bio': 'New User',
-      'lifting type': '',
-      'photoURL': '',
-    }
-  );
+    User(
+      firstName: _firstName,
+      lastName: _lastName,
+      email: _email
+    ).toJSON());
 }
 
 void moveToRegister() {
@@ -290,7 +298,7 @@ Widget _buildLogin(BuildContext context) {
                             top: 5.0, bottom: 5.0, left: 25.0, right: 25.0),
                         child: TextFormField(
                           keyboardType: TextInputType.emailAddress,
-                          validator: (value) => value.isEmpty ? 'Error: Email is empty' : null,
+                          validator: (value) => value == null ? 'Error: Email is empty' : null,
                           onSaved: (value) => _email = value,
                           style: TextStyle(
                               fontSize: 16.0,
@@ -318,7 +326,7 @@ Widget _buildLogin(BuildContext context) {
                         child: TextFormField(
                           keyboardType: TextInputType.text,
                           obscureText: true,
-                          validator: (value) => value.isEmpty ? 'Error: Password is empty' : null,
+                          validator: (value) => value == null ? 'Error: Password is empty' : null,
                           onSaved: (value) => _password = value,
                           style: TextStyle(
                               fontSize: 16.0,
@@ -519,7 +527,7 @@ Widget _buildLogin(BuildContext context) {
                         child: TextFormField(
                           keyboardType: TextInputType.text,
                           textCapitalization: TextCapitalization.words,
-                          validator: (value) => value.isEmpty ? 'Error: First Name is empty' : null,
+                          validator: (value) => value == null ? 'Error: First Name is empty' : null,
                           onSaved: (value) => _firstName = value,
                           style: TextStyle(
                               fontSize: 16.0,
@@ -546,7 +554,7 @@ Widget _buildLogin(BuildContext context) {
                         child: TextFormField(
                           keyboardType: TextInputType.text,
                           textCapitalization: TextCapitalization.words,
-                          validator: (value) => value.isEmpty ? 'Error: Last Name is empty' : null,
+                          validator: (value) => value == null ? 'Error: Last Name is empty' : null,
                           onSaved: (value) => _lastName = value,
                           style: TextStyle(
                               fontSize: 16.0,
@@ -568,7 +576,7 @@ Widget _buildLogin(BuildContext context) {
                             top: 2.0, bottom: 2.0, left: 25.0, right: 25.0),
                         child: TextFormField(
                           keyboardType: TextInputType.emailAddress,
-                          validator: (value) => value.isEmpty ? 'Error: Email is empty' : null,
+                          validator: (value) => value == null ? 'Error: Email is empty' : null,
                           onSaved: (value) => _email = value,
                           style: TextStyle(
                               fontSize: 16.0,
@@ -596,7 +604,7 @@ Widget _buildLogin(BuildContext context) {
                           key: _passwordKey,
                           keyboardType: TextInputType.text,
                           obscureText: true,
-                          validator: (value) => value.isEmpty ? 'Error: Password is empty' : null,
+                          validator: (value) => value == null ? 'Error: Password is empty' : null,
                           onFieldSubmitted: (value) => _password = value,
                           onSaved: (value) => _password = value,
                           style: TextStyle(

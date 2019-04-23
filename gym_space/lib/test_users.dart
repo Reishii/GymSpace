@@ -1,44 +1,43 @@
 import 'logic/user.dart';
 import 'logic/group.dart';
 import 'logic/meal.dart';
-import 'logic/exercise.dart';
+// import 'logic/exercise.dart';
 import 'logic/workout.dart';
 import 'logic/workout_plan.dart';
-import 'logic/buddy.dart';
 
 
-Exercise bicepCurls = new Exercise(
-  name: "bicep curls", 
-  bodyPart: "arms",
-  sets: 3,
-  reps: 8 
-);
-Exercise tricepPulldown = new Exercise(
-  name: "tricep pulldowns", 
-  bodyPart: "arms",
-  sets: 3,
-  reps: 8  
-);
-Exercise benchPress = new Exercise(
-  name: "bench press", 
-  bodyPart: "chest",
-  sets: 5,
-  reps: 5  
-);
+// Exercise bicepCurls = new Exercise(
+//   name: "bicep curls", 
+//   bodyPart: "arms",
+//   sets: 3,
+//   reps: 8 
+// );
+// Exercise tricepPulldown = new Exercise(
+//   name: "tricep pulldowns", 
+//   bodyPart: "arms",
+//   sets: 3,
+//   reps: 8  
+// );
+// Exercise benchPress = new Exercise(
+//   name: "bench press", 
+//   bodyPart: "chest",
+//   sets: 5,
+//   reps: 5  
+// );
 
 Workout pushDay = new Workout(
   name: "push day",
   author: "Rolly Lacap",
   muscleGroup: "chest, shoulders, triceps",
   description: "This workout is designed for push exercises. Be ready to get a huge pump in your chest and triceps!",
-  exercises: [benchPress, tricepPulldown, bicepCurls, benchPress]
+  // exercises: [benchPress, tricepPulldown, bicepCurls, benchPress]
 );
 
 Workout pullDay = new Workout(
   name: "pull day",
   author: "Rolly Lacap",
   muscleGroup: "back, biceps",
-  exercises: [bicepCurls]
+  // exercises: [bicepCurls]
 );
 
 WorkoutPlan broPlan = new WorkoutPlan(
@@ -75,20 +74,20 @@ Map rollyGoals = {};
 List<Group> rollyGroups = [];
 String rollyImage = 'https://cdn.pixabay.com/photo/2016/12/13/16/17/dancer-1904467_960_720.png';
 
-User rolly = new User(
-  'rollininrice', 
-  'rolly@gmail.com',
-  'Rolly Lacap',
-  'body building',
-  200,  // points
-  178,  // height
-  200,  // weight
-  22,   // age
-  rollyGoals,   // goals
-  rollyGroups,  // groups
-  rollyDiet,    // diet
-  [],           // friends
-  [broPlan, bodyBuilding, powerLifting]     // workout plans
-);
-
-User john = new User('johnd', 'john@gmail.com');
+// User rolly = new User(
+//   'rollininrice', 
+//   'rolly@gmail.com',
+//   'Rolly Lacap',
+//   'body building',
+//   200,  // points
+//   178,  // height
+//   200,  // weight
+//   22,   // age
+//   rollyGoals,   // goals
+//   rollyGroups,  // groups
+//   rollyDiet,    // diet
+//   [],           // friends
+//   [broPlan, bodyBuilding, powerLifting]     // workout plans
+// );
+User rolly = User();
+// User john = new User('johnd', 'john@gmail.com');

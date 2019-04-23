@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:GymSpace/global.dart';
-import 'package:GymSpace/logic/buddy.dart';
 import 'package:GymSpace/misc/colors.dart';
 
 class BuddyWidget extends StatelessWidget {

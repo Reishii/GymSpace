@@ -11,7 +11,7 @@ class NewsfeedPage extends StatefulWidget {
 }
 
 class _NewsfeedPageState extends State<NewsfeedPage> {
-  String currentUserID = CurrentUser.getCurrentUserID();
+  // String currentUserID =  DatabaseHelper.getCurrentUserID();
 
   @override
   Widget build(BuildContext context) {
