@@ -98,7 +98,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
     // add to collection
     DocumentReference workoutDocument = await Firestore.instance.collection('workouts')
       .add(workout.toJSON()).then((ds) {
-        print('Added ' + workout.name + ' to the database with id: ' + ds.documentID);
+        print('-> Added ' + workout.name + ' to the database with id: ' + ds.documentID);
         return ds;
       }).catchError((e) => print('Error: $e'));
 
@@ -201,22 +201,19 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
 
   Future<void> _removeWorkoutFromDB(Workout workout) async {
     // may need to query to get ALL workout plans that contain this workout
+    print('Removing workout from the workout plan');
     await Firestore.instance.collection('workoutPlans').document(workoutPlan.documentID)
       .updateData({'workouts': FieldValue.arrayRemove([workout.documentID])})
-      .then((_) => print('Removed workout from workout plan'))
-      .catchError((e) => print('Failed to remove workout from workout plan.\nError: $e'));
+      .then((_) => print('-> Removed workout from workout plan'))
+      .catchError((e) => print('-> Failed to remove workout from workout plan.\nError: $e'));
 
-    if (false) { // unsure if this is correct
+    if (false) { // This feature is currently off. Before removing, must check to see if the current user is the author of the workout
       await Firestore.instance.collection('workouts').document(workout.documentID).delete()
-        .then((_) => print('Removed workout from collection.'))
-        .catchError((e) => print('Failed to remove workout from colection.\nError: $e'));
+        .then((_) => print('-> Removed workout from collection.'))
+        .catchError((e) => print('-> Failed to remove workout from colection.\nError: $e'));
     }
 
-    if (workoutPlan.workouts.remove(workout)) {
-      print('Removed');
-    } else {
-      print('Failed');
-    }
+    workoutPlan.workouts.remove(workout);
   }
 
   void _showWorkoutDialog(BuildContext context, Workout workout) {
@@ -292,7 +289,6 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
             MaterialButton(
               child: Text("Delete"),
               onPressed: () {
-                print("Delete pressed");
                 _deletePressed();
               },
             )

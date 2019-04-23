@@ -50,11 +50,11 @@ class MePage extends StatelessWidget {
             FutureBuilder(
               future: _futureUser,
               builder: (context, snapshot) {
-                String photoURL = 
-                  snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
+                // String photoURL = 
+                //   snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
 
                 return CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(photoURL),
+                  // backgroundImage: CachedNetworkImageProvider(photoURL),
                   backgroundColor: Colors.white,
                   radius: 70,
                 );

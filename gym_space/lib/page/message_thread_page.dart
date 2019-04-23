@@ -21,7 +21,9 @@ class MessageThreadPage extends StatelessWidget {
   final String peerFirstName;
   final String peerLastName;
 
-  MessageThreadPage({Key key, @required this.peerId, @required this.peerAvatar, @required this.peerFirstName, @required this.peerLastName}) : super(key: key);
+  MessageThreadPage({
+    Key key, @required this.peerId, @required this.peerAvatar, @required this.peerFirstName, @required this.peerLastName
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

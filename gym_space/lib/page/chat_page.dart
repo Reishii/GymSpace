@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:GymSpace/widgets/chatscreen.dart';
+import 'package:GymSpace/page/message_thread_page.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
@@ -50,7 +50,7 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                     children: <Widget>[
                       new Container(
                         child: Text(
-                          '${document['first name']} ${document['last name']}',   
+                          '${document['firstName']} ${document['lastName']}',   
                           style: TextStyle(color: GSColors.cloud),
                         ),
                         alignment: Alignment.centerLeft,
@@ -78,8 +78,8 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
                     builder: (context) => new MessageThreadPage(
                       peerId: document.documentID,
                       peerAvatar: document['photoUrl'] ?? defaultAvatar,
-                      peerFirstName: document['first name'],
-                      peerLastName: document['last name'],
+                      peerFirstName: document['firstName'],
+                      peerLastName: document['lastName'],
                     )));
           },
           color: GSColors.darkBlue,
@@ -97,6 +97,7 @@ class ChatPage extends StatelessWidget { // Change to ChatPage() - Must be State
   @override
   Widget build(BuildContext context) {
    return Scaffold(
+     
       drawer: AppDrawer(startPage: 6,),
       appBar: _buildAppBar(),
       // floatingActionButton: new FloatingActionButton(

@@ -92,7 +92,12 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
     DocumentReference workoutPlanDocument = await Firestore.instance.collection('workoutPlans').add(workoutPlan.toJSON());
     _futureUser.then((ds) {
       // update id of workoutPlan
-      workoutPlanDocument.updateData({'documentID': workoutPlanDocument.documentID});
+      workoutPlanDocument.updateData({'documentID': workoutPlanDocument.documentID})
+        .then((_) =>
+          print('-> Added ' + workoutPlan.name + ' to the database with id: ' + workoutPlanDocument.documentID))
+        .catchError((e) =>
+          print('-> Failed to add workoutPlan to the database.\nError: $e')
+        );
 
       // add new workout plan to users
       Firestore.instance.collection('users').document( DatabaseHelper.currentUserID)
@@ -229,13 +234,13 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
     Future<void> _removeWorkoutPlanFromDB() async {
       await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
         .updateData({'workoutPlans': FieldValue.arrayRemove([workoutPlan.documentID])})
-        .then((_) => print('Removed workout plan from current users workoutPlans'))
-        .catchError((e) => print('Failed to remove workout plan from user.\nError: $e'));
+        .then((_) => print('-> Removed workout plan from current users workoutPlans'))
+        .catchError((e) => print('-> Failed to remove workout plan from user.\nError: $e'));
 
-      print('...Removing workoutPlan from collection');
+      print('Removing workoutPlan from collection');
       await Firestore.instance.collection('workoutPlans').document(workoutPlan.documentID)
-        .delete().then((_) => print("Removed workout plan from workoutPlans collection"))
-        .catchError((e) => print('Failed to remove workout plan from collection.\nError: $e'));
+        .delete().then((_) => print("-> Removed workout plan from workoutPlans collection"))
+        .catchError((e) => print('-> Failed to remove workout plan from collection.\nError: $e'));
     }
 
     void _planLongPressed(BuildContext context) async {
