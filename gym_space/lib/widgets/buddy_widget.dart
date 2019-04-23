@@ -12,13 +12,13 @@ class BuddyWidget extends StatelessWidget {
   List<String> buddies = new List();
 
   BuddyWidget({Key key, this.child}) : super(key: key) {
-    print(Users.currentUserID);
-    Firestore.instance.collection('users').document(Users.currentUserID).get().then( (ds) => buddies = ds.data['buddies'] );
+    print(DatabaseHelper.currentUserID);
+    Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get().then( (ds) => buddies = ds.data['buddies'] );
     ds = getBuddies();
   }
 
   Future<DocumentSnapshot> getBuddies() async {
-    return Firestore.instance.collection('users').document(Users.currentUserID).get();
+    return Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();
   }
 
   @override
