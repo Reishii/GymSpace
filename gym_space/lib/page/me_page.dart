@@ -5,6 +5,13 @@ import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+
+
 
 class MePage extends StatelessWidget {
   final Widget child;
@@ -13,7 +20,8 @@ class MePage extends StatelessWidget {
   MePage({Key key, this.child}) : super(key: key);
 
   TextEditingController _liftingTypeController = TextEditingController();
-
+  File imageFile;
+  String imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -90,19 +98,37 @@ class MePage extends StatelessWidget {
       child: Container(
         child: Column(
           children: <Widget>[
-            FutureBuilder(
-              future: _futureUser,
-              builder: (context, snapshot) {
-                // String photoURL = 
-                //   snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
+            InkWell(
+                child: FutureBuilder(
+                future: _futureUser,
+                builder: (context, snapshot) {
+                  String photoURL = 
+                  snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
 
-                return CircleAvatar(
-                  // backgroundImage: CachedNetworkImageProvider(photoURL),
-                  backgroundColor: Colors.white,
-                  radius: 70,
-                );
-              },
+                  return CircleAvatar(
+                     backgroundImage: CachedNetworkImageProvider(photoURL ?? Defaults.photoURL) ,
+                    backgroundColor: Colors.white,
+                    radius: 70,
+                  );
+                },
+              ),
+              onLongPress: () => 
+                  getImage()
+
             ),
+            // FutureBuilder(
+            //   future: _futureUser,
+            //   builder: (context, snapshot) {
+            //     // String photoURL = 
+            //     //   snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
+
+            //     return CircleAvatar(
+            //       // backgroundImage: CachedNetworkImageProvider(photoURL),
+            //       backgroundColor: Colors.white,
+            //       radius: 70,
+            //     );
+            //   },
+            // ),
             Divider(),
             FutureBuilder(
               future: _futureUser,
@@ -544,17 +570,37 @@ class MePage extends StatelessWidget {
     );
   }
 
-void  _updateNutritionInfo(BuildContext context) async{
-      String currentWeight, startingWeight, protein, carbs, fats, photoUrl;
-      DocumentReference docRef = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}');
+Future getImage() async {
+    imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
+    
+    if(imageFile != null){
+      uploadFile();
+    }
+}
 
-      docRef.get().then((docRef)
-      {
-        startingWeight = docRef.data['currentWeight'];
-        currentWeight = docRef.data['startingWeight'];
-        photoUrl = docRef.data['photoURL'].isEmpty ? Defaults.photoURL : docRef.data['photoURL'];
-        //protein = docRef.data[''];
-      });
+
+Future uploadFile() async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask = reference.putFile(imageFile);
+    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
+    storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
+      imageUrl = downloadUrl;
+    }, onError: (err) {
+
+      Fluttertoast.showToast(msg: 'This file is not an image');
+    });
+
+        
+  Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'photoURL' : imageUrl });
+            
+
+  }
+
+
+
+void  _updateNutritionInfo(BuildContext context) async{
+      String currentWeight, startingWeight, protein, carbs, fats;
 
      // currentWeight = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}').;
 
@@ -578,7 +624,7 @@ void  _updateNutritionInfo(BuildContext context) async{
                     fontSize: 18.0,
                     color: GSColors.darkBlue,
                   ),
-                  hintText: currentWeight,
+                  hintText: await currentWeight,
                   hintStyle: TextStyle(
                     fontSize: 16.0,
                     color: GSColors.darkBlue,
@@ -600,7 +646,7 @@ void  _updateNutritionInfo(BuildContext context) async{
                     fontSize: 18.0,
                     color: GSColors.darkBlue,
                   ),
-                  hintText: currentWeight,
+                  hintText: await currentWeight,
                   hintStyle: TextStyle(
                     fontSize: 16.0,
                     color: GSColors.darkBlue,
@@ -622,7 +668,7 @@ void  _updateNutritionInfo(BuildContext context) async{
                     fontSize: 18.0,
                     color: GSColors.darkBlue,
                   ),
-                  hintText: currentWeight,
+                  hintText: await currentWeight,
                   hintStyle: TextStyle(
                     fontSize: 16.0,
                     color: GSColors.darkBlue,
@@ -713,17 +759,8 @@ void  _updateNutritionInfo(BuildContext context) async{
 }
 
 void  _updateWeightInfo(BuildContext context) async{
-      String currentWeight, startingWeight, protein, carbs, fats, photoUrl;
-      DocumentReference docRef = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}');
-
-      docRef.get().then((docRef)
-      {
-        startingWeight = docRef.data['currentWeight'];
-        currentWeight = docRef.data['startingWeight'];
-        photoUrl = docRef.data['photoURL'].isEmpty ? Defaults.photoURL : docRef.data['photoURL'];
-        //protein = docRef.data[''];
-      });
-
+      String currentWeight, startingWeight;
+      DocumentReference ref;
      // currentWeight = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}').;
 
     showDialog<String>(
@@ -740,25 +777,40 @@ void  _updateWeightInfo(BuildContext context) async{
               child:  TextField(
                 autofocus: true,
                 decoration: InputDecoration(
-                  labelText: 'Current Weight',
+                  labelText: 'Current',
                   labelStyle: TextStyle(
                     fontSize: 18.0,
                     color: GSColors.darkBlue,
                   ),
-                  hintText: currentWeight,
-                  hintStyle: TextStyle(
-                    fontSize: 16.0,
-                    color: GSColors.darkBlue,
-                  )
                 ),
+                onChanged: (text) => currentWeight = text,
               ),
-            )
+            ),
+
+
+             SizedBox(width: 5.0,),
+
+            Flexible(
+              child:  TextField(
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Starting',
+                  labelStyle: TextStyle(
+                    fontSize: 18.0,
+                    color: GSColors.darkBlue,
+                  ),
+                ),
+                onChanged: (text) => startingWeight = text,
+              ),
+            ),
           ],
         ),
         actions: <Widget>[
           FlatButton(
             child: const Text('Cancel'),
             onPressed: (){
+              startingWeight = "";
+              currentWeight = "";
               Navigator.pop(context);
             }
           ),
@@ -766,6 +818,17 @@ void  _updateWeightInfo(BuildContext context) async{
             child: const Text('Save'),
             onPressed: (){
             //**********Save to firebase!*************** */
+
+            if (startingWeight != "")
+              {
+                Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'startingWeight' : double.parse(startingWeight) });
+              }
+
+            if (currentWeight != "")
+            {
+              Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'currentWeight' : double.parse(currentWeight) });
+            }
+
             Navigator.pop(context);
             }
           )
