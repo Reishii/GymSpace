@@ -8,6 +8,7 @@ import 'database.dart';
 import 'package:GymSpace/page/login_page.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/page/me_page.dart';
+import 'package:algolia/algolia.dart';
 
 
 Future<void> main() async{
@@ -16,7 +17,8 @@ Future<void> main() async{
     options: DatabaseConnections.database // our database 
   );
 
-
+  DatabaseConnections.algolia = DatabaseConnections.initAlgolia;
+  
   // Paul: disabled to make messages work...
   
   // final Firestore firestore = Firestore(app: app);

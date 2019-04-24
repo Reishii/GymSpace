@@ -21,11 +21,13 @@ dependencies:
   fluttertoast: ^2.2.11        #new PS
   shared_preferences: ^0.4.3 #new PS
   image_picker: ^0.4.12+1      #new PS
-  cached_network_image: ^0.4.2  #new PS
+  # flutter_cache_manager: ^0.2.0
+  cached_network_image: ^0.7.0  #new PS
   intl: ^0.15.7               #new PS
   firebase_storage: ^1.1.0+1
   firebase_core: ^0.2.5
   photo_view: ^0.3.0
+  algolia: ^0.1.4
 
   fancy_bottom_navigation: ^0.3.2 # for the nice bottom nav bar
   font_awesome_flutter: ^8.4.0

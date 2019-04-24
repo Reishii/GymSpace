@@ -296,7 +296,7 @@ class ChatScreenState extends State<ChatScreen> {
                 isLastMessageLeft(index)
                     ? Material(
                   child: CachedNetworkImage(
-                    placeholder: Container(
+                    placeholder: (context, text) => Container(
                       child: CircularProgressIndicator(
                         strokeWidth: 1.0,
                         valueColor: AlwaysStoppedAnimation<Color>(GSColors.darkBlue),
@@ -331,7 +331,7 @@ class ChatScreenState extends State<ChatScreen> {
                     ? Container(
                   child: Material(
                     child: CachedNetworkImage(
-                      placeholder: Container(
+                      placeholder: (context, text) => Container(
                         child: CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(GSColors.darkBlue),
                         ),
@@ -345,7 +345,7 @@ class ChatScreenState extends State<ChatScreen> {
                           ),
                         ),
                       ),
-                      errorWidget: Material(
+                      errorWidget: (context, text, object) => Material(
                         child: Image.asset(
                           'images/img_not_available.jpeg',
                           width: 200.0,
