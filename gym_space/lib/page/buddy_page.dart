@@ -1,4 +1,5 @@
 import 'package:GymSpace/widgets/page_header.dart';
+import 'package:algolia/algolia.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
@@ -7,6 +8,7 @@ import 'package:GymSpace/widgets/buddy_widget.dart';
 import 'package:GymSpace/page/buddy_profile_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
+import 'package:GymSpace/database.dart';
 
 class BuddyPage extends StatelessWidget {
   final Widget child;
@@ -14,6 +16,7 @@ class BuddyPage extends StatelessWidget {
   final TextEditingController _searchController = TextEditingController();
   BuildContext _currentContext;
   BuddyPage({Key key, this.child}) : super(key: key);
+  Algolia get algolia => DatabaseConnections.algolia;
 
   String searchPressed() {
     showDialog(
@@ -26,6 +29,7 @@ class BuddyPage extends StatelessWidget {
                 controller: _searchController,
                 onChanged: (text) {
                   print(text);
+                  testSearch(text);
                 },
               ),
             )
@@ -33,6 +37,16 @@ class BuddyPage extends StatelessWidget {
         );
       }
     );
+  }
+
+  Future<void> testSearch(String name) async {
+    AlgoliaQuery searchQuery = algolia.instance.index('users').search('Jane');
+    var snap = await searchQuery.getObjects();
+    print('# of hits: ${snap.hits}');
+    List<AlgoliaObjectSnapshot> s = snap.hits;
+    s.forEach((object) {
+      print(object.data);
+    });
   }
 
   @override
