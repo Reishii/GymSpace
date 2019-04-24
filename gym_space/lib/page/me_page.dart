@@ -99,21 +99,26 @@ class MePage extends StatelessWidget {
         child: Column(
           children: <Widget>[
             InkWell(
-                child: FutureBuilder(
-                future: _futureUser,
-                builder: (context, snapshot) {
-                  String photoURL = 
-                  snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
-
-                  return CircleAvatar(
-                     backgroundImage: CachedNetworkImageProvider(photoURL ?? Defaults.photoURL) ,
-                    backgroundColor: Colors.white,
-                    radius: 70,
-                  );
+              onLongPress: () => getImage(),
+              child: FutureBuilder(
+              future: _futureUser,
+              builder: (context, snapshot) {
+                String photoURL = Defaults.photoURL;
+                if ( snapshot.hasData && snapshot.data['photoURL'] != null && snapshot.data['photoURL'].isNotEmpty)
+                {
+                  photoURL = snapshot.data['photoURL'];
+                }
+                
+                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                print(photoURL);
+                return CircleAvatar(
+                  backgroundImage: CachedNetworkImageProvider(photoURL, errorListener: () => print('Failed to download')),
+                  backgroundColor: Colors.white,
+                  radius: 70,
+                );
                 },
               ),
-              onLongPress: () => 
-                  getImage()
+
 
             ),
             // FutureBuilder(
