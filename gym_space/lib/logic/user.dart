@@ -56,4 +56,24 @@ class User {
       'workoutPlans': workoutPlans == null ? [] : workoutPlans,
     };
   }
+
+  static User jsonToUser(Map<String, dynamic> data) {
+    return User(
+      firstName: data['firstName'],
+      lastName: data['lastName'],
+      email: data['email'],
+      liftingType: data['liftingType'],
+      photoURL: data['photoURL'],
+      bio: data['bio'],
+      buddies: data['buddies'].cast<String>(),
+      points: data['points'].round(),
+      age: data['age'].round(),
+      startingWeight: data['startingWeight'].toDouble(),
+      currentWeight: data['currentWeight'].toDouble(),
+      height: data['height'].toDouble(),
+      // joinedGroups: data['joinedGroups'],
+      // diet: data['diet'],
+      // workoutPlans: {}}
+    );
+  }
 }

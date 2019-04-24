@@ -27,6 +27,10 @@ class DatabaseHelper {
     return Firestore.instance.collection('users').document(userID).get();
   }
 
+  static Stream<DocumentSnapshot> getUserStreamSnapshot(String userID) {
+    return Firestore.instance.collection('users').document(userID).snapshots();
+  }
+
   static Future<DocumentSnapshot> getWorkoutPlanSnapshot(String workoutPlanID) async {
     return Firestore.instance.collection('workoutPlans').document(workoutPlanID).get();
   }

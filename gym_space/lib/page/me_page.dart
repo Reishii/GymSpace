@@ -100,14 +100,20 @@ class MePage extends StatelessWidget {
           children: <Widget>[
             InkWell(
               onLongPress: () => getImage(),
-              child: FutureBuilder(
-              future: _futureUser,
+              child: StreamBuilder(
+              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
               builder: (context, snapshot) {
                 String photoURL = Defaults.photoURL;
-                if ( snapshot.hasData && snapshot.data['photoURL'] != null && snapshot.data['photoURL'].isNotEmpty)
-                {
-                  photoURL = snapshot.data['photoURL'];
+                if (snapshot.hasData) {
+                  DocumentSnapshot s = snapshot.data;
+                  if (s.data != null && s.data['photoURL'].isNotEmpty) {
+                    photoURL = s.data['photoURL'];
+                  }
                 }
+                // if ( snapshot.hasData && snapshot.data['photoURL'] != null && snapshot.data['photoURL'].isNotEmpty)
+                // {
+                //   photoURL = snapshot.data['photoURL'];
+                // }
                 
                 print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                 print(photoURL);
@@ -589,7 +595,7 @@ Future uploadFile() async {
     StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
     StorageUploadTask uploadTask = reference.putFile(imageFile);
     StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
-    storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
+    await storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
       imageUrl = downloadUrl;
     }, onError: (err) {
 
