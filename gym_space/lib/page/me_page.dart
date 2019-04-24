@@ -9,30 +9,73 @@ import 'package:cached_network_image/cached_network_image.dart';
 class MePage extends StatelessWidget {
   final Widget child;
   Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
-
+  final myController = TextEditingController();
   MePage({Key key, this.child}) : super(key: key);
+
+  TextEditingController _liftingTypeController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(startPage: 
       2,),
-      appBar: _buildAppBar(),
-      body: _buildBody(),
+      appBar: _buildAppBar(context),
+      body: _buildBody(context),
+      
+
+      // floatingActionButton: Column(
+      //   //crossAxisAlignment: CrossAxisAlignment.center,
+      //   //mainAxisSize: MainAxisSize.min,
+        
+      //   children: <Widget>[
+      //     FloatingActionButton(
+      //       heroTag: null,
+      //       child: Icon(Icons.edit, color: GSColors.cloud),
+      //       onPressed:(){
+      //         _updateMeInfo(context);
+      //       },
+      //       backgroundColor: GSColors.blue,
+
+      //     ),
+      //     SizedBox(
+      //       height: 200.0,
+      //     ),
+      //     FloatingActionButton(
+      //       heroTag: null,
+      //       child: Icon(Icons.edit, color: GSColors.cloud),
+      //       onPressed: (){
+      //         _updateMeInfo(context);
+      //       },
+      //       backgroundColor: GSColors.blue,
+
+      //     ),
+      //      SizedBox(
+      //       height: 350.0,
+      //     ),
+      //   ],
+      // ),
+      
+
     );
+
+      
+
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(BuildContext context) {
     return PreferredSize(
       preferredSize: Size.fromHeight(300),
       child: AppBar(
         elevation: 4,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.search, color: Colors.white,),
-            onPressed: () {},
-          )
-        ],
+        // actions: <Widget>[
+        //   IconButton(
+        //     icon: Icon(Icons.edit, color: Colors.white,),
+        //     onPressed: () {
+        //       _updateMeInfo(context);
+        //     },
+        //   )
+        // ],
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(40))
         ),
@@ -131,13 +174,16 @@ class MePage extends StatelessWidget {
     );
   }
 
-  Widget _buildBody() {
+  // Future<void> _updateMeInfo() async{
+   
+
+  Widget _buildBody(BuildContext context) {
     return Container(
       child: ListView(
         children: <Widget>[
           _buildNutritionLabel(),
-          _buildNutritionInfo(),
-          _buildWeightInfo(),
+          _buildNutritionInfo(context),
+          _buildWeightInfo(context),
           _buildTodaysEventsLabel(),
           _buildTodaysEventsInfo(),
           _buildChallengesLabel(),
@@ -151,7 +197,7 @@ class MePage extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(top: 30),
       child: Row(
-        children: <Widget>[
+        children: <Widget>[ 
           Expanded(
             flex: 2,
             child: Container(
@@ -181,15 +227,15 @@ class MePage extends StatelessWidget {
           Expanded(
             flex: 1,
             child: Container(),
-          )
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildNutritionInfo() {
+  Widget _buildNutritionInfo(BuildContext context) {
     return InkWell(
-      onTap: () => print("Open nutrition info"),
+      //onTap: () => print("Open nutrition info"),
       child: Container(
         margin: EdgeInsets.only(top: 30),
         child: Row(
@@ -256,40 +302,49 @@ class MePage extends StatelessWidget {
               flex: 1,
               child: Container(
                 alignment: FractionalOffset.center,
-                child: Icon(
-                  Icons.keyboard_arrow_right,
-                  color: GSColors.darkBlue,
-                ),
+                  child: Icon(
+                    Icons.edit,
+                    color: GSColors.darkBlue,
+                  ),
+                
               ),
             ),
           ],
         )
       ),
+      onLongPress: () =>
+        _updateNutritionInfo(context),
     );
   }
 
-  Widget _buildWeightInfo() {
-    return Container(
-      height: 80,
-      margin: EdgeInsets.only(top: 30),
-      decoration: ShapeDecoration(
-        color: GSColors.darkBlue,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            topLeft: Radius.circular(20)
+  Widget _buildWeightInfo(BuildContext context) {
+    // return InkWell(
+      return Container(
+        height: 80,
+        margin: EdgeInsets.only(top: 30),
+        decoration: ShapeDecoration(
+          color: GSColors.darkBlue,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              topLeft: Radius.circular(20)
+            )
           )
-        )
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          _buildStartingWeight(),
-          _buildCurrentWeight(),
-        ],
-      ),
-    );
+        ),
+        child: InkWell(
+        onLongPress: () => _updateWeightInfo(context),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            _buildStartingWeight(),
+            _buildCurrentWeight(),
+          ],
+        ),
+    ),
+      );
   }
+
+
 
   Widget _buildCurrentWeight() {
     return Row(
@@ -487,5 +542,307 @@ class MePage extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 30),
     );
+  }
+
+void  _updateNutritionInfo(BuildContext context) async{
+      String currentWeight, startingWeight, protein, carbs, fats, photoUrl;
+      DocumentReference docRef = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}');
+
+      docRef.get().then((docRef)
+      {
+        startingWeight = docRef.data['currentWeight'];
+        currentWeight = docRef.data['startingWeight'];
+        photoUrl = docRef.data['photoURL'].isEmpty ? Defaults.photoURL : docRef.data['photoURL'];
+        //protein = docRef.data[''];
+      });
+
+     // currentWeight = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}').;
+
+    showDialog<String>(
+      context: context,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(5.0),
+        child: AlertDialog(
+        title: Text("Update your daily macros"),
+        contentPadding: const EdgeInsets.all(16.0),
+        content:  
+          Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+             Flexible(
+              child:  TextField(
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Protein',
+                  labelStyle: TextStyle(
+                    fontSize: 18.0,
+                    color: GSColors.darkBlue,
+                  ),
+                  hintText: currentWeight,
+                  hintStyle: TextStyle(
+                    fontSize: 16.0,
+                    color: GSColors.darkBlue,
+                  ),
+                  contentPadding: EdgeInsets.all(10.0)
+
+                ),
+              ),
+            ),
+            
+            SizedBox(width: 5.0,),
+
+            Flexible(
+              child:  TextField(
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Carbs',
+                  labelStyle: TextStyle(
+                    fontSize: 18.0,
+                    color: GSColors.darkBlue,
+                  ),
+                  hintText: currentWeight,
+                  hintStyle: TextStyle(
+                    fontSize: 16.0,
+                    color: GSColors.darkBlue,
+                  ),
+                    contentPadding: EdgeInsets.all(10.0)
+
+                ),
+              ),
+            ),
+    
+            SizedBox(width: 5.0,),
+
+            Flexible(
+              child:  TextField(
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Fats',
+                  labelStyle: TextStyle(
+                    fontSize: 18.0,
+                    color: GSColors.darkBlue,
+                  ),
+                  hintText: currentWeight,
+                  hintStyle: TextStyle(
+                    fontSize: 16.0,
+                    color: GSColors.darkBlue,
+                  ),
+                    contentPadding: EdgeInsets.all(10.0)
+
+                ),
+              ),
+            ),
+
+          ],
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: const Text('Cancel'),
+            onPressed: (){
+              Navigator.pop(context);
+            }
+          ),
+          FlatButton(
+            child: const Text('Save'),
+            onPressed: (){
+            //**********Save to firebase!*************** */
+            Navigator.pop(context);
+            }
+          )
+        ],
+      )),
+      // barrierDismissible: true,
+      // builder: (BuildContext context){
+      //   return AlertDialog(
+      //     title: Text('Change your info'),
+      //     content: ListView(
+      //       children: <Widget>[
+      //         // lifting type
+      //         TextField(
+      //           decoration: InputDecoration.collapsed(
+      //             //hintText: 'Current weight: ${_futureUser}'
+      //             // hintText: startingWeight,
+      //           ),
+      //           controller: _liftingTypeController,
+      //           onChanged: (text) => print(text),
+      //         ), 
+      //         // photo url
+      //           // ImagePicker()
+      //         // bio
+      //         // weight
+      //         // macros
+      //       ],
+      //     ),
+      //     // content: SingleChildScrollView(
+      //     //   child: ListView(
+      //     //     children: <Widget>[
+      //     //       // Text('Test1'),
+      //     //     ],
+      //     //   ),
+      //     // ),
+      //   // actions: <Widget>[
+      //   //   FlatButton(
+      //   //     child: FutureBuilder(
+      //   //       future: _futureUser,
+      //   //       builder: (context, snapshot) =>
+      //   //         Text(
+      //   //           snapshot.hasData ? snapshot.data['currentWeight'].toString() : '0',
+      //   //           style: TextStyle(
+      //   //             color: Colors.white,
+      //   //             fontSize: 14,
+      //   //           )
+      //   //         ),
+      //   //     ),
+      //   //     onPressed: () {
+      //   //         return showDialog(
+      //   //           context: context,
+      //   //           builder: (context) {
+      //   //             return AlertDialog(
+      //   //               content: Text(myController.text),
+      //   //             );
+      //   //           }
+      //   //         );
+      //   //       //thisText = input.getText().toString(),
+      //   //     }
+      //   //     )
+      //   // ]
+      //   );
+      // }
+    );
+  }
+}
+
+void  _updateWeightInfo(BuildContext context) async{
+      String currentWeight, startingWeight, protein, carbs, fats, photoUrl;
+      DocumentReference docRef = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}');
+
+      docRef.get().then((docRef)
+      {
+        startingWeight = docRef.data['currentWeight'];
+        currentWeight = docRef.data['startingWeight'];
+        photoUrl = docRef.data['photoURL'].isEmpty ? Defaults.photoURL : docRef.data['photoURL'];
+        //protein = docRef.data[''];
+      });
+
+     // currentWeight = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}').;
+
+    showDialog<String>(
+      context: context,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(20),
+        child: AlertDialog(
+        title: Text("Change your current weight"),
+        contentPadding: const EdgeInsets.all(16.0),
+        content:  
+          Row(
+          children: <Widget>[
+             Expanded(
+              child:  TextField(
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Current Weight',
+                  labelStyle: TextStyle(
+                    fontSize: 18.0,
+                    color: GSColors.darkBlue,
+                  ),
+                  hintText: currentWeight,
+                  hintStyle: TextStyle(
+                    fontSize: 16.0,
+                    color: GSColors.darkBlue,
+                  )
+                ),
+              ),
+            )
+          ],
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: const Text('Cancel'),
+            onPressed: (){
+              Navigator.pop(context);
+            }
+          ),
+          FlatButton(
+            child: const Text('Save'),
+            onPressed: (){
+            //**********Save to firebase!*************** */
+            Navigator.pop(context);
+            }
+          )
+        ],
+      )),
+      // barrierDismissible: true,
+      // builder: (BuildContext context){
+      //   return AlertDialog(
+      //     title: Text('Change your info'),
+      //     content: ListView(
+      //       children: <Widget>[
+      //         // lifting type
+      //         TextField(
+      //           decoration: InputDecoration.collapsed(
+      //             //hintText: 'Current weight: ${_futureUser}'
+      //             // hintText: startingWeight,
+      //           ),
+      //           controller: _liftingTypeController,
+      //           onChanged: (text) => print(text),
+      //         ), 
+      //         // photo url
+      //           // ImagePicker()
+      //         // bio
+      //         // weight
+      //         // macros
+      //       ],
+      //     ),
+      //     // content: SingleChildScrollView(
+      //     //   child: ListView(
+      //     //     children: <Widget>[
+      //     //       // Text('Test1'),
+      //     //     ],
+      //     //   ),
+      //     // ),
+      //   // actions: <Widget>[
+      //   //   FlatButton(
+      //   //     child: FutureBuilder(
+      //   //       future: _futureUser,
+      //   //       builder: (context, snapshot) =>
+      //   //         Text(
+      //   //           snapshot.hasData ? snapshot.data['currentWeight'].toString() : '0',
+      //   //           style: TextStyle(
+      //   //             color: Colors.white,
+      //   //             fontSize: 14,
+      //   //           )
+      //   //         ),
+      //   //     ),
+      //   //     onPressed: () {
+      //   //         return showDialog(
+      //   //           context: context,
+      //   //           builder: (context) {
+      //   //             return AlertDialog(
+      //   //               content: Text(myController.text),
+      //   //             );
+      //   //           }
+      //   //         );
+      //   //       //thisText = input.getText().toString(),
+      //   //     }
+      //   //     )
+      //   // ]
+      //   );
+      // }
+    );
+  }
+
+
+
+class _SystemPadding extends StatelessWidget{
+  final Widget child;
+ _SystemPadding({Key key, this.child}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var mediaQuery = MediaQuery.of(context);
+    return new AnimatedContainer(
+        padding: mediaQuery.viewInsets,
+        duration: const Duration(milliseconds: 300),
+        child: child);
   }
 }

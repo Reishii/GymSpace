@@ -4,27 +4,40 @@ import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/widgets/buddy_widget.dart';
-import 'package:GymSpace/test_users.dart';
 import 'package:GymSpace/page/buddy_profile_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 
 class BuddyPage extends StatelessWidget {
   final Widget child;
-  List<String> buddies;
-  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
+  List<String> buddies = [];
+  final TextEditingController _searchController = TextEditingController();
+  BuildContext _currentContext;
+  BuddyPage({Key key, this.child}) : super(key: key);
 
-  BuddyPage({Key key, this.child}) : super(key: key) {
-    Firestore.instance.collection('users').document( DatabaseHelper.currentUserID)
-      .get().then( (ds) => buddies = ds.data['buddies'] );
-  }
-
-  Future<DocumentSnapshot> getBuddies() async {
-    return Firestore.instance.collection('users').document( DatabaseHelper.currentUserID).get();
+  String searchPressed() {
+    showDialog(
+      context: _currentContext,
+      builder: (context) {
+        return SimpleDialog(
+          children: <Widget>[
+            Container( // search
+              child: TextField(
+                controller: _searchController,
+                onChanged: (text) {
+                  print(text);
+                },
+              ),
+            )
+          ],
+        );
+      }
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    _currentContext = context;
     return Scaffold(
       drawer: AppDrawer(startPage: 4,),
       backgroundColor: Colors.white,
@@ -40,7 +53,9 @@ class BuddyPage extends StatelessWidget {
         title: 'Buddies', 
         backgroundColor: GSColors.darkBlue, 
         showDrawer: true,
-        titleColor: Colors.white,
+        titleColor: GSColors.darkBlue,
+        showSearch: true,
+        searchFunction: searchPressed,
       )
     );  
   }
