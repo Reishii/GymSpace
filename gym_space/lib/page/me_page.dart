@@ -5,6 +5,13 @@ import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+
+
 
 class MePage extends StatelessWidget {
   final Widget child;
@@ -13,7 +20,8 @@ class MePage extends StatelessWidget {
   MePage({Key key, this.child}) : super(key: key);
 
   TextEditingController _liftingTypeController = TextEditingController();
-
+  File imageFile;
+  String imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -90,19 +98,37 @@ class MePage extends StatelessWidget {
       child: Container(
         child: Column(
           children: <Widget>[
-            FutureBuilder(
-              future: _futureUser,
-              builder: (context, snapshot) {
-                // String photoURL = 
-                //   snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
+            InkWell(
+                child: FutureBuilder(
+                future: _futureUser,
+                builder: (context, snapshot) {
+                  String photoURL = 
+                  snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
 
-                return CircleAvatar(
-                  // backgroundImage: CachedNetworkImageProvider(photoURL),
-                  backgroundColor: Colors.white,
-                  radius: 70,
-                );
-              },
+                  return CircleAvatar(
+                     backgroundImage: CachedNetworkImageProvider(photoURL ?? Defaults.photoURL) ,
+                    backgroundColor: Colors.white,
+                    radius: 70,
+                  );
+                },
+              ),
+              onLongPress: () => 
+                  getImage()
+
             ),
+            // FutureBuilder(
+            //   future: _futureUser,
+            //   builder: (context, snapshot) {
+            //     // String photoURL = 
+            //     //   snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
+
+            //     return CircleAvatar(
+            //       // backgroundImage: CachedNetworkImageProvider(photoURL),
+            //       backgroundColor: Colors.white,
+            //       radius: 70,
+            //     );
+            //   },
+            // ),
             Divider(),
             FutureBuilder(
               future: _futureUser,
@@ -544,10 +570,37 @@ class MePage extends StatelessWidget {
     );
   }
 
+Future getImage() async {
+    imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
+    
+    if(imageFile != null){
+      uploadFile();
+    }
+}
+
+
+Future uploadFile() async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask = reference.putFile(imageFile);
+    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
+    storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
+      imageUrl = downloadUrl;
+    }, onError: (err) {
+
+      Fluttertoast.showToast(msg: 'This file is not an image');
+    });
+
+        
+  Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'photoURL' : imageUrl });
+            
+
+  }
+
 
 
 void  _updateNutritionInfo(BuildContext context) async{
-      String currentWeight, startingWeight, protein, carbs, fats, photoUrl;
+      String currentWeight, startingWeight, protein, carbs, fats;
 
      // currentWeight = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}').;
 
