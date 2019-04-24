@@ -544,17 +544,10 @@ class MePage extends StatelessWidget {
     );
   }
 
+
+
 void  _updateNutritionInfo(BuildContext context) async{
       String currentWeight, startingWeight, protein, carbs, fats, photoUrl;
-      DocumentReference docRef = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}');
-
-      docRef.get().then((docRef)
-      {
-        startingWeight = docRef.data['currentWeight'];
-        currentWeight = docRef.data['startingWeight'];
-        photoUrl = docRef.data['photoURL'].isEmpty ? Defaults.photoURL : docRef.data['photoURL'];
-        //protein = docRef.data[''];
-      });
 
      // currentWeight = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}').;
 
@@ -578,7 +571,7 @@ void  _updateNutritionInfo(BuildContext context) async{
                     fontSize: 18.0,
                     color: GSColors.darkBlue,
                   ),
-                  hintText: currentWeight,
+                  hintText: await currentWeight,
                   hintStyle: TextStyle(
                     fontSize: 16.0,
                     color: GSColors.darkBlue,
@@ -600,7 +593,7 @@ void  _updateNutritionInfo(BuildContext context) async{
                     fontSize: 18.0,
                     color: GSColors.darkBlue,
                   ),
-                  hintText: currentWeight,
+                  hintText: await currentWeight,
                   hintStyle: TextStyle(
                     fontSize: 16.0,
                     color: GSColors.darkBlue,
@@ -622,7 +615,7 @@ void  _updateNutritionInfo(BuildContext context) async{
                     fontSize: 18.0,
                     color: GSColors.darkBlue,
                   ),
-                  hintText: currentWeight,
+                  hintText: await currentWeight,
                   hintStyle: TextStyle(
                     fontSize: 16.0,
                     color: GSColors.darkBlue,
@@ -713,17 +706,8 @@ void  _updateNutritionInfo(BuildContext context) async{
 }
 
 void  _updateWeightInfo(BuildContext context) async{
-      String currentWeight, startingWeight, protein, carbs, fats, photoUrl;
-      DocumentReference docRef = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}');
-
-      docRef.get().then((docRef)
-      {
-        startingWeight = docRef.data['currentWeight'];
-        currentWeight = docRef.data['startingWeight'];
-        photoUrl = docRef.data['photoURL'].isEmpty ? Defaults.photoURL : docRef.data['photoURL'];
-        //protein = docRef.data[''];
-      });
-
+      String currentWeight, startingWeight;
+      DocumentReference ref;
      // currentWeight = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}').;
 
     showDialog<String>(
@@ -740,25 +724,40 @@ void  _updateWeightInfo(BuildContext context) async{
               child:  TextField(
                 autofocus: true,
                 decoration: InputDecoration(
-                  labelText: 'Current Weight',
+                  labelText: 'Current',
                   labelStyle: TextStyle(
                     fontSize: 18.0,
                     color: GSColors.darkBlue,
                   ),
-                  hintText: currentWeight,
-                  hintStyle: TextStyle(
-                    fontSize: 16.0,
-                    color: GSColors.darkBlue,
-                  )
                 ),
+                onChanged: (text) => currentWeight = text,
               ),
-            )
+            ),
+
+
+             SizedBox(width: 5.0,),
+
+            Flexible(
+              child:  TextField(
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Starting',
+                  labelStyle: TextStyle(
+                    fontSize: 18.0,
+                    color: GSColors.darkBlue,
+                  ),
+                ),
+                onChanged: (text) => startingWeight = text,
+              ),
+            ),
           ],
         ),
         actions: <Widget>[
           FlatButton(
             child: const Text('Cancel'),
             onPressed: (){
+              startingWeight = "";
+              currentWeight = "";
               Navigator.pop(context);
             }
           ),
@@ -766,6 +765,17 @@ void  _updateWeightInfo(BuildContext context) async{
             child: const Text('Save'),
             onPressed: (){
             //**********Save to firebase!*************** */
+
+            if (startingWeight != "")
+              {
+                Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'startingWeight' : double.parse(startingWeight) });
+              }
+
+            if (currentWeight != "")
+            {
+              Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'currentWeight' : double.parse(currentWeight) });
+            }
+
             Navigator.pop(context);
             }
           )
