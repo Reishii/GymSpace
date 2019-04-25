@@ -1,3 +1,4 @@
+import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:algolia/algolia.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -37,9 +38,9 @@ class _BuddyPageState extends State<BuddyPage> {
             Container( // search
               child: TextField(
                 controller: _searchController,
-                onChanged: (text) {
-                  print(text);
-                  //testSearch(text);
+                onEditingComplete: () async {
+                  print('...Searching for: ${_searchController.text}');
+                  await _searchDBForUser(_searchController.text);
                 },
               ),
             )
@@ -47,6 +48,21 @@ class _BuddyPageState extends State<BuddyPage> {
         );
       }
     );
+  }
+
+  Future<List<User>> _searchDBForUser(String name) async {
+    Query firstNameQuery = Firestore.instance.collection('users')
+      .where('firstName', isEqualTo: name);
+    
+    QuerySnapshot querySnapshot = await firstNameQuery.getDocuments();
+    List<User> foundUsers = List();
+    querySnapshot.documents.forEach((ds) {
+      User user = User.jsonToUser(ds.data);
+      user.documentID = ds.documentID;
+      foundUsers.add(user);
+    });
+    foundUsers.forEach((user) => print('HI'));
+    return foundUsers;
   }
 
   // Future<void> testSearch(String name) async {

@@ -139,7 +139,7 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text( // name
-                user.firstName + user.lastName,
+                '${user.firstName} ${user.lastName}',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -220,7 +220,8 @@ class _ProfilePageState extends State<ProfilePage> {
       child: ListView(
         children: <Widget>[
           _buildBio(),
-
+          _buildWeightInfo(),
+          _buildPhotosVideos(),
         ],
       ),
     );
@@ -271,12 +272,130 @@ class _ProfilePageState extends State<ProfilePage> {
             alignment: Alignment.center,
             child: Text(
               user.bio,
-              textAlign: TextAlign.justify,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: GSColors.darkBlue,
                 letterSpacing: 1.2
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWeightInfo() {
+    double weightLost = double.parse((user.startingWeight - user.currentWeight).toStringAsFixed(2));
+
+    return Container( // might have to use Exapndeds for proper auto alignment
+      height: 70,
+      decoration: ShapeDecoration(
+        color: GSColors.darkBlue,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            topLeft: Radius.circular(20)
+          ),
+        )
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Container( // Starting Weight
+            margin: EdgeInsets.only(left: 34, right: 84),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  'Starting Weight',
+                  style: TextStyle(
+                    color: Colors.white,
+                    letterSpacing: 1.2
+                  ),
+                ),
+                Text(
+                  '${user.startingWeight.toStringAsFixed(2)} lbs',
+                  style: TextStyle(
+                    color: Colors.white,
+                    letterSpacing: 1.2
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container( // Current Weight
+          margin: EdgeInsets.only(left: 34, right: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  'Current Weight',
+                  style: TextStyle(
+                    color: Colors.white,
+                    letterSpacing: 1.2
+                  ),
+                ),
+                Row(
+                  children: <Widget>[
+                    Text(
+                      '${user.currentWeight.toStringAsFixed(2)} lbs',
+                      style: TextStyle(
+                        color: Colors.white,
+                        letterSpacing: 1.2
+                      ),
+                    ),
+                    Icon(
+                      weightLost > 0 ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                      color: weightLost >= 0 ? Colors.red : Colors.blue,
+                    ),
+                    Text(
+                      '$weightLost lbs',
+                      style: TextStyle(
+                        color: Colors.white,
+                        letterSpacing: 1.2
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhotosVideos() {
+    return Container( // 
+      margin: EdgeInsets.symmetric(vertical: 20),
+      child: Column(
+        children: <Widget>[
+          Container(  // label
+            alignment: Alignment.center,
+            child: Column(
+              children: <Widget>[
+                Text(
+                  'Photos & Videos',
+                  style: TextStyle(
+                    color: GSColors.darkBlue,
+                    fontSize: 20,
+                    letterSpacing: 1.2,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Roboto',
+                  )
+                ),
+                Text(
+                  '200 shots',
+                  style: TextStyle(
+                    letterSpacing: 1.2,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container( // photo gallery
+
           ),
         ],
       ),
