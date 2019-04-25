@@ -9,6 +9,7 @@ class User {
   String liftingType = "";
   String photoURL = "";
   String bio = "";
+  String documentID = "";
   List<String> buddies = List();
   int points = 0;
   int age = 0;
