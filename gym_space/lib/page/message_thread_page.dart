@@ -12,7 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:GymSpace/global.dart';
-import 'package:photo_view/photo_view.dart';
+//import 'package:photo_view/photo_view.dart';
 
 
 
@@ -73,7 +73,7 @@ class ChatScreenState extends State<ChatScreen> {
   Future<String> futureID;
   String id;
 
-  PhotoViewScaleStateController _photoController = PhotoViewScaleStateController();
+ // PhotoViewScaleStateController _photoController = PhotoViewScaleStateController();
 
   List<Map<String, String>> listMessage; // var
   //var listMessage;
@@ -230,12 +230,12 @@ class ChatScreenState extends State<ChatScreen> {
           // Image
               ? Container(
             child: Material(
-              child: PhotoView(
-                imageProvider: CachedNetworkImageProvider(
-                  document['content'],
-                ),
-                scaleStateController: _photoController,
-              ),
+              // child: PhotoView(
+              //   imageProvider: CachedNetworkImageProvider(
+              //     document['content'],
+              //   ),
+              //   scaleStateController: _photoController,
+              // ),
               // child: CachedNetworkImage(
               //   placeholder: Container(
               //     child: CircularProgressIndicator(
@@ -296,7 +296,7 @@ class ChatScreenState extends State<ChatScreen> {
                 isLastMessageLeft(index)
                     ? Material(
                   child: CachedNetworkImage(
-                    placeholder: Container(
+                    placeholder: (context, text) => Container(
                       child: CircularProgressIndicator(
                         strokeWidth: 1.0,
                         valueColor: AlwaysStoppedAnimation<Color>(GSColors.darkBlue),
@@ -331,7 +331,7 @@ class ChatScreenState extends State<ChatScreen> {
                     ? Container(
                   child: Material(
                     child: CachedNetworkImage(
-                      placeholder: Container(
+                      placeholder: (context, text) => Container(
                         child: CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(GSColors.darkBlue),
                         ),
@@ -345,7 +345,7 @@ class ChatScreenState extends State<ChatScreen> {
                           ),
                         ),
                       ),
-                      errorWidget: Material(
+                      errorWidget: (context, text, object) => Material(
                         child: Image.asset(
                           'images/img_not_available.jpeg',
                           width: 200.0,

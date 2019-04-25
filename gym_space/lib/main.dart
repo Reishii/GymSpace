@@ -1,13 +1,14 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'misc/colors.dart';
+// import 'package:algolia/algolia.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'database.dart';
-import 'package:GymSpace/page/login_page.dart';
+import 'package:GymSpace/database.dart';
 import 'package:GymSpace/global.dart';
+import 'package:GymSpace/page/login_page.dart';
 import 'package:GymSpace/page/me_page.dart';
+import 'package:GymSpace/page/profile_page.dart';
 
 
 Future<void> main() async{
@@ -16,7 +17,8 @@ Future<void> main() async{
     options: DatabaseConnections.database // our database 
   );
 
-
+  DatabaseConnections.algolia = DatabaseConnections.initAlgolia;
+  
   // Paul: disabled to make messages work...
   
   // final Firestore firestore = Firestore(app: app);
@@ -29,7 +31,13 @@ Future<void> main() async{
     _defaultHome = MePage();
   }
 
+  // _defaultHome = testProfile();
+  
   runApp(GymSpace(_defaultHome));
+}
+
+Widget testProfile() {
+  return ProfilePage(forUserID: 'XKgmeU51sxgmMig8ExV5J8JKq6n1',);
 }
 
 class GymSpace extends StatelessWidget {

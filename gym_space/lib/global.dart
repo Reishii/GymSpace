@@ -27,12 +27,22 @@ class DatabaseHelper {
     return Firestore.instance.collection('users').document(userID).get();
   }
 
+  static Stream<DocumentSnapshot> getUserStreamSnapshot(String userID) {
+    return Firestore.instance.collection('users').document(userID).snapshots();
+  }
+
   static Future<DocumentSnapshot> getWorkoutPlanSnapshot(String workoutPlanID) async {
     return Firestore.instance.collection('workoutPlans').document(workoutPlanID).get();
   }
 
   static Future<DocumentSnapshot> getWorkoutSnapshot(String workoutID) async {
     return Firestore.instance.collection('workouts').document(workoutID).get();
+  }
+
+  static Future<DocumentSnapshot> getCurrentUserBuddiesSnapshot(String userID) async {
+    DocumentSnapshot ds = await getUserSnapshot(userID);
+    DocumentSnapshot buddySnap = ds.data['buddies'];
+    return buddySnap;
   }
 
   static Future<List<String>> getCurrentUserBuddies() async {
