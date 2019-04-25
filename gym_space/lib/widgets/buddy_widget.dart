@@ -9,30 +9,24 @@ Future<DocumentSnapshot> ds;
 
 class BuddyWidget extends StatelessWidget {
   final Widget child;
-  List<String> buddies = new List();
+  List<String> buddies = [];
 
-  BuddyWidget({Key key, this.child}) : super(key: key) {
-    print(DatabaseHelper.currentUserID);
-    Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get().then( (ds) => buddies = ds.data['buddies'] );
-    ds = getBuddies();
-  }
-
-  Future<DocumentSnapshot> getBuddies() async {
-    return Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();
-  }
+  BuddyWidget(this.buddies, {Key key, this.child}) : super(key: key);
+    
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: ds,
-      builder: (context, snapshot) {
-        if(snapshot.hasData != null) 
-        {
-          print("You have buddies");
-          buddies.add(snapshot.data['buddies']);
-        }
-      }
-    );
+    return _displayBuddyPreview(buddies);
+    // return FutureBuilder(
+    //   future: ds,
+    //   builder: (context, snapshot) {
+    //     if(snapshot.hasData != null) 
+    //     {
+    //       print("You have buddies");
+    //       //buddies.add(snapshot.data['buddies']);
+    //     }
+    //   }
+    // );
   }
 
   Widget _buildBuddyCard(String name, String quote, Image buddyAvatar) {
@@ -42,7 +36,7 @@ class BuddyWidget extends StatelessWidget {
   Widget _displayBuddyPreview(List<String> buddies) {
     return Container(
       height: 90,
-      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: ShapeDecoration(
         color: GSColors.darkCloud,
         shape: OutlineInputBorder(
