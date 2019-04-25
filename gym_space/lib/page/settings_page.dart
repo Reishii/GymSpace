@@ -1,0 +1,317 @@
+import 'package:flutter/material.dart';
+import 'package:GymSpace/global.dart';
+import 'package:GymSpace/widgets/app_drawer.dart';
+import 'package:GymSpace/misc/colors.dart';
+import 'package:GymSpace/widgets/page_header.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class SettingsPage extends StatefulWidget {
+  
+  @override
+  _SettingsState createState() => _SettingsState();
+}
+
+class _SettingsState extends State<SettingsPage> {
+  // String currentUserID =  DatabaseHelper.getCurrentUserID();
+  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: _buildAppBar(),
+      drawer: AppDrawer(startPage: 0,),
+      backgroundColor: GSColors.darkBlue,
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(100),
+      child: PageHeader(
+        title: "Settings",
+        backgroundColor: Colors.white,
+        showDrawer: true,
+        titleColor: GSColors.darkBlue,
+      ),
+    );
+  }
+  Widget _buildBody() {
+    return Container(
+      child: ListView(
+        children: <Widget>[
+          _buildAccount(),
+          _buildGeneral()
+        ],
+      )
+    );
+  }
+  Widget _buildAccount(){
+    return Container(
+      height: 200,
+      margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      decoration: ShapeDecoration(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20)
+        )
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          FutureBuilder(
+            future: _futureUser,
+            builder: (context, snapshot){
+              String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
+              String email = snapshot.hasData ? snapshot.data['email'] : "";
+              String age = snapshot.hasData ? snapshot.data['age'].toString() : "";
+              return Container(
+                child: Column(
+                children: <Widget>[   
+                  Container(
+                    alignment: Alignment.center,
+                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 125),
+                    child: Text(
+                      'Accounts',
+                      style:TextStyle(
+                        color: Colors.white,
+                        fontSize: 20
+                      ),
+                    ),
+                    decoration: ShapeDecoration(
+                      color: GSColors.darkBlue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(60)
+                      ) 
+                    ),
+                  ),  
+                  Container(
+                    margin: EdgeInsets.only(top: 2, right: 300),
+                    child: Text(
+                      'Name',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16
+                      )
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 2, right: 240),
+                    child: Text(
+                      name,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14
+                      )
+                    )
+                  ),
+                   Container(
+                    margin: EdgeInsets.only(top: 10, right: 305),
+                    child: Text(
+                      'Email',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16
+                      )
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 2, right: 240),
+                    child: Text(
+                      email,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14
+                      )
+                    )
+                  ),
+                    Container(
+                    margin: EdgeInsets.only(top: 5, right: 315),
+                    child: Text(
+                      'Age',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16
+                      )
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 2, right: 290),
+                    child: Text(
+                      age,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14
+                      )
+                    )
+                  ),
+                ],
+                )
+              );
+            },
+          ),
+        ],
+      )
+    );
+  }
+  Widget _buildGeneral(){
+    bool isPrivate = true;
+    bool isLocation = true;
+    bool isNotification = true;
+    bool isClearSearch = true;
+    return Container(
+      height: 250,
+      margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      decoration: ShapeDecoration(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20)
+        )
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          FutureBuilder(
+            future: _futureUser,
+            builder: (context, snapshot){
+              return Container(
+                child: Column(
+                children: <Widget>[   
+                  Container(
+                    alignment: Alignment.center,
+                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 125),
+                    child: Text(
+                      'General',
+                      style:TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontFamily: "WorkSansMedium"
+                      ),
+                    ),
+                    decoration: ShapeDecoration(
+                      color: GSColors.darkBlue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(60)
+                      ) 
+                    ),
+                  ),  
+                  Container(
+                    margin: EdgeInsets.only(left: 15),
+                    child: Row(
+                      children: <Widget> [
+                        Text(
+                          'Private Account',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16
+                          )
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 150),
+                          child: new Switch(
+                            value: isPrivate,
+                            onChanged: (value){
+                              setState(() {
+                               isPrivate = value; 
+                              });
+                            },
+                            activeColor: GSColors.darkBlue,
+                          ),
+                        )
+                      ] 
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 15),
+                    child: Row(
+                      children: <Widget> [
+                        Text(
+                          'Allow Location access',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16
+                          )
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 103),
+                          child: Switch(
+                            value: isLocation,
+                            onChanged: (value){
+                              setState(() {
+                               isLocation = value; 
+                              });
+                            },
+                            activeColor: GSColors.darkBlue,
+                          ),
+                        )
+                      ] 
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 15),
+                    child: Row(
+                      children: <Widget> [
+                        Text(
+                          'Notifications',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16
+                          )
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 170),
+                          child: Switch(
+                            value: isNotification,
+                            onChanged: (value){
+                              setState(() {
+                               isNotification = value; 
+                              });
+                            },
+                            activeColor: GSColors.darkBlue,
+                          ),
+                        )
+                      ] 
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 15),
+                    child: Row(
+                      children: <Widget> [
+                        Text(
+                          'Clear Search History',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16
+                          )
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 115),
+                          child: Switch(
+                            value: isClearSearch,
+                            onChanged: (value){
+                              setState(() {
+                               isClearSearch = value; 
+                              });
+                            },
+                            activeColor: GSColors.darkBlue,
+                          ),
+                        )
+                      ] 
+                    ),
+                  ),
+                ],
+                )
+              );
+            },
+          ),
+        ],
+      )
+    );
+  }
+}
