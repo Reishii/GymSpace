@@ -19,7 +19,7 @@ class BuddyPage extends StatefulWidget {
 }
 
 class _BuddyPageState extends State<BuddyPage> {
-  List<String> buddies = [];
+  List<String> buddies =  [];
   final TextEditingController _searchController = TextEditingController();
   final GlobalKey<FormState> _buddyKey = GlobalKey<FormState>();
 
@@ -113,15 +113,10 @@ Widget _theBackground() {
       builder: (context, snapshot) {
         var userBuddyIDs = snapshot.hasData && snapshot.data['buddies'] != null 
           ? snapshot.data['buddies'] : List();
-          
           buddies = userBuddyIDs.cast<String>();      
-          print("Here is buddy amount");
-          print(buddies.length);
-          print("Here is the other amount");
-          print(userBuddyIDs.length);
-          print(2);
+    
           return ListView.builder(
-            itemCount: buddies.length,
+            itemCount: userBuddyIDs.length,
             itemBuilder: (BuildContext context, int i) {
               return BuddyWidget(buddies);
             } 

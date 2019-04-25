@@ -5,14 +5,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
 
 class BuddyPreview{
-  String name;
+  String firstName;
+  String lastName;
+  String photoURL;
   String quote;
   String documentID;
   int mutuals;
   List<String> buddies = List();
 
   BuddyPreview({
-    this.name = "",
+    this.firstName = "",
+    this.lastName = "",
+    this.photoURL = "",
     this.quote = "",
     this.documentID = "",
     this.mutuals = 0,
@@ -21,17 +25,26 @@ class BuddyPreview{
 
   Map<String, dynamic> toJSON() {
     return <String, dynamic>{
-      'name': name,
-      'quote': quote,
+      'firstName': firstName,
+      'lastName' : lastName,
+      'photoURL' : photoURL,
+      'bio': quote,
       'mutuals': mutuals, 
       'buddies': buddies == null ? [] : buddies,
     };
   }
 
-  static Future<BuddyPreview> jsonToBuddyPreview(Map<String, dynamic> data, List<String> buddyIDs) async {
-    List<String> buddies = data['buddies'].cast<String>();
+  static Future<BuddyPreview> jsonToBuddyPreview(Map<String, dynamic> data, String buddyID) async {
+    //pull buddy IDs
+    List<String> buddyIDs = data['buddies'].cast<String>();
 
-    
+    return BuddyPreview(
+      firstName: data['firstName'],
+      lastName: data['lastName'],
+      photoURL: data['photoURL'],
+      quote: data['bio'],
+      documentID: buddyID,
+    );
   }
 
 }
