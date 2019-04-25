@@ -7,7 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfilePage extends StatefulWidget {
-  String forUserID;
+  final String forUserID;
   
   ProfilePage({
     @required this.forUserID,
@@ -47,7 +47,7 @@ class _ProfilePageState extends State<ProfilePage> {
           preferredSize: Size.fromHeight(400),
           child: _buildAppBar(),
         ),
-        body: Container(),
+        body: _buildBody(),
       ),
     );
   }
@@ -59,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Stack(
         children: <Widget>[
           Container(
-            height: 400,
+            height: 360,
             // color: Colors.green,
             decoration: ShapeDecoration(
               color: GSColors.lightBlue,
@@ -90,7 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           Container(
-            height: 360,
+            height: 320,
             child: AppBar(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
@@ -113,9 +113,26 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       child: Column(
         children: <Widget>[
-          CircleAvatar(
-            radius: 70,
-            backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL),
+          Container(
+            child: CircleAvatar(
+              radius: 70,
+              backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL),
+            ),
+            decoration: ShapeDecoration(
+              gradient: LinearGradient(
+                colors: [GSColors.blue, GSColors.darkBlue, GSColors.lightBlue,],
+                // radius: 1.2
+                begin: FractionalOffset.centerLeft,
+                end: FractionalOffset.centerRight,
+              ),
+              shape: CircleBorder(
+                side: BorderSide(
+                  // color: GSColors.lightBlue,
+                  style: BorderStyle.none,
+                  width: 2
+                )
+              ),
+            ),
           ),
           Divider(),
           Row(
@@ -159,16 +176,16 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           ),
-          Container(
-            margin: EdgeInsets.only(top: 5),
-            child: Text(
-              user.bio,
-              style: TextStyle(
-                color: Colors.white,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ),
+          // Container(
+          //   margin: EdgeInsets.only(top: 5),
+          //   child: Text(
+          //     user.bio,
+          //     style: TextStyle(
+          //       color: Colors.white,
+          //       fontStyle: FontStyle.italic,
+          //     ),
+          //   ),
+          // ),
           Container(
             margin: EdgeInsets.symmetric(vertical: 10),
             child: Row(
@@ -191,6 +208,74 @@ class _ProfilePageState extends State<ProfilePage> {
                   onPressed: () {},
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    return Container(
+      child: ListView(
+        children: <Widget>[
+          _buildBio(),
+
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBio() {
+    return Container(
+      margin: EdgeInsets.only(top: 30),
+      child: Column(
+        children: <Widget>[
+          Container( // label
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    alignment: Alignment.center,
+                    height: 40,
+                    decoration: ShapeDecoration(
+                      color: GSColors.darkBlue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          bottomRight: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        )
+                      )
+                    ),
+                    child: Text(
+                      'Bio',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        letterSpacing: 1.2
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Container(),
+                )
+              ],
+            ),
+          ),
+          Container( // actual bio
+            // color: Colors.red,
+            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 40),
+            alignment: Alignment.center,
+            child: Text(
+              user.bio,
+              textAlign: TextAlign.justify,
+              style: TextStyle(
+                color: GSColors.darkBlue,
+                letterSpacing: 1.2
+              ),
             ),
           ),
         ],
