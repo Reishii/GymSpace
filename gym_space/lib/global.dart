@@ -40,6 +40,12 @@ class DatabaseHelper {
     return Firestore.instance.collection('workouts').document(workoutID).get();
   }
 
+  static Future<DocumentSnapshot> getCurrentUserBuddiesSnapshot(String userID) async {
+    DocumentSnapshot ds = await getUserSnapshot(userID);
+    DocumentSnapshot buddySnap = ds.data['buddies'];
+    return buddySnap;
+  }
+
   static Future<List<String>> getCurrentUserBuddies() async {
     DocumentSnapshot ds = await getUserSnapshot(currentUserID);
     List<String> buddies = ds.data['buddies'].cast<String>().toList();

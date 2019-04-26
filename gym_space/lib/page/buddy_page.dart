@@ -7,18 +7,28 @@ import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/widgets/buddy_widget.dart';
+import 'package:GymSpace/logic/buddy_preview.dart';
 import 'package:GymSpace/page/buddy_profile_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/database.dart';
 
-class BuddyPage extends StatelessWidget {
+class BuddyPage extends StatefulWidget {
   final Widget child;
-  List<String> buddies = [];
-  // final TextEditingController _searchController = TextEditingController();
-  BuildContext _currentContext;
+
   BuddyPage({Key key, this.child}) : super(key: key);
-  Algolia get algolia => DatabaseConnections.algolia;
+  _BuddyPageState createState() => _BuddyPageState();
+}
+
+class _BuddyPageState extends State<BuddyPage> {
+  List<String> buddies =  [];
+  final TextEditingController _searchController = TextEditingController();
+  final GlobalKey<FormState> _buddyKey = GlobalKey<FormState>();
+
+  Future<DocumentSnapshot> _futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+  BuildContext _currentContext;
+  
+  //Algolia get algolia => DatabaseConnections.algolia;
 
   Future<void> searchPressed() async {
     User _currentUser;
@@ -75,25 +85,24 @@ class BuddyPage extends StatelessWidget {
     return foundUsers;
   }
 
-  Future<void> testSearch(String name) async {
-    AlgoliaQuery searchQuery = algolia.instance.index('users').search('Jane');
-    var snap = await searchQuery.getObjects();
-    print('# of hits: ${snap.hits}');
-    List<AlgoliaObjectSnapshot> s = snap.hits;
-    s.forEach((object) {
-      print(object.data);
-    });
-  }
+  // Future<void> testSearch(String name) async {
+  //   AlgoliaQuery searchQuery = algolia.instance.index('users').search('Jane');
+  //   var snap = await searchQuery.getObjects();
+  //   print('# of hits: ${snap.hits}');
+  //   List<AlgoliaObjectSnapshot> s = snap.hits;
+  //   s.forEach((object) {
+  //     print(object.data);
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
-    _currentContext = context;
     return Scaffold(
       drawer: AppDrawer(startPage: 4,),
-      backgroundColor: GSColors.blue,
+      backgroundColor: Colors.white,
       appBar: _buildAppBar(),
       body: _buildBuddyBackground(),
-      );
+    );
   }
 
   Widget _buildAppBar() {
@@ -101,37 +110,21 @@ class BuddyPage extends StatelessWidget {
       preferredSize: Size.fromHeight(100),
       child: PageHeader(
         title: 'Buddies', 
-        backgroundColor: Colors.white, 
+        backgroundColor: GSColors.darkBlue, 
         showDrawer: true,
-        titleColor: GSColors.darkBlue,
+        titleColor: Colors.white,
         showSearch: true,
         searchFunction: searchPressed,
       )
     );  
   }
 
-  Widget _buildBuddyBackground() {
-    return Stack(
-      children: <Widget>[
-        _whiteBackground(),
-
-        // Meant to be scalable
-        // Plan to insert a List<BuddyWidget> that takes the itemCount.length of your buddies as input to show how many to print
-        BuddyWidget(
-          'David Rose',
-          "I'm the leading man",
-          Image.asset('assets/gymspace_logo.png'),
-        ),
-      ]
-    );
-  }
-
-Widget _whiteBackground() {
+Widget _theBackground() {
   return Container(
-    height: (150 * 7.0),
+    height: (150 * 50.0),
     margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
     decoration: ShapeDecoration(
-      color: Colors.white,
+      color: GSColors.darkBlue,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(50),
       ),
@@ -139,9 +132,32 @@ Widget _whiteBackground() {
   );
 }
 
-  Widget _buildBuddyProfile() {
-    return Scaffold(
+  Widget _buildBuddyBackground() {
+    return Stack(
+      children: <Widget>[
+        _theBackground(),
+        Container(
+          child: _buildBuddyList(),
+        ),
+      ]
+    );
+  }
 
+  Widget _buildBuddyList() {
+    return FutureBuilder(
+      future: _futureUser,
+      builder: (context, snapshot) {
+        var userBuddyIDs = snapshot.hasData && snapshot.data['buddies'] != null 
+          ? snapshot.data['buddies'] : List();
+          buddies = userBuddyIDs.cast<String>();      
+    
+          return ListView.builder(
+            itemCount: userBuddyIDs.length,
+            itemBuilder: (BuildContext context, int i) {
+              return BuddyWidget(buddies);
+            } 
+          );
+      },
     );
   }
 }
