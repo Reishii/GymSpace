@@ -1,4 +1,5 @@
 import 'package:GymSpace/logic/user.dart';
+import 'package:GymSpace/page/search_page.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:algolia/algolia.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,30 +15,49 @@ import 'package:GymSpace/database.dart';
 class BuddyPage extends StatelessWidget {
   final Widget child;
   List<String> buddies = [];
-  final TextEditingController _searchController = TextEditingController();
+  // final TextEditingController _searchController = TextEditingController();
   BuildContext _currentContext;
   BuddyPage({Key key, this.child}) : super(key: key);
   Algolia get algolia => DatabaseConnections.algolia;
 
-  String searchPressed() {
-    showDialog(
-      context: _currentContext,
-      builder: (context) {
-        return SimpleDialog(
-          children: <Widget>[
-            Container( // search
-              child: TextField(
-                controller: _searchController,
-                onEditingComplete: () async {
-                  print('...Searching for: ${_searchController.text}');
-                  await _searchDBForUser(_searchController.text);
-                },
-              ),
-            )
-          ],
-        );
-      }
+  Future<void> searchPressed() async {
+    User _currentUser;
+    await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
+      (ds) => _currentUser = User.jsonToUser(ds.data)
     );
+
+    Navigator.push(_currentContext, MaterialPageRoute(
+      builder: (context) {
+        return SearchPage(searchType: SearchType.user, currentUser: _currentUser,);
+      }
+    ));
+    // showDialog(
+    //   context: _currentContext,
+    //   builder: (context) {
+    //     return SimpleDialog(
+    //       shape: RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.circular(20)
+    //       ),
+    //       children: <Widget>[
+    //         Container( // search
+    //           margin: EdgeInsets.symmetric(horizontal: 20),
+    //           child: TextField(
+    //             controller: _searchController,
+    //             decoration: InputDecoration(
+    //               labelText: 'Search First Name',
+    //               hintText: 'Jane',
+    //             ),
+    //             onEditingComplete: () async {
+    //               print('...Searching for: ${_searchController.text}');
+    //               await _searchDBForUser(_searchController.text);
+    //             },
+    //           ),
+    //         ),
+
+    //       ],
+    //     );
+    //   }
+    // );
   }
 
   Future<List<User>> _searchDBForUser(String name) async {
@@ -51,7 +71,7 @@ class BuddyPage extends StatelessWidget {
       user.documentID = ds.documentID;
       foundUsers.add(user);
     });
-    foundUsers.forEach((user) => print('HI'));
+    
     return foundUsers;
   }
 

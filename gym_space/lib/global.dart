@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:GymSpace/logic/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:GymSpace/logic/auth.dart';
@@ -43,5 +44,34 @@ class DatabaseHelper {
     DocumentSnapshot ds = await getUserSnapshot(currentUserID);
     List<String> buddies = ds.data['buddies'].cast<String>().toList();
     return buddies;
+  }
+
+  static Future<List<User>> searchDBForUserByName(String name) async {
+    Query firstNameQuery = Firestore.instance.collection('users')
+      .where('firstName', isEqualTo: name);
+
+    Query lastNameQuery = Firestore.instance.collection('users')
+      .where('lastName', isEqualTo: name);
+    
+    QuerySnapshot firstNameQuerySnap = await firstNameQuery.getDocuments();
+    QuerySnapshot lastNameQuerySnap = await lastNameQuery.getDocuments();
+    
+    List<User> foundUsers = List();
+    firstNameQuerySnap.documents.forEach((ds) {
+      User user = User.jsonToUser(ds.data);
+      user.documentID = ds.documentID;
+      foundUsers.add(user);
+    });
+    
+    lastNameQuerySnap.documents.forEach((ds) {
+      if (!firstNameQuerySnap.documents.contains(ds)) {
+        User user = User.jsonToUser(ds.data);
+        user.documentID = ds.documentID;
+        foundUsers.add(user);
+      }
+    });
+    
+    
+    return foundUsers;
   }
 }

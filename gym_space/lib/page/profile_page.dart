@@ -8,11 +8,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfilePage extends StatefulWidget {
   final String forUserID;
+  User user;
   
   ProfilePage({
     @required this.forUserID,
     Key key
     }) : super(key: key);
+
+  ProfilePage.fromUser(this.user, {this.forUserID = ''});
 
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -23,7 +26,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override 
   void initState() {
+    if (widget.user != null) {
+      user = widget.user;
+      return;
+    }
     super.initState();
+
     DatabaseHelper.getUserSnapshot(widget.forUserID).then((ds) {
       setState(() {
         user = User.jsonToUser(ds.data);
@@ -37,12 +45,14 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: user == null ? Scaffold(
-        drawer: AppDrawer(),
+      child: user == null ? 
+      Scaffold(
+        // drawer: AppDrawer(),
         appBar: AppBar(),
         body: Center(child: CircularProgressIndicator()),
-      ) : Scaffold(
-        drawer: AppDrawer(startPage: 0,),
+      ) 
+      : Scaffold(
+        // drawer: AppDrawer(startPage: 0,),
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(400),
           child: _buildAppBar(),
@@ -119,17 +129,17 @@ class _ProfilePageState extends State<ProfilePage> {
               backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL),
             ),
             decoration: ShapeDecoration(
-              gradient: LinearGradient(
-                colors: [GSColors.blue, GSColors.darkBlue, GSColors.lightBlue,],
-                // radius: 1.2
-                begin: FractionalOffset.centerLeft,
-                end: FractionalOffset.centerRight,
-              ),
+              // gradient: LinearGradient(
+              //   colors: [GSColors.blue, GSColors.darkBlue, GSColors.lightBlue,],
+              //   // radius: 1.2
+              //   begin: FractionalOffset.centerLeft,
+              //   end: FractionalOffset.centerRight,
+              // ),
               shape: CircleBorder(
                 side: BorderSide(
-                  // color: GSColors.lightBlue,
-                  style: BorderStyle.none,
-                  width: 2
+                  color: Colors.white,
+                  // style: BorderStyle.none,
+                  width: 1,
                 )
               ),
             ),
@@ -221,7 +231,7 @@ class _ProfilePageState extends State<ProfilePage> {
         children: <Widget>[
           _buildBio(),
           _buildWeightInfo(),
-          _buildPhotosVideos(),
+          _buildMedia(),
         ],
       ),
     );
@@ -293,8 +303,8 @@ class _ProfilePageState extends State<ProfilePage> {
         color: GSColors.darkBlue,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            topLeft: Radius.circular(20)
+            bottomLeft: Radius.circular(40),
+            topLeft: Radius.circular(40),
           ),
         )
       ),
@@ -365,7 +375,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildPhotosVideos() {
+  Widget _buildMedia() {
     return Container( // 
       margin: EdgeInsets.symmetric(vertical: 20),
       child: Column(
@@ -375,7 +385,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               children: <Widget>[
                 Text(
-                  'Photos & Videos',
+                  'Media',
                   style: TextStyle(
                     color: GSColors.darkBlue,
                     fontSize: 20,
