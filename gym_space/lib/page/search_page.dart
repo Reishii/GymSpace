@@ -167,7 +167,7 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           ),
                           Text(
-                            '$mutualFriends mutual friends',
+                            user.buddies.contains(DatabaseHelper.currentUserID) ? '   Your Friend' : '   $mutualFriends mutual friends',
                             style: TextStyle(
                               color: Colors.white54,
                             ),

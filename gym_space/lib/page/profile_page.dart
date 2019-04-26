@@ -1,10 +1,12 @@
 import 'package:GymSpace/global.dart';
+import 'package:GymSpace/page/message_thread_page.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfilePage extends StatefulWidget {
   final String forUserID;
@@ -26,11 +28,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override 
   void initState() {
+    super.initState();
+  
     if (widget.user != null) {
       user = widget.user;
+      user.buddies = user.buddies.toList();
+      _isFriend = user.buddies.contains(DatabaseHelper.currentUserID);
       return;
     }
-    super.initState();
 
     DatabaseHelper.getUserSnapshot(widget.forUserID).then((ds) {
       setState(() {
@@ -40,6 +45,36 @@ class _ProfilePageState extends State<ProfilePage> {
         }
       });
     });
+  }
+
+  void _addFriend() async {
+    if (user.buddies.contains(DatabaseHelper.currentUserID)) {
+      return;
+    }
+
+    await DatabaseHelper.getUserSnapshot(user.documentID).then(
+      (ds) => ds.reference.updateData({'buddies': FieldValue.arrayUnion([DatabaseHelper.currentUserID])})
+    );
+    
+    await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
+      (ds) => ds.reference.updateData({'buddies': FieldValue.arrayUnion([user.documentID])})
+    );
+
+    setState(() {
+      user.buddies.toList().add(DatabaseHelper.currentUserID);
+      _isFriend = true;
+    });
+  }
+
+  void _openMessages() {
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) => MessageThreadPage(
+        peerId: user.documentID,
+        peerAvatar: user.photoURL,
+        peerFirstName: user.firstName,
+        peerLastName: user.lastName,
+      )
+    ));
   }
 
   @override
@@ -86,13 +121,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   Row( // likes
                     children: <Widget> [
                       Icon(Icons.thumb_up, color: Colors.white,),
-                      Text('64 Likes', style: TextStyle(color: Colors.white),),
+                      Text('  64 Likes', style: TextStyle(color: Colors.white),),
                     ],
                   ),
                   Row( // friend count
                     children: <Widget> [
                       Icon(Icons.group, color: Colors.white,),
-                      Text('${user.buddies.length} Friends', style: TextStyle(color: Colors.white),),
+                      Text('  ${user.buddies.length} Friends', style: TextStyle(color: Colors.white),),
                     ],
                   )
                 ],
@@ -200,7 +235,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   textColor: GSColors.darkBlue,
                   color: GSColors.cloud,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  onPressed: () {},
+                  onPressed: () => _openMessages(),
                 ),
                 FlatButton.icon(
                   icon: Icon(_isFriend ? Icons.check : Icons.add),
@@ -208,7 +243,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   textColor: Colors.white,
                   color: GSColors.lightBlue,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  onPressed: () {},
+                  onPressed: () => _addFriend(),
                 ),
               ],
             ),

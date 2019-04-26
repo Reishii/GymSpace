@@ -26,7 +26,6 @@ class _BuddyPageState extends State<BuddyPage> {
   final GlobalKey<FormState> _buddyKey = GlobalKey<FormState>();
 
   Future<DocumentSnapshot> _futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
-  BuildContext _currentContext;
   
   //Algolia get algolia => DatabaseConnections.algolia;
 
@@ -36,7 +35,7 @@ class _BuddyPageState extends State<BuddyPage> {
       (ds) => _currentUser = User.jsonToUser(ds.data)
     );
 
-    Navigator.push(_currentContext, MaterialPageRoute(
+    Navigator.push(context, MaterialPageRoute(
       builder: (context) {
         return SearchPage(searchType: SearchType.user, currentUser: _currentUser,);
       } 
