@@ -39,7 +39,7 @@ class _BuddyPageState extends State<BuddyPage> {
     Navigator.push(_currentContext, MaterialPageRoute(
       builder: (context) {
         return SearchPage(searchType: SearchType.user, currentUser: _currentUser,);
-      }
+      } 
     ));
     // showDialog(
     //   context: _currentContext,

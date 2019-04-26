@@ -1,3 +1,4 @@
+import 'package:GymSpace/logic/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
@@ -9,9 +10,6 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
-
-
 
 class MePage extends StatelessWidget {
   final Widget child;
@@ -28,10 +26,10 @@ class MePage extends StatelessWidget {
     return Scaffold(
       drawer: AppDrawer(startPage: 
       2,),
-      appBar: _buildAppBar(context),
+      // appBar: _buildAppBar(context),
+      appBar: AppBar(elevation: 0,),
       body: _buildBody(context),
       
-
       // floatingActionButton: Column(
       //   //crossAxisAlignment: CrossAxisAlignment.center,
       //   //mainAxisSize: MainAxisSize.min,
@@ -67,91 +65,50 @@ class MePage extends StatelessWidget {
 
     );
 
-      
-
-  }
-
-  Widget _buildAppBar(BuildContext context) {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(300),
-      child: AppBar(
-        elevation: 4,
-        // actions: <Widget>[
-        //   IconButton(
-        //     icon: Icon(Icons.edit, color: Colors.white,),
-        //     onPressed: () {
-        //       _updateMeInfo(context);
-        //     },
-        //   )
-        // ],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(40))
-        ),
-        bottom: _buildProfileHeading(),
-      )
-    );
   }
 
   Widget _buildProfileHeading() {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(0),
-      child: Container(
-        child: Column(
-          children: <Widget>[
-            InkWell(
-              onLongPress: () => getImage(),
-              child: StreamBuilder(
-              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-              builder: (context, snapshot) {
-                String photoURL = Defaults.photoURL;
-                if (snapshot.hasData) {
-                  DocumentSnapshot s = snapshot.data;
-                  if (s.data != null && s.data['photoURL'].isNotEmpty) {
-                    photoURL = s.data['photoURL'];
-                  }
-                }
-                // if ( snapshot.hasData && snapshot.data['photoURL'] != null && snapshot.data['photoURL'].isNotEmpty)
-                // {
-                //   photoURL = snapshot.data['photoURL'];
-                // }
-                
-                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                print(photoURL);
-                return CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(photoURL, errorListener: () => print('Failed to download')),
-                  backgroundColor: Colors.white,
-                  radius: 70,
-                );
-                },
-              ),
+    return Container(
+      decoration: ShapeDecoration(
+        color: GSColors.darkBlue,
+        shadows: [BoxShadow(blurRadius: 3)],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
+        )
+      ),
+      child: StreamBuilder(
+        stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Container();
+          }
 
-
-            ),
-            // FutureBuilder(
-            //   future: _futureUser,
-            //   builder: (context, snapshot) {
-            //     // String photoURL = 
-            //     //   snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
-
-            //     return CircleAvatar(
-            //       // backgroundImage: CachedNetworkImageProvider(photoURL),
-            //       backgroundColor: Colors.white,
-            //       radius: 70,
-            //     );
-            //   },
-            // ),
-            Divider(),
-            FutureBuilder(
-              future: _futureUser,
-              builder: (context, snapshot) {
-                String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
-                String points = snapshot.hasData ? snapshot.data['points'].toString() : '0';
-
-                return Row(
+          User user = User.jsonToUser(snapshot.data.data);
+          
+          return Container(
+            child: Column(
+              children: <Widget>[
+                InkWell( // profile pic
+                  onLongPress: () => getImage(),
+                  child: Container(
+                    decoration: ShapeDecoration(
+                      shape: CircleBorder(
+                        side: BorderSide(color: Colors.white, width: 1)
+                      )
+                    ),
+                    child: CircleAvatar(
+                      backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL, errorListener: () => print('Failed to download')),
+                      backgroundColor: Colors.white,
+                      radius: 70,
+                    ),
+                  ),
+                ),
+                Divider(color: Colors.transparent),
+                Row( // name, points
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Text(
-                      name,
+                      '${user.firstName} ${user.lastName}',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -169,7 +126,7 @@ class MePage extends StatelessWidget {
                     Container(
                       margin: EdgeInsets.only(left: 4),
                       child: Text(
-                        points,
+                        user.points.toString(),
                         style: TextStyle(
                           color: Colors.yellow,
                           fontSize: 14
@@ -177,36 +134,33 @@ class MePage extends StatelessWidget {
                       )
                     )
                   ],
-                );
-              }
-            ),
-            Divider(),
-            FutureBuilder(
-              future: _futureUser,
-              builder: (context, snapshot) => 
-                Text(
-                  snapshot.hasData ? snapshot.data['liftingType'] : "", // change this to current user's lifting type
+                ),
+                Divider(color: Colors.transparent),
+                user.liftingType.isEmpty ? Container() : Text( // lifting type
+                  user.liftingType,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w300
                   ),
                 ),
-            ),
-            Divider(),
-            FutureBuilder(
-              future: _futureUser,
-              builder: (context, snapshot) =>
-                Text(
-                  snapshot.hasData ? snapshot.data['bio'] : "", // change this to current user's quote
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontStyle: FontStyle.italic,
+                Divider(color: Colors.transparent),
+                user.liftingType.isEmpty ? Container() : Container(
+                  margin: EdgeInsets.symmetric(horizontal: 30),
+                  child: Text( // bio
+                    user.bio,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w300
+                    ),
                   ),
                 ),
+                Divider(color: Colors.transparent),
+              ],
             ),
-            Divider()
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -218,6 +172,7 @@ class MePage extends StatelessWidget {
     return Container(
       child: ListView(
         children: <Widget>[
+          _buildProfileHeading(),
           _buildNutritionLabel(),
           _buildNutritionInfo(context),
           _buildWeightInfo(context),

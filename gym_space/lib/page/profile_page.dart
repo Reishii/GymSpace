@@ -129,16 +129,9 @@ class _ProfilePageState extends State<ProfilePage> {
               backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL),
             ),
             decoration: ShapeDecoration(
-              // gradient: LinearGradient(
-              //   colors: [GSColors.blue, GSColors.darkBlue, GSColors.lightBlue,],
-              //   // radius: 1.2
-              //   begin: FractionalOffset.centerLeft,
-              //   end: FractionalOffset.centerRight,
-              // ),
               shape: CircleBorder(
                 side: BorderSide(
                   color: Colors.white,
-                  // style: BorderStyle.none,
                   width: 1,
                 )
               ),
