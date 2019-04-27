@@ -7,5 +7,8 @@ class GSColors {
   static const Color darkBlue     = Color(0xff2c3e50);
   static const Color lightBlue    = Color(0xff4fc3f7);
   static const Color purple       = Color(0xff9b59b6);
-  static const Color rand         = Color(0xff0B3948);
+  static const Color green        = Color(0xff2EC4B6);
+  static const Color babyPowder   = Color(0xffFDFFFC);
+  static const Color red          = Color(0xffE71D36);
+  static const Color yellow       = Color(0xffFF9F1C);
 }
