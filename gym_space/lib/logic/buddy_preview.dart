@@ -44,6 +44,7 @@ class BuddyPreview{
       photoURL: data['photoURL'],
       quote: data['bio'],
       documentID: buddyID,
+      buddies: data['buddies'].cast<String>(),
     );
   }
 
