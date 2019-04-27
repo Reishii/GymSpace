@@ -586,19 +586,19 @@ void  _updateNutritionInfo(BuildContext context) async{
       int protein, carbs, fats;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
       var macroFromDB = macroDoc.data['diet'];
-
-
-     // currentWeight = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}').;
-
+      
     showDialog<String>(
       context: context,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(5.0),
+      //child: SingleChildScrollView(
+        //padding: EdgeInsets.all(5.0),
         child: AlertDialog(
         title: Text("Update your daily macros"),
         contentPadding: const EdgeInsets.all(16.0),
         content:  
-          Row(
+          Container(
+          //Row(
+          height: 200,
+          child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
              Flexible(
@@ -610,11 +610,6 @@ void  _updateNutritionInfo(BuildContext context) async{
                     fontSize: 18.0,
                     color: GSColors.darkBlue,
                   ),
-                  // hintText: await currentWeight,
-                  // hintStyle: TextStyle(
-                  //   fontSize: 16.0,
-                  //   color: GSColors.darkBlue,
-                  // ),
                   contentPadding: EdgeInsets.all(10.0)
                 ),
                 onChanged: (text) => 
@@ -633,11 +628,10 @@ void  _updateNutritionInfo(BuildContext context) async{
                     fontSize: 18.0,
                     color: GSColors.darkBlue,
                   ),
-                  // hintText: await currentWeight,
-                  // hintStyle: TextStyle(
-                  //   fontSize: 16.0,
-                  //   color: GSColors.darkBlue,
-                  // ),
+                  hintStyle: TextStyle(
+                    fontSize: 16.0,
+                    color: GSColors.darkBlue,
+                  ),
                     contentPadding: EdgeInsets.all(10.0)
                 ),
                 onChanged: (text) => text != null ? carbs = int.parse(text) : carbs = 0,
@@ -655,22 +649,22 @@ void  _updateNutritionInfo(BuildContext context) async{
                     fontSize: 18.0,
                     color: GSColors.darkBlue,
                   ),
-                  // hintText: await currentWeight,
-                  // hintStyle: TextStyle(
-                  //   fontSize: 16.0,
-                  //   color: GSColors.darkBlue,
-                  // ),
+                  hintStyle: TextStyle(
+                    fontSize: 16.0,
+                    color: GSColors.darkBlue,
+                  ),
                     contentPadding: EdgeInsets.all(10.0)
                 ),
                 onChanged: (text) => text != null ? fats = int.parse(text) : fats = 0,
-              ), 
+              ),
             ),
           ],
-        ),
+        )),
         actions: <Widget>[
           FlatButton(
             child: const Text('Cancel'),
             onPressed: (){
+
               Navigator.pop(context);
             }
           ),
@@ -690,70 +684,13 @@ void  _updateNutritionInfo(BuildContext context) async{
 
             Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
               {'diet': macroFromDB});
-
+            
 
             Navigator.pop(context);
             }
           )
         ],
-      )),
-      // barrierDismissible: true,
-      // builder: (BuildContext context){
-      //   return AlertDialog(
-      //     title: Text('Change your info'),
-      //     content: ListView(
-      //       children: <Widget>[
-      //         // lifting type
-      //         TextField(
-      //           decoration: InputDecoration.collapsed(
-      //             //hintText: 'Current weight: ${_futureUser}'
-      //             // hintText: startingWeight,
-      //           ),
-      //           controller: _liftingTypeController,
-      //           onChanged: (text) => print(text),
-      //         ), 
-      //         // photo url
-      //           // ImagePicker()
-      //         // bio
-      //         // weight
-      //         // macros
-      //       ],
-      //     ),
-      //     // content: SingleChildScrollView(
-      //     //   child: ListView(
-      //     //     children: <Widget>[
-      //     //       // Text('Test1'),
-      //     //     ],
-      //     //   ),
-      //     // ),
-      //   // actions: <Widget>[
-      //   //   FlatButton(
-      //   //     child: FutureBuilder(
-      //   //       future: _futureUser,
-      //   //       builder: (context, snapshot) =>
-      //   //         Text(
-      //   //           snapshot.hasData ? snapshot.data['currentWeight'].toString() : '0',
-      //   //           style: TextStyle(
-      //   //             color: Colors.white,
-      //   //             fontSize: 14,
-      //   //           )
-      //   //         ),
-      //   //     ),
-      //   //     onPressed: () {
-      //   //         return showDialog(
-      //   //           context: context,
-      //   //           builder: (context) {
-      //   //             return AlertDialog(
-      //   //               content: Text(myController.text),
-      //   //             );
-      //   //           }
-      //   //         );
-      //   //       //thisText = input.getText().toString(),
-      //   //     }
-      //   //     )
-      //   // ]
-      //   );
-      // }
+      )
     );
   }
 }
@@ -765,16 +702,20 @@ void  _updateWeightInfo(BuildContext context) async{
 
     showDialog<String>(
       context: context,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(20),
+      //child: SingleChildScrollView(
+        //padding: EdgeInsets.all(20),
         child: AlertDialog(
         title: Text("Change your current weight"),
         contentPadding: const EdgeInsets.all(16.0),
         content:  
-          Row(
-          children: <Widget>[
+          //Row(
+          Container(
+          height: 200,
+          child: Column(
+            children: <Widget>[
              Expanded(
               child:  TextField(
+                maxLength: 3,
                 autofocus: true,
                 decoration: InputDecoration(
                   labelText: 'Current',
@@ -792,6 +733,7 @@ void  _updateWeightInfo(BuildContext context) async{
 
             Flexible(
               child:  TextField(
+                maxLength: 3,
                 autofocus: true,
                 decoration: InputDecoration(
                   labelText: 'Starting',
@@ -803,7 +745,9 @@ void  _updateWeightInfo(BuildContext context) async{
                 onChanged: (text) => startingWeight = text,
               ),
             ),
-          ],
+            ]
+          ),
+            
         ),
         actions: <Widget>[
           FlatButton(
@@ -833,7 +777,7 @@ void  _updateWeightInfo(BuildContext context) async{
             }
           )
         ],
-      )),
+      ),
       // barrierDismissible: true,
       // builder: (BuildContext context){
       //   return AlertDialog(
@@ -893,7 +837,6 @@ void  _updateWeightInfo(BuildContext context) async{
       // }
     );
   }
-
 
 
 class _SystemPadding extends StatelessWidget{
