@@ -1,3 +1,4 @@
+import 'package:GymSpace/logic/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
@@ -9,8 +10,6 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
-
 
 class MePage extends StatelessWidget {
   final Widget child;
@@ -29,91 +28,89 @@ class MePage extends StatelessWidget {
     return Scaffold(
       drawer: AppDrawer(startPage: 
       2,),
-      appBar: _buildAppBar(context),
+      // appBar: _buildAppBar(context),
+      appBar: AppBar(elevation: 0,),
       body: _buildBody(context),
-    );
-  }
+      
+      // floatingActionButton: Column(
+      //   //crossAxisAlignment: CrossAxisAlignment.center,
+      //   //mainAxisSize: MainAxisSize.min,
+        
+      //   children: <Widget>[
+      //     FloatingActionButton(
+      //       heroTag: null,
+      //       child: Icon(Icons.edit, color: GSColors.cloud),
+      //       onPressed:(){
+      //         _updateMeInfo(context);
+      //       },
+      //       backgroundColor: GSColors.blue,
 
-  Widget _buildAppBar(BuildContext context) {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(300),
-      child: AppBar(
-        elevation: 4,
-        // actions: <Widget>[
-        //   IconButton(
-        //     icon: Icon(Icons.edit, color: Colors.white,),
-        //     onPressed: () {
-        //       _updateMeInfo(context);
-        //     },
-        //   )
-        // ],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(40))
-        ),
-        bottom: _buildProfileHeading(),
-      )
+      //     ),
+      //     SizedBox(
+      //       height: 200.0,
+      //     ),
+      //     FloatingActionButton(
+      //       heroTag: null,
+      //       child: Icon(Icons.edit, color: GSColors.cloud),
+      //       onPressed: (){
+      //         _updateMeInfo(context);
+      //       },
+      //       backgroundColor: GSColors.blue,
+
+      //     ),
+      //      SizedBox(
+      //       height: 350.0,
+      //     ),
+      //   ],
+      // ),
+      
+
     );
+
   }
 
   Widget _buildProfileHeading() {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(0),
-      child: Container(
-        child: Column(
-          children: <Widget>[
-            InkWell(
-              customBorder: CircleBorder(),
-              borderRadius: BorderRadius.circular(5.0),
-              onLongPress: () => getImage(),
-              child: StreamBuilder(
-              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-              builder: (context, snapshot) {
-                String photoURL = Defaults.photoURL;
-                if (snapshot.hasData) {
-                  DocumentSnapshot s = snapshot.data;
-                  if (s.data != null && s.data['photoURL'].isNotEmpty) {
-                    photoURL = s.data['photoURL'];
-                  }
-                }
-                // if ( snapshot.hasData && snapshot.data['photoURL'] != null && snapshot.data['photoURL'].isNotEmpty)
-                // {
-                //   photoURL = snapshot.data['photoURL'];
-                // }
-                return CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(photoURL, errorListener: () => print('Failed to download')),
-                  backgroundColor: Colors.white,
-                  radius: 70,
-                );
-                },
-              ),
+    return Container(
+      decoration: ShapeDecoration(
+        color: GSColors.darkBlue,
+        shadows: [BoxShadow(blurRadius: 3)],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
+        )
+      ),
+      child: StreamBuilder(
+        stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Container();
+          }
 
-
-            ),
-            // FutureBuilder(
-            //   future: _futureUser,
-            //   builder: (context, snapshot) {
-            //     // String photoURL = 
-            //     //   snapshot.hasData && !snapshot.data['photoURL'].isEmpty ? snapshot.data['photoURL'] : Defaults.photoURL;
-
-            //     return CircleAvatar(
-            //       // backgroundImage: CachedNetworkImageProvider(photoURL),
-            //       backgroundColor: Colors.white,
-            //       radius: 70,
-            //     );
-            //   },
-            // ),
-            Divider(),
-            FutureBuilder(
-              future: _futureUser,
-              builder: (context, snapshot) {
-                String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
-                String points = snapshot.hasData ? snapshot.data['points'].toString() : '0';
-
-                return Row(
+          User user = User.jsonToUser(snapshot.data.data);
+          
+          return Container(
+            child: Column(
+              children: <Widget>[
+                InkWell( // profile pic
+                  onLongPress: () => getImage(),
+                  child: Container(
+                    decoration: ShapeDecoration(
+                      shape: CircleBorder(
+                        side: BorderSide(color: Colors.white, width: 1)
+                      )
+                    ),
+                    child: CircleAvatar(
+                      backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL, errorListener: () => print('Failed to download')),
+                      backgroundColor: Colors.white,
+                      radius: 70,
+                    ),
+                  ),
+                ),
+                Divider(color: Colors.transparent),
+                Row( // name, points
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Text(
-                      name,
+                      '${user.firstName} ${user.lastName}',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -131,7 +128,7 @@ class MePage extends StatelessWidget {
                     Container(
                       margin: EdgeInsets.only(left: 4),
                       child: Text(
-                        points,
+                        user.points.toString(),
                         style: TextStyle(
                           color: Colors.yellow,
                           fontSize: 14
@@ -139,36 +136,33 @@ class MePage extends StatelessWidget {
                       )
                     )
                   ],
-                );
-              }
-            ),
-            Divider(),
-            FutureBuilder(
-              future: _futureUser,
-              builder: (context, snapshot) => 
-                Text(
-                  snapshot.hasData ? snapshot.data['liftingType'] : "", // change this to current user's lifting type
+                ),
+                Divider(color: Colors.transparent),
+                user.liftingType.isEmpty ? Container() : Text( // lifting type
+                  user.liftingType,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w300
                   ),
                 ),
-            ),
-            Divider(),
-            FutureBuilder(
-              future: _futureUser,
-              builder: (context, snapshot) =>
-                Text(
-                  snapshot.hasData ? snapshot.data['bio'] : "", // change this to current user's quote
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontStyle: FontStyle.italic,
+                Divider(color: Colors.transparent),
+                user.liftingType.isEmpty ? Container() : Container(
+                  margin: EdgeInsets.symmetric(horizontal: 30),
+                  child: Text( // bio
+                    user.bio,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w300
+                    ),
                   ),
                 ),
+                Divider(color: Colors.transparent),
+              ],
             ),
-            Divider()
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -180,6 +174,7 @@ class MePage extends StatelessWidget {
     return Container(
       child: ListView(
         children: <Widget>[
+          _buildProfileHeading(),
           _buildNutritionLabel(),
           _buildNutritionInfo(context),
           _buildWeightInfo(context),
@@ -232,36 +227,7 @@ class MePage extends StatelessWidget {
     );
   }
 
-void getDietFromDB(List<int> macroFromData) async {
-    String _myKey = DateTime.now().toString().substring(0,10);
-    macroFromData[0] = 0;
-    macroFromData[1] = 0;
-    macroFromData[2] = 0;
-
-    DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
-    var macroFromDB = macroDoc.data['diet'];
-    
-      if(macroFromDB[_myKey] == null)
-      {
-        macroFromDB[_myKey] = macroFromData;
-        await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
-          {'diet' : macroFromDB});
-      }
-      else
-      {
-        macroFromData = macroFromDB[_myKey].cast<int>();
-      }
-  }
-
-
-
   Widget _buildNutritionInfo(BuildContext context) {
-  //List<int> macroFromData = new List(3);
-  //var macroFromDB;
-  //getDietFromDB(macroFromData);
-
-
-
     return InkWell(
       //onTap: () => print("Open nutrition info"),
       child: Container(
@@ -375,7 +341,7 @@ void getDietFromDB(List<int> macroFromData) async {
           )
         ),
         child: InkWell(
-        onTap: () => _updateWeightInfo(context),
+        onLongPress: () => _updateWeightInfo(context),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
@@ -386,6 +352,8 @@ void getDietFromDB(List<int> macroFromData) async {
     ),
       );
   }
+
+
 
   Widget _buildCurrentWeight() {
     return Row(
@@ -618,19 +586,19 @@ void  _updateNutritionInfo(BuildContext context) async{
       int protein, carbs, fats;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
       var macroFromDB = macroDoc.data['diet'];
-      
+
+
+     // currentWeight = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}').;
+
     showDialog<String>(
       context: context,
-      //child: SingleChildScrollView(
-        //padding: EdgeInsets.all(5.0),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(5.0),
         child: AlertDialog(
         title: Text("Update your daily macros"),
         contentPadding: const EdgeInsets.all(16.0),
         content:  
-          Container(
-          //Row(
-          height: 200,
-          child: Column(
+          Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
              Flexible(
@@ -642,6 +610,11 @@ void  _updateNutritionInfo(BuildContext context) async{
                     fontSize: 18.0,
                     color: GSColors.darkBlue,
                   ),
+                  // hintText: await currentWeight,
+                  // hintStyle: TextStyle(
+                  //   fontSize: 16.0,
+                  //   color: GSColors.darkBlue,
+                  // ),
                   contentPadding: EdgeInsets.all(10.0)
                 ),
                 onChanged: (text) => 
@@ -660,10 +633,11 @@ void  _updateNutritionInfo(BuildContext context) async{
                     fontSize: 18.0,
                     color: GSColors.darkBlue,
                   ),
-                  hintStyle: TextStyle(
-                    fontSize: 16.0,
-                    color: GSColors.darkBlue,
-                  ),
+                  // hintText: await currentWeight,
+                  // hintStyle: TextStyle(
+                  //   fontSize: 16.0,
+                  //   color: GSColors.darkBlue,
+                  // ),
                     contentPadding: EdgeInsets.all(10.0)
                 ),
                 onChanged: (text) => text != null ? carbs = int.parse(text) : carbs = 0,
@@ -681,22 +655,22 @@ void  _updateNutritionInfo(BuildContext context) async{
                     fontSize: 18.0,
                     color: GSColors.darkBlue,
                   ),
-                  hintStyle: TextStyle(
-                    fontSize: 16.0,
-                    color: GSColors.darkBlue,
-                  ),
+                  // hintText: await currentWeight,
+                  // hintStyle: TextStyle(
+                  //   fontSize: 16.0,
+                  //   color: GSColors.darkBlue,
+                  // ),
                     contentPadding: EdgeInsets.all(10.0)
                 ),
                 onChanged: (text) => text != null ? fats = int.parse(text) : fats = 0,
-              ),
+              ), 
             ),
           ],
-        )),
+        ),
         actions: <Widget>[
           FlatButton(
             child: const Text('Cancel'),
             onPressed: (){
-
               Navigator.pop(context);
             }
           ),
@@ -716,21 +690,73 @@ void  _updateNutritionInfo(BuildContext context) async{
 
             Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
               {'diet': macroFromDB});
-            
+
 
             Navigator.pop(context);
             }
           )
         ],
-      )
+      )),
+      // barrierDismissible: true,
+      // builder: (BuildContext context){
+      //   return AlertDialog(
+      //     title: Text('Change your info'),
+      //     content: ListView(
+      //       children: <Widget>[
+      //         // lifting type
+      //         TextField(
+      //           decoration: InputDecoration.collapsed(
+      //             //hintText: 'Current weight: ${_futureUser}'
+      //             // hintText: startingWeight,
+      //           ),
+      //           controller: _liftingTypeController,
+      //           onChanged: (text) => print(text),
+      //         ), 
+      //         // photo url
+      //           // ImagePicker()
+      //         // bio
+      //         // weight
+      //         // macros
+      //       ],
+      //     ),
+      //     // content: SingleChildScrollView(
+      //     //   child: ListView(
+      //     //     children: <Widget>[
+      //     //       // Text('Test1'),
+      //     //     ],
+      //     //   ),
+      //     // ),
+      //   // actions: <Widget>[
+      //   //   FlatButton(
+      //   //     child: FutureBuilder(
+      //   //       future: _futureUser,
+      //   //       builder: (context, snapshot) =>
+      //   //         Text(
+      //   //           snapshot.hasData ? snapshot.data['currentWeight'].toString() : '0',
+      //   //           style: TextStyle(
+      //   //             color: Colors.white,
+      //   //             fontSize: 14,
+      //   //           )
+      //   //         ),
+      //   //     ),
+      //   //     onPressed: () {
+      //   //         return showDialog(
+      //   //           context: context,
+      //   //           builder: (context) {
+      //   //             return AlertDialog(
+      //   //               content: Text(myController.text),
+      //   //             );
+      //   //           }
+      //   //         );
+      //   //       //thisText = input.getText().toString(),
+      //   //     }
+      //   //     )
+      //   // ]
+      //   );
+      // }
     );
   }
 }
-
-
-
-
-
 
 void  _updateWeightInfo(BuildContext context) async{
       String currentWeight, startingWeight;
@@ -739,20 +765,16 @@ void  _updateWeightInfo(BuildContext context) async{
 
     showDialog<String>(
       context: context,
-      //child: SingleChildScrollView(
-        //padding: EdgeInsets.all(20),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(20),
         child: AlertDialog(
         title: Text("Change your current weight"),
         contentPadding: const EdgeInsets.all(16.0),
         content:  
-          //Row(
-          Container(
-          height: 200,
-          child: Column(
-            children: <Widget>[
+          Row(
+          children: <Widget>[
              Expanded(
               child:  TextField(
-                maxLength: 3,
                 autofocus: true,
                 decoration: InputDecoration(
                   labelText: 'Current',
@@ -770,7 +792,6 @@ void  _updateWeightInfo(BuildContext context) async{
 
             Flexible(
               child:  TextField(
-                maxLength: 3,
                 autofocus: true,
                 decoration: InputDecoration(
                   labelText: 'Starting',
@@ -782,9 +803,7 @@ void  _updateWeightInfo(BuildContext context) async{
                 onChanged: (text) => startingWeight = text,
               ),
             ),
-            ]
-          ),
-            
+          ],
         ),
         actions: <Widget>[
           FlatButton(
@@ -814,7 +833,7 @@ void  _updateWeightInfo(BuildContext context) async{
             }
           )
         ],
-      ),
+      )),
       // barrierDismissible: true,
       // builder: (BuildContext context){
       //   return AlertDialog(

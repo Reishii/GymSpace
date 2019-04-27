@@ -7,8 +7,8 @@ import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/auth.dart';
 import 'package:GymSpace/page/login_page.dart';
-import 'package:GymSpace/page/chat_page.dart';
-import 'package:GymSpace/page/group_page.dart';
+import 'package:GymSpace/page/messages_page.dart';
+import 'package:GymSpace/page/groups_page.dart';
 import 'package:GymSpace/page/newsfeed_page.dart';
 import 'package:GymSpace/page/settings_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -190,7 +190,7 @@ class _AppDrawerState extends State<AppDrawer> {
         case 3: // groups
         Navigator.pushReplacement(context, MaterialPageRoute<void> (
           builder: (BuildContext context) {
-            return GroupPage(); // Switch to groups when created
+            return GroupsPage(); // Switch to groups when created
           }
         ));
           break;
@@ -206,12 +206,12 @@ class _AppDrawerState extends State<AppDrawer> {
         case 6: // messages
           Navigator.pushReplacement(context, MaterialPageRoute<void>(
             builder: (BuildContext context){
-              return ChatPage();
+              return MessagesPage();
               //return new Scaffold(
                 //appBar: new AppBar(
                   //title: new Text("Messenger")
                 //),
-                //body: new ChatPage();
+                //body: new MessagesPage();
               //);
             }
           ));
