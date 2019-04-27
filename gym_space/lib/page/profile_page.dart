@@ -1,18 +1,23 @@
 import 'package:GymSpace/global.dart';
+import 'package:GymSpace/page/message_thread_page.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfilePage extends StatefulWidget {
   final String forUserID;
+  User user;
   
   ProfilePage({
     @required this.forUserID,
     Key key
     }) : super(key: key);
+
+  ProfilePage.fromUser(this.user, {this.forUserID = ''});
 
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -24,6 +29,14 @@ class _ProfilePageState extends State<ProfilePage> {
   @override 
   void initState() {
     super.initState();
+  
+    if (widget.user != null) {
+      user = widget.user;
+      user.buddies = user.buddies.toList();
+      _isFriend = user.buddies.contains(DatabaseHelper.currentUserID);
+      return;
+    }
+
     DatabaseHelper.getUserSnapshot(widget.forUserID).then((ds) {
       setState(() {
         user = User.jsonToUser(ds.data);
@@ -34,15 +47,47 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  void _addFriend() async {
+    if (user.buddies.contains(DatabaseHelper.currentUserID)) {
+      return;
+    }
+
+    await DatabaseHelper.getUserSnapshot(user.documentID).then(
+      (ds) => ds.reference.updateData({'buddies': FieldValue.arrayUnion([DatabaseHelper.currentUserID])})
+    );
+    
+    await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
+      (ds) => ds.reference.updateData({'buddies': FieldValue.arrayUnion([user.documentID])})
+    );
+
+    setState(() {
+      user.buddies.toList().add(DatabaseHelper.currentUserID);
+      _isFriend = true;
+    });
+  }
+
+  void _openMessages() {
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) => MessageThreadPage(
+        peerId: user.documentID,
+        peerAvatar: user.photoURL,
+        peerFirstName: user.firstName,
+        peerLastName: user.lastName,
+      )
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: user == null ? Scaffold(
-        drawer: AppDrawer(),
+      child: user == null ? 
+      Scaffold(
+        // drawer: AppDrawer(),
         appBar: AppBar(),
         body: Center(child: CircularProgressIndicator()),
-      ) : Scaffold(
-        drawer: AppDrawer(startPage: 0,),
+      ) 
+      : Scaffold(
+        // drawer: AppDrawer(startPage: 0,),
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(400),
           child: _buildAppBar(),
@@ -76,13 +121,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   Row( // likes
                     children: <Widget> [
                       Icon(Icons.thumb_up, color: Colors.white,),
-                      Text('64 Likes', style: TextStyle(color: Colors.white),),
+                      Text('  64 Likes', style: TextStyle(color: Colors.white),),
                     ],
                   ),
                   Row( // friend count
                     children: <Widget> [
                       Icon(Icons.group, color: Colors.white,),
-                      Text('${user.buddies.length} Friends', style: TextStyle(color: Colors.white),),
+                      Text('  ${user.buddies.length} Friends', style: TextStyle(color: Colors.white),),
                     ],
                   )
                 ],
@@ -119,17 +164,10 @@ class _ProfilePageState extends State<ProfilePage> {
               backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL),
             ),
             decoration: ShapeDecoration(
-              gradient: LinearGradient(
-                colors: [GSColors.blue, GSColors.darkBlue, GSColors.lightBlue,],
-                // radius: 1.2
-                begin: FractionalOffset.centerLeft,
-                end: FractionalOffset.centerRight,
-              ),
               shape: CircleBorder(
                 side: BorderSide(
-                  // color: GSColors.lightBlue,
-                  style: BorderStyle.none,
-                  width: 2
+                  color: Colors.white,
+                  width: 1,
                 )
               ),
             ),
@@ -197,7 +235,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   textColor: GSColors.darkBlue,
                   color: GSColors.cloud,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  onPressed: () {},
+                  onPressed: () => _openMessages(),
                 ),
                 FlatButton.icon(
                   icon: Icon(_isFriend ? Icons.check : Icons.add),
@@ -205,7 +243,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   textColor: Colors.white,
                   color: GSColors.lightBlue,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  onPressed: () {},
+                  onPressed: () => _addFriend(),
                 ),
               ],
             ),
@@ -221,7 +259,7 @@ class _ProfilePageState extends State<ProfilePage> {
         children: <Widget>[
           _buildBio(),
           _buildWeightInfo(),
-          _buildPhotosVideos(),
+          _buildMedia(),
         ],
       ),
     );
@@ -293,8 +331,8 @@ class _ProfilePageState extends State<ProfilePage> {
         color: GSColors.darkBlue,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            topLeft: Radius.circular(20)
+            bottomLeft: Radius.circular(40),
+            topLeft: Radius.circular(40),
           ),
         )
       ),
@@ -365,7 +403,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildPhotosVideos() {
+  Widget _buildMedia() {
     return Container( // 
       margin: EdgeInsets.symmetric(vertical: 20),
       child: Column(
@@ -375,7 +413,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               children: <Widget>[
                 Text(
-                  'Photos & Videos',
+                  'Media',
                   style: TextStyle(
                     color: GSColors.darkBlue,
                     fontSize: 20,

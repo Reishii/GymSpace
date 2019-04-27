@@ -10,8 +10,8 @@ import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/global.dart';
 
-class ChatPage extends StatelessWidget {
-  // Change to ChatPage() - Must be StatelessWidget that returns a Scaffold - move to page folder
+class MessagesPage extends StatelessWidget {
+  // Change to MessagesPage() - Must be StatelessWidget that returns a Scaffold - move to page folder
 
   @override
   Widget buildItem(BuildContext context, DocumentSnapshot document) {
