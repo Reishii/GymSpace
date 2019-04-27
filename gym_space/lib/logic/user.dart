@@ -73,7 +73,7 @@ class User {
       currentWeight: data['currentWeight'].toDouble(),
       height: data['height'].toDouble(),
       // joinedGroups: data['joinedGroups'],
-      // diet: data['diet'],
+      diet: data['diet'],
       // workoutPlans: {}}
     );
   }

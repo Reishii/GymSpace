@@ -17,7 +17,6 @@ class MePage extends StatelessWidget {
   final myController = TextEditingController();
   MePage({Key key, this.child}) : super(key: key);
 
-  TextEditingController _liftingTypeController = TextEditingController();
   File imageFile;
   String imageUrl;
   String _myKey = DateTime.now().toString().substring(0,10);
@@ -227,7 +226,29 @@ class MePage extends StatelessWidget {
     );
   }
 
+Future<void> _checkDailyMacrosExist() async{
+  List<int> newMacros = new List(3);
+
+  DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
+  var macroFromDB = macroDoc.data['diet'];
+ 
+  if(macroFromDB[_myKey] == null)
+  {
+    newMacros[0] = 0;
+    newMacros[1] = 0;
+    newMacros[2] = 0;
+
+    macroFromDB[_myKey] = newMacros;
+
+    Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+              {'diet': macroFromDB});
+  }
+}
+
+
   Widget _buildNutritionInfo(BuildContext context) {
+  print("1****************************************************************************");
+  _checkDailyMacrosExist();
     return InkWell(
       //onTap: () => print("Open nutrition info"),
       child: Container(
@@ -264,15 +285,44 @@ class MePage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Protein: "),
-                            FutureBuilder(
-                              future: _futureUser,
-                              builder: (context, snapshot) => 
-                                Text(
-                                  snapshot.hasData ?  snapshot.data['diet'][_myKey][0].toString() + " g": "0 g",
-                                  maxLines: 1,
-                                  softWrap: false,
-                                )
-                            ),
+                            StreamBuilder(
+                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Container();
+                                }
+                                User user = User.jsonToUser(snapshot.data.data);
+
+                                if(user.diet[_myKey] == null)
+                                {
+                                  return Text(
+                                    '0 g'
+                                  );                        
+                                }
+                                else
+                                {
+                                  return Text(
+                                    '${user.diet[_myKey][0].toString()} g'
+                                  );
+                                }
+                                
+                                // return Text(
+                                //   '${user.diet[_myKey][0].toString()} g' ?? 'moo'
+                                // );
+                              }
+                            )
+                            
+                            // FutureBuilder(
+                            //   future: _futureUser,
+                            //   builder: (context, snapshot) => 
+                            //     Text(
+                            //       //snapshot.hasData ? snapshot.data['diet'][_myKey][0].toString() + " g": "0 g",
+                            //       snapshot.data['diet'][_myKey] != null ? snapshot.data['diet'][_myKey][0].toString() + " g": "0 g",
+                            //       maxLines: 1,
+                            //       softWrap: false,
+                            //     )
+
+                            // ),
                           ],
                         )
                       ),
@@ -282,16 +332,43 @@ class MePage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Carbs: "),
-                            FutureBuilder(
-                              future: _futureUser,
-                              builder: (context, snapshot) => 
-                                Text(
-                                  snapshot.hasData ?  snapshot.data['diet'][_myKey][1].toString() + " g": "0 g",
-                                  maxLines: 1,
-                                  softWrap: false,
-                                )
-                            ),
-                            //Text("$carbs g")
+                            StreamBuilder(
+                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Container();
+                                }
+                                User user = User.jsonToUser(snapshot.data.data);
+                               
+                               if(user.diet[_myKey] == null)
+                                {
+                                  return Text(  
+                                    '0 g'
+                                  );                        
+                                }
+                                else
+                                {
+                                  return Text(
+                                    '${user.diet[_myKey][1].toString()} g'
+                                  );
+                                }
+                               
+                                // return Text(
+                                //   '${user.diet[_myKey][1].toString()} g' ?? '0 g'
+                                // );
+                              }
+                            )
+                            // FutureBuilder(
+                            //   future: _futureUser,
+                            //   builder: (context, snapshot) => 
+
+                            //     Text(
+                            //       //snapshot.hasData ? snapshot.data['diet'][_myKey][1].toString() + " g": "0 g",
+                            //       snapshot.data['diet'][_myKey] != null ? snapshot.data['diet'][_myKey][1].toString() + " g": "0 g",
+                            //       maxLines: 1,
+                            //       softWrap: false,
+                            //     )
+                            // ),
                           ],
                         )
                       ),Container(
@@ -300,16 +377,42 @@ class MePage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Fats: "),
-                            FutureBuilder(
-                              future: _futureUser,
-                              builder: (context, snapshot) => 
-                                Text(
-                                  snapshot.hasData ?  snapshot.data['diet'][_myKey][2].toString() + " g": "0 g",
-                                  maxLines: 1,
-                                  softWrap: false,
-                                )
-                            ),
-                            //Text("$fats g")
+                            StreamBuilder(
+                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Container();
+                                }
+                                User user = User.jsonToUser(snapshot.data.data);
+                                
+                                if(user.diet[_myKey] == null)
+                                {
+                                  return Text(
+                                    '0 g'
+                                  );                        
+                                }
+                                else
+                                {
+                                  return Text(
+                                    '${user.diet[_myKey][2].toString()} g'
+                                  );
+                                }
+                                
+                                // return Text(
+                                //   '${user.diet[_myKey][2].toString()} g' ?? '0 g'
+                                // );
+                              }
+                            )
+                            // FutureBuilder(
+                            //   future: _futureUser,
+                            //   builder: (context, snapshot) => 
+                            //     Text(
+                            //       //snapshot.hasData ?  snapshot.data['diet'][_myKey][2].toString() + " g": "0 g",
+                            //      snapshot.data['diet'][_myKey] != null ? snapshot.data['diet'][_myKey][2].toString() + " g": "0 g",
+                            //       maxLines: 1,
+                            //       softWrap: false,
+                            //     )
+                            // ),
                           ],
                         )
                       ),
@@ -690,7 +793,7 @@ void  _updateNutritionInfo(BuildContext context) async{
 
             Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
               {'diet': macroFromDB});
-            
+            _buildNutritionInfo(context);
 
             Navigator.pop(context);
             }
@@ -770,7 +873,6 @@ void  _updateWeightInfo(BuildContext context) async{
           FlatButton(
             child: const Text('Save'),
             onPressed: (){
-            //**********Save to firebase!*************** */
 
             if (startingWeight != "")
               {
@@ -787,63 +889,6 @@ void  _updateWeightInfo(BuildContext context) async{
           )
         ],
       ),
-      // barrierDismissible: true,
-      // builder: (BuildContext context){
-      //   return AlertDialog(
-      //     title: Text('Change your info'),
-      //     content: ListView(
-      //       children: <Widget>[
-      //         // lifting type
-      //         TextField(
-      //           decoration: InputDecoration.collapsed(
-      //             //hintText: 'Current weight: ${_futureUser}'
-      //             // hintText: startingWeight,
-      //           ),
-      //           controller: _liftingTypeController,
-      //           onChanged: (text) => print(text),
-      //         ), 
-      //         // photo url
-      //           // ImagePicker()
-      //         // bio
-      //         // weight
-      //         // macros
-      //       ],
-      //     ),
-      //     // content: SingleChildScrollView(
-      //     //   child: ListView(
-      //     //     children: <Widget>[
-      //     //       // Text('Test1'),
-      //     //     ],
-      //     //   ),
-      //     // ),
-      //   // actions: <Widget>[
-      //   //   FlatButton(
-      //   //     child: FutureBuilder(
-      //   //       future: _futureUser,
-      //   //       builder: (context, snapshot) =>
-      //   //         Text(
-      //   //           snapshot.hasData ? snapshot.data['currentWeight'].toString() : '0',
-      //   //           style: TextStyle(
-      //   //             color: Colors.white,
-      //   //             fontSize: 14,
-      //   //           )
-      //   //         ),
-      //   //     ),
-      //   //     onPressed: () {
-      //   //         return showDialog(
-      //   //           context: context,
-      //   //           builder: (context) {
-      //   //             return AlertDialog(
-      //   //               content: Text(myController.text),
-      //   //             );
-      //   //           }
-      //   //         );
-      //   //       //thisText = input.getText().toString(),
-      //   //     }
-      //   //     )
-      //   // ]
-      //   );
-      // }
     );
   }
 
