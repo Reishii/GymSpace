@@ -25,7 +25,8 @@ class _BuddyPageState extends State<BuddyPage> {
   final TextEditingController _searchController = TextEditingController();
   final GlobalKey<FormState> _buddyKey = GlobalKey<FormState>();
 
-  Future<DocumentSnapshot> _futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+  //Future<DocumentSnapshot> _snapFutureUser = DatabaseHelper.getCurrentUserBuddiesSnapshot();
+  Future<List<String>> _listFutureUser = DatabaseHelper.getCurrentUserBuddies();
   
   //Algolia get algolia => DatabaseConnections.algolia;
 
@@ -144,19 +145,30 @@ Widget _theBackground() {
 
   Widget _buildBuddyList() {
     return FutureBuilder(
-      future: _futureUser,
+      future: _listFutureUser,
       builder: (context, snapshot) {
-        var userBuddyIDs = snapshot.hasData && snapshot.data['buddies'] != null 
-          ? snapshot.data['buddies'] : List();
-          buddies = userBuddyIDs.cast<String>();      
-    
-          return ListView.builder(
-            itemCount: userBuddyIDs.length,
-            itemBuilder: (BuildContext context, int i) {
-              return BuddyWidget(buddies);
-            } 
-          );
+        if(!snapshot.hasData) 
+          return Container();
+               
+        buddies = snapshot.data;
+        return ListView.builder(
+          itemCount: buddies.length,
+          itemBuilder: (BuildContext context, int i) {
+            //return BuddyWidget(buddies);
+            return FutureBuilder(
+              future: DatabaseHelper.getUserSnapshot(buddies[i]),
+              builder: (context, snapshot) {
+                User user = User.jsonToUser(snapshot.data);
+                return _buildBuddy(user);
+              },
+            );
+          }, 
+        );
       },
     );
+  }
+
+  Widget _buildBuddy(User user) {
+    
   }
 }
