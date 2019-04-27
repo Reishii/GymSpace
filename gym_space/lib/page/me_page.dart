@@ -341,7 +341,7 @@ class MePage extends StatelessWidget {
           )
         ),
         child: InkWell(
-        onLongPress: () => _updateWeightInfo(context),
+        onTap: () => _updateWeightInfo(context),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
@@ -603,6 +603,8 @@ void  _updateNutritionInfo(BuildContext context) async{
           children: <Widget>[
              Flexible(
               child:  TextField(
+                keyboardType: TextInputType.number,
+                maxLines: 1,
                 autofocus: true,
                 decoration: InputDecoration(
                   labelText: 'Protein',
@@ -621,6 +623,8 @@ void  _updateNutritionInfo(BuildContext context) async{
 
             Flexible(
               child:  TextField(
+                keyboardType: TextInputType.number,
+                maxLines: 1,
                 autofocus: true,
                 decoration: InputDecoration(
                   labelText: 'Carbs',
@@ -642,6 +646,8 @@ void  _updateNutritionInfo(BuildContext context) async{
 
             Flexible(
               child:  TextField(
+                keyboardType: TextInputType.number,
+                maxLines: 1,
                 autofocus: true,
                 decoration: InputDecoration(
                   labelText: 'Fats',
@@ -715,7 +721,9 @@ void  _updateWeightInfo(BuildContext context) async{
             children: <Widget>[
              Expanded(
               child:  TextField(
-                maxLength: 3,
+                keyboardType: TextInputType.number,
+                maxLines: 1,
+                //maxLength: 3,
                 autofocus: true,
                 decoration: InputDecoration(
                   labelText: 'Current',
@@ -728,12 +736,13 @@ void  _updateWeightInfo(BuildContext context) async{
               ),
             ),
 
-
              SizedBox(width: 5.0,),
 
             Flexible(
               child:  TextField(
-                maxLength: 3,
+                keyboardType: TextInputType.number,
+                maxLines: 1,
+                //maxLength: 3,
                 autofocus: true,
                 decoration: InputDecoration(
                   labelText: 'Starting',
