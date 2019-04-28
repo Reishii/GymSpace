@@ -2,6 +2,7 @@ import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/search_page.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:algolia/algolia.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
@@ -23,10 +24,9 @@ class BuddyPage extends StatefulWidget {
 class _BuddyPageState extends State<BuddyPage> {
   List<String> buddies =  [];
   final TextEditingController _searchController = TextEditingController();
-  final GlobalKey<FormState> _buddyKey = GlobalKey<FormState>();
 
-  //Future<DocumentSnapshot> _snapFutureUser = DatabaseHelper.getCurrentUserBuddiesSnapshot();
   Future<List<String>> _listFutureUser = DatabaseHelper.getCurrentUserBuddies();
+  bool _isFriend = false;
   
   //Algolia get algolia => DatabaseConnections.algolia;
 
@@ -151,15 +151,18 @@ Widget _theBackground() {
           return Container();
                
         buddies = snapshot.data;
-        print(buddies[0].toString());
+        print(buddies[1].toString());
         return ListView.builder(
           itemCount: buddies.length,
           itemBuilder: (BuildContext context, int i) {
             //return BuddyWidget(buddies);
-            return FutureBuilder(
-              future: DatabaseHelper.getUserSnapshot(buddies[i]),
+            return StreamBuilder(
+              stream: DatabaseHelper.getUserStreamSnapshot(buddies[i]),
               builder: (context, snapshot) {
-                User user = User.jsonToUser(snapshot.data);
+                if(!snapshot.hasData)
+                  return Container();
+
+                User user = User.jsonToUser(snapshot.data.data);
                 return _buildBuddy(user);
               },
             );
@@ -170,6 +173,59 @@ Widget _theBackground() {
   }
 
   Widget _buildBuddy(User user) {
-    
+    return Container(
+        height: 90,
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        decoration: ShapeDecoration(
+          color: GSColors.darkCloud,
+          shape: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50),
+          )
+        ),
+          child: Center(
+            child: ListTile(
+              leading: Container(
+              //margin: EdgeInsets.only(left: 20),
+                decoration: ShapeDecoration(
+                  shape: CircleBorder(
+                    side: BorderSide(color: Colors.black, width: 1.2),
+                  )
+                ),
+                child: CircleAvatar(
+                  backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL, errorListener: () => print('Failed to download')),
+                  radius: 27,
+                ),
+              ),
+          
+              title: Text(
+                '${user.firstName} ${user.lastName}',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: GSColors.darkBlue,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+              subtitle: Text(
+                '${user.liftingType}',
+                //snapshot.hasData ? snapshot.data['buddies'].data['bio'] : "",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.blueGrey,
+                  fontSize: 16,
+                  ),
+                ),
+
+              onTap: () {
+                // Navigator.push(context, MaterialPageRoute<void>(
+                //   builder: (context) {
+                //     //_buildBuddyCard(name, quote, BuddyAvatar);
+                //   }
+                // ));
+              }, // onTap
+            ),
+          ),
+      );
   }
 }
