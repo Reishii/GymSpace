@@ -1,4 +1,5 @@
 import 'package:GymSpace/logic/user.dart';
+import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/search_page.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:algolia/algolia.dart';
@@ -8,8 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/widgets/buddy_widget.dart';
-import 'package:GymSpace/logic/buddy_preview.dart';
 import 'package:GymSpace/page/buddy_profile_page.dart';
+import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/database.dart';
@@ -24,9 +25,11 @@ class BuddyPage extends StatefulWidget {
 class _BuddyPageState extends State<BuddyPage> {
   List<String> buddies =  [];
   final TextEditingController _searchController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Future<List<String>> _listFutureUser = DatabaseHelper.getCurrentUserBuddies();
   bool _isFriend = false;
+  User user;
   
   //Algolia get algolia => DatabaseConnections.algolia;
 
@@ -119,9 +122,28 @@ class _BuddyPageState extends State<BuddyPage> {
     );  
   }
 
-Widget _theBackground() {
+  Widget _buildBuddyBackground() {
+    return Container(
+      height: (150 * 7.0),
+      margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+      decoration: ShapeDecoration(
+        color: GSColors.darkBlue,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
+        ),
+      ),
+      child: Stack(
+        children: <Widget>[
+          //_theBackground(),
+          _buildBuddyList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _theBackground() {
   return Container(
-    height: (150 * 50.0),
+    height: (150 * 7.0),
     margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
     decoration: ShapeDecoration(
       color: GSColors.darkBlue,
@@ -132,17 +154,6 @@ Widget _theBackground() {
   );
 }
 
-  Widget _buildBuddyBackground() {
-    return Stack(
-      children: <Widget>[
-        _theBackground(),
-        Container(
-          child: _buildBuddyList(),
-        ),
-      ]
-    );
-  }
-
   Widget _buildBuddyList() {
     return FutureBuilder(
       future: _listFutureUser,
@@ -151,18 +162,20 @@ Widget _theBackground() {
           return Container();
                
         buddies = snapshot.data;
-        print(buddies[1].toString());
         return ListView.builder(
           itemCount: buddies.length,
           itemBuilder: (BuildContext context, int i) {
-            //return BuddyWidget(buddies);
+            // Check if buddy has user as buddy and is part of buddy list , need to figure out first part
+            if(buddies[i] != null)
+              _isFriend = true;
+            
             return StreamBuilder(
               stream: DatabaseHelper.getUserStreamSnapshot(buddies[i]),
               builder: (context, snapshot) {
                 if(!snapshot.hasData)
                   return Container();
 
-                User user = User.jsonToUser(snapshot.data.data);
+                user = User.jsonToUser(snapshot.data.data);
                 return _buildBuddy(user);
               },
             );
@@ -173,15 +186,17 @@ Widget _theBackground() {
   }
 
   Widget _buildBuddy(User user) {
-    return Container(
-        height: 90,
-        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-        decoration: ShapeDecoration(
-          color: GSColors.darkCloud,
-          shape: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(50),
-          )
-        ),
+    return Stack(
+      children: <Widget>[
+        Container(
+          height: 80,
+          margin: EdgeInsets.only(bottom: 10),
+          decoration: ShapeDecoration(
+            color: GSColors.darkCloud,
+            shape: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(50),
+            )
+          ),
           child: Center(
             child: ListTile(
               leading: Container(
@@ -209,7 +224,6 @@ Widget _theBackground() {
 
               subtitle: Text(
                 '${user.liftingType}',
-                //snapshot.hasData ? snapshot.data['buddies'].data['bio'] : "",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.blueGrey,
@@ -217,15 +231,49 @@ Widget _theBackground() {
                   ),
                 ),
 
-              onTap: () {
-                // Navigator.push(context, MaterialPageRoute<void>(
-                //   builder: (context) {
-                //     //_buildBuddyCard(name, quote, BuddyAvatar);
-                //   }
-                // ));
-              }, // onTap
+              trailing: _checkIfFriend(),
+
+              onTap: () => _buildBuddyProfile(user),
             ),
           ),
-      );
+        )
+      ]
+    );  
+  }
+
+  void _buildBuddyProfile(User user) {
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) => ProfilePage.fromUser(user)
+    ));
+  }
+
+  void _addFriend() async {
+    if (user.buddies.contains(DatabaseHelper.currentUserID)) {
+      return;
+    }
+
+    await DatabaseHelper.getUserSnapshot(user.documentID).then(
+      (ds) => ds.reference.updateData({'buddies': FieldValue.arrayUnion([DatabaseHelper.currentUserID])})
+    );
+    
+    await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
+      (ds) => ds.reference.updateData({'buddies': FieldValue.arrayUnion([user.documentID])})
+    );
+
+    setState(() {
+      user.buddies.toList().add(DatabaseHelper.currentUserID);
+      _isFriend = true;
+    });
+  }
+
+  Widget _checkIfFriend() {
+    return Container(
+      child: IconButton(
+        icon: Icon(_isFriend ? Icons.check_circle : Icons.add_circle),
+        iconSize: 25,
+        color: GSColors.purple,
+        onPressed: () => _addFriend(),
+      ),
+    );
   }
 }
