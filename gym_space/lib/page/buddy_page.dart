@@ -151,6 +151,7 @@ Widget _theBackground() {
           return Container();
                
         buddies = snapshot.data;
+        print(buddies[0].toString());
         return ListView.builder(
           itemCount: buddies.length,
           itemBuilder: (BuildContext context, int i) {
