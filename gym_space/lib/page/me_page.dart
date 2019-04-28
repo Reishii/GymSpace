@@ -1,4 +1,5 @@
 import 'package:GymSpace/logic/user.dart';
+import 'package:GymSpace/page/nutrition_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
@@ -504,6 +505,7 @@ Future<void> _checkDailyMacrosExist() async{
           ],
         )
       ),
+      onTap: () => NutritionPage(),
       onLongPress: () =>
         _updateNutritionInfo(context),
     );

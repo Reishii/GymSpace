@@ -1,3 +1,4 @@
+import 'package:GymSpace/page/nutrition_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/misc/colors.dart';
@@ -98,11 +99,12 @@ class _AppDrawerState extends State<AppDrawer> {
                   _buildDrawerItem("Newsfeed", FontAwesomeIcons.newspaper, 0),
                   _buildDrawerItem("Workout Plans", FontAwesomeIcons.dumbbell, 1),
                   _buildDrawerItem("Profile", FontAwesomeIcons.userCircle, 2),
-                  _buildDrawerItem("Groups", FontAwesomeIcons.users, 3),
-                  _buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 4),
-                  _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 5),
-                  _buildDrawerItem("Messages", FontAwesomeIcons.comments, 6),
-                  _buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 7),
+                  _buildDrawerItem("Nutrition", FontAwesomeIcons.utensils, 3),
+                  _buildDrawerItem("Groups", FontAwesomeIcons.users, 4),
+                  _buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 5),
+                  _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 6),
+                  _buildDrawerItem("Messages", FontAwesomeIcons.comments, 7),
+                  _buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 8),
                 ],
               ),
             ),
@@ -187,23 +189,30 @@ class _AppDrawerState extends State<AppDrawer> {
             },
           ));
           break;
-        case 3: // groups
+        case 3: // nutrition
+          Navigator.pushReplacement(context, MaterialPageRoute<void>(
+            builder: (BuildContext context){
+              return NutritionPage(); 
+            }
+          ));
+          break;
+        case 4: // groups
         Navigator.pushReplacement(context, MaterialPageRoute<void> (
           builder: (BuildContext context) {
             return GroupsPage(); // Switch to groups when created
           }
         ));
           break;
-        case 4: // friends
+        case 5: // friends
         Navigator.pushReplacement(context, MaterialPageRoute<void> (
           builder: (BuildContext context) {
             return BuddyPage(); // Switch to groups when created
           }
         ));
           break;
-        case 5: // notifications
+        case 6: // notifications
           break;
-        case 6: // messages
+        case 7: // messages
           Navigator.pushReplacement(context, MaterialPageRoute<void>(
             builder: (BuildContext context){
               return MessagesPage();
@@ -217,7 +226,7 @@ class _AppDrawerState extends State<AppDrawer> {
           ));
 
           break;
-        case 7: // settings
+        case 8: // settings
           Navigator.pushReplacement(context, MaterialPageRoute<void>(
             builder: (BuildContext context){
               return SettingsPage();
