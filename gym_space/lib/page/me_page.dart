@@ -10,6 +10,10 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:percent_indicator/percent_indicator.dart';
+import 'package:GymSpace/logic/challenge.dart';
+
+
 
 class MePage extends StatelessWidget {
   final Widget child;
@@ -20,7 +24,6 @@ class MePage extends StatelessWidget {
   File imageFile;
   String imageUrl;
   String _myKey = DateTime.now().toString().substring(0,10);
-
 
   @override
   Widget build(BuildContext context) {
@@ -227,16 +230,19 @@ class MePage extends StatelessWidget {
   }
 
 Future<void> _checkDailyMacrosExist() async{
-  List<int> newMacros = new List(3);
+  List<int> newMacros = new List(5);
 
   DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
   var macroFromDB = macroDoc.data['diet'];
  
   if(macroFromDB[_myKey] == null)
   {
-    newMacros[0] = 0;
-    newMacros[1] = 0;
-    newMacros[2] = 0;
+    newMacros[0] = 0;   //protein
+    newMacros[1] = 0;   //carbs
+    newMacros[2] = 0;   //fats
+    newMacros[3] = 0;   //current calories
+    newMacros[4] = 0;   //caloric goal
+
 
     macroFromDB[_myKey] = newMacros;
 
@@ -247,7 +253,6 @@ Future<void> _checkDailyMacrosExist() async{
 
 
   Widget _buildNutritionInfo(BuildContext context) {
-  print("1****************************************************************************");
   _checkDailyMacrosExist();
     return InkWell(
       //onTap: () => print("Open nutrition info"),
@@ -256,18 +261,72 @@ Future<void> _checkDailyMacrosExist() async{
         child: Row(
           children: <Widget>[
             Expanded(
-              flex: 2,
+              flex: 1,
               child: Container(
-                height: 140,
+                height: 180,
                 child: Container(
-                  decoration: ShapeDecoration(
-                    shape: CircleBorder(
-                      side: BorderSide(
-                        width: 16,
-                        color: GSColors.darkBlue
-                      )
-                    )
-                  ),
+                //  child:  CircularPercentIndicator(
+                //           radius: 120.0,
+                //           lineWidth: 10,
+                //           percent: 0.8,
+                //           progressColor: Colors.green,
+                //           backgroundColor: GSColors.darkCloud,
+                //           animateFromLastPercent: true,
+                //           animation: true
+                //         ),
+                  child: StreamBuilder(
+                    stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                    builder: (context, snapshot){ 
+                      if(!snapshot.hasData)
+                      {
+                        return Container();
+                      }
+                      User user = User.jsonToUser(snapshot.data.data);
+                      
+                      if(user.diet[_myKey] != null && snapshot.data['diet'][_myKey][4] > 0)
+                      {
+                        return CircularPercentIndicator(
+                          radius: 130.0,
+                          lineWidth: 17,
+                          percent: snapshot.data['diet'][_myKey][3] / snapshot.data['diet'][_myKey][4] <= 1.0 ? snapshot.data['diet'][_myKey][3] / snapshot.data['diet'][_myKey][4] : 1.0,
+                          progressColor: Colors.green,
+                          backgroundColor: GSColors.darkCloud,
+                          circularStrokeCap: CircularStrokeCap.round,
+                          footer:   
+                            Text(
+                              "Daily Caloric Goal",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
+                          center: 
+                            Text(
+                              snapshot.data['diet'][_myKey][3] / snapshot.data['diet'][_myKey][4] <= 1.0 ? (100.0 * snapshot.data['diet'][_myKey][3] / snapshot.data['diet'][_myKey][4]).toString() + "%" : "0.00 %",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+
+                          ),
+                        );
+                      }
+                      else
+                      {
+                        return CircularPercentIndicator(
+                          radius: 130.0,
+                          lineWidth: 17,  
+                          percent: 0,
+                          progressColor: Colors.green,
+                          backgroundColor: GSColors.darkCloud
+                        );
+                      }
+    
+                    }
+                  )
+
+                  // decoration: ShapeDecoration(
+                  //   shape: CircleBorder(
+                  //     side: BorderSide(
+                  //       width: 16,
+                  //       color: GSColors.darkBlue
+                  //     )
+                  //   )
+                  // ),
                 )
               ),
             ),
@@ -296,33 +355,18 @@ Future<void> _checkDailyMacrosExist() async{
                                 if(user.diet[_myKey] == null)
                                 {
                                   return Text(
-                                    '0 g'
+                                    '0 g '
                                   );                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_myKey][0].toString()} g'
+                                    '${user.diet[_myKey][0].toString()} g '
                                   );
                                 }
-                                
-                                // return Text(
-                                //   '${user.diet[_myKey][0].toString()} g' ?? 'moo'
-                                // );
+                              
                               }
                             )
-                            
-                            // FutureBuilder(
-                            //   future: _futureUser,
-                            //   builder: (context, snapshot) => 
-                            //     Text(
-                            //       //snapshot.hasData ? snapshot.data['diet'][_myKey][0].toString() + " g": "0 g",
-                            //       snapshot.data['diet'][_myKey] != null ? snapshot.data['diet'][_myKey][0].toString() + " g": "0 g",
-                            //       maxLines: 1,
-                            //       softWrap: false,
-                            //     )
-
-                            // ),
                           ],
                         )
                       ),
@@ -343,35 +387,21 @@ Future<void> _checkDailyMacrosExist() async{
                                if(user.diet[_myKey] == null)
                                 {
                                   return Text(  
-                                    '0 g'
+                                    '0 g '
                                   );                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_myKey][1].toString()} g'
+                                    '${user.diet[_myKey][1].toString()} g '
                                   );
-                                }
-                               
-                                // return Text(
-                                //   '${user.diet[_myKey][1].toString()} g' ?? '0 g'
-                                // );
+                                } 
                               }
                             )
-                            // FutureBuilder(
-                            //   future: _futureUser,
-                            //   builder: (context, snapshot) => 
-
-                            //     Text(
-                            //       //snapshot.hasData ? snapshot.data['diet'][_myKey][1].toString() + " g": "0 g",
-                            //       snapshot.data['diet'][_myKey] != null ? snapshot.data['diet'][_myKey][1].toString() + " g": "0 g",
-                            //       maxLines: 1,
-                            //       softWrap: false,
-                            //     )
-                            // ),
                           ],
                         )
-                      ),Container(
+                      ),
+                      Container(
                         margin:EdgeInsets.symmetric(vertical: 5),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -388,31 +418,81 @@ Future<void> _checkDailyMacrosExist() async{
                                 if(user.diet[_myKey] == null)
                                 {
                                   return Text(
-                                    '0 g'
+                                    '0 g '
                                   );                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_myKey][2].toString()} g'
+                                    '${user.diet[_myKey][2].toString()} g '
                                   );
                                 }
-                                
-                                // return Text(
-                                //   '${user.diet[_myKey][2].toString()} g' ?? '0 g'
-                                // );
+                              
                               }
                             )
-                            // FutureBuilder(
-                            //   future: _futureUser,
-                            //   builder: (context, snapshot) => 
-                            //     Text(
-                            //       //snapshot.hasData ?  snapshot.data['diet'][_myKey][2].toString() + " g": "0 g",
-                            //      snapshot.data['diet'][_myKey] != null ? snapshot.data['diet'][_myKey][2].toString() + " g": "0 g",
-                            //       maxLines: 1,
-                            //       softWrap: false,
-                            //     )
-                            // ),
+                          ],
+                        )
+                      ),
+                      Container(
+                        margin:EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Daily Calories: "),
+                            StreamBuilder(
+                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Container();
+                                }
+                                User user = User.jsonToUser(snapshot.data.data);
+
+                                if(user.diet[_myKey] == null)
+                                {
+                                  return Text(
+                                    '0 '
+                                  );                        
+                                }
+                                else
+                                {
+                                  return Text(
+                                    '${user.diet[_myKey][3].toString()} '
+                                  );
+                                }
+                              
+                              }
+                            )
+                          ],
+                        )
+                      ),
+                      Container(
+                        margin:EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Caloric Goal: "),
+                            StreamBuilder(
+                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Container();
+                                }
+                                User user = User.jsonToUser(snapshot.data.data);
+
+                                if(user.diet[_myKey] == null)
+                                {
+                                  return Text(
+                                    '0 '
+                                  );                        
+                                }
+                                else
+                                {
+                                  return Text(
+                                    '${user.diet[_myKey][4].toString()} '
+                                  );
+                                }
+                              }
+                            )
                           ],
                         )
                       ),
@@ -636,7 +716,7 @@ Future<void> _checkDailyMacrosExist() async{
                 )
               ),
               child: Text(
-                "Challenges",
+                "Weekly Challenges",
                 style:TextStyle(
                   color: Colors.white,
                   fontSize: 14,
@@ -650,10 +730,148 @@ Future<void> _checkDailyMacrosExist() async{
     );
   }
 
+ Widget _updateChallengeInfo() {
+   //alert dialog...
+ }
+
   Widget _buildChallengesInfo() {
+  //Challenge challenge = Challenge.jsonToChallenge(snapshot.data.data);
+  //User user = User.jsonToUser(snapshot.data.data);
     return Container(
       margin: EdgeInsets.symmetric(vertical: 30),
-    );
+      child: InkWell(
+        child: Container(
+        margin: EdgeInsets.only(top: 30),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              flex: 2,
+              child: Container(
+                height: 140,
+                child: Container(
+                  decoration: ShapeDecoration(
+                    shape: CircleBorder(
+                      side: BorderSide(
+                        width: 16,
+                        color: GSColors.darkBlue
+                      )
+                    )
+                  ),
+                )
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Container(
+                child: Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Container(
+                        margin:EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("1: "),
+                            StreamBuilder(
+                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Container();
+                                }
+
+                                User user = User.jsonToUser(snapshot.data.data);
+
+                                if(user.diet[_myKey] == null)
+                                {
+                                  return Text(
+                                    '0 g'
+                                  );                        
+                                }
+                                else
+                                {
+                                  return Text(
+                                    '${user.diet[_myKey][0].toString()} g'
+                                  );
+                                }
+                              }
+                            )                         
+                          ],
+                        )
+                      ),
+                      Container(
+                        margin:EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("2: "),
+                            StreamBuilder(
+                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Container();
+                                }
+                                User user = User.jsonToUser(snapshot.data.data);
+                               
+                               if(user.diet[_myKey] == null)
+                                {
+                                  return Text(  
+                                    '0 g'
+                                  );                        
+                                }
+                                else
+                                {
+                                  return Text(
+                                    '${user.diet[_myKey][1].toString()} g'
+                                  );
+                                }                          
+                              }
+                            )
+                          ],
+                        )
+                      ),Container(
+                        margin:EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("3: "),
+                            StreamBuilder(
+                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Container();
+                                }
+                                User user = User.jsonToUser(snapshot.data.data);
+                                
+                                if(user.diet[_myKey] == null)
+                                {
+                                  return Text(
+                                    '0 g'
+                                  );                        
+                                }
+                                else
+                                {
+                                  return Text(
+                                    '${user.diet[_myKey][2].toString()} g'
+                                  );
+                                }                              
+                              }
+                            )
+   
+                          ],
+                        )
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        )
+      ),
+        onLongPress: () => _updateChallengeInfo(),
+      )
+      );
   }
 
 Future getImage() async {
@@ -686,7 +904,7 @@ Future uploadFile() async {
 
 
 void  _updateNutritionInfo(BuildContext context) async{
-      int protein, carbs, fats;
+      int protein, carbs, fats, currentCalories = 0, caloricGoal;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
       var macroFromDB = macroDoc.data['diet'];
       
@@ -717,13 +935,13 @@ void  _updateNutritionInfo(BuildContext context) async{
                   ),
                   contentPadding: EdgeInsets.all(10.0)
                 ),
-                onChanged: (text) => 
-                  (text != null) ? protein = int.parse(text) : protein = 0,
+                onChanged: (text) {
+                  (text != null) ? protein = int.parse(text): protein = 0;
+                  (text != null) ? currentCalories += protein * 4: currentCalories += 0;
+                }
               ),
             ),
             
-            SizedBox(width: 5.0,),
-
             Flexible(
               child:  TextField(
                 keyboardType: TextInputType.number,
@@ -741,12 +959,13 @@ void  _updateNutritionInfo(BuildContext context) async{
                   ),
                     contentPadding: EdgeInsets.all(10.0)
                 ),
-                onChanged: (text) => text != null ? carbs = int.parse(text) : carbs = 0,
+                onChanged: (text) { 
+                  text != null ? carbs = int.parse(text) : carbs = 0;
+                  text != null ? currentCalories += carbs * 4 : currentCalories += 0;
+                }
               ),
             ),
     
-            SizedBox(width: 5.0,),
-
             Flexible(
               child:  TextField(
                 keyboardType: TextInputType.number,
@@ -764,16 +983,44 @@ void  _updateNutritionInfo(BuildContext context) async{
                   ),
                     contentPadding: EdgeInsets.all(10.0)
                 ),
-                onChanged: (text) => text != null ? fats = int.parse(text) : fats = 0,
+                onChanged: (text) {
+                    text != null ? fats = int.parse(text) : fats = 0;
+                    text != null ? currentCalories += fats * 9 : currentCalories += 0;
+                }
               ),
             ),
+
+
+             Flexible(
+              child:  TextField(
+                keyboardType: TextInputType.number,
+                maxLines: 1,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Caloric Goal',
+                  labelStyle: TextStyle(
+                    fontSize: 18.0,
+                    color: GSColors.darkBlue,
+                  ),
+                  hintStyle: TextStyle(
+                    fontSize: 16.0,
+                    color: GSColors.darkBlue,
+                  ),
+                    contentPadding: EdgeInsets.all(10.0)
+                ),
+                onChanged: (text) {
+                    text != null ? caloricGoal = int.parse(text) : caloricGoal = -1;
+                }
+              )
+             )
+
           ],
         )),
         actions: <Widget>[
           FlatButton(
             child: const Text('Cancel'),
             onPressed: (){
-
+              currentCalories = 0;
               Navigator.pop(context);
             }
           ),
@@ -787,9 +1034,22 @@ void  _updateNutritionInfo(BuildContext context) async{
               carbs = 0;
             if(fats == null)
               fats = 0;
+            if(currentCalories == null)
+              currentCalories = 0;
+            if(caloricGoal == null)
+              caloricGoal = -1;
+
             macroFromDB[_myKey][0] += protein;
             macroFromDB[_myKey][1] += carbs;
             macroFromDB[_myKey][2] += fats;
+            macroFromDB[_myKey][3] += currentCalories;
+            if(caloricGoal != -1)
+              macroFromDB[_myKey][4] = caloricGoal;
+
+            print("*******************************************************************************");
+            print(caloricGoal);
+            
+            currentCalories = 0;
 
             Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
               {'diet': macroFromDB});
