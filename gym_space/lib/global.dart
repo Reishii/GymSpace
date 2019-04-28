@@ -24,6 +24,18 @@ class DatabaseHelper {
     return await FirebaseAuth.instance.currentUser();
   }
 
+  static Future<DocumentSnapshot> getCurrentUserBuddiesSnapshot(String userID) async {
+    DocumentSnapshot ds = await getUserSnapshot(userID);
+    DocumentSnapshot buddySnap = ds.data['buddies'];
+    return buddySnap;
+  }
+
+  static Future<List<String>> getCurrentUserBuddies() async {
+    DocumentSnapshot ds = await getUserSnapshot(currentUserID);
+    List<String> buddies = ds.data['buddies'].cast<String>().toList();
+    return buddies;
+  }
+
   static Future<DocumentSnapshot> getUserSnapshot(String userID) async {
     return Firestore.instance.collection('users').document(userID).get();
   }
@@ -40,16 +52,12 @@ class DatabaseHelper {
     return Firestore.instance.collection('workouts').document(workoutID).get();
   }
 
-  static Future<DocumentSnapshot> getCurrentUserBuddiesSnapshot(String userID) async {
-    DocumentSnapshot ds = await getUserSnapshot(userID);
-    DocumentSnapshot buddySnap = ds.data['buddies'];
-    return buddySnap;
+  static Future<DocumentSnapshot> getGroupSnapshot(String groupID) async {
+    return Firestore.instance.collection('groups').document(groupID).get();
   }
 
-  static Future<List<String>> getCurrentUserBuddies() async {
-    DocumentSnapshot ds = await getUserSnapshot(currentUserID);
-    List<String> buddies = ds.data['buddies'].cast<String>().toList();
-    return buddies;
+  static getGroupStreamSnapshot(String groupID) async {
+    return Firestore.instance.collection('groups').document(groupID).snapshots();
   }
 
   static Future<List<User>> searchDBForUserByName(String name) async {
