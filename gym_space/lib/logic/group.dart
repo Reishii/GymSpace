@@ -10,14 +10,14 @@ class Group {
   String status;
   String startDate; //yyyy-mm-dd
   String endDate;
-
-  int likes;
+  String documentID;
 
   // Workout currentWorkout;
   // WorkoutPlan currentWorkoutPlan;
 
-  List<String> members;
-  List<String> workoutPlans;
+  List<String> likes = List();
+  List<String> members = List();
+  List<String> workoutPlans = List();
 
   Group({
     @required this.admin,
@@ -27,7 +27,8 @@ class Group {
     this.status = "",
     this.startDate = "",
     this.endDate = "",
-    this.likes = 0,
+    this.documentID,
+    this.likes,
     this.members,
     this.workoutPlans,
   });
@@ -41,13 +42,13 @@ class Group {
       'status': status,
       'startDate': startDate,
       'endDate': endDate,
-      'likes': likes,
+      'likes': likes ?? [],
       'members': members ?? [],
       'workoutPlans': workoutPlans ?? [],
     };
   }
 
-  static Group jsonToUser(Map<String, dynamic> data) {
+  static Group jsonToGroup(Map<String, dynamic> data) {
     return Group(
       admin: data['admin'],
       name: data['name'],
