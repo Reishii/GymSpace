@@ -17,7 +17,7 @@ class GroupsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: AppDrawer(startPage: 3),
+      drawer: AppDrawer(startPage: 4),
       // backgroundColor: GSColors.olive,
       appBar: _buildAppBar(),
       // body: _buildGroupBackground(),

@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/widgets/buddy_widget.dart';
-import 'package:GymSpace/page/buddy_profile_page.dart';
 import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
@@ -75,7 +74,7 @@ class _BuddyPageState extends State<BuddyPage> {
 
   Future<List<User>> _searchDBForUser(String name) async {
     Query firstNameQuery = Firestore.instance.collection('users')
-      .where('firstName', isEqualTo: name);
+      .where('firstName'.toLowerCase(), isEqualTo: name.toLowerCase());
     
     QuerySnapshot querySnapshot = await firstNameQuery.getDocuments();
     List<User> foundUsers = List();
@@ -101,7 +100,7 @@ class _BuddyPageState extends State<BuddyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: AppDrawer(startPage: 4,),
+      drawer: AppDrawer(startPage: 5,),
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
       body: _buildBuddyBackground(),
@@ -132,27 +131,10 @@ class _BuddyPageState extends State<BuddyPage> {
           borderRadius: BorderRadius.circular(50),
         ),
       ),
-      child: Stack(
-        children: <Widget>[
-          //_theBackground(),
-          _buildBuddyList(),
-        ],
-      ),
+      
+      child: _buildBuddyList(),
     );
   }
-
-  Widget _theBackground() {
-  return Container(
-    height: (150 * 7.0),
-    margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-    decoration: ShapeDecoration(
-      color: GSColors.darkBlue,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(50),
-      ),
-    ),
-  );
-}
 
   Widget _buildBuddyList() {
     return FutureBuilder(
@@ -232,7 +214,6 @@ class _BuddyPageState extends State<BuddyPage> {
                 ),
 
               trailing: _checkIfFriend(),
-
               onTap: () => _buildBuddyProfile(user),
             ),
           ),
