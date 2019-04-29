@@ -52,6 +52,10 @@ class DatabaseHelper {
     return Firestore.instance.collection('workouts').document(workoutID).get();
   }
 
+  static Stream<DocumentSnapshot> getWeeklyChallenges(String challengeID) {
+    return Firestore.instance.collection('challenges').document(challengeID).snapshots();
+  }
+
   static getGroupStreamSnapshot(String groupID) async {
     return Firestore.instance.collection('groups').document(groupID).snapshots();
   }
