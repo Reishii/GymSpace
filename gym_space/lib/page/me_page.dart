@@ -581,24 +581,51 @@ Future<void> _checkDailyMacrosExist() async{
           flex: 1,
           child: Container(
             alignment: Alignment.center,
-            child: Row(
-              children: <Widget>[
-                Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
-                FutureBuilder(
+            //child: Row(
+              //children: <Widget>[
+                
+                // Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
+                child: FutureBuilder(
                   future: _futureUser,
                   builder: (context, snapshot) {
                     double weightLost = snapshot.hasData ? (snapshot.data['startingWeight'] - snapshot.data['currentWeight']) : 0;
-                    return Text(
-                      weightLost.toStringAsFixed(2),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
+                    
+                  if(weightLost < 0)
+                    return Row(
+                      children: <Widget>[
+                        Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
+                        Text(
+                          weightLost.toStringAsFixed(2),
+                          style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      )
+                      ],
                     );
+                  else if(weightLost > 0)
+                 {
+                    return Row(
+                      children: <Widget>[
+                        Icon(FontAwesomeIcons.caretDown, color: Colors.green, size: 16),
+                        Text(
+                          weightLost.toStringAsFixed(2),
+                          style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      )
+                      ],
+                    );
+                 }
+                 else
+                 {
+                   return Text(" ");
+                 }
                   }
                 ),
-              ],
-            )
+              //],
+            //)
           ),
         ),
       ],
@@ -1023,7 +1050,7 @@ Future<void> _checkDailyMacrosExist() async{
                                     }
                                     else
                                     {
-                                      if(user.challengeStatus[0] < snapshotChallenge.data['goal'][0])
+                                      //if(user.challengeStatus[0] < snapshotChallenge.data['goal'][0])
                                       {
                                           return Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1050,40 +1077,40 @@ Future<void> _checkDailyMacrosExist() async{
                                         );
                                       }
                                     
-                                      else
-                                      {
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                          children: <Widget>[
-                                            Container(
-                                                  width: 300,
-                                                  child: Text(
-                                                    ' 1. ${snapshotChallenge.data['title'][0]}'
-                                                  ),
-                                                ),
+                                      // else
+                                      // {
+                                      //   return Row(
+                                      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      //     children: <Widget>[
+                                      //       Container(
+                                      //             width: 300,
+                                      //             child: Text(
+                                      //               ' 1. ${snapshotChallenge.data['title'][0]}'
+                                      //             ),
+                                      //           ),
 
-                                              Container(
-                                                  width: 85,
-                                                  child: Text(
-                                                    '${snapshotChallenge.data['points'][0]} Points',
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontWeight: FontWeight.bold,
-                                                      // fontSize: 15
-                                                      ),
-                                                  ),
-                                                ),
+                                      //         Container(
+                                      //             width: 85,
+                                      //             child: Text(
+                                      //               '${snapshotChallenge.data['points'][0]} Points',
+                                      //               style: TextStyle(
+                                      //                 color: Colors.black,
+                                      //                 fontWeight: FontWeight.bold,
+                                      //                 // fontSize: 15
+                                      //                 ),
+                                      //             ),
+                                      //           ),
 
-                                            Container(
-                                              child: Icon(
-                                                Icons.check_box,
-                                                size: 15,
-                                                color: Colors.green,
-                                              ),
-                                            )
-                                          ],
-                                        );
-                                      }
+                                      //       Container(
+                                      //         child: Icon(
+                                      //           Icons.check_box,
+                                      //           size: 15,
+                                      //           color: Colors.green,
+                                      //         ),
+                                      //       )
+                                      //     ],
+                                      //   );
+                                      // }
                                     // return Text(
                                     //     ' 1. ${challenge.title[0]}' //+ ' ${challenge.points[2].toString()}'
                                     //   );
@@ -1095,6 +1122,66 @@ Future<void> _checkDailyMacrosExist() async{
                           ],
                         )
                       ),
+
+                      Container(
+                        child: StreamBuilder(
+                          stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                          builder: (context, snapshot){
+                            if(!snapshot.hasData)
+                            {
+                              return Container();
+                            }
+                            User user = User.jsonToUser(snapshot.data.data);
+                            return StreamBuilder(
+                              stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+                              builder: (context, snapshotChallenge){
+                                if(!snapshotChallenge.hasData)
+                                {
+                                 return LinearPercentIndicator(
+                                    width: 400.0,
+                                    lineHeight: 14.0,
+                                    percent: 0.0,
+                                    backgroundColor: GSColors.darkCloud,
+                                    progressColor: GSColors.lightBlue,
+                                    center: Text("0%")
+                                  );                       
+                                }
+                                else{
+                                  if(user.challengeStatus[0] == snapshotChallenge.data['goal'][0])
+                                  {
+                                    return LinearPercentIndicator(
+                                      width: 400.0,
+                                      lineHeight: 14.0,
+                                      percent: 1.0,
+                                      backgroundColor: GSColors.darkCloud,
+                                      progressColor: Colors.green,
+                                      center: Text("100%"),
+                                      animation: true, 
+                                    );
+                                  }
+                                  else
+                                  {
+                                  return LinearPercentIndicator(
+                                    //width: 275.0,
+                                    width: 400.0,
+                                    lineHeight: 14.0,
+                                    percent: user.challengeStatus[0]/snapshotChallenge.data['goal'][0],
+                                    backgroundColor: GSColors.darkCloud,
+                                    progressColor: GSColors.lightBlue,
+                                    center: Text(
+                                      (user.challengeStatus[0]/snapshotChallenge.data['goal'][0] * 100).toStringAsFixed(0)
+                                    )
+                                  );
+                                  }
+                                }
+                              
+                              }
+                            );
+                          }
+                        ),
+                      ),
+
+
                       Container(
                         margin:EdgeInsets.symmetric(vertical: 5),
                         child: Row(
@@ -1119,7 +1206,7 @@ Future<void> _checkDailyMacrosExist() async{
                                     }
                                     else
                                     {
-                                    if(user.challengeStatus[1] < snapshotChallenge.data['goal'][1])
+                                    //if(user.challengeStatus[1] <= snapshotChallenge.data['goal'][1])
                                       {
                                           return Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1146,40 +1233,40 @@ Future<void> _checkDailyMacrosExist() async{
                                         );
                                       }
                                     
-                                      else
-                                      {
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                          children: <Widget>[
-                                            Container(
-                                                  width: 300,
-                                                  child: Text(
-                                                    ' 2. ${snapshotChallenge.data['title'][1]}'
-                                                  ),
-                                                ),
+                                      //else
+                                      // {
+                                      //   return Row(
+                                      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      //     children: <Widget>[
+                                      //       Container(
+                                      //             width: 300,
+                                      //             child: Text(
+                                      //               ' 2. ${snapshotChallenge.data['title'][1]}'
+                                      //             ),
+                                      //           ),
 
-                                              Container(
-                                                  width: 85,
-                                                  child: Text(
-                                                    '${snapshotChallenge.data['points'][1]} Points',
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontWeight: FontWeight.bold,
-                                                      // fontSize: 15
-                                                      ),
-                                                  ),
-                                                ),
+                                      //         Container(
+                                      //             width: 85,
+                                      //             child: Text(
+                                      //               '${snapshotChallenge.data['points'][1]} Points',
+                                      //               style: TextStyle(
+                                      //                 color: Colors.black,
+                                      //                 fontWeight: FontWeight.bold,
+                                      //                 // fontSize: 15
+                                      //                 ),
+                                      //             ),
+                                      //           ),
 
-                                            Container(
-                                              child: Icon(
-                                                Icons.check_box,
-                                                size: 15,
-                                                color: Colors.green,
-                                              ),
-                                            )
-                                          ],
-                                        );
-                                      }
+                                      //       Container(
+                                      //         child: Icon(
+                                      //           Icons.check_box,
+                                      //           size: 15,
+                                      //           color: Colors.green,
+                                      //         ),
+                                      //       )
+                                      //     ],
+                                      //   );
+                                      // }
                                     } 
                                   }
                                 );                           
@@ -1187,7 +1274,66 @@ Future<void> _checkDailyMacrosExist() async{
                             ),
                           ],
                         )
-                      ),Container(
+                      ),
+
+                      Container(
+                        child: StreamBuilder(
+                          stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                          builder: (context, snapshot){
+                            if(!snapshot.hasData)
+                            {
+                              return Container();
+                            }
+                            User user = User.jsonToUser(snapshot.data.data);
+                            return StreamBuilder(
+                              stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+                              builder: (context, snapshotChallenge){
+                                if(!snapshotChallenge.hasData)
+                                {
+                                 return LinearPercentIndicator(
+                                    width: 400.0,
+                                    lineHeight: 14.0,
+                                    percent: 0.0,
+                                    backgroundColor: GSColors.darkCloud,
+                                    progressColor: GSColors.lightBlue,
+                                    center: Text("0%")
+                                  );                       
+                                }
+                                else{
+
+                                  if(user.challengeStatus[1] == snapshotChallenge.data['goal'][1])
+                                  {
+                                    return LinearPercentIndicator(
+                                      width: 400.0,
+                                      lineHeight: 14.0,
+                                      percent: 1.0,
+                                      backgroundColor: GSColors.darkCloud,
+                                      progressColor: Colors.green,
+                                      center: Text("100%"),
+                                      animation: true, 
+                                    );
+                                  }
+                                  else{
+                                    return LinearPercentIndicator(
+                                      width: 400.0,
+                                      lineHeight: 14.0,
+                                      percent: user.challengeStatus[1]/snapshotChallenge.data['goal'][1],
+                                      backgroundColor: GSColors.darkCloud,
+                                      progressColor: GSColors.lightBlue,
+                                      center: Text(
+                                        (user.challengeStatus[0]/snapshotChallenge.data['goal'][1] * 100).toStringAsFixed(0)
+                                      )
+                                    );
+                                  }
+                                }
+                              
+                              }
+                            );
+                          }
+                        ),
+                      ),
+
+                      Container(
                         margin:EdgeInsets.symmetric(vertical: 5),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1263,13 +1409,13 @@ Future<void> _checkDailyMacrosExist() async{
                                                   ),
                                                 ),
 
-                                            Container(
-                                              child: Icon(
-                                                Icons.check_box,
-                                                size: 15,
-                                                color: Colors.green,
-                                              ),
-                                            )
+                                            // Container(
+                                            //   child: Icon(
+                                            //     Icons.check_box,
+                                            //     size: 15,
+                                            //     color: Colors.green,
+                                            //   ),
+                                            //)
                                           ],
                                         );
                                       } 
@@ -1281,6 +1427,64 @@ Future<void> _checkDailyMacrosExist() async{
                           ],
                         )
                       ),
+
+                      Container(
+                        
+                        child: StreamBuilder(
+                          stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                          builder: (context, snapshot){
+                            if(!snapshot.hasData)
+                            {
+                              return Container();
+                            }
+                            User user = User.jsonToUser(snapshot.data.data);
+                            return StreamBuilder(
+                              stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+                              builder: (context, snapshotChallenge){
+                                if(!snapshotChallenge.hasData)
+                                {
+                                 return LinearPercentIndicator(
+                                    width: 400.0,
+                                    lineHeight: 14.0,
+                                    percent: 0.0,
+                                    backgroundColor: GSColors.darkCloud,
+                                    progressColor: GSColors.lightBlue,
+                                    center: Text("0%")
+                                  );                       
+                                }
+                                else{
+
+                                  if(user.challengeStatus[2] == snapshotChallenge.data['goal'][2])
+                                  {
+                                    return LinearPercentIndicator(
+                                      width: 400.0,
+                                      lineHeight: 14.0,
+                                      percent: 1.0,
+                                      backgroundColor: GSColors.darkCloud,
+                                      progressColor: Colors.green,
+                                      center: Text("100%"),
+                                      animation: true, 
+                                    );
+                                  }
+                                  else{
+                                    return LinearPercentIndicator(
+                                      width: 400.0,
+                                      lineHeight: 14.0,
+                                      percent: user.challengeStatus[2]/snapshotChallenge.data['goal'][2],
+                                      backgroundColor: GSColors.darkCloud,
+                                      progressColor: GSColors.lightBlue,
+                                      center: Text(
+                                        (user.challengeStatus[0]/snapshotChallenge.data['goal'][2] * 100).toStringAsFixed(0)
+                                      )
+                                    );
+                                  }
+                                }
+                              
+                              }
+                            );
+                          }
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -1320,6 +1524,31 @@ Future<void> _checkDailyMacrosExist() async{
 
               int totalProgress = user.challengeStatus[0] + user.challengeStatus[1] + user.challengeStatus[2];
               int totalGoal = snapshotChallenge.data['goal'][0] + snapshotChallenge.data['goal'][1] + snapshotChallenge.data['goal'][2];
+              
+              if(totalProgress == totalGoal)
+              {
+                return CircularPercentIndicator(
+                radius: 200.0,
+                lineWidth: 17,
+                percent: totalProgress / totalGoal,
+                progressColor: Colors.green,
+                backgroundColor: GSColors.darkCloud,
+                circularStrokeCap: CircularStrokeCap.round,
+                footer:   
+                  Text(
+                    "Weekly Challenges Progress",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                  ),
+                center: 
+                  Text(
+                   "100%",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35.0),
+
+                ),
+              );
+              }
+              else
+              {
               return CircularPercentIndicator(
                 radius: 200.0,
                 lineWidth: 17,
@@ -1339,6 +1568,7 @@ Future<void> _checkDailyMacrosExist() async{
 
                 ),
               );
+              }
             //}
             // else
             // {
@@ -1558,7 +1788,7 @@ void  _updateNutritionInfo(BuildContext context) async{
       )
     );
   }
-}
+
 
 void  _updateWeightInfo(BuildContext context) async{
       String currentWeight, startingWeight;
@@ -1639,7 +1869,8 @@ void  _updateWeightInfo(BuildContext context) async{
             {
               Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'currentWeight' : double.parse(currentWeight) });
             }
-
+            _buildStartingWeight();
+            _buildCurrentWeight();
             Navigator.pop(context);
             }
           )
@@ -1647,7 +1878,7 @@ void  _updateWeightInfo(BuildContext context) async{
       ),
     );
   }
-
+}
 
 class _SystemPadding extends StatelessWidget{
   final Widget child;
