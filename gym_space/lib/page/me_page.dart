@@ -1870,25 +1870,8 @@ void  _updateWeightInfo(BuildContext context) async{
           height: 200,
           child: Column(
             children: <Widget>[
-             Expanded(
-              child:  TextField(
-                keyboardType: TextInputType.number,
-                maxLines: 1,
-                //maxLength: 3,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: 'Current',
-                  labelStyle: TextStyle(
-                    fontSize: 18.0,
-                    color: GSColors.darkBlue,
-                  ),
-                ),
-                onChanged: (text) => currentWeight = text,
-              ),
-            ),
-
-             SizedBox(width: 5.0,),
-
+             
+             
             Flexible(
               child:  TextField(
                 keyboardType: TextInputType.number,
@@ -1905,9 +1888,29 @@ void  _updateWeightInfo(BuildContext context) async{
                 onChanged: (text) => startingWeight = text,
               ),
             ),
-            ]
-          ),
             
+             SizedBox(height: 50.0,),
+             
+             Flexible(
+              child:  TextField(
+                keyboardType: TextInputType.number,
+                maxLines: 1,
+                //maxLength: 3,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Current',
+                  labelStyle: TextStyle(
+                    fontSize: 18.0,
+                    color: GSColors.darkBlue,
+                  ),
+                ),
+                onChanged: (text) => currentWeight = text,
+              ),
+            ),
+
+
+            ]
+          ),       
         ),
         actions: <Widget>[
           FlatButton(
@@ -1922,12 +1925,15 @@ void  _updateWeightInfo(BuildContext context) async{
             child: const Text('Save'),
             onPressed: (){
 
-            if (startingWeight != "")
+
+            print(startingWeight);
+            print(currentWeight);
+            if (startingWeight != null)
               {
                 Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'startingWeight' : double.parse(startingWeight) });
               }
 
-            if (currentWeight != "")
+            if (currentWeight != null)
             {
               Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'currentWeight' : double.parse(currentWeight) });
             }
