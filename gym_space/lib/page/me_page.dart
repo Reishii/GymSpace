@@ -319,8 +319,32 @@ Future<void> _checkDailyMacrosExist() async{
                           center: Text ( 
                             "100%",
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
-
                           ),
+                          footer:   
+                            Text(
+                              "Daily Caloric Goal",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
+                          
+                        );
+                      }
+                      else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] == 0)
+                      {
+                        return CircularPercentIndicator(
+                          radius: 130.0,
+                          lineWidth: 17,  
+                          percent: 0.0,
+                          progressColor: GSColors.darkCloud,
+                          backgroundColor: GSColors.darkCloud,
+                          center: Text ( 
+                            "No Caloric Goal",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+                          ),
+                          footer:   
+                            Text(
+                              "Daily Caloric Goal",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
                         );
                       }
 
@@ -331,7 +355,12 @@ Future<void> _checkDailyMacrosExist() async{
                           lineWidth: 17,  
                           percent: 0,
                           progressColor: GSColors.darkCloud,
-                          backgroundColor: GSColors.darkCloud
+                          backgroundColor: GSColors.darkCloud,
+                          footer:   
+                            Text(
+                              "Daily Caloric Goal",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
                         );
                       }
     
@@ -535,9 +564,10 @@ Future<void> _checkDailyMacrosExist() async{
         Navigator.pushReplacement(context, MaterialPageRoute<void>(
           builder: (BuildContext context){
           return NutritionPage(); 
-          }
+          }   
         ));
       },
+      onLongPress:() {_updateNutritionInfo(context);},
     );
   }
 
