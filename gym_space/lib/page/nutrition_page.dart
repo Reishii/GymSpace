@@ -14,7 +14,7 @@ class NutritionPage extends StatelessWidget {
 
   NutritionPage({Key key, this.child}) : super(key: key);
 
-  String _myKey = DateTime.now().toString().substring(0,10);
+  String _dietKey = DateTime.now().toString().substring(0,10);
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +74,8 @@ class NutritionPage extends StatelessWidget {
                   "Daily Nutrition",
                   style: TextStyle(
                     color: GSColors.darkBlue,
-                    fontSize: 14,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 1.2
                   ),
                 ),
@@ -105,7 +106,7 @@ Future<void> _checkDailyMacrosExist() async{
   DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
   var macroFromDB = macroDoc.data['diet'];
  
-  if(macroFromDB[_myKey] == null)
+  if(macroFromDB[_dietKey] == null)
   {
     newMacros[0] = 0;   //protein
     newMacros[1] = 0;   //carbs
@@ -114,7 +115,7 @@ Future<void> _checkDailyMacrosExist() async{
     newMacros[4] = 0;   //caloric goal
 
 
-    macroFromDB[_myKey] = newMacros;
+    macroFromDB[_dietKey] = newMacros;
 
     Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
               {'diet': macroFromDB});
@@ -122,7 +123,7 @@ Future<void> _checkDailyMacrosExist() async{
 }
 
 
-  Widget _buildNutritionInfo(BuildContext context) {
+   Widget _buildNutritionInfo(BuildContext context) {
   _checkDailyMacrosExist();
     return InkWell(
       //onTap: () => print("Open nutrition info"),
@@ -153,12 +154,13 @@ Future<void> _checkDailyMacrosExist() async{
                       }
                       User user = User.jsonToUser(snapshot.data.data);
                       
-                      if(user.diet[_myKey] != null && snapshot.data['diet'][_myKey][4] > 0)
+                      if(user.diet[_dietKey] != null && snapshot.data['diet'][_dietKey][4] > 0)
                       {
                         return CircularPercentIndicator(
+                          animation: true,
                           radius: 130.0,
                           lineWidth: 17,
-                          percent: snapshot.data['diet'][_myKey][3] / snapshot.data['diet'][_myKey][4] <= 1.0 ? snapshot.data['diet'][_myKey][3] / snapshot.data['diet'][_myKey][4] : 1.0,
+                          percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['diet'][_dietKey][4] <= 1.0 ? snapshot.data['diet'][_dietKey][3] / snapshot.data['diet'][_dietKey][4] : 1.0,
                           progressColor: Colors.green,
                           backgroundColor: GSColors.darkCloud,
                           circularStrokeCap: CircularStrokeCap.round,
@@ -169,7 +171,7 @@ Future<void> _checkDailyMacrosExist() async{
                             ),
                           center: 
                             Text(
-                              snapshot.data['diet'][_myKey][3] / snapshot.data['diet'][_myKey][4] <= 1.0 ? (100.0 * snapshot.data['diet'][_myKey][3] / snapshot.data['diet'][_myKey][4]).toString() + "%" : "0.00 %",
+                              snapshot.data['diet'][_dietKey][3] / snapshot.data['diet'][_dietKey][4] <= 1.0 ? (100.0 * snapshot.data['diet'][_dietKey][3] / snapshot.data['diet'][_dietKey][4]).toStringAsFixed(0) + "%" : "0%",
                               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20.0),
 
                           ),
@@ -214,7 +216,7 @@ Future<void> _checkDailyMacrosExist() async{
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Protein: ",
-                              style: TextStyle(color: Colors.white)),
+                                  style: TextStyle(color: Colors.white)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -223,21 +225,18 @@ Future<void> _checkDailyMacrosExist() async{
                                 }
                                 User user = User.jsonToUser(snapshot.data.data);
 
-                                if(user.diet[_myKey] == null)
+                                if(user.diet[_dietKey] == null)
                                 {
                                   return Text(
-                                    '0 g ' ,
-                                      style: TextStyle(color: Colors.white)
-                                  );                        
+                                    '0 g ',
+                                      style: TextStyle(color: Colors.white));                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_myKey][0].toString()} g ' ,
-                                      style: TextStyle(color: Colors.white)
-                                  );
-                                }
-                              
+                                    '${user.diet[_dietKey][0].toString()} g ',
+                                      style: TextStyle(color: Colors.white));
+                                } 
                               }
                             )
                           ],
@@ -248,8 +247,8 @@ Future<void> _checkDailyMacrosExist() async{
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text("Carbs: " ,
-                              style: TextStyle(color: Colors.white)),
+                            Text("Carbs: ",
+                                      style: TextStyle(color: Colors.white)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -258,19 +257,18 @@ Future<void> _checkDailyMacrosExist() async{
                                 }
                                 User user = User.jsonToUser(snapshot.data.data);
                                
-                               if(user.diet[_myKey] == null)
+                               if(user.diet[_dietKey] == null)
                                 {
                                   return Text(  
                                     '0 g ',
-                                      style: TextStyle(color: Colors.white)
+                                      style: TextStyle(color: Colors.white),
                                   );                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_myKey][1].toString()} g ',
-                                      style: TextStyle(color: Colors.white)
-                                  );
+                                    '${user.diet[_dietKey][1].toString()} g ',
+                                      style: TextStyle(color: Colors.white));
                                 } 
                               }
                             )
@@ -283,7 +281,7 @@ Future<void> _checkDailyMacrosExist() async{
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Fats: ",
-                              style: TextStyle(color: Colors.white)),
+                                  style: TextStyle(color: Colors.white)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -292,21 +290,18 @@ Future<void> _checkDailyMacrosExist() async{
                                 }
                                 User user = User.jsonToUser(snapshot.data.data);
                                 
-                                if(user.diet[_myKey] == null)
+                                if(user.diet[_dietKey] == null)
                                 {
                                   return Text(
                                     '0 g ',
-                                      style: TextStyle(color: Colors.white)
-                                  );                        
+                                      style: TextStyle(color: Colors.white));                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_myKey][2].toString()} g ',
-                                      style: TextStyle(color: Colors.white)
-                                  );
+                                    '${user.diet[_dietKey][2].toString()} g ',
+                                      style: TextStyle(color: Colors.white));
                                 }
-                              
                               }
                             )
                           ],
@@ -318,7 +313,7 @@ Future<void> _checkDailyMacrosExist() async{
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Daily Calories: ",
-                              style: TextStyle(color: Colors.white)),
+                                  style: TextStyle(color: Colors.white)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -327,19 +322,17 @@ Future<void> _checkDailyMacrosExist() async{
                                 }
                                 User user = User.jsonToUser(snapshot.data.data);
 
-                                if(user.diet[_myKey] == null)
+                                if(user.diet[_dietKey] == null)
                                 {
                                   return Text(
                                     '0 ',
-                                      style: TextStyle(color: Colors.white)
-                                  );                        
+                                      style: TextStyle(color: Colors.white));                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_myKey][3].toString()} ',
-                                      style: TextStyle(color: Colors.white)
-                                  );
+                                    '${user.diet[_dietKey][3].toString()} ',
+                                      style: TextStyle(color: Colors.white));
                                 }
                               
                               }
@@ -353,7 +346,7 @@ Future<void> _checkDailyMacrosExist() async{
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Caloric Goal: ",
-                              style: TextStyle(color: Colors.white)),
+                                  style: TextStyle(color: Colors.white)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -362,19 +355,17 @@ Future<void> _checkDailyMacrosExist() async{
                                 }
                                 User user = User.jsonToUser(snapshot.data.data);
 
-                                if(user.diet[_myKey] == null)
+                                if(user.diet[_dietKey] == null)
                                 {
                                   return Text(
                                     '0 ',
-                                    style: TextStyle(color: Colors.white)
-                                  );                        
+                                      style: TextStyle(color: Colors.white));                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_myKey][4].toString()} ',
-                                      style: TextStyle(color: Colors.white)
-                                  );
+                                    '${user.diet[_dietKey][4].toString()} ',
+                                      style: TextStyle(color: Colors.white));
                                 }
                               }
                             )
@@ -389,8 +380,8 @@ Future<void> _checkDailyMacrosExist() async{
           ],
         )
       ),
-      onLongPress: () {}
-        //_updateNutritionInfo(context),
+      // onLongPress: () =>
+      //   _updateNutritionInfo(context),
     );
   }
 
@@ -530,12 +521,12 @@ Future<void> _checkDailyMacrosExist() async{
             if(caloricGoal == null)
               caloricGoal = -1;
 
-            macroFromDB[_myKey][0] += protein;
-            macroFromDB[_myKey][1] += carbs;
-            macroFromDB[_myKey][2] += fats;
-            macroFromDB[_myKey][3] += currentCalories;
+            macroFromDB[_dietKey][0] += protein;
+            macroFromDB[_dietKey][1] += carbs;
+            macroFromDB[_dietKey][2] += fats;
+            macroFromDB[_dietKey][3] += currentCalories;
             if(caloricGoal != -1)
-              macroFromDB[_myKey][4] = caloricGoal;
+              macroFromDB[_dietKey][4] = caloricGoal;
 
             print("*******************************************************************************");
             print(caloricGoal);

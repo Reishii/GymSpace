@@ -507,9 +507,13 @@ Future<void> _checkDailyMacrosExist() async{
           ],
         )
       ),
-      onTap: () => NutritionPage(),
-      onLongPress: () =>
-        _updateNutritionInfo(context),
+      onTap: () {
+        Navigator.pushReplacement(context, MaterialPageRoute<void>(
+          builder: (BuildContext context){
+          return NutritionPage(); 
+          }
+        ));
+      },
     );
   }
 
