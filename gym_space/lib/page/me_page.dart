@@ -185,7 +185,7 @@ class MePage extends StatelessWidget {
           _buildTodaysEventsInfo(),
           _buildChallengesLabel(),
           _buildChallengesInfo(context),
-          //_buildChallengeProgess()
+          _buildChallengeProgess(context)
         ],
       ),
     );
@@ -1282,6 +1282,70 @@ Future<void> _checkDailyMacrosExist() async{
         onLongPress: () => _updateChallengeInfo(context),
       )
       );
+  }
+
+  Widget _buildChallengeProgess(BuildContext context){
+    return Container(
+      height: 260,
+      child: StreamBuilder(
+        stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+        builder: (context, snapshot){ 
+          if(!snapshot.hasData)
+          {
+            return Container();
+          }
+          User user = User.jsonToUser(snapshot.data.data);
+          
+          return StreamBuilder(
+            stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+            builder: (context, snapshotChallenge){
+              if(!snapshotChallenge.hasData)
+              {
+                return Text(
+                  ' Loading...'
+                  );                        
+              }
+           // if(user.challengeStatus[0] > 0 || )
+            //{
+
+              int totalProgress = user.challengeStatus[0] + user.challengeStatus[1] + user.challengeStatus[2];
+              int totalGoal = snapshotChallenge.data['goal'][0] + snapshotChallenge.data['goal'][1] + snapshotChallenge.data['goal'][2];
+              return CircularPercentIndicator(
+                radius: 200.0,
+                lineWidth: 17,
+                percent: totalProgress / totalGoal,
+                progressColor: GSColors.lightBlue,
+                backgroundColor: GSColors.darkCloud,
+                circularStrokeCap: CircularStrokeCap.round,
+                footer:   
+                  Text(
+                    "Weekly Challenges Progress",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                  ),
+                center: 
+                  Text(
+                    (totalProgress / totalGoal * 100.00).toStringAsFixed(0) + "%",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35.0),
+
+                ),
+              );
+            //}
+            // else
+            // {
+            //   return CircularPercentIndicator(
+            //     radius: 200.0,
+            //     lineWidth: 17,  
+            //     percent: 0,
+            //     progressColor: Colors.green,
+            //     backgroundColor: GSColors.darkCloud
+            //   );
+            // }
+          }
+          );
+        }
+          
+      )
+    );
   }
 
 Future getImage() async {
