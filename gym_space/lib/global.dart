@@ -55,11 +55,6 @@ class DatabaseHelper {
   static Stream<DocumentSnapshot> getWeeklyChallenges(String challengeID) {
     return Firestore.instance.collection('challenges').document(challengeID).snapshots();
   }
-  // static Future<DocumentSnapshot> getCurrentUserBuddiesSnapshot() async {
-  //   DocumentSnapshot ds = await getUserSnapshot(currentUserID);
-  //   DocumentSnapshot buddySnap = ds.data['buddies'];
-  //   return buddySnap;
-  // }
 
   static getGroupStreamSnapshot(String groupID) async {
     return Firestore.instance.collection('groups').document(groupID).snapshots();
