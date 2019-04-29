@@ -288,6 +288,7 @@ Future<void> _checkDailyMacrosExist() async{
                       if(user.diet[_dietKey] != null && snapshot.data['diet'][_dietKey][4] > 0)
                       {
                         return CircularPercentIndicator(
+                          animation: true,
                           radius: 130.0,
                           lineWidth: 17,
                           percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['diet'][_dietKey][4] <= 1.0 ? snapshot.data['diet'][_dietKey][3] / snapshot.data['diet'][_dietKey][4] : 1.0,
@@ -737,8 +738,10 @@ Future<void> _checkDailyMacrosExist() async{
  int challenge1, challenge2, challenge3;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
       var challengeFromUser = macroDoc.data['challengeStatus'];
+      var pointsFromUser = macroDoc.data['points'];
       DocumentSnapshot challengeDoc = await Firestore.instance.collection('challenges').document(_challengeKey).get();
       var challengeInfoDB = challengeDoc.data['goal'];
+      var pointsFromChallenge = challengeDoc.data['points'];
       showDialog<String>(
          context: context,
       //child: SingleChildScrollView(
@@ -902,46 +905,53 @@ Future<void> _checkDailyMacrosExist() async{
           FlatButton(
             child: const Text('Save'),
             onPressed: () {
-                  if(challenge1 == null)
-                    challenge1 = 0;
-                  if(challenge2 == null)
-                    challenge2 = 0;
-                  if(challenge3 == null)
-                    challenge3 = 0;
+                if(challenge1 == null)
+                  challenge1 = 0;
+                if(challenge2 == null)
+                  challenge2 = 0;
+                if(challenge3 == null)
+                  challenge3 = 0;
 
-                  int temp;
-                  temp = challengeFromUser[0] + challenge1;
-                  if(temp > challengeInfoDB[0])
-                  {
-                      challengeFromUser[0] = challengeInfoDB[0];
-                  }
-                  else
-                  {
-                    challengeFromUser[0] += challenge1;
-                  }
+                int temp;
+                temp = challengeFromUser[0] + challenge1;
+                if(temp >= challengeInfoDB[0] && challengeFromUser[0] != challengeInfoDB[0])
+                {
+                    challengeFromUser[0] = challengeInfoDB[0];
+                    pointsFromUser += pointsFromChallenge[0];
 
-                  temp = challengeFromUser[1] + challenge2;
-                  if(temp > challengeInfoDB[1])
-                  {
-                      challengeFromUser[1] = challengeInfoDB[1];
-                  }
-                  else
-                  {
-                    challengeFromUser[1] += challenge2;
-                  }
+                }
+                else if(challengeFromUser[0] != challengeInfoDB[0])
+                {
+                  challengeFromUser[0] += challenge1;
+                }
 
-                  temp = challengeFromUser[2] + challenge3;
-                  if(temp > challengeInfoDB[2])
-                  {
-                      challengeFromUser[2] = challengeInfoDB[2];
-                  }
-                  else
-                  {
-                    challengeFromUser[2] += challenge3;
-                  }
+                temp = challengeFromUser[1] + challenge2;
+                if(temp >= challengeInfoDB[1] && challengeFromUser[1] != challengeInfoDB[1])
+                {
+                    challengeFromUser[1] = challengeInfoDB[1];
+                    pointsFromUser += pointsFromChallenge[1];
+
+                }
+                else if(challengeFromUser[1] != challengeInfoDB[1])
+                {
+                  challengeFromUser[1] += challenge2;
+                }
+
+                temp = challengeFromUser[2] + challenge3;
+                if(temp >= challengeInfoDB[2] && challengeFromUser[2] != challengeInfoDB[2])
+                {
+                    challengeFromUser[2] = challengeInfoDB[2];
+                    pointsFromUser += pointsFromChallenge[2];
+                }
+                else if(challengeFromUser[2] != challengeInfoDB[2])
+                {
+                  challengeFromUser[2] += challenge3;
+                }
           
                   Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
                     {'challengeStatus': challengeFromUser});
+                  Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+                    {'points': pointsFromUser});
                   // _buildNutritionInfo(context);
                   _buildChallengesInfo(context);  
 
