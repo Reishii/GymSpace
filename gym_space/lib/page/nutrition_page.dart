@@ -114,7 +114,6 @@ Future<void> _checkDailyMacrosExist() async{
     newMacros[3] = 0;   //current calories
     newMacros[4] = 0;   //caloric goal
 
-
     macroFromDB[_dietKey] = newMacros;
 
     Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
@@ -128,13 +127,13 @@ Future<void> _checkDailyMacrosExist() async{
     return InkWell(
       //onTap: () => print("Open nutrition info"),
       child: Container(
-        margin: EdgeInsets.only(top: 30),
+        margin: EdgeInsets.only(top: 15),
         child: Row(
           children: <Widget>[
             Expanded(
               flex: 1,
               child: Container(
-                height: 180,
+                height: 175,
                 child: Container(
                 //  child:  CircularPercentIndicator(
                 //           radius: 120.0,
@@ -211,12 +210,12 @@ Future<void> _checkDailyMacrosExist() async{
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(top: 10, bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Protein: ",
-                                  style: TextStyle(color: Colors.white)),
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -229,13 +228,13 @@ Future<void> _checkDailyMacrosExist() async{
                                 {
                                   return Text(
                                     '0 g ',
-                                      style: TextStyle(color: Colors.white));                        
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500));                        
                                 }
                                 else
                                 {
                                   return Text(
                                     '${user.diet[_dietKey][0].toString()} g ',
-                                      style: TextStyle(color: Colors.white));
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500));
                                 } 
                               }
                             )
@@ -243,12 +242,12 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Carbs: ",
-                                      style: TextStyle(color: Colors.white)),
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -261,14 +260,13 @@ Future<void> _checkDailyMacrosExist() async{
                                 {
                                   return Text(  
                                     '0 g ',
-                                      style: TextStyle(color: Colors.white),
-                                  );                        
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500));                        
                                 }
                                 else
                                 {
                                   return Text(
                                     '${user.diet[_dietKey][1].toString()} g ',
-                                      style: TextStyle(color: Colors.white));
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500));
                                 } 
                               }
                             )
@@ -276,12 +274,12 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Fats: ",
-                                  style: TextStyle(color: Colors.white)),
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -294,13 +292,13 @@ Future<void> _checkDailyMacrosExist() async{
                                 {
                                   return Text(
                                     '0 g ',
-                                      style: TextStyle(color: Colors.white));                        
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500));                        
                                 }
                                 else
                                 {
                                   return Text(
                                     '${user.diet[_dietKey][2].toString()} g ',
-                                      style: TextStyle(color: Colors.white));
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500));
                                 }
                               }
                             )
@@ -308,12 +306,12 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Daily Calories: ",
-                                  style: TextStyle(color: Colors.white)),
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -326,13 +324,13 @@ Future<void> _checkDailyMacrosExist() async{
                                 {
                                   return Text(
                                     '0 ',
-                                      style: TextStyle(color: Colors.white));                        
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500));                        
                                 }
                                 else
                                 {
                                   return Text(
                                     '${user.diet[_dietKey][3].toString()} ',
-                                      style: TextStyle(color: Colors.white));
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500));
                                 }
                               
                               }
@@ -341,12 +339,12 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Caloric Goal: ",
-                                  style: TextStyle(color: Colors.white)),
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -359,13 +357,13 @@ Future<void> _checkDailyMacrosExist() async{
                                 {
                                   return Text(
                                     '0 ',
-                                      style: TextStyle(color: Colors.white));                        
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500));                        
                                 }
                                 else
                                 {
                                   return Text(
                                     '${user.diet[_dietKey][4].toString()} ',
-                                      style: TextStyle(color: Colors.white));
+                                      style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.w500));
                                 }
                               }
                             )

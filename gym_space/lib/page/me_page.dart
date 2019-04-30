@@ -342,7 +342,7 @@ Future<void> _checkDailyMacrosExist() async{
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(top: 10, bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
@@ -374,7 +374,7 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
@@ -405,7 +405,7 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
@@ -437,7 +437,7 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
@@ -469,7 +469,7 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
