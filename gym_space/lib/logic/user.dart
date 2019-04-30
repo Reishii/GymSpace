@@ -21,7 +21,9 @@ class User {
   List<WorkoutPlan> workoutPlans = List();
   List<int> challengeStatus = List();
   int caloricGoal = 0;
-  
+  bool private = true;
+  bool location = true;
+  bool notification = true;
   User({
     this.firstName = "",
     this.lastName = "",
@@ -39,7 +41,10 @@ class User {
     this.diet,
     this.workoutPlans,
     this.challengeStatus,
-    this.caloricGoal = 0
+    this.caloricGoal = 0,
+    this.private,
+    this.location,
+    this.notification
   });
 
   Map<String, dynamic> toJSON() {
@@ -60,7 +65,10 @@ class User {
       'diet': diet == null ? Map() : diet,
       'workoutPlans': workoutPlans == null ? [] : workoutPlans,
       'challengeStatus' : challengeStatus == null ? [] : challengeStatus,
-      'caloricGoal' : caloricGoal
+      'caloricGoal' : caloricGoal,
+      'private' : private,
+      'location' : location,
+      'notification': notification
     };
   }
 
@@ -82,7 +90,10 @@ class User {
       diet: data['diet'],
       // workoutPlans: {}}
       challengeStatus: data['challengeStatus'].cast<int>(),
-      caloricGoal: data['caloricGoal'].round()
+      caloricGoal: data['caloricGoal'].round(),
+      private: data['private'],
+      location: data['location'],
+      notification: data['notification'],
     );
   }
 }

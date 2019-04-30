@@ -12,7 +12,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsState extends State<SettingsPage> {
-  // String currentUserID =  DatabaseHelper.getCurrentUserID();
+  
   Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
   @override
   Widget build(BuildContext context) {
@@ -157,10 +157,6 @@ class _SettingsState extends State<SettingsPage> {
     );
   }
   Widget _buildGeneral(){
-    bool isPrivate = true;
-    bool isLocation = true;
-    bool isNotification = true;
-    bool isClearSearch = true;
     return Container(
       height: 250,
       margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
@@ -176,6 +172,10 @@ class _SettingsState extends State<SettingsPage> {
           FutureBuilder(
             future: _futureUser,
             builder: (context, snapshot){
+              bool isPrivate = snapshot.hasData ? snapshot.data['private'] : true;
+              bool isLocation = snapshot.hasData ? snapshot.data['location'] : true;
+              bool isNotification = snapshot.hasData ? snapshot.data['notification'] : true;
+              bool isClearSearch = true;
               return Container(
                 child: Column(
                 children: <Widget>[   
@@ -215,7 +215,14 @@ class _SettingsState extends State<SettingsPage> {
                             value: isPrivate,
                             onChanged: (value){
                               setState(() {
-                               isPrivate = value; 
+                               isPrivate = value;
+                               String userID = DatabaseHelper.currentUserID;
+                               if(value == false){
+                                 Firestore.instance.collection('users').document(userID).updateData({'private': false});
+                               }
+                               else{
+                                 Firestore.instance.collection('users').document(userID).updateData({'private': true});
+                               }
                               });
                             },
                             activeColor: GSColors.darkBlue,
@@ -243,6 +250,13 @@ class _SettingsState extends State<SettingsPage> {
                             onChanged: (value){
                               setState(() {
                                isLocation = value; 
+                               String userID = DatabaseHelper.currentUserID;
+                               if(value == false){
+                                 Firestore.instance.collection('users').document(userID).updateData({'location': false});
+                               }
+                               else{
+                                 Firestore.instance.collection('users').document(userID).updateData({'location': true});
+                               }
                               });
                             },
                             activeColor: GSColors.darkBlue,
@@ -271,6 +285,15 @@ class _SettingsState extends State<SettingsPage> {
                               setState(() {
                                isNotification = value; 
                               });
+                              String userID = DatabaseHelper.currentUserID;
+                               if(value == false){
+                                 Firestore.instance.collection('users').document(userID).updateData({'notification': false});
+                                 print("Notification: $value");
+                               }
+                               else if(value == true){
+                                 Firestore.instance.collection('users').document(userID).updateData({'notification': true});
+                                 print("Notification: $value");
+                               }
                             },
                             activeColor: GSColors.darkBlue,
                           ),
