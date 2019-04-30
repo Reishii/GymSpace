@@ -230,7 +230,7 @@ class _MePageState extends State<MePage> {
             child: Text(
               'Overview',
               style: TextStyle(
-                color: _currentTab == 0 ? GSColors.darkBlue : Colors.white54,
+                color: _currentTab == 0 ? GSColors.darkBlue : Colors.white,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -256,7 +256,7 @@ class _MePageState extends State<MePage> {
             child: Text(
               'Something',
               style: TextStyle(
-                color: _currentTab == 1 ? GSColors.darkBlue : Colors.white54,
+                color: _currentTab == 1 ? GSColors.darkBlue : Colors.white,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -282,7 +282,7 @@ class _MePageState extends State<MePage> {
             child: Text(
               'Posts',
               style: TextStyle(
-                color: _currentTab == 2 ? GSColors.darkBlue : Colors.white54,
+                color: _currentTab == 2 ? GSColors.darkBlue : Colors.white,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -327,9 +327,9 @@ class _MePageState extends State<MePage> {
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14,
-                    letterSpacing: 1.2
-                  ),
-                ),
+                    letterSpacing: 1.2,
+                    fontWeight: FontWeight.w700,
+                )),
                 decoration: ShapeDecoration(
                   color: GSColors.darkBlue,
                   shape: RoundedRectangleBorder(
@@ -733,9 +733,9 @@ Future<void> _checkDailyMacrosExist() async{
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 14,
-                letterSpacing: 1.2
-              ),
-            ),
+                letterSpacing: 1.2,
+                fontWeight: FontWeight.w700,
+              )),
           ),
         ),
         Expanded(
@@ -823,9 +823,9 @@ Future<void> _checkDailyMacrosExist() async{
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 14,
-                letterSpacing: 1.2
-              ),
-            ),
+                letterSpacing: 1.2,
+                fontWeight: FontWeight.w700,
+              )),
           ),
         ),
         Expanded(
@@ -877,9 +877,9 @@ Future<void> _checkDailyMacrosExist() async{
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14,
-                    letterSpacing: 1.2
-                  ),
-                ),
+                    letterSpacing: 1.2,
+                    fontWeight: FontWeight.w700,
+                  )),
                 decoration: ShapeDecoration(
                   color: GSColors.darkBlue,
                   shape: RoundedRectangleBorder(
@@ -926,12 +926,12 @@ Future<void> _checkDailyMacrosExist() async{
               ),
               child: Text(
                 "Weekly Challenges",
-                style:TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontSize: 14,
-                  letterSpacing: 1.2
-                )
-              ),
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w700,
+              )),
             ),
           ),
         ],
