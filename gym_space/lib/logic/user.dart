@@ -21,6 +21,7 @@ class User {
   List<WorkoutPlan> workoutPlans = List();
   List<int> challengeStatus = List();
   int caloricGoal = 0;
+  String fcmToken ="";
   bool private = true;
   bool location = true;
   bool notification = true;
@@ -42,6 +43,7 @@ class User {
     this.workoutPlans,
     this.challengeStatus,
     this.caloricGoal = 0,
+    this.fcmToken = "",
     this.private,
     this.location,
     this.notification
@@ -66,6 +68,7 @@ class User {
       'workoutPlans': workoutPlans == null ? [] : workoutPlans,
       'challengeStatus' : challengeStatus == null ? [] : challengeStatus,
       'caloricGoal' : caloricGoal,
+      'fcmToken' : fcmToken,
       'private' : private,
       'location' : location,
       'notification': notification
@@ -91,6 +94,7 @@ class User {
       // workoutPlans: {}}
       challengeStatus: data['challengeStatus'].cast<int>(),
       caloricGoal: data['caloricGoal'].round(),
+      fcmToken: data['fcmToken'],
       private: data['private'],
       location: data['location'],
       notification: data['notification'],

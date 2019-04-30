@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
@@ -5,14 +6,28 @@ import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/logic/notification.dart';
 import 'package:GymSpace/notification_api.dart';
+import 'package:GymSpace/logic/user.dart';
+import 'package:GymSpace/global.dart';
 
 import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/page/messages_page.dart';
 
 class NotificationPage extends StatefulWidget {
-
+ 
   @override 
   _NotificationState createState() => _NotificationState();
+  void sendNotifications(String cases, String bodys, String fcmToken) async {
+    final response = await Messaging.sendToAll(
+      title: cases,
+      body: bodys ,
+      //fcmToken: fcmToken,
+    );
+    print(cases);
+    print(bodys);
+    print(fcmToken);
+    if(response.statusCode != 200){
+    }
+  }
 }
 
 class _NotificationState extends State<NotificationPage> {
@@ -21,10 +36,13 @@ class _NotificationState extends State<NotificationPage> {
   final TextEditingController bodyController = TextEditingController(text: 'Body123');
   final List<Message> messages = [];
 
+  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
+
   void sendNotification() async {
-    final response = await Messaging.sendToAll(
+    final response = await Messaging.sendTo(
       title: titleController.text,
       body: bodyController.text,
+      fcmToken: 'all'
     );
     if(response.statusCode != 200){
       Scaffold.of(context).showSnackBar(SnackBar(content: Text('[${response.statusCode}] Error message: ${response.body}'),));
@@ -34,7 +52,8 @@ class _NotificationState extends State<NotificationPage> {
   void sendTokenToServer(String fcmToken){
     print('Token: $fcmToken');
     // Update user's fcmToken just in case
-
+    String userID = DatabaseHelper.currentUserID;
+    Firestore.instance.collection('users').document(userID).updateData({'fcmToken': fcmToken});
   }
   
   void handleRouting(dynamic notification){
@@ -67,7 +86,7 @@ class _NotificationState extends State<NotificationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      drawer: AppDrawer(startPage: 5,),
+      drawer: AppDrawer(startPage: 6,),
       backgroundColor: GSColors.darkBlue,
       body: ListView(
         children: [
