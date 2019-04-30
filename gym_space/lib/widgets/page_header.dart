@@ -35,7 +35,7 @@ class PageHeader extends StatelessWidget {
           icon: Icon(
             Icons.keyboard_arrow_left, 
             color: titleColor, 
-            size: 30
+            size: 24,
           ),
           onPressed: () {Navigator.pop(context);},
         ),

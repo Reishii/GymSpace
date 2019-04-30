@@ -1,9 +1,12 @@
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/group.dart';
 import 'package:GymSpace/page/group_profile_page.dart';
+import 'package:GymSpace/page/search_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as prefix0;
+import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/misc/colors.dart';
@@ -15,6 +18,24 @@ class GroupsPage extends StatelessWidget {
 
   GroupsPage({Key key, this.child}) : super(key: key);
 
+  void _addPressed(BuildContext context) async {
+    List<Group> allGroups = List();
+    QuerySnapshot groupSnapshots = await Firestore.instance.collection('groups').getDocuments();
+    groupSnapshots.documents.forEach((ds) {
+      print(ds.data);
+      Group group = Group.jsonToGroup(ds.data);
+      group.documentID = ds.documentID;
+      allGroups.add(group);
+    });
+
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) => SearchPage(
+        searchType: SearchType.group,
+        groups: allGroups,
+      )
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,6 +44,11 @@ class GroupsPage extends StatelessWidget {
       appBar: _buildAppBar(),
       // body: _buildGroupBackground(),
       body: _buildBody(context),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _addPressed(context),
+        backgroundColor: GSColors.purple,
+        child: Icon(Icons.add),
+      ),
     );
   }
 
@@ -39,39 +65,45 @@ class GroupsPage extends StatelessWidget {
     );
   }
 
+
   Widget _buildBody(BuildContext context) {
     return Container(
       // color: Colors.white
-      child: ListView(
-        children: <Widget>[
-          _buildGroupItem('groupID', context),
-        ],
-      )
+      child: FutureBuilder(
+        future: DatabaseHelper.getCurrentUserGroups(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Container();
+          }
+          
+          return ListView.builder(
+            itemCount: snapshot.data.length,
+            itemBuilder: (context, i) {
+              return StreamBuilder(
+                stream: DatabaseHelper.getGroupStreamSnapshot(snapshot.data[i]),
+                builder: (context, groupSnap) {
+                  if (!groupSnap.hasData) {
+                    return Container();
+                  }
+                  Group joinedGroup = Group.jsonToGroup(groupSnap.data.data);
+                  joinedGroup.documentID = groupSnap.data.documentID;
+                  return _buildGroupItem(joinedGroup, context);
+                },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildGroupItem(String groupID, context) {
-    Group group = Group(name: 'Shredded in 3 months', admin: DatabaseHelper.currentUserID);
-    group.photoURL = 'https://images.pexels.com/photos/1092877/pexels-photo-1092877.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260';
-    group.status = 'Keep it up guys! We only have a few weeks left! ';
-    group.startDate = '2019-04-26';
-    group.endDate = '2019-07-26';
-    group.bio = 'Looking to get rid of that dad bod? With this program, I guarentee that I can get you Summer ready in just 3 months. We will start this program on exactly 4/26/2019 and end on 7/26/2019.';
-    group.members = List();
-    group.members.addAll([
-      'TzlVADVHVaTZrJ3gUyRJirhgyiV2',
-      'XKgmeU51sxgmMig8ExV5J8JKq6n1',
-      'eyo4X5qYD9gQeWK1eef3t7yKFee2',
-      'mb6MLqrSAbVsSoXpoCtzZP0af1V2',
-    ]);
-    
-
+  Widget _buildGroupItem(Group group, context) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 20),
       decoration: ShapeDecoration(
         color: GSColors.darkBlue,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(40),
+          borderRadius: BorderRadius.circular(100),
         )
       ),
       child: InkWell(
@@ -89,7 +121,36 @@ class GroupsPage extends StatelessWidget {
                   fontSize: 20,
                 ),
               ),
-              _buildMembersList(['uK1idFKmD9RdNKdLg6bULCsA1N53']),
+              _buildMembersList(group.members),
+              Container(
+                child: FutureBuilder(
+                  future: DatabaseHelper.getUserSnapshot(group.admin),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Container();
+                    }
+
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          'Instructed by ${snapshot.data['firstName']} ${snapshot.data['lastName']}  ',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12
+                          ),
+                        ),
+                        Container(
+                          child: CircleAvatar(
+                            backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isNotEmpty ? snapshot.data['photoURL'] : Defaults.photoURL),
+                            radius: 10,
+                          ),
+                        )
+                      ],
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -102,59 +163,62 @@ class GroupsPage extends StatelessWidget {
   }
 
   Widget _buildMembersList(List<String> members) {
-    members.add(members[0]);
-    
-    // for testing
-    List<String> memberPics = List();
-    memberPics.add('https://firebasestorage.googleapis.com/v0/b/gymspace.appspot.com/o/1556315362504?alt=media&token=120a1bbc-9c3c-4f00-83f0-6512a709f250');
-    memberPics.add(memberPics[0]);
-    memberPics.add(memberPics[0]);
-    memberPics.add(memberPics[0]);
-    memberPics.add(memberPics[0]);
-    memberPics.add(memberPics[0]);
-    memberPics.add(memberPics[0]);
-    
     List<Widget> memberIcons = List();
-    for(int i = 0; i < memberPics.length; i++) {
+    for(int i = 0; i < members.length; i++) {
+      memberIcons.add(
+        FutureBuilder(
+          future: DatabaseHelper.getUserSnapshot(members[i]),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Container();
+            }
+            
+            return Positioned(
+                left: (30.0 * i),
+                child: Container(
+                  margin: EdgeInsets.only(left: 20),
+                  decoration: ShapeDecoration(
+                    shape: CircleBorder(
+                    side: BorderSide(color: Colors.white, width: 1.5),
+                  )
+                ),
+                child: CircleAvatar(
+                  backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL']),
+                  radius: 20,
+                ),
+              ),
+            );
+          }
+        ),
+      );
+
+      if (i == 8) {
+        break;
+      }
+    }
+
+    if (members.length > 8) {
       memberIcons.add(
         Positioned(
-          left: (30.0 * i),
+          right: 20,
           child: Container(
-            margin: EdgeInsets.only(left: 20),
-            decoration: ShapeDecoration(
-              shape: CircleBorder(
-                side: BorderSide(color: Colors.white, width: 1.5),
-              )
-            ),
             child: CircleAvatar(
-              backgroundImage: CachedNetworkImageProvider(memberPics[i]),
-              radius: 20,
+              backgroundColor: GSColors.purple,
+              radius: 20 + 1.5,
+              child: Text(
+                '+37',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
         )
       );
     }
 
-    memberIcons.add(
-      Positioned(
-        right: 20,
-        child: Container(
-          child: CircleAvatar(
-            backgroundColor: GSColors.purple,
-            radius: 20 + 1.5,
-            child: Text(
-              '+37',
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-      )
-    );
-
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+      margin: EdgeInsets.only(left: 30, right: 30, top: 10),
       height: 50,
       child: Stack(
         children: memberIcons,

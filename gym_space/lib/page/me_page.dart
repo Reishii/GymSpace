@@ -232,7 +232,7 @@ class MePage extends StatelessWidget {
   }
 
 Future<void> _checkDailyMacrosExist() async{
-  List<int> newMacros = new List(5);
+  List<int> newMacros = new List(4);
 
   DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
   var macroFromDB = macroDoc.data['diet'];
@@ -243,9 +243,7 @@ Future<void> _checkDailyMacrosExist() async{
     newMacros[1] = 0;   //carbs
     newMacros[2] = 0;   //fats
     newMacros[3] = 0;   //current calories
-    newMacros[4] = 0;   //caloric goal
-
-
+    //newMacros[4] = 0;   //caloric goal
     macroFromDB[_dietKey] = newMacros;
 
     Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
@@ -285,14 +283,15 @@ Future<void> _checkDailyMacrosExist() async{
                       }
                       User user = User.jsonToUser(snapshot.data.data);
                       
-                      if(user.diet[_dietKey] != null && snapshot.data['diet'][_dietKey][4] > 0)
+                      //if(user.diet[_dietKey] != null && snapshot.data['diet'][_dietKey][4] > 0)
+                      if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] <= snapshot.data['caloricGoal'])
                       {
                         return CircularPercentIndicator(
                           animation: true,
                           radius: 130.0,
                           lineWidth: 17,
-                          percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['diet'][_dietKey][4] <= 1.0 ? snapshot.data['diet'][_dietKey][3] / snapshot.data['diet'][_dietKey][4] : 1.0,
-                          progressColor: Colors.green,
+                          percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal'],
+                          progressColor: GSColors.lightBlue,
                           backgroundColor: GSColors.darkCloud,
                           circularStrokeCap: CircularStrokeCap.round,
                           footer:   
@@ -302,20 +301,66 @@ Future<void> _checkDailyMacrosExist() async{
                             ),
                           center: 
                             Text(
-                              snapshot.data['diet'][_dietKey][3] / snapshot.data['diet'][_dietKey][4] <= 1.0 ? (100.0 * snapshot.data['diet'][_dietKey][3] / snapshot.data['diet'][_dietKey][4]).toStringAsFixed(0) + "%" : "0%",
+                              (100.0 * snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
 
                           ),
                         );
                       }
+                      
+                      else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] > snapshot.data['caloricGoal'])
+                      {
+                        return CircularPercentIndicator(
+                          radius: 130.0,
+                          lineWidth: 17,  
+                          percent: 1.0,
+                          progressColor: Colors.green,
+                          backgroundColor: GSColors.darkCloud,
+                          center: Text ( 
+                            "100%",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                          ),
+                          footer:   
+                            Text(
+                              "Daily Caloric Goal",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
+                          
+                        );
+                      }
+                      else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] == 0)
+                      {
+                        return CircularPercentIndicator(
+                          radius: 130.0,
+                          lineWidth: 17,  
+                          percent: 0.0,
+                          progressColor: GSColors.darkCloud,
+                          backgroundColor: GSColors.darkCloud,
+                          center: Text ( 
+                            "No Caloric Goal",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+                          ),
+                          footer:   
+                            Text(
+                              "Daily Caloric Goal",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
+                        );
+                      }
+
                       else
                       {
                         return CircularPercentIndicator(
                           radius: 130.0,
                           lineWidth: 17,  
                           percent: 0,
-                          progressColor: Colors.green,
-                          backgroundColor: GSColors.darkCloud
+                          progressColor: GSColors.darkCloud,
+                          backgroundColor: GSColors.darkCloud,
+                          footer:   
+                            Text(
+                              "Daily Caloric Goal",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
                         );
                       }
     
@@ -482,18 +527,26 @@ Future<void> _checkDailyMacrosExist() async{
                                 }
                                 User user = User.jsonToUser(snapshot.data.data);
 
-                                if(user.diet[_dietKey] == null)
-                                {
-                                  return Text(
-                                    '0 '
-                                  );                        
-                                }
-                                else
-                                {
-                                  return Text(
-                                    '${user.diet[_dietKey][4].toString()} '
-                                  );
-                                }
+                                  if(user.caloricGoal == null)
+                                  {
+                                    return Text('0 ');
+                                  }
+                                  else
+                                  {
+                                    return Text('${user.caloricGoal.toString()}');
+                                  }
+                                // if(user.diet[_dietKey] == null)
+                                // {
+                                //   return Text(
+                                //     '0 '
+                                //   );                        
+                                // }
+                                // else
+                                // {
+                                //   return Text(
+                                //     '${user.diet[_dietKey][4].toString()} '
+                                //   );
+                                //}
                               }
                             )
                           ],
@@ -511,9 +564,10 @@ Future<void> _checkDailyMacrosExist() async{
         Navigator.pushReplacement(context, MaterialPageRoute<void>(
           builder: (BuildContext context){
           return NutritionPage(); 
-          }
+          }   
         ));
       },
+      onLongPress:() {_updateNutritionInfo(context);},
     );
   }
 
@@ -611,7 +665,7 @@ Future<void> _checkDailyMacrosExist() async{
                  {
                     return Row(
                       children: <Widget>[
-                        Icon(FontAwesomeIcons.caretDown, color: Colors.green, size: 16),
+                        Icon(FontAwesomeIcons.caretUp, color: Colors.green, size: 16),
                         Text(
                           weightLost.toStringAsFixed(2),
                           style: TextStyle(
@@ -1639,6 +1693,7 @@ void  _updateNutritionInfo(BuildContext context) async{
       int protein, carbs, fats, currentCalories = 0, caloricGoal;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
       var macroFromDB = macroDoc.data['diet'];
+      var caloriesGoal = macroDoc.data['caloricGoal'];
       
     showDialog<String>(
       context: context,
@@ -1777,12 +1832,15 @@ void  _updateNutritionInfo(BuildContext context) async{
             macroFromDB[_dietKey][2] += fats;
             macroFromDB[_dietKey][3] += currentCalories;
             if(caloricGoal != -1)
-              macroFromDB[_dietKey][4] = caloricGoal;
+              caloriesGoal = caloricGoal;
+              //macroFromDB[_dietKey][4] = caloricGoal;
             
             currentCalories = 0;
 
             Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
               {'diet': macroFromDB});
+            Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+              {'caloricGoal': caloriesGoal});
             _buildNutritionInfo(context);
 
             Navigator.pop(context);
@@ -1812,25 +1870,8 @@ void  _updateWeightInfo(BuildContext context) async{
           height: 200,
           child: Column(
             children: <Widget>[
-             Expanded(
-              child:  TextField(
-                keyboardType: TextInputType.number,
-                maxLines: 1,
-                //maxLength: 3,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: 'Current',
-                  labelStyle: TextStyle(
-                    fontSize: 18.0,
-                    color: GSColors.darkBlue,
-                  ),
-                ),
-                onChanged: (text) => currentWeight = text,
-              ),
-            ),
-
-             SizedBox(width: 5.0,),
-
+             
+             
             Flexible(
               child:  TextField(
                 keyboardType: TextInputType.number,
@@ -1847,9 +1888,29 @@ void  _updateWeightInfo(BuildContext context) async{
                 onChanged: (text) => startingWeight = text,
               ),
             ),
-            ]
-          ),
             
+             SizedBox(height: 50.0,),
+             
+             Flexible(
+              child:  TextField(
+                keyboardType: TextInputType.number,
+                maxLines: 1,
+                //maxLength: 3,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Current',
+                  labelStyle: TextStyle(
+                    fontSize: 18.0,
+                    color: GSColors.darkBlue,
+                  ),
+                ),
+                onChanged: (text) => currentWeight = text,
+              ),
+            ),
+
+
+            ]
+          ),       
         ),
         actions: <Widget>[
           FlatButton(
@@ -1864,12 +1925,15 @@ void  _updateWeightInfo(BuildContext context) async{
             child: const Text('Save'),
             onPressed: (){
 
-            if (startingWeight != "")
+
+            print(startingWeight);
+            print(currentWeight);
+            if (startingWeight != null)
               {
                 Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'startingWeight' : double.parse(startingWeight) });
               }
 
-            if (currentWeight != "")
+            if (currentWeight != null)
             {
               Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'currentWeight' : double.parse(currentWeight) });
             }

@@ -12,13 +12,13 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsState extends State<SettingsPage> {
-  // String currentUserID =  DatabaseHelper.getCurrentUserID();
+  
   Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      drawer: AppDrawer(startPage: 0,),
+      drawer: AppDrawer(startPage: 7,),
       backgroundColor: GSColors.darkBlue,
       body: _buildBody(),
     );
@@ -69,7 +69,7 @@ class _SettingsState extends State<SettingsPage> {
                 children: <Widget>[   
                   Container(
                     alignment: Alignment.center,
-                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 125),
+                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 105),
                     child: Text(
                       'Accounts',
                       style:TextStyle(
@@ -85,7 +85,7 @@ class _SettingsState extends State<SettingsPage> {
                     ),
                   ),  
                   Container(
-                    margin: EdgeInsets.only(top: 2, right: 300),
+                    margin: EdgeInsets.only(top: 2, right: 260),
                     child: Text(
                       'Name',
                       style: TextStyle(
@@ -96,7 +96,7 @@ class _SettingsState extends State<SettingsPage> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 2, right: 240),
+                    margin: EdgeInsets.only(top: 2, right: 200),
                     child: Text(
                       name,
                       style: TextStyle(
@@ -106,7 +106,7 @@ class _SettingsState extends State<SettingsPage> {
                     )
                   ),
                    Container(
-                    margin: EdgeInsets.only(top: 10, right: 305),
+                    margin: EdgeInsets.only(top: 10, right: 260),
                     child: Text(
                       'Email',
                       style: TextStyle(
@@ -117,7 +117,7 @@ class _SettingsState extends State<SettingsPage> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 2, right: 240),
+                    margin: EdgeInsets.only(top: 2, right: 150),
                     child: Text(
                       email,
                       style: TextStyle(
@@ -127,7 +127,7 @@ class _SettingsState extends State<SettingsPage> {
                     )
                   ),
                     Container(
-                    margin: EdgeInsets.only(top: 5, right: 315),
+                    margin: EdgeInsets.only(top: 5, right: 270),
                     child: Text(
                       'Age',
                       style: TextStyle(
@@ -138,7 +138,7 @@ class _SettingsState extends State<SettingsPage> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 2, right: 290),
+                    margin: EdgeInsets.only(top: 2, right: 250),
                     child: Text(
                       age,
                       style: TextStyle(
@@ -157,10 +157,6 @@ class _SettingsState extends State<SettingsPage> {
     );
   }
   Widget _buildGeneral(){
-    bool isPrivate = true;
-    bool isLocation = true;
-    bool isNotification = true;
-    bool isClearSearch = true;
     return Container(
       height: 250,
       margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
@@ -176,6 +172,10 @@ class _SettingsState extends State<SettingsPage> {
           FutureBuilder(
             future: _futureUser,
             builder: (context, snapshot){
+              bool isPrivate = snapshot.hasData ? snapshot.data['private'] : true;
+              bool isLocation = snapshot.hasData ? snapshot.data['location'] : true;
+              bool isNotification = snapshot.hasData ? snapshot.data['notification'] : true;
+              bool isClearSearch = true;
               return Container(
                 child: Column(
                 children: <Widget>[   
@@ -210,12 +210,19 @@ class _SettingsState extends State<SettingsPage> {
                           )
                         ),
                         Padding(
-                          padding: EdgeInsets.only(left: 150),
-                          child: new Switch(
+                          padding: EdgeInsets.only(left: 130),
+                          child: Switch(
                             value: isPrivate,
                             onChanged: (value){
                               setState(() {
-                               isPrivate = value; 
+                               isPrivate = value;
+                               String userID = DatabaseHelper.currentUserID;
+                               if(value == false){
+                                 Firestore.instance.collection('users').document(userID).updateData({'private': false});
+                               }
+                               else{
+                                 Firestore.instance.collection('users').document(userID).updateData({'private': true});
+                               }
                               });
                             },
                             activeColor: GSColors.darkBlue,
@@ -237,12 +244,19 @@ class _SettingsState extends State<SettingsPage> {
                           )
                         ),
                         Padding(
-                          padding: EdgeInsets.only(left: 103),
+                          padding: EdgeInsets.only(left: 83),
                           child: Switch(
                             value: isLocation,
                             onChanged: (value){
                               setState(() {
                                isLocation = value; 
+                               String userID = DatabaseHelper.currentUserID;
+                               if(value == false){
+                                 Firestore.instance.collection('users').document(userID).updateData({'location': false});
+                               }
+                               else{
+                                 Firestore.instance.collection('users').document(userID).updateData({'location': true});
+                               }
                               });
                             },
                             activeColor: GSColors.darkBlue,
@@ -264,13 +278,22 @@ class _SettingsState extends State<SettingsPage> {
                           )
                         ),
                         Padding(
-                          padding: EdgeInsets.only(left: 170),
+                          padding: EdgeInsets.only(left: 150),
                           child: Switch(
                             value: isNotification,
                             onChanged: (value){
                               setState(() {
                                isNotification = value; 
                               });
+                              String userID = DatabaseHelper.currentUserID;
+                               if(value == false){
+                                 Firestore.instance.collection('users').document(userID).updateData({'notification': false});
+                                 print("Notification: $value");
+                               }
+                               else if(value == true){
+                                 Firestore.instance.collection('users').document(userID).updateData({'notification': true});
+                                 print("Notification: $value");
+                               }
                             },
                             activeColor: GSColors.darkBlue,
                           ),
@@ -291,7 +314,7 @@ class _SettingsState extends State<SettingsPage> {
                           )
                         ),
                         Padding(
-                          padding: EdgeInsets.only(left: 115),
+                          padding: EdgeInsets.only(left: 95),
                           child: Switch(
                             value: isClearSearch,
                             onChanged: (value){

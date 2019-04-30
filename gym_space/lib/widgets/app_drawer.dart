@@ -12,6 +12,7 @@ import 'package:GymSpace/page/messages_page.dart';
 import 'package:GymSpace/page/groups_page.dart';
 import 'package:GymSpace/page/newsfeed_page.dart';
 import 'package:GymSpace/page/settings_page.dart';
+import 'package:GymSpace/notification.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -210,7 +211,12 @@ class _AppDrawerState extends State<AppDrawer> {
           }
         ));
           break;
-        case 6: // notifications
+        case 6: // Notification
+         Navigator.pushReplacement(context, MaterialPageRoute<void>(
+            builder: (BuildContext context){
+              return NotificationPage();
+            }
+          )); 
           break;
         case 7: // messages
           Navigator.pushReplacement(context, MaterialPageRoute<void>(
