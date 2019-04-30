@@ -1,4 +1,5 @@
 import 'package:GymSpace/global.dart';
+import 'package:GymSpace/notification.dart';
 import 'package:GymSpace/page/message_thread_page.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +60,19 @@ class _ProfilePageState extends State<ProfilePage> {
     await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
       (ds) => ds.reference.updateData({'buddies': FieldValue.arrayUnion([user.documentID])})
     );
+    
+    // Send Notification for the Buddy Request
+    User currentUser;
+    String userID = DatabaseHelper.currentUserID;
+    DatabaseHelper.getUserSnapshot(userID).then((ds){
+      setState(() {
+        currentUser = User.jsonToUser(ds.data);
+        NotificationPage notify = new NotificationPage();
+        notify.sendNotifications('buddy', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}');
+      });
+    });
 
+  
     setState(() {
       user.buddies.toList().add(DatabaseHelper.currentUserID);
       _isFriend = true;
