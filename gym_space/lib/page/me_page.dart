@@ -514,7 +514,7 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.only(bottom: 10, right: 10),
+                        margin:EdgeInsets.only(bottom: 10, right: 13),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
