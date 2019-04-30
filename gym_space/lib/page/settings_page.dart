@@ -18,7 +18,7 @@ class _SettingsState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      drawer: AppDrawer(startPage: 0,),
+      drawer: AppDrawer(startPage: 7,),
       backgroundColor: GSColors.darkBlue,
       body: _buildBody(),
     );
@@ -69,7 +69,7 @@ class _SettingsState extends State<SettingsPage> {
                 children: <Widget>[   
                   Container(
                     alignment: Alignment.center,
-                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 125),
+                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 105),
                     child: Text(
                       'Accounts',
                       style:TextStyle(
@@ -85,7 +85,7 @@ class _SettingsState extends State<SettingsPage> {
                     ),
                   ),  
                   Container(
-                    margin: EdgeInsets.only(top: 2, right: 300),
+                    margin: EdgeInsets.only(top: 2, right: 260),
                     child: Text(
                       'Name',
                       style: TextStyle(
@@ -96,7 +96,7 @@ class _SettingsState extends State<SettingsPage> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 2, right: 240),
+                    margin: EdgeInsets.only(top: 2, right: 200),
                     child: Text(
                       name,
                       style: TextStyle(
@@ -106,7 +106,7 @@ class _SettingsState extends State<SettingsPage> {
                     )
                   ),
                    Container(
-                    margin: EdgeInsets.only(top: 10, right: 305),
+                    margin: EdgeInsets.only(top: 10, right: 260),
                     child: Text(
                       'Email',
                       style: TextStyle(
@@ -117,7 +117,7 @@ class _SettingsState extends State<SettingsPage> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 2, right: 240),
+                    margin: EdgeInsets.only(top: 2, right: 150),
                     child: Text(
                       email,
                       style: TextStyle(
@@ -127,7 +127,7 @@ class _SettingsState extends State<SettingsPage> {
                     )
                   ),
                     Container(
-                    margin: EdgeInsets.only(top: 5, right: 315),
+                    margin: EdgeInsets.only(top: 5, right: 270),
                     child: Text(
                       'Age',
                       style: TextStyle(
@@ -138,7 +138,7 @@ class _SettingsState extends State<SettingsPage> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(top: 2, right: 290),
+                    margin: EdgeInsets.only(top: 2, right: 250),
                     child: Text(
                       age,
                       style: TextStyle(
@@ -210,8 +210,8 @@ class _SettingsState extends State<SettingsPage> {
                           )
                         ),
                         Padding(
-                          padding: EdgeInsets.only(left: 150),
-                          child: new Switch(
+                          padding: EdgeInsets.only(left: 130),
+                          child: Switch(
                             value: isPrivate,
                             onChanged: (value){
                               setState(() {
@@ -237,7 +237,7 @@ class _SettingsState extends State<SettingsPage> {
                           )
                         ),
                         Padding(
-                          padding: EdgeInsets.only(left: 103),
+                          padding: EdgeInsets.only(left: 83),
                           child: Switch(
                             value: isLocation,
                             onChanged: (value){
@@ -264,7 +264,7 @@ class _SettingsState extends State<SettingsPage> {
                           )
                         ),
                         Padding(
-                          padding: EdgeInsets.only(left: 170),
+                          padding: EdgeInsets.only(left: 150),
                           child: Switch(
                             value: isNotification,
                             onChanged: (value){
@@ -291,7 +291,7 @@ class _SettingsState extends State<SettingsPage> {
                           )
                         ),
                         Padding(
-                          padding: EdgeInsets.only(left: 115),
+                          padding: EdgeInsets.only(left: 95),
                           child: Switch(
                             value: isClearSearch,
                             onChanged: (value){
