@@ -57,7 +57,7 @@ class Group {
       status: data['status'],
       startDate: data['startDate'],
       endDate: data['endDate'],
-      likes: data['likes'],
+      likes: data['likes'].cast<String>(),
       members: data['members'].cast<String>(),
       workoutPlans: data['workoutPlans'].cast<String>(),
     );

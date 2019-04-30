@@ -22,10 +22,12 @@ class GroupProfilePage extends StatefulWidget {
 
 class _GroupProfilePageState extends State<GroupProfilePage> {
   Group get group => widget.group;
+  String get currentUserID => DatabaseHelper.currentUserID;
 
   int _currentTab = 0;
   bool _loadingMembers = true;
   bool _joined = false;
+  bool _isAdmin = false;
 
   List<User> members = List();
 
@@ -36,21 +38,32 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
     Firestore.instance.collection('groups').document(group.documentID).updateData({'likes': FieldValue.arrayUnion([DatabaseHelper.currentUserID])});
 
-    setState(() => group.likes.add(DatabaseHelper.currentUserID));
+    setState(() => group.likes.add(currentUserID));
   }
 
   void _joinGroup() {
-    Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'groups': FieldValue.arrayUnion([group.documentID])})
+    Firestore.instance.collection('users').document(currentUserID).updateData({'groups': FieldValue.arrayUnion([group.documentID])})
       .then((_) => setState(() {
         _joined = true;
+      }));
+  }
+
+  void _leaveGroup() {
+    Firestore.instance.collection('users').document(currentUserID).updateData({'groups': FieldValue.arrayRemove([group.documentID])})
+      .then((_) => setState(() {
+        group.members.remove(currentUserID);
+        _joined = false;
       }));
   }
 
   @override
   void initState() {
     super.initState();
+    if (group.admin == DatabaseHelper.currentUserID) {
+      setState(() => _isAdmin = true);
+    }
 
-    if (group.admin == DatabaseHelper.currentUserID || group.members.contains(DatabaseHelper.currentUserID)) {
+    if (_isAdmin || group.members.contains(DatabaseHelper.currentUserID)) {
       setState(() {
         _joined = true;
       });
@@ -99,7 +112,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       child: Stack(
         children: <Widget>[
           Container(
-            height: _joined ? 360 : 340,
+            height: 360,
             decoration: ShapeDecoration(
               color: GSColors.lightBlue,
               shadows: [BoxShadow(blurRadius: 1)],
@@ -157,7 +170,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(60), bottomRight: Radius.circular(60))
               )
             ),
-            height: _joined ? 320 : 300,
+            height: 320,
             child: Column(
               // crossAxisAlignment: CrossAxisAlignment,
               children: <Widget>[
@@ -219,7 +232,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                     },
                   ),
                 ),
-                Divider(color: Colors.transparent, height: _joined ? 2 : 16),
+                Divider(color: Colors.transparent, height: 2),
                 Container( // status
                   margin: EdgeInsets.symmetric(horizontal: 80),
                   child: Text(
@@ -230,7 +243,28 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                     ),
                   )
                 ),
-                _joined ? Container(
+                _isAdmin ?
+                Container(
+                  margin: EdgeInsets.only(top: 8),
+                  child: FlatButton.icon(
+                    icon: Icon(Icons.add),
+                    label: Text('Close Group'),
+                    textColor: Colors.white,
+                    color: GSColors.yellow,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    onPressed: () {}),
+                ) : _joined ? Container(
+                  margin: EdgeInsets.only(top: 8),
+                  child: FlatButton.icon(
+                    icon: Icon(Icons.add),
+                    label: Text('Leave'),
+                    textColor: Colors.white,
+                    color: GSColors.red,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    onPressed: _leaveGroup,
+                  ),
+                ) : Container(
+                  margin: EdgeInsets.only(top: 8),
                   child: FlatButton.icon(
                     icon: Icon(Icons.add),
                     label: Text('Join'),
@@ -239,7 +273,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     onPressed: _joinGroup,
                   ),
-                ) : Container()  
+                ),
               ],
             ),
           ),
@@ -259,7 +293,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         )
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: _joined ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
         children: <Widget>[
           MaterialButton( // overview
             onPressed: () { 
@@ -275,7 +309,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               ),
             ),
           ),
-          MaterialButton( // Progress
+          _joined ? MaterialButton( // Progress
             onPressed: () { 
               if (_currentTab != 1) {
                 setState(() => _currentTab = 1);
@@ -288,8 +322,8 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                 fontSize: 12,
               ),
             ),
-          ),
-          MaterialButton( // Discussion
+          ) : Container(),
+          _joined ? MaterialButton( // Discussion
             onPressed: () { 
               if (_currentTab != 2) {
                 setState(() => _currentTab = 2);
@@ -302,7 +336,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                 fontSize: 12,
               ),
             ),
-          ),
+          ) : Container(),
         ],
       ),
     );
