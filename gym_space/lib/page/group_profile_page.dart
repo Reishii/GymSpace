@@ -529,6 +529,8 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
   }
 
   Widget _buildChallenges() {
+      String _challengeKey = getChallengeKey(); //challenge weekly date
+      String challengeTitle, challengeUnits, challengeGoal, challengePoints;
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -544,10 +546,175 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                     letterSpacing: 1.2,
                     fontWeight: FontWeight.bold
                   ),
-                ), _isAdmin ? 
+                ), 
+                //check if admin
+                _isAdmin ? 
                 IconButton(
                   icon: Icon(Icons.add_circle_outline),
-                  onPressed: () {},
+                  onPressed: () {
+                    showDialog(
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (BuildContext context){
+
+                  
+
+                        return AlertDialog(
+                          title: Text("For Week:  " + _challengeKey),
+                          content:
+                            Container(
+                              height: 450,
+                              width: 350,
+                              child: Scrollbar(
+                              child: ListView(
+                                children: <Widget>[
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      //Flexible(
+                                        Container(
+                                          padding: EdgeInsets.all(15.0),
+                                          child: TextField(
+                                              decoration: InputDecoration(
+                                                labelText: 'Challenge Title',
+                                                labelStyle: TextStyle(
+                                                  fontSize: 18.0,
+                                                  color: GSColors.darkBlue
+                                                ),
+                                                hintText: 'E.g. Run 20 miles',
+                                                hintStyle: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: GSColors.lightBlue
+                                                ),
+                                                contentPadding: EdgeInsets.all(10.0)
+                                              ),
+                                              onChanged: (text) {
+                                                (text!= null) ? challengeTitle = text : challengeTitle = 'error0';
+                                              },
+                                            )
+                                        ),
+
+                                        Container(
+                                          padding: EdgeInsets.all(15.0),
+                                          child: TextField(
+                                              decoration: InputDecoration(
+                                                labelText: 'Units',
+                                                labelStyle: TextStyle(
+                                                  fontSize: 18.0,
+                                                  color: GSColors.darkBlue
+                                                ),
+                                                hintText: 'E.g. Miles',
+                                                hintStyle: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: GSColors.lightBlue
+                                                ),
+                                                contentPadding: EdgeInsets.all(10.0)
+                                              ),
+                                              onChanged: (text){
+                                               (text!= null) ? challengeUnits = text : challengeUnits = 'error1';
+                                              },
+                                            )
+                                        ),
+
+                                         Container(
+                                          padding: EdgeInsets.all(15.0),
+                                          child: TextField(
+                                              keyboardType: TextInputType.number,
+                                              decoration: InputDecoration(
+                                                labelText: 'Goal (number)',
+                                                labelStyle: TextStyle(
+                                                  fontSize: 18.0,
+                                                  color: GSColors.darkBlue
+                                                ),
+                                                hintText: 'E.g. 60',
+                                                hintStyle: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: GSColors.lightBlue
+                                                ),
+                                                contentPadding: EdgeInsets.all(10.0)
+                                              ),
+                                              onChanged: (text){
+                                                (text!= null) ? challengeGoal = text : challengeGoal = 'error2';
+                                              },
+                                            )
+                                        ),
+
+                                         Container(
+                                          padding: EdgeInsets.all(15.0),
+                                          child: TextField(
+                                              keyboardType: TextInputType.number,
+                                              decoration: InputDecoration(
+                                                labelText: 'Points on completion (number)',
+                                                labelStyle: TextStyle(
+                                                  fontSize: 18.0,
+                                                  color: GSColors.darkBlue
+                                                ),
+                                                hintText: 'E.g. 20',
+                                                hintStyle: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: GSColors.lightBlue
+                                                ),
+                                                contentPadding: EdgeInsets.all(10.0)
+                                              ),
+                                              onChanged: (text){
+                                                (text!= null) ? challengePoints = text : challengePoints = 'error3';
+                                              },
+                                            )
+                                        ),
+
+                                    ],
+                                  )
+                                ],
+                              ),
+                              )
+                            ),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: const Text('Cancel'),
+                                onPressed: (){
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              FlatButton(
+                                child: const Text('Save'),
+                                onPressed: (){
+
+                                  if(challengeTitle == 'error0' || challengeUnits == 'error1' || challengeGoal == 'error2' || challengePoints == 'error3')
+                                  {
+                                   //send toast error message 
+                                  } 
+
+                                  else
+                                  {
+                                    Map<String, dynamic> newGroupChallenge;    
+                                    List<Map> membersMapList = List();
+                                    Map<String, dynamic> tempMap = Map();
+
+                                    for(int i = 0; i < group.members.length; i++)
+                                      {
+                                        tempMap = {group.members[i]: {'points' : 0}};
+                                        membersMapList.add(tempMap);
+                                      }
+
+                                    newGroupChallenge = //{_challengeKey: 
+                                      //{ challengeTitle: 
+                                        {'points' : challengePoints, 
+                                          'units' : challengeUnits,
+                                          'goal' : challengeGoal,
+                                          'members' : membersMapList
+                                          }; //}    ;            
+                                    //};        
+                                    _uploadGroupChallenge(newGroupChallenge, _challengeKey, challengeTitle);
+
+                                    Navigator.pop(context);
+                                  }
+                                }
+                              )
+                            ],
+                        );
+                      }
+                    );
+                  },
                 )
                 : Container(),
               ],
@@ -557,6 +724,31 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       ),
     );
   }
+
+  Future<void> _uploadGroupChallenge(Map<String, dynamic> challengeInfo, String challengeKey, String challengeTitle) async
+  {
+    DocumentSnapshot groupChallengeSnap = await Firestore.instance.collection('groups').document(group.documentID).get();
+    Map<String, dynamic> challengeMap = groupChallengeSnap.data['challenges'].cast<String, dynamic>();
+    
+    challengeMap[challengeKey][challengeTitle] = challengeInfo;
+    
+    Firestore.instance.collection('groups').document(group.documentID).updateData(
+      {'challenges' : challengeMap}
+    );
+  }
+
+  String getChallengeKey(){
+  
+  DateTime now = DateTime.now();
+  int sunday = 7;
+
+  while(now.weekday != sunday)
+  {
+    now = now.subtract(Duration(days: 1));
+  }
+
+  return now.toString().substring(0,10);
+} 
 
   Widget _buildLeaderboard() {
     return Container(
