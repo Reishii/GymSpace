@@ -15,11 +15,16 @@ import 'package:percent_indicator/percent_indicator.dart';
 
 
 
-class MePage extends StatelessWidget {
-  final Widget child;
+class MePage extends StatefulWidget {
+
+  MePage({Key key}) : super(key: key);
+  _MePageState createState() => _MePageState();
+}
+
+class _MePageState extends State<MePage> {
+
   Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
   final myController = TextEditingController();
-  MePage({Key key, this.child}) : super(key: key);
 
   File imageFile;
   String imageUrl;
