@@ -1,6 +1,7 @@
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/group.dart';
 import 'package:GymSpace/page/group_profile_page.dart';
+import 'package:GymSpace/page/search_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,24 @@ class GroupsPage extends StatelessWidget {
 
   GroupsPage({Key key, this.child}) : super(key: key);
 
+  void _addPressed(BuildContext context) async {
+    List<Group> allGroups = List();
+    QuerySnapshot groupSnapshots = await Firestore.instance.collection('groups').getDocuments();
+    groupSnapshots.documents.forEach((ds) {
+      print(ds.data);
+      Group group = Group.jsonToGroup(ds.data);
+      group.documentID = ds.documentID;
+      allGroups.add(group);
+    });
+
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) => SearchPage(
+        searchType: SearchType.group,
+        groups: allGroups,
+      )
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,6 +44,11 @@ class GroupsPage extends StatelessWidget {
       appBar: _buildAppBar(),
       // body: _buildGroupBackground(),
       body: _buildBody(context),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _addPressed(context),
+        backgroundColor: GSColors.purple,
+        child: Icon(Icons.add),
+      ),
     );
   }
 
@@ -79,7 +103,7 @@ class GroupsPage extends StatelessWidget {
       decoration: ShapeDecoration(
         color: GSColors.darkBlue,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(40),
+          borderRadius: BorderRadius.circular(100),
         )
       ),
       child: InkWell(
@@ -110,7 +134,7 @@ class GroupsPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(
-                          'Instructed by ${snapshot.data['firstName']} ${snapshot.data['lastName']}',
+                          'Instructed by ${snapshot.data['firstName']} ${snapshot.data['lastName']}  ',
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 12
@@ -119,6 +143,7 @@ class GroupsPage extends StatelessWidget {
                         Container(
                           child: CircleAvatar(
                             backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isNotEmpty ? snapshot.data['photoURL'] : Defaults.photoURL),
+                            radius: 10,
                           ),
                         )
                       ],
@@ -193,7 +218,7 @@ class GroupsPage extends StatelessWidget {
     }
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+      margin: EdgeInsets.only(left: 30, right: 30, top: 10),
       height: 50,
       child: Stack(
         children: memberIcons,

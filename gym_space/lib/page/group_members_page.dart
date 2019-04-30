@@ -30,7 +30,7 @@ class GroupMembersPage extends StatelessWidget {
       preferredSize: Size.fromHeight(100),
       child: PageHeader(
         backgroundColor: GSColors.darkBlue,
-        title: 'Members',
+        title: '${members.length} Members',
         titleColor: Colors.white,
       ),
     );
@@ -65,6 +65,7 @@ class GroupMembersPage extends StatelessWidget {
                     Divider(color: Colors.transparent,),
                     Text(
                       '${members[i].firstName} ${members[i].lastName}',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white.withAlpha(200),
                         letterSpacing: 1.2

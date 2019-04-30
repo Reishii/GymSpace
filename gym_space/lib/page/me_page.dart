@@ -235,7 +235,7 @@ Future<void> _checkDailyMacrosExist() async{
   List<int> newMacros = new List(4);
 
   DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
-  var macroFromDB = macroDoc.data['diet'];
+  Map<String, dynamic> macroFromDB = macroDoc.data['diet'].cast<String, dynamic>();
  
   if(macroFromDB[_dietKey] == null)
   {
@@ -822,11 +822,11 @@ Future<void> _checkDailyMacrosExist() async{
  void _updateChallengeInfo(BuildContext context) async{
  int challenge1, challenge2, challenge3;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
-      var challengeFromUser = macroDoc.data['challengeStatus'];
-      var pointsFromUser = macroDoc.data['points'];
+      List<int> challengeFromUser = macroDoc.data['challengeStatus'].cast<int>();
+      int pointsFromUser = macroDoc.data['points'].cast<int>();
       DocumentSnapshot challengeDoc = await Firestore.instance.collection('challenges').document(_challengeKey).get();
-      var challengeInfoDB = challengeDoc.data['goal'];
-      var pointsFromChallenge = challengeDoc.data['points'];
+      List<int> challengeInfoDB = challengeDoc.data['goal'].cast<int>();
+      List<int> pointsFromChallenge = challengeDoc.data['points'].cast<int>();
       showDialog<String>(
          context: context,
       //child: SingleChildScrollView(
@@ -1677,7 +1677,7 @@ Future uploadFile() async {
 
 String getChallengeKey(){
   
-  var now = DateTime.now();
+  DateTime now = DateTime.now();
   int sunday = 7;
 
   while(now.weekday != sunday)
@@ -1692,8 +1692,8 @@ String getChallengeKey(){
 void  _updateNutritionInfo(BuildContext context) async{
       int protein, carbs, fats, currentCalories = 0, caloricGoal;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
-      var macroFromDB = macroDoc.data['diet'];
-      var caloriesGoal = macroDoc.data['caloricGoal'];
+      Map<String, dynamic> macroFromDB = macroDoc.data['diet'].cast<String, dynamic>();
+      int caloriesGoal = macroDoc.data['caloricGoal'].cast<int>();
       
     showDialog<String>(
       context: context,

@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/group.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class GroupProfilePage extends StatefulWidget {
   Group group;
@@ -33,6 +34,12 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
   Future<void> _likeGroup() async {
     if (group.likes.contains(DatabaseHelper.currentUserID)) {
+      Fluttertoast.showToast(
+        msg: 'Already Liked!', 
+        fontSize: 14, 
+        backgroundColor: GSColors.purple,
+        textColor: Colors.white,
+      );
       return;
     }
 
@@ -42,14 +49,14 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
   }
 
   void _joinGroup() {
-    Firestore.instance.collection('users').document(currentUserID).updateData({'groups': FieldValue.arrayUnion([group.documentID])})
+    Firestore.instance.collection('users').document(currentUserID).updateData({'joinedGroups': FieldValue.arrayUnion([group.documentID])})
       .then((_) => setState(() {
         _joined = true;
       }));
   }
 
   void _leaveGroup() {
-    Firestore.instance.collection('users').document(currentUserID).updateData({'groups': FieldValue.arrayRemove([group.documentID])})
+    Firestore.instance.collection('users').document(currentUserID).updateData({'joinedGroups': FieldValue.arrayRemove([group.documentID])})
       .then((_) => setState(() {
         group.members.remove(currentUserID);
         _joined = false;
@@ -86,10 +93,47 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-      ),
+      appBar: _buildAppbar(),
       body: _buildBody(),
+    );
+  }
+
+  Widget _buildAppbar() {
+    return AppBar(
+      elevation: 0,
+      actions: <Widget>[
+        _isAdmin ?
+        Container(
+          margin: EdgeInsets.all(10),
+          child: FlatButton.icon(
+            icon: Icon(Icons.add),
+            label: Text('Disable Group'),
+            textColor: Colors.white,
+            color: GSColors.yellow,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            onPressed: () {}),
+        ) : _joined ? Container(
+          margin: EdgeInsets.all(10),
+          child: FlatButton.icon(
+            icon: Icon(Icons.add),
+            label: Text('Leave'),
+            textColor: Colors.white,
+            color: GSColors.red,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            onPressed: _leaveGroup,
+          ),
+        ) : Container(
+          margin: EdgeInsets.all(10),
+          child: FlatButton.icon(
+            icon: Icon(Icons.add),
+            label: Text('Join'),
+            textColor: Colors.white,
+            color: GSColors.lightBlue,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            onPressed: _joinGroup,
+          ),
+        ),
+      ],
     );
   }
 
@@ -99,9 +143,9 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         children: <Widget>[
           _buildHeader(),
           _buildPillNavigator(),
-          _currentTab == 0 ? _buildOverview() 
-            : _currentTab == 1 ? _buildProgress() 
-            : _buildDiscussion(),
+          _currentTab == 0 ? _buildOverviewTab() 
+            : _currentTab == 1 ? _buildChallengesTab() 
+            : _buildDiscussionTab(),
         ],
       ),
     );
@@ -112,7 +156,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       child: Stack(
         children: <Widget>[
           Container(
-            height: 360,
+            height: 320,
             decoration: ShapeDecoration(
               color: GSColors.lightBlue,
               shadows: [BoxShadow(blurRadius: 1)],
@@ -170,7 +214,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(60), bottomRight: Radius.circular(60))
               )
             ),
-            height: 320,
+            height: 280,
             child: Column(
               // crossAxisAlignment: CrossAxisAlignment,
               children: <Widget>[
@@ -237,42 +281,12 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   margin: EdgeInsets.symmetric(horizontal: 80),
                   child: Text(
                     group.status,
+                    maxLines: 3,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
                     ),
                   )
-                ),
-                _isAdmin ?
-                Container(
-                  margin: EdgeInsets.only(top: 8),
-                  child: FlatButton.icon(
-                    icon: Icon(Icons.add),
-                    label: Text('Close Group'),
-                    textColor: Colors.white,
-                    color: GSColors.yellow,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    onPressed: () {}),
-                ) : _joined ? Container(
-                  margin: EdgeInsets.only(top: 8),
-                  child: FlatButton.icon(
-                    icon: Icon(Icons.add),
-                    label: Text('Leave'),
-                    textColor: Colors.white,
-                    color: GSColors.red,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    onPressed: _leaveGroup,
-                  ),
-                ) : Container(
-                  margin: EdgeInsets.only(top: 8),
-                  child: FlatButton.icon(
-                    icon: Icon(Icons.add),
-                    label: Text('Join'),
-                    textColor: Colors.white,
-                    color: GSColors.lightBlue,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    onPressed: _joinGroup,
-                  ),
                 ),
               ],
             ),
@@ -309,14 +323,14 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               ),
             ),
           ),
-          _joined ? MaterialButton( // Progress
+          _joined ? MaterialButton( // Challenges
             onPressed: () { 
               if (_currentTab != 1) {
                 setState(() => _currentTab = 1);
               }
             },
             child: Text(
-              'Progress',
+              'Challenges',
               style: TextStyle(
                 color: _currentTab == 1 ? Colors.white : Colors.white54,
                 fontSize: 12,
@@ -342,12 +356,13 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
     );
   }
 
-  Widget _buildOverview() {
+  Widget _buildOverviewTab() {
     return Container(
       child: Column(
         children: <Widget>[
           _buildAbout(),
           _buildMembersList(),
+          _buildWorkouts(),
         ],
       )
     );
@@ -486,13 +501,294 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
     return memberAvatars;
   }
 
-  Widget _buildProgress() {
+  Widget _buildWorkouts() {
     return Container(
-      child: Text('this is progress')      
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Workouts',
+            style: TextStyle(
+              fontSize: 24,
+              letterSpacing: 1.2,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.keyboard_arrow_right),
+            onPressed: () {},
+          )
+        ],
+      ),
     );
   }
 
-  Widget _buildDiscussion() {
+  Widget _buildChallengesTab() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: <Widget>[
+          _buildChallenges(),
+          _buildLeaderboard(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChallenges() {
+      String _challengeKey = getChallengeKey(); //challenge weekly date
+      String challengeTitle, challengeUnits, challengeGoal, challengePoints;
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        children: <Widget>[
+          Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget> [
+                Text(
+                  'Challenges',
+                  style: TextStyle(
+                    fontSize: 22,
+                    letterSpacing: 1.2,
+                    fontWeight: FontWeight.bold
+                  ),
+                ), 
+                //check if admin
+                _isAdmin ? 
+                IconButton(
+                  icon: Icon(Icons.add_circle_outline),
+                  onPressed: () {
+                    showDialog(
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (BuildContext context){
+
+                  
+
+                        return AlertDialog(
+                          title: Text("For Week:  " + _challengeKey),
+                          content:
+                            Container(
+                              height: 450,
+                              width: 350,
+                              child: Scrollbar(
+                              child: ListView(
+                                children: <Widget>[
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      //Flexible(
+                                        Container(
+                                          padding: EdgeInsets.all(15.0),
+                                          child: TextField(
+                                              decoration: InputDecoration(
+                                                labelText: 'Challenge Title',
+                                                labelStyle: TextStyle(
+                                                  fontSize: 18.0,
+                                                  color: GSColors.darkBlue
+                                                ),
+                                                hintText: 'E.g. Run 20 miles',
+                                                hintStyle: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: GSColors.lightBlue
+                                                ),
+                                                contentPadding: EdgeInsets.all(10.0)
+                                              ),
+                                              onChanged: (text) {
+                                                (text!= null) ? challengeTitle = text : challengeTitle = 'error0';
+                                              },
+                                            )
+                                        ),
+
+                                        Container(
+                                          padding: EdgeInsets.all(15.0),
+                                          child: TextField(
+                                              decoration: InputDecoration(
+                                                labelText: 'Units',
+                                                labelStyle: TextStyle(
+                                                  fontSize: 18.0,
+                                                  color: GSColors.darkBlue
+                                                ),
+                                                hintText: 'E.g. Miles',
+                                                hintStyle: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: GSColors.lightBlue
+                                                ),
+                                                contentPadding: EdgeInsets.all(10.0)
+                                              ),
+                                              onChanged: (text){
+                                               (text!= null) ? challengeUnits = text : challengeUnits = 'error1';
+                                              },
+                                            )
+                                        ),
+
+                                         Container(
+                                          padding: EdgeInsets.all(15.0),
+                                          child: TextField(
+                                              keyboardType: TextInputType.number,
+                                              decoration: InputDecoration(
+                                                labelText: 'Goal (number)',
+                                                labelStyle: TextStyle(
+                                                  fontSize: 18.0,
+                                                  color: GSColors.darkBlue
+                                                ),
+                                                hintText: 'E.g. 60',
+                                                hintStyle: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: GSColors.lightBlue
+                                                ),
+                                                contentPadding: EdgeInsets.all(10.0)
+                                              ),
+                                              onChanged: (text){
+                                                (text!= null) ? challengeGoal = text : challengeGoal = 'error2';
+                                              },
+                                            )
+                                        ),
+
+                                         Container(
+                                          padding: EdgeInsets.all(15.0),
+                                          child: TextField(
+                                              keyboardType: TextInputType.number,
+                                              decoration: InputDecoration(
+                                                labelText: 'Points on completion (number)',
+                                                labelStyle: TextStyle(
+                                                  fontSize: 18.0,
+                                                  color: GSColors.darkBlue
+                                                ),
+                                                hintText: 'E.g. 20',
+                                                hintStyle: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: GSColors.lightBlue
+                                                ),
+                                                contentPadding: EdgeInsets.all(10.0)
+                                              ),
+                                              onChanged: (text){
+                                                (text!= null) ? challengePoints = text : challengePoints = 'error3';
+                                              },
+                                            )
+                                        ),
+
+                                    ],
+                                  )
+                                ],
+                              ),
+                              )
+                            ),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: const Text('Cancel'),
+                                onPressed: (){
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              FlatButton(
+                                child: const Text('Save'),
+                                onPressed: (){
+
+                                  if(challengeTitle == 'error0' || challengeUnits == 'error1' || challengeGoal == 'error2' || challengePoints == 'error3')
+                                  {
+                                   //send toast error message 
+                                  } 
+
+                                  else
+                                  {
+                                    Map<String, dynamic> newGroupChallenge;    
+                                    List<Map> membersMapList = List();
+                                    Map<String, dynamic> tempMap = Map();
+
+                                    for(int i = 0; i < group.members.length; i++)
+                                      {
+                                        tempMap = {group.members[i]: {'points' : 0}};
+                                        membersMapList.add(tempMap);
+                                      }
+
+                                    newGroupChallenge = //{_challengeKey: 
+                                      //{ challengeTitle: 
+                                        {'points' : challengePoints, 
+                                          'units' : challengeUnits,
+                                          'goal' : challengeGoal,
+                                          'members' : membersMapList
+                                          }; //}    ;            
+                                    //};        
+                                    _uploadGroupChallenge(newGroupChallenge, _challengeKey, challengeTitle);
+
+                                    Navigator.pop(context);
+                                  }
+                                }
+                              )
+                            ],
+                        );
+                      }
+                    );
+                  },
+                )
+                : Container(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _uploadGroupChallenge(Map<String, dynamic> challengeInfo, String challengeKey, String challengeTitle) async
+  {
+    DocumentSnapshot groupChallengeSnap = await Firestore.instance.collection('groups').document(group.documentID).get();
+    Map<String, dynamic> challengeMap = groupChallengeSnap.data['challenges'].cast<String, dynamic>();
+    
+    challengeMap[challengeKey][challengeTitle] = challengeInfo;
+    
+    Firestore.instance.collection('groups').document(group.documentID).updateData(
+      {'challenges' : challengeMap}
+    );
+  }
+
+  String getChallengeKey(){
+  
+  DateTime now = DateTime.now();
+  int sunday = 7;
+
+  while(now.weekday != sunday)
+  {
+    now = now.subtract(Duration(days: 1));
+  }
+
+  return now.toString().substring(0,10);
+} 
+
+  Widget _buildLeaderboard() {
+    return Container(
+      height: 200,
+      width: double.maxFinite,
+      margin: EdgeInsets.symmetric(vertical: 10),
+      decoration: ShapeDecoration(
+        color: GSColors.darkBlue,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20)
+        )
+      ),
+      child: Column(
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.symmetric(vertical: 10),
+            child: Text(
+              'Leaderboard',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                letterSpacing: 1.2,
+                fontWeight: FontWeight.bold
+              ),
+            ),
+          ),
+          // SHOW ACTUAL CONTENT HERE
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDiscussionTab() {
     return Container(
       child: Text('this is disccusion')
     );

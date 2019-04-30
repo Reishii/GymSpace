@@ -11,6 +11,7 @@ class Group {
   String startDate; //yyyy-mm-dd
   String endDate;
   String documentID;
+  bool enabled = true;
 
   // Workout currentWorkout;
   // WorkoutPlan currentWorkoutPlan;
@@ -18,6 +19,7 @@ class Group {
   List<String> likes = List();
   List<String> members = List();
   List<String> workoutPlans = List();
+  Map<String, dynamic> challenges = Map();
 
   Group({
     @required this.admin,
@@ -28,9 +30,11 @@ class Group {
     this.startDate = "",
     this.endDate = "",
     this.documentID,
+    this.enabled,
     this.likes,
     this.members,
     this.workoutPlans,
+    this.challenges,
   });
 
   Map<String, dynamic> toJSON() {
@@ -42,9 +46,11 @@ class Group {
       'status': status,
       'startDate': startDate,
       'endDate': endDate,
+      'enabled': enabled,
       'likes': likes ?? [],
       'members': members ?? [],
       'workoutPlans': workoutPlans ?? [],
+      'challenges': challenges ?? Map(),
     };
   }
 
@@ -57,9 +63,11 @@ class Group {
       status: data['status'],
       startDate: data['startDate'],
       endDate: data['endDate'],
+      enabled: data['enabled'],
       likes: data['likes'].cast<String>(),
       members: data['members'].cast<String>(),
       workoutPlans: data['workoutPlans'].cast<String>(),
+      challenges: data['challenges'].cast<String, dynamic>() ?? Map(),
     );
   }
 }
