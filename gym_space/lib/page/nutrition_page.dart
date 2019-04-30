@@ -8,30 +8,35 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
-class NutritionPage extends StatelessWidget {
-  final Widget child;
+class NutritionPage extends StatefulWidget {
+  NutritionPage(
+    {Key key}) : super(key: key);
+
+  _NutritionPage createState() => _NutritionPage();
+}
+
+
+class _NutritionPage extends State<NutritionPage> {
   Future<DocumentSnapshot> _futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
-
-  NutritionPage({Key key, this.child}) : super(key: key);
-
   String _dietKey = DateTime.now().toString().substring(0,10);
-  int _currentTab = 0;
+  int _currentDay;
+  external int get weekday;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(startPage: 3,),
       backgroundColor: GSColors.darkBlue,
-      //  floatingActionButton: FloatingActionButton(
-      //   child: Icon(
-      //     FontAwesomeIcons.plus,
-      //     size: 14,
-      //     color: Colors.white
-      //   ),
-      //   backgroundColor: GSColors.purple,
-      //   onPressed: () => _updateNutritionInfo(context)
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+       floatingActionButton: FloatingActionButton(
+        child: Icon(
+          FontAwesomeIcons.plus,
+          size: 14,
+          color: Colors.white
+        ),
+        backgroundColor: GSColors.purple,
+        onPressed: () => _updateNutritionInfo(context)
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: _buildAppBar(),
       body: _buildBody(context),
     );
@@ -53,18 +58,186 @@ class NutritionPage extends StatelessWidget {
     return Container(
       child: ListView(
         children: <Widget>[
-          _buildNutritionLabel(),
-          _buildNutritionInfo(context),
           _buildWeeklyLabel(),
           _buildWeeklyNavigator(),
+          _buildNutritionLabel(),
+          _buildNutritionInfo(context),
         ],
       ),
     );
   }
 
+  Widget _buildWeeklyLabel() {
+    return Container(
+      margin: EdgeInsets.only(top: 25),
+      height: 40,
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Container(),
+          ),
+          Expanded(
+            flex: 2,
+            child: Container(
+              alignment: Alignment.center,
+              decoration: ShapeDecoration(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    topLeft: Radius.circular(20),
+                  )
+                )
+              ),
+              child: Text(
+                "Weekly Nutrition",
+                style: TextStyle(
+                  color: GSColors.darkBlue,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWeeklyNavigator() {
+    return Container(
+      height: 80, 
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          StreamBuilder(
+            stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+            builder: (context, snapshot) {
+              if(!snapshot.hasData)
+                return Container();
+
+              User user = User.jsonToUser(snapshot.data.data);
+              return _buildWeeklyCircularProgress(user, snapshot);
+            }
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWeeklyCircularProgress(User user, AsyncSnapshot<dynamic> snapshot) {
+
+    // ******* MONDAY ********
+    if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] <= snapshot.data['caloricGoal']) {
+      return InkWell(
+        // MONDAY
+        child: CircularPercentIndicator(
+          animation: true,
+          radius: 45.0,
+          lineWidth: 5.0,
+          percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal'],
+          progressColor: GSColors.lightBlue,
+          backgroundColor: GSColors.darkCloud,
+          circularStrokeCap: CircularStrokeCap.round,
+          header:   
+            Text(
+              "M",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+          ),
+          center: 
+            Text(
+              (100.0 * snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
+          )
+        ),
+        onTap: () {
+          // Set state to MONDAY
+          if(_currentDay != 1) 
+            setState(() => _currentDay = 1);
+          },
+      );
+    }
+
+    else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] > snapshot.data['caloricGoal']) {
+      return InkWell(
+        child: CircularPercentIndicator(
+          radius: 45.0,
+          lineWidth: 4.0,  
+          percent: 1.0,
+          progressColor: Colors.green,
+          backgroundColor: GSColors.darkCloud,
+          center: Text ( 
+            "100%",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
+          ),
+          header:   
+            Text(
+              "M",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+            ),
+        ),
+        onTap: () {
+          // Set state to MONDAY
+          if(_currentDay != 1) 
+            setState(() => _currentDay = 1);
+          },
+      );
+    }
+
+    else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] == 0) {
+      return InkWell(
+        child: CircularPercentIndicator(
+          radius: 45.0,
+          lineWidth: 4.0,  
+          percent: 0.0,
+          progressColor: GSColors.darkCloud,
+          backgroundColor: GSColors.darkCloud,
+          center: Text ( 
+            "0%",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
+          ),
+          header:   
+            Text(
+              "M",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+            ),
+        ),
+        onTap: () {
+          // Set state to MONDAY
+          if(_currentDay != 1) 
+            setState(() => _currentDay = 1);
+          },
+      );
+    }
+
+    else {
+      return InkWell(
+        child: CircularPercentIndicator(
+          radius: 45.0,
+          lineWidth: 4.0,  
+          percent: 0,
+          progressColor: GSColors.darkCloud,
+          backgroundColor: GSColors.darkCloud,
+          header:   
+            Text(
+              "M",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+            ),
+        ),
+        onTap: () {
+          // Set state to MONDAY
+          if(_currentDay != 1) 
+            setState(() => _currentDay = 1);
+        },
+      );
+    }
+  }
+
   Widget _buildNutritionLabel() {
     return Container(
-      margin: EdgeInsets.only(top: 30),
       child: Row(
         children: <Widget>[ 
           Expanded(
@@ -129,7 +302,7 @@ class NutritionPage extends StatelessWidget {
     return Container(
       //onTap: () => print("Open nutrition info"),
       child: Container(
-        margin: EdgeInsets.only(top: 25),
+        margin: EdgeInsets.only(top: 20),
         child: Row(
           children: <Widget>[
             Expanded(
@@ -618,142 +791,6 @@ class NutritionPage extends StatelessWidget {
           )
         ],
       )
-    );
-  }
-
-  Widget _buildWeeklyLabel() {
-    return Container(
-      margin: EdgeInsets.only(top: 25),
-      height: 40,
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Container(),
-          ),
-          Expanded(
-            flex: 2,
-            child: Container(
-              alignment: Alignment.center,
-              decoration: ShapeDecoration(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    topLeft: Radius.circular(20),
-                  )
-                )
-              ),
-              child: Text(
-                "Weekly Nutrition",
-                style: TextStyle(
-                  color: GSColors.darkBlue,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWeeklyNavigator() {
-    return Container(
-      height: 80, 
-      margin: EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          StreamBuilder(
-            stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-            builder: (context, snapshot) {
-              if(!snapshot.hasData)
-                return Container();
-
-              User user = User.jsonToUser(snapshot.data.data);
-              if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] <= snapshot.data['caloricGoal']) {
-                return CircularPercentIndicator(
-                  animation: true,
-                  radius: 45.0,
-                  lineWidth: 5.0,
-                  percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal'],
-                  progressColor: GSColors.lightBlue,
-                  backgroundColor: GSColors.darkCloud,
-                  circularStrokeCap: CircularStrokeCap.round,
-                  header:   
-                    Text(
-                      "M",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-                    ),
-                  center: 
-                    Text(
-                      (100.0 * snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-
-                  ),
-                );
-              }
-        
-              else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] > snapshot.data['caloricGoal']) {
-                return CircularPercentIndicator(
-                  radius: 45.0,
-                  lineWidth: 4.0,  
-                  percent: 1.0,
-                  progressColor: Colors.green,
-                  backgroundColor: GSColors.darkCloud,
-                  center: Text ( 
-                    "100%",
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-                  ),
-                  header:   
-                    Text(
-                      "M",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-                    ),
-                  
-                );
-              }
-
-              else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] == 0) {
-                return CircularPercentIndicator(
-                  radius: 45.0,
-                  lineWidth: 4.0,  
-                  percent: 0.0,
-                  progressColor: GSColors.darkCloud,
-                  backgroundColor: GSColors.darkCloud,
-                  center: Text ( 
-                    "0%",
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-                  ),
-                  header:   
-                    Text(
-                      "M",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-                    ),
-                );
-              }
-
-              else {
-                return CircularPercentIndicator(
-                  radius: 45.0,
-                  lineWidth: 4.0,  
-                  percent: 0,
-                  progressColor: GSColors.darkCloud,
-                  backgroundColor: GSColors.darkCloud,
-                  header:   
-                    Text(
-                      "M",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-                    ),
-                );
-              }
-            }
-          ),
-        ],
-      ),
     );
   }
 
