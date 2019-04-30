@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/group.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class GroupProfilePage extends StatefulWidget {
   Group group;
@@ -33,6 +34,12 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
   Future<void> _likeGroup() async {
     if (group.likes.contains(DatabaseHelper.currentUserID)) {
+      Fluttertoast.showToast(
+        msg: 'Already Liked!', 
+        fontSize: 14, 
+        backgroundColor: GSColors.purple,
+        textColor: Colors.white,
+      );
       return;
     }
 

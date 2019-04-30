@@ -19,6 +19,7 @@ class Group {
   List<String> likes = List();
   List<String> members = List();
   List<String> workoutPlans = List();
+  Map<String, dynamic> challenges = Map();
 
   Group({
     @required this.admin,
@@ -33,6 +34,7 @@ class Group {
     this.likes,
     this.members,
     this.workoutPlans,
+    this.challenges,
   });
 
   Map<String, dynamic> toJSON() {
@@ -48,6 +50,7 @@ class Group {
       'likes': likes ?? [],
       'members': members ?? [],
       'workoutPlans': workoutPlans ?? [],
+      'challenges': challenges ?? Map(),
     };
   }
 
@@ -64,6 +67,7 @@ class Group {
       likes: data['likes'].cast<String>(),
       members: data['members'].cast<String>(),
       workoutPlans: data['workoutPlans'].cast<String>(),
+      challenges: data['challenges'].cast<String, dynamic>() ?? Map(),
     );
   }
 }
