@@ -309,46 +309,78 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       child: Row(
         mainAxisAlignment: _joined ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
         children: <Widget>[
-          MaterialButton( // overview
-            onPressed: () { 
-              if (_currentTab != 0) {
-                setState(() => _currentTab = 0);
-              }
-            },
-            child: Text(
-              'Overview',
-              style: TextStyle(
-                color: _currentTab == 0 ? Colors.white : Colors.white54,
-                fontSize: 12,
+          Container(
+            height: 40,
+            decoration: ShapeDecoration(
+              color: _currentTab == 0 ? GSColors.lightBlue : GSColors.darkBlue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
               ),
+            ),
+              child: MaterialButton( // overview
+              onPressed: () { 
+                if (_currentTab != 0) {
+                  setState(() => _currentTab = 0);
+                }
+              },
+              child: Text(
+                'Overview',
+                style: TextStyle(
+                color: _currentTab == 0 ? GSColors.darkBlue : Colors.white54,
+                fontSize: 14,
+                letterSpacing: 1.0,
+                fontWeight: FontWeight.w700,
+              )),
             ),
           ),
-          _joined ? MaterialButton( // Challenges
-            onPressed: () { 
-              if (_currentTab != 1) {
-                setState(() => _currentTab = 1);
-              }
-            },
-            child: Text(
-              'Challenges',
-              style: TextStyle(
-                color: _currentTab == 1 ? Colors.white : Colors.white54,
-                fontSize: 12,
+
+          _joined ? Container(
+            height: 40,
+            decoration: ShapeDecoration(
+              color: _currentTab == 1 ? GSColors.lightBlue : GSColors.darkBlue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
               ),
             ),
+            child: MaterialButton( // Challenges
+              onPressed: () { 
+                if (_currentTab != 1) {
+                  setState(() => _currentTab = 1);
+                }
+              },
+              child: Text(
+                'Challenges',
+                style: TextStyle(
+                color: _currentTab == 1 ? GSColors.darkBlue : Colors.white54,
+                fontSize: 14,
+                letterSpacing: 1.0,
+                fontWeight: FontWeight.w700,
+              )),
+            ),
           ) : Container(),
-          _joined ? MaterialButton( // Discussion
-            onPressed: () { 
-              if (_currentTab != 2) {
-                setState(() => _currentTab = 2);
-              }
-            },
-            child: Text(
-              'Discussion',
-              style: TextStyle(
-                color: _currentTab == 2 ? Colors.white : Colors.white54,
-                fontSize: 12,
+
+          _joined ? Container(
+            height: 40,
+            decoration: ShapeDecoration(
+              color: _currentTab == 2 ? GSColors.lightBlue : GSColors.darkBlue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
               ),
+            ),
+            child: MaterialButton( // Discussion
+              onPressed: () { 
+                if (_currentTab != 2) {
+                  setState(() => _currentTab = 2);
+                }
+              },
+              child: Text(
+                'Discussion',
+                style: TextStyle(
+                color: _currentTab == 2 ? GSColors.darkBlue : Colors.white54,
+                fontSize: 14,
+                letterSpacing: 1.0,
+                fontWeight: FontWeight.w700,
+              )),
             ),
           ) : Container(),
         ],

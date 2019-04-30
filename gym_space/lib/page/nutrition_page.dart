@@ -7,14 +7,22 @@ import 'package:GymSpace/misc/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:intl/intl.dart';
 
-class NutritionPage extends StatelessWidget {
-  final Widget child;
+class NutritionPage extends StatefulWidget {
+  NutritionPage(
+    {Key key}) : super(key: key);
+
+  _NutritionPage createState() => _NutritionPage();
+}
+
+
+class _NutritionPage extends State<NutritionPage> {
   Future<DocumentSnapshot> _futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
-
-  NutritionPage({Key key, this.child}) : super(key: key);
-
   String _dietKey = DateTime.now().toString().substring(0,10);
+  var day = DateTime.now();
+  int _currentDay;
+  external int get weekday;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +38,7 @@ class NutritionPage extends StatelessWidget {
         backgroundColor: GSColors.purple,
         onPressed: () => _updateNutritionInfo(context)
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: _buildAppBar(),
       body: _buildBody(context),
     );
@@ -52,6 +60,8 @@ class NutritionPage extends StatelessWidget {
     return Container(
       child: ListView(
         children: <Widget>[
+          _buildWeeklyLabel(),
+          _buildWeeklyNavigator(),
           _buildNutritionLabel(),
           _buildNutritionInfo(context),
         ],
@@ -59,9 +69,202 @@ class NutritionPage extends StatelessWidget {
     );
   }
 
+  Widget _buildWeeklyLabel() {
+    return Container(
+      margin: EdgeInsets.only(top: 25),
+      height: 40,
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Container(),
+          ),
+          Expanded(
+            flex: 2,
+            child: Container(
+              alignment: Alignment.center,
+              decoration: ShapeDecoration(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    topLeft: Radius.circular(20),
+                  )
+                )
+              ),
+              child: Text(
+                "Weekly Nutrition",
+                style: TextStyle(
+                  color: GSColors.darkBlue,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWeeklyNavigator() {
+    return Container(
+      height: 100, 
+      margin: EdgeInsets.symmetric(vertical: 5),
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.only(left: 12),
+              itemCount: 7,
+              itemBuilder: (BuildContext context, int i) {
+
+              return StreamBuilder(
+                stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                builder: (context, snapshot) {
+                  if(!snapshot.hasData)
+                    return Container();
+
+                    User user = User.jsonToUser(snapshot.data.data);
+                    return _buildWeeklyCircularProgress(user, snapshot);
+                  }
+                );
+              }
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWeeklyCircularProgress(User user, AsyncSnapshot<dynamic> snapshot) {
+
+    // ******* MONDAY ********
+    if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] <= snapshot.data['caloricGoal']) {
+      return Container(
+        margin: EdgeInsets.only(right: 12),
+        child: InkWell(
+          child: CircularPercentIndicator(
+            animation: true,
+            radius: 45.0,
+            lineWidth: 5.0,
+            percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal'],
+            progressColor: GSColors.lightBlue,
+            backgroundColor: GSColors.darkCloud,
+            circularStrokeCap: CircularStrokeCap.round,
+            header:   
+              Text(
+                "M",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+            ),
+            center: 
+              Text(
+                (100.0 * snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
+            )
+          ),
+          onTap: () {
+            // Set state to MONDAY
+            if(_currentDay != 1) 
+              setState(() => _currentDay = 1);
+          },
+        ),
+      );
+    }
+
+    else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] > snapshot.data['caloricGoal']) {
+      return Container(
+        margin: EdgeInsets.only(right: 12),
+        child: InkWell(
+          child: CircularPercentIndicator(
+            radius: 45.0,
+            lineWidth: 4.0,  
+            percent: 1.0,
+            progressColor: Colors.green,
+            backgroundColor: GSColors.darkCloud,
+            center: Text ( 
+              ">100%",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
+            ),
+            header:   
+              Text(
+                "M",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              ),
+          ),
+          onTap: () {
+            // Set state to MONDAY
+            if(_currentDay != 1) 
+              setState(() => _currentDay = 1);
+          },
+        ),
+      );
+    }
+
+    else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] == 0) {
+      return Container(
+        margin: EdgeInsets.only(right: 12),
+        child: InkWell(
+          child: CircularPercentIndicator(
+            radius: 45.0,
+            lineWidth: 4.0,  
+            percent: 0.0,
+            progressColor: GSColors.darkCloud,
+            backgroundColor: GSColors.darkCloud,
+            center: Text ( 
+              "0%",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
+            ),
+            header:   
+              Text(
+                "M",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              ),
+          ),
+          onTap: () {
+            // Set state to MONDAY
+            if(_currentDay != 1) 
+              setState(() => _currentDay = 1);
+          },
+        ),
+      );
+    }
+
+    else {
+      return Container(
+        margin: EdgeInsets.only(right: 12),
+        child: InkWell(
+          child: CircularPercentIndicator(
+            radius: 45.0,
+            lineWidth: 4.0,  
+            percent: 0,
+            progressColor: GSColors.darkCloud,
+            backgroundColor: GSColors.darkCloud,
+            header:   
+              Text(
+                "M",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              ),
+            center: 
+              Text(
+                "0%",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              ),
+          ),
+          onTap: () {
+            // Set state to MONDAY
+            if(_currentDay != 1) 
+              setState(() => _currentDay = 1);
+          },
+        ),
+      );
+    }
+  }
+
   Widget _buildNutritionLabel() {
     return Container(
-      margin: EdgeInsets.only(top: 30),
       child: Row(
         children: <Widget>[ 
           Expanded(
@@ -71,7 +274,9 @@ class NutritionPage extends StatelessWidget {
               child: Container(
                 alignment: Alignment.center,
                 child: Text(
-                  "Daily Nutrition",
+                  //day.weekday.toString(),
+                  // Get day of current nutrition thing
+                  DateFormat('EEEE, MMMM dd, y').format(day),
                   style: TextStyle(
                     color: GSColors.darkBlue,
                     fontSize: 16,
@@ -100,7 +305,7 @@ class NutritionPage extends StatelessWidget {
     );
   }
 
-Future<void> _checkDailyMacrosExist() async{
+  Future<void> _checkDailyMacrosExist() async{
   List<int> newMacros = new List(5);
 
   DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
@@ -114,7 +319,6 @@ Future<void> _checkDailyMacrosExist() async{
     newMacros[3] = 0;   //current calories
     newMacros[4] = 0;   //caloric goal
 
-
     macroFromDB[_dietKey] = newMacros;
 
     Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
@@ -122,13 +326,12 @@ Future<void> _checkDailyMacrosExist() async{
   }
 }
 
-
-   Widget _buildNutritionInfo(BuildContext context) {
+  Widget _buildNutritionInfo(BuildContext context) {
   _checkDailyMacrosExist();
-    return InkWell(
+    return Container(
       //onTap: () => print("Open nutrition info"),
       child: Container(
-        margin: EdgeInsets.only(top: 30),
+        margin: EdgeInsets.only(top: 20),
         child: Row(
           children: <Widget>[
             Expanded(
@@ -154,14 +357,15 @@ Future<void> _checkDailyMacrosExist() async{
                       }
                       User user = User.jsonToUser(snapshot.data.data);
                       
-                      if(user.diet[_dietKey] != null && snapshot.data['diet'][_dietKey][4] > 0)
+                      //if(user.diet[_dietKey] != null && snapshot.data['diet'][_dietKey][4] > 0)
+                      if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] <= snapshot.data['caloricGoal'])
                       {
                         return CircularPercentIndicator(
                           animation: true,
                           radius: 130.0,
                           lineWidth: 17,
-                          percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['diet'][_dietKey][4] <= 1.0 ? snapshot.data['diet'][_dietKey][3] / snapshot.data['diet'][_dietKey][4] : 1.0,
-                          progressColor: Colors.green,
+                          percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal'],
+                          progressColor: GSColors.lightBlue,
                           backgroundColor: GSColors.darkCloud,
                           circularStrokeCap: CircularStrokeCap.round,
                           footer:   
@@ -171,20 +375,66 @@ Future<void> _checkDailyMacrosExist() async{
                             ),
                           center: 
                             Text(
-                              snapshot.data['diet'][_dietKey][3] / snapshot.data['diet'][_dietKey][4] <= 1.0 ? (100.0 * snapshot.data['diet'][_dietKey][3] / snapshot.data['diet'][_dietKey][4]).toStringAsFixed(0) + "%" : "0%",
+                              (100.0 * snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
                               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20.0),
 
                           ),
                         );
                       }
+                      
+                      else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] > snapshot.data['caloricGoal'])
+                      {
+                        return CircularPercentIndicator(
+                          radius: 130.0,
+                          lineWidth: 17,  
+                          percent: 1.0,
+                          progressColor: Colors.green,
+                          backgroundColor: GSColors.darkCloud,
+                          center: Text ( 
+                            "100%",
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20.0),
+                          ),
+                          footer:   
+                            Text(
+                              "Daily Caloric Goal",
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
+                          
+                        );
+                      }
+                      else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] == 0)
+                      {
+                        return CircularPercentIndicator(
+                          radius: 130.0,
+                          lineWidth: 17,  
+                          percent: 0.0,
+                          progressColor: GSColors.darkCloud,
+                          backgroundColor: GSColors.darkCloud,
+                          center: Text ( 
+                            "No Caloric Goal",
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10.0),
+                          ),
+                          footer:   
+                            Text(
+                              "Daily Caloric Goal",
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
+                        );
+                      }
+
                       else
                       {
                         return CircularPercentIndicator(
                           radius: 130.0,
                           lineWidth: 17,  
                           percent: 0,
-                          progressColor: Colors.green,
-                          backgroundColor: GSColors.darkCloud
+                          progressColor: GSColors.darkCloud,
+                          backgroundColor: GSColors.darkCloud,
+                          footer:   
+                            Text(
+                              "Daily Caloric Goal",
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
                         );
                       }
     
@@ -211,12 +461,12 @@ Future<void> _checkDailyMacrosExist() async{
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(top: 10, bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Protein: ",
-                                  style: TextStyle(color: Colors.white)),
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -229,26 +479,29 @@ Future<void> _checkDailyMacrosExist() async{
                                 {
                                   return Text(
                                     '0 g ',
-                                      style: TextStyle(color: Colors.white));                        
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                                  );                        
                                 }
                                 else
                                 {
                                   return Text(
                                     '${user.diet[_dietKey][0].toString()} g ',
-                                      style: TextStyle(color: Colors.white));
-                                } 
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                                  );
+                                }
+                              
                               }
                             )
                           ],
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Carbs: ",
-                                      style: TextStyle(color: Colors.white)),
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -261,14 +514,15 @@ Future<void> _checkDailyMacrosExist() async{
                                 {
                                   return Text(  
                                     '0 g ',
-                                      style: TextStyle(color: Colors.white),
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
                                   );                        
                                 }
                                 else
                                 {
                                   return Text(
                                     '${user.diet[_dietKey][1].toString()} g ',
-                                      style: TextStyle(color: Colors.white));
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                                  );
                                 } 
                               }
                             )
@@ -276,12 +530,12 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Fats: ",
-                                  style: TextStyle(color: Colors.white)),
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -294,45 +548,15 @@ Future<void> _checkDailyMacrosExist() async{
                                 {
                                   return Text(
                                     '0 g ',
-                                      style: TextStyle(color: Colors.white));                        
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                                  );                        
                                 }
                                 else
                                 {
                                   return Text(
                                     '${user.diet[_dietKey][2].toString()} g ',
-                                      style: TextStyle(color: Colors.white));
-                                }
-                              }
-                            )
-                          ],
-                        )
-                      ),
-                      Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Daily Calories: ",
-                                  style: TextStyle(color: Colors.white)),
-                            StreamBuilder(
-                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData) {
-                                  return Container();
-                                }
-                                User user = User.jsonToUser(snapshot.data.data);
-
-                                if(user.diet[_dietKey] == null)
-                                {
-                                  return Text(
-                                    '0 ',
-                                      style: TextStyle(color: Colors.white));                        
-                                }
-                                else
-                                {
-                                  return Text(
-                                    '${user.diet[_dietKey][3].toString()} ',
-                                      style: TextStyle(color: Colors.white));
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                                  );
                                 }
                               
                               }
@@ -341,12 +565,12 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text("Caloric Goal: ",
-                                  style: TextStyle(color: Colors.white)),
+                            Text("Daily Calories: ",
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -359,19 +583,75 @@ Future<void> _checkDailyMacrosExist() async{
                                 {
                                   return Text(
                                     '0 ',
-                                      style: TextStyle(color: Colors.white));                        
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                                  );                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_dietKey][4].toString()} ',
-                                      style: TextStyle(color: Colors.white));
+                                    '${user.diet[_dietKey][3].toString()} ',
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                                  );
                                 }
+                              
                               }
                             )
                           ],
                         )
                       ),
+                      Container(
+                        margin:EdgeInsets.only(right: 15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Caloric Goal: ",
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                            StreamBuilder(
+                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Container();
+                                }
+                                User user = User.jsonToUser(snapshot.data.data);
+
+                                  if(user.caloricGoal == null)
+                                  {
+                                    return Text('0 ',
+                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500));
+                                  }
+                                  else
+                                  {
+                                    return Text('${user.caloricGoal.toString()}',
+                                      style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.w500));
+                                  }
+                                // if(user.diet[_dietKey] == null)
+                                // {
+                                //   return Text(
+                                //     '0 '
+                                //   );                        
+                                // }
+                                // else
+                                // {
+                                //   return Text(
+                                //     '${user.diet[_dietKey][4].toString()} '
+                                //   );
+                                //}
+                              }
+                            )
+                          ],
+                        )
+                      ),
+                      // Container(
+                      //   margin: EdgeInsets.only(top: 5, left: 55),
+                      //   child: MaterialButton(
+                      //     child: Icon(
+                      //       Icons.add_circle,
+                      //       color: Colors.green.withAlpha(220),
+                      //       size: 40,
+                      //     ),
+                      //     onPressed: () {_updateNutritionInfo(context);},
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -380,9 +660,7 @@ Future<void> _checkDailyMacrosExist() async{
           ],
         )
       ),
-      // onLongPress: () =>
-      //   _updateNutritionInfo(context),
-    );
+    ); 
   }
 
   void  _updateNutritionInfo(BuildContext context) async{
@@ -542,6 +820,12 @@ Future<void> _checkDailyMacrosExist() async{
           )
         ],
       )
+    );
+  }
+
+  Widget _buildWeeklyInfo(BuildContext context) {
+    return Container(
+      
     );
   }
 }
