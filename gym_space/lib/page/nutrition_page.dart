@@ -7,6 +7,7 @@ import 'package:GymSpace/misc/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:intl/intl.dart';
 
 class NutritionPage extends StatefulWidget {
   NutritionPage(
@@ -19,6 +20,7 @@ class NutritionPage extends StatefulWidget {
 class _NutritionPage extends State<NutritionPage> {
   Future<DocumentSnapshot> _futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
   String _dietKey = DateTime.now().toString().substring(0,10);
+  var day = DateTime.now();
   int _currentDay;
   external int get weekday;
 
@@ -108,20 +110,29 @@ class _NutritionPage extends State<NutritionPage> {
 
   Widget _buildWeeklyNavigator() {
     return Container(
-      height: 80, 
-      margin: EdgeInsets.symmetric(vertical: 10),
+      height: 100, 
+      margin: EdgeInsets.symmetric(vertical: 5),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          StreamBuilder(
-            stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-            builder: (context, snapshot) {
-              if(!snapshot.hasData)
-                return Container();
+          Expanded(
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.only(left: 12),
+              itemCount: 7,
+              itemBuilder: (BuildContext context, int i) {
 
-              User user = User.jsonToUser(snapshot.data.data);
-              return _buildWeeklyCircularProgress(user, snapshot);
-            }
+              return StreamBuilder(
+                stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                builder: (context, snapshot) {
+                  if(!snapshot.hasData)
+                    return Container();
+
+                    User user = User.jsonToUser(snapshot.data.data);
+                    return _buildWeeklyCircularProgress(user, snapshot);
+                  }
+                );
+              }
+            ),
           ),
         ],
       ),
@@ -132,32 +143,34 @@ class _NutritionPage extends State<NutritionPage> {
 
     // ******* MONDAY ********
     if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] <= snapshot.data['caloricGoal']) {
-      return InkWell(
-        // MONDAY
-        child: CircularPercentIndicator(
-          animation: true,
-          radius: 45.0,
-          lineWidth: 5.0,
-          percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal'],
-          progressColor: GSColors.lightBlue,
-          backgroundColor: GSColors.darkCloud,
-          circularStrokeCap: CircularStrokeCap.round,
-          header:   
-            Text(
-              "M",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+      return Container(
+        margin: EdgeInsets.only(right: 12),
+        child: InkWell(
+          child: CircularPercentIndicator(
+            animation: true,
+            radius: 45.0,
+            lineWidth: 5.0,
+            percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal'],
+            progressColor: GSColors.lightBlue,
+            backgroundColor: GSColors.darkCloud,
+            circularStrokeCap: CircularStrokeCap.round,
+            header:   
+              Text(
+                "M",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+            ),
+            center: 
+              Text(
+                (100.0 * snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
+            )
           ),
-          center: 
-            Text(
-              (100.0 * snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-          )
-        ),
-        onTap: () {
-          // Set state to MONDAY
-          if(_currentDay != 1) 
-            setState(() => _currentDay = 1);
+          onTap: () {
+            // Set state to MONDAY
+            if(_currentDay != 1) 
+              setState(() => _currentDay = 1);
           },
+        ),
       );
     }
 
@@ -247,7 +260,9 @@ class _NutritionPage extends State<NutritionPage> {
               child: Container(
                 alignment: Alignment.center,
                 child: Text(
-                  "Daily Nutrition",
+                  //day.weekday.toString(),
+                  // Get day of current nutrition thing
+                  DateFormat('EEEE, MMMM dd, y').format(day),
                   style: TextStyle(
                     color: GSColors.darkBlue,
                     fontSize: 16,
@@ -612,17 +627,17 @@ class _NutritionPage extends State<NutritionPage> {
                           ],
                         )
                       ),
-                      Container(
-                        margin: EdgeInsets.only(top: 5, left: 55),
-                        child: MaterialButton(
-                          child: Icon(
-                            Icons.add_circle,
-                            color: Colors.green.withAlpha(220),
-                            size: 40,
-                          ),
-                          onPressed: () {_updateNutritionInfo(context);},
-                        ),
-                      ),
+                      // Container(
+                      //   margin: EdgeInsets.only(top: 5, left: 55),
+                      //   child: MaterialButton(
+                      //     child: Icon(
+                      //       Icons.add_circle,
+                      //       color: Colors.green.withAlpha(220),
+                      //       size: 40,
+                      //     ),
+                      //     onPressed: () {_updateNutritionInfo(context);},
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
