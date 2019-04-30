@@ -32,6 +32,7 @@ dependencies:
   fancy_bottom_navigation: ^0.3.2 # for the nice bottom nav bar
   font_awesome_flutter: ^8.4.0
 
+  percent_indicator: ^1.0.16
 
 
 

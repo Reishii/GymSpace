@@ -1,4 +1,5 @@
 import 'package:GymSpace/logic/user.dart';
+import 'package:GymSpace/page/nutrition_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
@@ -10,6 +11,9 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:percent_indicator/percent_indicator.dart';
+
+
 
 class MePage extends StatelessWidget {
   final Widget child;
@@ -19,8 +23,8 @@ class MePage extends StatelessWidget {
 
   File imageFile;
   String imageUrl;
-  String _myKey = DateTime.now().toString().substring(0,10);
-
+  String _dietKey = DateTime.now().toString().substring(0,10);
+  String _challengeKey;
 
   @override
   Widget build(BuildContext context) {
@@ -180,7 +184,8 @@ class MePage extends StatelessWidget {
           _buildTodaysEventsLabel(),
           _buildTodaysEventsInfo(),
           _buildChallengesLabel(),
-          _buildChallengesInfo()
+          _buildChallengesInfo(context),
+          _buildChallengeProgess(context)
         ],
       ),
     );
@@ -227,18 +232,19 @@ class MePage extends StatelessWidget {
   }
 
 Future<void> _checkDailyMacrosExist() async{
-  List<int> newMacros = new List(3);
+  List<int> newMacros = new List(4);
 
   DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
   var macroFromDB = macroDoc.data['diet'];
  
-  if(macroFromDB[_myKey] == null)
+  if(macroFromDB[_dietKey] == null)
   {
-    newMacros[0] = 0;
-    newMacros[1] = 0;
-    newMacros[2] = 0;
-
-    macroFromDB[_myKey] = newMacros;
+    newMacros[0] = 0;   //protein
+    newMacros[1] = 0;   //carbs
+    newMacros[2] = 0;   //fats
+    newMacros[3] = 0;   //current calories
+    //newMacros[4] = 0;   //caloric goal
+    macroFromDB[_dietKey] = newMacros;
 
     Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
               {'diet': macroFromDB});
@@ -247,7 +253,6 @@ Future<void> _checkDailyMacrosExist() async{
 
 
   Widget _buildNutritionInfo(BuildContext context) {
-  print("1****************************************************************************");
   _checkDailyMacrosExist();
     return InkWell(
       //onTap: () => print("Open nutrition info"),
@@ -256,18 +261,120 @@ Future<void> _checkDailyMacrosExist() async{
         child: Row(
           children: <Widget>[
             Expanded(
-              flex: 2,
+              flex: 1,
               child: Container(
-                height: 140,
+                height: 180,
                 child: Container(
-                  decoration: ShapeDecoration(
-                    shape: CircleBorder(
-                      side: BorderSide(
-                        width: 16,
-                        color: GSColors.darkBlue
-                      )
-                    )
-                  ),
+                //  child:  CircularPercentIndicator(
+                //           radius: 120.0,
+                //           lineWidth: 10,
+                //           percent: 0.8,
+                //           progressColor: Colors.green,
+                //           backgroundColor: GSColors.darkCloud,
+                //           animateFromLastPercent: true,
+                //           animation: true
+                //         ),
+                  child: StreamBuilder(
+                    stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                    builder: (context, snapshot){ 
+                      if(!snapshot.hasData)
+                      {
+                        return Container();
+                      }
+                      User user = User.jsonToUser(snapshot.data.data);
+                      
+                      //if(user.diet[_dietKey] != null && snapshot.data['diet'][_dietKey][4] > 0)
+                      if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] <= snapshot.data['caloricGoal'])
+                      {
+                        return CircularPercentIndicator(
+                          animation: true,
+                          radius: 130.0,
+                          lineWidth: 17,
+                          percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal'],
+                          progressColor: GSColors.lightBlue,
+                          backgroundColor: GSColors.darkCloud,
+                          circularStrokeCap: CircularStrokeCap.round,
+                          footer:   
+                            Text(
+                              "Daily Caloric Goal",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
+                          center: 
+                            Text(
+                              (100.0 * snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+
+                          ),
+                        );
+                      }
+                      
+                      else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] > snapshot.data['caloricGoal'])
+                      {
+                        return CircularPercentIndicator(
+                          radius: 130.0,
+                          lineWidth: 17,  
+                          percent: 1.0,
+                          progressColor: Colors.green,
+                          backgroundColor: GSColors.darkCloud,
+                          center: Text ( 
+                            "100%",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                          ),
+                          footer:   
+                            Text(
+                              "Daily Caloric Goal",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
+                          
+                        );
+                      }
+                      else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] == 0)
+                      {
+                        return CircularPercentIndicator(
+                          radius: 130.0,
+                          lineWidth: 17,  
+                          percent: 0.0,
+                          progressColor: GSColors.darkCloud,
+                          backgroundColor: GSColors.darkCloud,
+                          center: Text ( 
+                            "No Caloric Goal",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+                          ),
+                          footer:   
+                            Text(
+                              "Daily Caloric Goal",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
+                        );
+                      }
+
+                      else
+                      {
+                        return CircularPercentIndicator(
+                          radius: 130.0,
+                          lineWidth: 17,  
+                          percent: 0,
+                          progressColor: GSColors.darkCloud,
+                          backgroundColor: GSColors.darkCloud,
+                          footer:   
+                            Text(
+                              "Daily Caloric Goal",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
+                        );
+                      }
+    
+                    }
+                  )
+
+                  // decoration: ShapeDecoration(
+                  //   shape: CircleBorder(
+                  //     side: BorderSide(
+                  //       width: 16,
+                  //       color: GSColors.darkBlue
+                  //     )
+                  //   )
+                  // ),
                 )
               ),
             ),
@@ -293,36 +400,21 @@ Future<void> _checkDailyMacrosExist() async{
                                 }
                                 User user = User.jsonToUser(snapshot.data.data);
 
-                                if(user.diet[_myKey] == null)
+                                if(user.diet[_dietKey] == null)
                                 {
                                   return Text(
-                                    '0 g'
+                                    '0 g '
                                   );                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_myKey][0].toString()} g'
+                                    '${user.diet[_dietKey][0].toString()} g '
                                   );
                                 }
-                                
-                                // return Text(
-                                //   '${user.diet[_myKey][0].toString()} g' ?? 'moo'
-                                // );
+                              
                               }
                             )
-                            
-                            // FutureBuilder(
-                            //   future: _futureUser,
-                            //   builder: (context, snapshot) => 
-                            //     Text(
-                            //       //snapshot.hasData ? snapshot.data['diet'][_myKey][0].toString() + " g": "0 g",
-                            //       snapshot.data['diet'][_myKey] != null ? snapshot.data['diet'][_myKey][0].toString() + " g": "0 g",
-                            //       maxLines: 1,
-                            //       softWrap: false,
-                            //     )
-
-                            // ),
                           ],
                         )
                       ),
@@ -340,38 +432,24 @@ Future<void> _checkDailyMacrosExist() async{
                                 }
                                 User user = User.jsonToUser(snapshot.data.data);
                                
-                               if(user.diet[_myKey] == null)
+                               if(user.diet[_dietKey] == null)
                                 {
                                   return Text(  
-                                    '0 g'
+                                    '0 g '
                                   );                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_myKey][1].toString()} g'
+                                    '${user.diet[_dietKey][1].toString()} g '
                                   );
-                                }
-                               
-                                // return Text(
-                                //   '${user.diet[_myKey][1].toString()} g' ?? '0 g'
-                                // );
+                                } 
                               }
                             )
-                            // FutureBuilder(
-                            //   future: _futureUser,
-                            //   builder: (context, snapshot) => 
-
-                            //     Text(
-                            //       //snapshot.hasData ? snapshot.data['diet'][_myKey][1].toString() + " g": "0 g",
-                            //       snapshot.data['diet'][_myKey] != null ? snapshot.data['diet'][_myKey][1].toString() + " g": "0 g",
-                            //       maxLines: 1,
-                            //       softWrap: false,
-                            //     )
-                            // ),
                           ],
                         )
-                      ),Container(
+                      ),
+                      Container(
                         margin:EdgeInsets.symmetric(vertical: 5),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -385,34 +463,92 @@ Future<void> _checkDailyMacrosExist() async{
                                 }
                                 User user = User.jsonToUser(snapshot.data.data);
                                 
-                                if(user.diet[_myKey] == null)
+                                if(user.diet[_dietKey] == null)
                                 {
                                   return Text(
-                                    '0 g'
+                                    '0 g '
                                   );                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_myKey][2].toString()} g'
+                                    '${user.diet[_dietKey][2].toString()} g '
                                   );
                                 }
-                                
-                                // return Text(
-                                //   '${user.diet[_myKey][2].toString()} g' ?? '0 g'
-                                // );
+                              
                               }
                             )
-                            // FutureBuilder(
-                            //   future: _futureUser,
-                            //   builder: (context, snapshot) => 
-                            //     Text(
-                            //       //snapshot.hasData ?  snapshot.data['diet'][_myKey][2].toString() + " g": "0 g",
-                            //      snapshot.data['diet'][_myKey] != null ? snapshot.data['diet'][_myKey][2].toString() + " g": "0 g",
-                            //       maxLines: 1,
-                            //       softWrap: false,
-                            //     )
-                            // ),
+                          ],
+                        )
+                      ),
+                      Container(
+                        margin:EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Daily Calories: "),
+                            StreamBuilder(
+                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Container();
+                                }
+                                User user = User.jsonToUser(snapshot.data.data);
+
+                                if(user.diet[_dietKey] == null)
+                                {
+                                  return Text(
+                                    '0 '
+                                  );                        
+                                }
+                                else
+                                {
+                                  return Text(
+                                    '${user.diet[_dietKey][3].toString()} '
+                                  );
+                                }
+                              
+                              }
+                            )
+                          ],
+                        )
+                      ),
+                      Container(
+                        margin:EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Caloric Goal: "),
+                            StreamBuilder(
+                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return Container();
+                                }
+                                User user = User.jsonToUser(snapshot.data.data);
+
+                                  if(user.caloricGoal == null)
+                                  {
+                                    return Text('0 ');
+                                  }
+                                  else
+                                  {
+                                    return Text('${user.caloricGoal.toString()}');
+                                  }
+                                // if(user.diet[_dietKey] == null)
+                                // {
+                                //   return Text(
+                                //     '0 '
+                                //   );                        
+                                // }
+                                // else
+                                // {
+                                //   return Text(
+                                //     '${user.diet[_dietKey][4].toString()} '
+                                //   );
+                                //}
+                              }
+                            )
                           ],
                         )
                       ),
@@ -424,8 +560,14 @@ Future<void> _checkDailyMacrosExist() async{
           ],
         )
       ),
-      onLongPress: () =>
-        _updateNutritionInfo(context),
+      onTap: () {
+        Navigator.pushReplacement(context, MaterialPageRoute<void>(
+          builder: (BuildContext context){
+          return NutritionPage(); 
+          }   
+        ));
+      },
+      onLongPress:() {_updateNutritionInfo(context);},
     );
   }
 
@@ -497,24 +639,51 @@ Future<void> _checkDailyMacrosExist() async{
           flex: 1,
           child: Container(
             alignment: Alignment.center,
-            child: Row(
-              children: <Widget>[
-                Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
-                FutureBuilder(
+            //child: Row(
+              //children: <Widget>[
+                
+                // Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
+                child: FutureBuilder(
                   future: _futureUser,
                   builder: (context, snapshot) {
                     double weightLost = snapshot.hasData ? (snapshot.data['startingWeight'] - snapshot.data['currentWeight']) : 0;
-                    return Text(
-                      weightLost.toStringAsFixed(2),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
+                    
+                  if(weightLost < 0)
+                    return Row(
+                      children: <Widget>[
+                        Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
+                        Text(
+                          weightLost.toStringAsFixed(2),
+                          style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      )
+                      ],
                     );
+                  else if(weightLost > 0)
+                 {
+                    return Row(
+                      children: <Widget>[
+                        Icon(FontAwesomeIcons.caretUp, color: Colors.green, size: 16),
+                        Text(
+                          weightLost.toStringAsFixed(2),
+                          style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      )
+                      ],
+                    );
+                 }
+                 else
+                 {
+                   return Text(" ");
+                 }
                   }
                 ),
-              ],
-            )
+              //],
+            //)
           ),
         ),
       ],
@@ -636,7 +805,7 @@ Future<void> _checkDailyMacrosExist() async{
                 )
               ),
               child: Text(
-                "Challenges",
+                "Weekly Challenges",
                 style:TextStyle(
                   color: Colors.white,
                   fontSize: 14,
@@ -650,9 +819,830 @@ Future<void> _checkDailyMacrosExist() async{
     );
   }
 
-  Widget _buildChallengesInfo() {
+ void _updateChallengeInfo(BuildContext context) async{
+ int challenge1, challenge2, challenge3;
+      DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
+      var challengeFromUser = macroDoc.data['challengeStatus'];
+      var pointsFromUser = macroDoc.data['points'];
+      DocumentSnapshot challengeDoc = await Firestore.instance.collection('challenges').document(_challengeKey).get();
+      var challengeInfoDB = challengeDoc.data['goal'];
+      var pointsFromChallenge = challengeDoc.data['points'];
+      showDialog<String>(
+         context: context,
+      //child: SingleChildScrollView(
+        //padding: EdgeInsets.all(5.0),
+        child: AlertDialog(
+        title: Text("Update your daily macros"),
+        contentPadding: const EdgeInsets.all(16.0),
+        content:  
+          Container(
+          //Row(
+          height: 350,
+          width: 350,
+          child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+             Flexible(
+              child:  
+              StreamBuilder(
+                stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                builder: (context, snapshotUser) {
+                  if (!snapshotUser.hasData) {
+                    return Container();
+                  }
+                User user = User.jsonToUser(snapshotUser.data.data);
+                return StreamBuilder(
+                  stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+                  builder: (context, snapshotChallenge){
+                  if(!snapshotChallenge.hasData)
+                  {
+                    return Text(
+                      'Loading...' 
+                    );               
+                  }       
+                  return TextField(
+                    keyboardType: TextInputType.number,
+                    maxLines: 1,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      labelText: '${snapshotChallenge.data['title'][0]}',
+                      labelStyle: TextStyle(
+                        fontSize: 18.0,
+                        color: GSColors.darkBlue,
+                      ),
+                      contentPadding: EdgeInsets.all(10.0),
+                      hintText: '${user.challengeStatus[0]}/${snapshotChallenge.data['goal'][0]} ${snapshotChallenge.data['units'][0]} Completed',
+                      hintStyle: TextStyle(
+                        color: GSColors.lightBlue,
+                        fontWeight: FontWeight.bold,
+                      )
+                    ),
+                    onChanged: (text) {
+                      (text != null) ? challenge1 = int.parse(text): challenge1 = 0;
+                    }
+                  );      
+                  }
+                );
+                }
+              )
+            ), 
+            Flexible(         
+              child:  
+              StreamBuilder(
+                stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                builder: (context, snapshotUser) {
+                  if (!snapshotUser.hasData) {
+                    return Container();
+                  }
+                User user = User.jsonToUser(snapshotUser.data.data);
+                return StreamBuilder(
+                  stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+                  builder: (context, snapshotChallenge){
+                  if(!snapshotChallenge.hasData)
+                  {
+                    return Text(
+                      'Loading...' 
+                    );               
+                  }       
+                  return TextField(
+                    keyboardType: TextInputType.number,
+                    maxLines: 1,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      labelText: '${snapshotChallenge.data['title'][1]}',
+                      labelStyle: TextStyle(
+                        fontSize: 18.0,
+                        color: GSColors.darkBlue,
+                      ),
+                      contentPadding: EdgeInsets.all(10.0),
+                      hintText: '${user.challengeStatus[1]}/${snapshotChallenge.data['goal'][1]} ${snapshotChallenge.data['units'][1]} Completed',
+                      hintStyle: TextStyle(
+                        color: GSColors.lightBlue,
+                        fontWeight: FontWeight.bold,
+
+                      )
+                    ),
+                    onChanged: (text) {
+                      (text != null) ? challenge2 = int.parse(text): challenge2 = 0;
+                    }
+                  );      
+                  }
+                );
+                }
+              )
+            ),
+            Flexible(         
+              child:  
+              StreamBuilder(
+                stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                builder: (context, snapshotUser) {
+                  if (!snapshotUser.hasData) {
+                    return Container();
+                  }
+                User user = User.jsonToUser(snapshotUser.data.data);
+                return StreamBuilder(
+                  stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+                  builder: (context, snapshotChallenge){
+                  if(!snapshotChallenge.hasData)
+                  {
+                    return Text(
+                      'Loading...' 
+                    );               
+                  }       
+                  return TextField(
+                    keyboardType: TextInputType.number,
+                    maxLines: 1,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      labelText: '${snapshotChallenge.data['title'][2]}',
+                      labelStyle: TextStyle(
+                        fontSize: 18.0,
+                        color: GSColors.darkBlue,
+                      ),
+                      contentPadding: EdgeInsets.all(10.0),
+                      hintText: '${user.challengeStatus[2]}/${snapshotChallenge.data['goal'][2]} ${snapshotChallenge.data['units'][2]} Completed',
+                      hintStyle: TextStyle(
+                        color: GSColors.lightBlue,
+                        fontWeight: FontWeight.bold,
+
+                      )
+                    ),
+                    onChanged: (text) {
+                      (text != null) ? challenge3 = int.parse(text): challenge3 = 0;
+                    }
+                  );      
+                  }
+                );
+                }
+              )
+            ),
+
+          ],
+          )
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: const Text('Cancel'),
+            onPressed: (){
+              Navigator.pop(context);
+            }
+          ),
+          FlatButton(
+            child: const Text('Save'),
+            onPressed: () {
+                if(challenge1 == null)
+                  challenge1 = 0;
+                if(challenge2 == null)
+                  challenge2 = 0;
+                if(challenge3 == null)
+                  challenge3 = 0;
+
+                int temp;
+                temp = challengeFromUser[0] + challenge1;
+                if(temp >= challengeInfoDB[0] && challengeFromUser[0] != challengeInfoDB[0])
+                {
+                    challengeFromUser[0] = challengeInfoDB[0];
+                    pointsFromUser += pointsFromChallenge[0];
+
+                }
+                else if(challengeFromUser[0] != challengeInfoDB[0])
+                {
+                  challengeFromUser[0] += challenge1;
+                }
+
+                temp = challengeFromUser[1] + challenge2;
+                if(temp >= challengeInfoDB[1] && challengeFromUser[1] != challengeInfoDB[1])
+                {
+                    challengeFromUser[1] = challengeInfoDB[1];
+                    pointsFromUser += pointsFromChallenge[1];
+
+                }
+                else if(challengeFromUser[1] != challengeInfoDB[1])
+                {
+                  challengeFromUser[1] += challenge2;
+                }
+
+                temp = challengeFromUser[2] + challenge3;
+                if(temp >= challengeInfoDB[2] && challengeFromUser[2] != challengeInfoDB[2])
+                {
+                    challengeFromUser[2] = challengeInfoDB[2];
+                    pointsFromUser += pointsFromChallenge[2];
+                }
+                else if(challengeFromUser[2] != challengeInfoDB[2])
+                {
+                  challengeFromUser[2] += challenge3;
+                }
+          
+                  Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+                    {'challengeStatus': challengeFromUser});
+                  Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+                    {'points': pointsFromUser});
+                  // _buildNutritionInfo(context);
+                  _buildChallengesInfo(context);  
+
+            Navigator.pop(context);
+            }
+          )
+        ],
+      )
+    );
+ }
+ 
+
+  Widget _buildChallengesInfo(BuildContext context) {
+    _challengeKey = getChallengeKey().toString();
+
     return Container(
       margin: EdgeInsets.symmetric(vertical: 30),
+      child: InkWell(
+        child: Container(
+        margin: EdgeInsets.only(top: 10),
+        child: Row(
+          children: <Widget>[
+            // Expanded(
+            //   flex: 2,
+            //   child: Container(
+            //     height: 140,
+            //     child: Container(
+            //       decoration: ShapeDecoration(
+            //         shape: CircleBorder(
+            //           side: BorderSide(
+            //             width: 16,
+            //             color: GSColors.darkBlue
+            //           )
+            //         )
+            //       ),
+            //     )
+            //   ),
+            // ),
+            Expanded(
+              flex: 1,
+              child: Container(
+                child: Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Container(
+                        margin:EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            //Text("1: "),
+                            StreamBuilder(
+                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                              builder: (context, snapshotUser) {
+                                if (!snapshotUser.hasData) {
+                                  return Container();
+                                }
+                                User user = User.jsonToUser(snapshotUser.data.data);
+                                return StreamBuilder(
+                                  stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+                                  builder: (context, snapshotChallenge){
+                                  
+                                   
+                                    if(!snapshotChallenge.hasData)
+                                    {
+                                      return Text(
+                                        ' Loading...'
+                                        );                        
+                                    }
+                                    else
+                                    {
+                                      //if(user.challengeStatus[0] < snapshotChallenge.data['goal'][0])
+                                      {
+                                          return Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          children: <Widget>[
+                                            Container(
+                                                  width: 300,
+                                                  child: Text(
+                                                    ' 1. ${snapshotChallenge.data['title'][0]}'
+                                                  ),
+                                                ),
+
+                                              Container(
+                                                  width: 85,
+                                                  child: Text(
+                                                    '${snapshotChallenge.data['points'][0]} Points',
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight: FontWeight.bold,
+                                                      // fontSize: 15
+                                                      ),
+                                                  ),
+                                                ),
+                                          ],
+                                        );
+                                      }
+                                    
+                                      // else
+                                      // {
+                                      //   return Row(
+                                      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      //     children: <Widget>[
+                                      //       Container(
+                                      //             width: 300,
+                                      //             child: Text(
+                                      //               ' 1. ${snapshotChallenge.data['title'][0]}'
+                                      //             ),
+                                      //           ),
+
+                                      //         Container(
+                                      //             width: 85,
+                                      //             child: Text(
+                                      //               '${snapshotChallenge.data['points'][0]} Points',
+                                      //               style: TextStyle(
+                                      //                 color: Colors.black,
+                                      //                 fontWeight: FontWeight.bold,
+                                      //                 // fontSize: 15
+                                      //                 ),
+                                      //             ),
+                                      //           ),
+
+                                      //       Container(
+                                      //         child: Icon(
+                                      //           Icons.check_box,
+                                      //           size: 15,
+                                      //           color: Colors.green,
+                                      //         ),
+                                      //       )
+                                      //     ],
+                                      //   );
+                                      // }
+                                    // return Text(
+                                    //     ' 1. ${challenge.title[0]}' //+ ' ${challenge.points[2].toString()}'
+                                    //   );
+                                    } 
+                                  }
+                                );                           
+                              }
+                            ),                      
+                          ],
+                        )
+                      ),
+
+                      Container(
+                        child: StreamBuilder(
+                          stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                          builder: (context, snapshot){
+                            if(!snapshot.hasData)
+                            {
+                              return Container();
+                            }
+                            User user = User.jsonToUser(snapshot.data.data);
+                            return StreamBuilder(
+                              stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+                              builder: (context, snapshotChallenge){
+                                if(!snapshotChallenge.hasData)
+                                {
+                                 return LinearPercentIndicator(
+                                    width: 400.0,
+                                    lineHeight: 14.0,
+                                    percent: 0.0,
+                                    backgroundColor: GSColors.darkCloud,
+                                    progressColor: GSColors.lightBlue,
+                                    center: Text("0%")
+                                  );                       
+                                }
+                                else{
+                                  if(user.challengeStatus[0] == snapshotChallenge.data['goal'][0])
+                                  {
+                                    return LinearPercentIndicator(
+                                      width: 400.0,
+                                      lineHeight: 14.0,
+                                      percent: 1.0,
+                                      backgroundColor: GSColors.darkCloud,
+                                      progressColor: Colors.green,
+                                      center: Text("100%"),
+                                      animation: true, 
+                                    );
+                                  }
+                                  else
+                                  {
+                                  return LinearPercentIndicator(
+                                    //width: 275.0,
+                                    width: 400.0,
+                                    lineHeight: 14.0,
+                                    percent: user.challengeStatus[0]/snapshotChallenge.data['goal'][0],
+                                    backgroundColor: GSColors.darkCloud,
+                                    progressColor: GSColors.lightBlue,
+                                    center: Text(
+                                      (user.challengeStatus[0]/snapshotChallenge.data['goal'][0] * 100).toStringAsFixed(0)
+                                    )
+                                  );
+                                  }
+                                }
+                              
+                              }
+                            );
+                          }
+                        ),
+                      ),
+
+
+                      Container(
+                        margin:EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            //Text("2: "),
+                            StreamBuilder(
+                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                              builder: (context, snapshotUser) {
+                                if (!snapshotUser.hasData) {
+                                  return Container();
+                                }
+                                User user = User.jsonToUser(snapshotUser.data.data);
+                                return StreamBuilder(
+                                  stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+                                  builder: (context, snapshotChallenge){
+                                    if(!snapshotChallenge.hasData)
+                                    {
+                                      return Text(
+                                        ' Loading...'
+                                        );                        
+                                    }
+                                    else
+                                    {
+                                    //if(user.challengeStatus[1] <= snapshotChallenge.data['goal'][1])
+                                      {
+                                          return Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          children: <Widget>[
+                                            Container(
+                                                  width: 300,
+                                                  child: Text(
+                                                    ' 2. ${snapshotChallenge.data['title'][1]}'
+                                                  ),
+                                                ),
+
+                                              Container(
+                                                  width: 85,
+                                                  child: Text(
+                                                    '${snapshotChallenge.data['points'][1]} Points',
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight: FontWeight.bold,
+                                                      // fontSize: 15
+                                                      ),
+                                                  ),
+                                                ),
+                                          ],
+                                        );
+                                      }
+                                    
+                                      //else
+                                      // {
+                                      //   return Row(
+                                      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      //     children: <Widget>[
+                                      //       Container(
+                                      //             width: 300,
+                                      //             child: Text(
+                                      //               ' 2. ${snapshotChallenge.data['title'][1]}'
+                                      //             ),
+                                      //           ),
+
+                                      //         Container(
+                                      //             width: 85,
+                                      //             child: Text(
+                                      //               '${snapshotChallenge.data['points'][1]} Points',
+                                      //               style: TextStyle(
+                                      //                 color: Colors.black,
+                                      //                 fontWeight: FontWeight.bold,
+                                      //                 // fontSize: 15
+                                      //                 ),
+                                      //             ),
+                                      //           ),
+
+                                      //       Container(
+                                      //         child: Icon(
+                                      //           Icons.check_box,
+                                      //           size: 15,
+                                      //           color: Colors.green,
+                                      //         ),
+                                      //       )
+                                      //     ],
+                                      //   );
+                                      // }
+                                    } 
+                                  }
+                                );                           
+                              }
+                            ),
+                          ],
+                        )
+                      ),
+
+                      Container(
+                        child: StreamBuilder(
+                          stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                          builder: (context, snapshot){
+                            if(!snapshot.hasData)
+                            {
+                              return Container();
+                            }
+                            User user = User.jsonToUser(snapshot.data.data);
+                            return StreamBuilder(
+                              stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+                              builder: (context, snapshotChallenge){
+                                if(!snapshotChallenge.hasData)
+                                {
+                                 return LinearPercentIndicator(
+                                    width: 400.0,
+                                    lineHeight: 14.0,
+                                    percent: 0.0,
+                                    backgroundColor: GSColors.darkCloud,
+                                    progressColor: GSColors.lightBlue,
+                                    center: Text("0%")
+                                  );                       
+                                }
+                                else{
+
+                                  if(user.challengeStatus[1] == snapshotChallenge.data['goal'][1])
+                                  {
+                                    return LinearPercentIndicator(
+                                      width: 400.0,
+                                      lineHeight: 14.0,
+                                      percent: 1.0,
+                                      backgroundColor: GSColors.darkCloud,
+                                      progressColor: Colors.green,
+                                      center: Text("100%"),
+                                      animation: true, 
+                                    );
+                                  }
+                                  else{
+                                    return LinearPercentIndicator(
+                                      width: 400.0,
+                                      lineHeight: 14.0,
+                                      percent: user.challengeStatus[1]/snapshotChallenge.data['goal'][1],
+                                      backgroundColor: GSColors.darkCloud,
+                                      progressColor: GSColors.lightBlue,
+                                      center: Text(
+                                        (user.challengeStatus[0]/snapshotChallenge.data['goal'][1] * 100).toStringAsFixed(0)
+                                      )
+                                    );
+                                  }
+                                }
+                              
+                              }
+                            );
+                          }
+                        ),
+                      ),
+
+                      Container(
+                        margin:EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            //Text("3: "),
+                            StreamBuilder(
+                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                              builder: (context, snapshotUser) {
+                                if (!snapshotUser.hasData) {
+                                  return Container();
+                                }
+                                User user = User.jsonToUser(snapshotUser.data.data);
+                                return StreamBuilder(
+                                  stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+                                  builder: (context, snapshotChallenge){
+                                    // Challenge challenge = Challenge.jsonToChallenge(snapshotChallenge.data.data);
+                                    if(!snapshotChallenge.hasData)
+                                    {
+                                      return Text(
+                                        ' Loading...'
+                                        );                        
+                                    }
+                                    
+                                    else {
+                                      if(user.challengeStatus[2] < snapshotChallenge.data['goal'][2])
+                                      {
+                                          return Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          children: <Widget>[
+                                            Container(
+                                                  width: 300,
+                                                  child: Text(
+                                                    ' 3. ${snapshotChallenge.data['title'][2]}'
+                                                  ),
+                                                ),
+
+                                              Container(
+                                                  width: 85,
+                                                  child: Text(
+                                                    '${snapshotChallenge.data['points'][2]} Points',
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight: FontWeight.bold,
+                                                      // fontSize: 15
+                                                      ),
+                                                  ),
+                                                ),
+                                          ],
+                                        );
+                                      }
+                                    
+                                      else
+                                      {
+                                        return Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          children: <Widget>[
+                                            Container(
+                                                  width: 300,
+                                                  child: Text(
+                                                    ' 3. ${snapshotChallenge.data['title'][2]}'
+                                                  ),
+                                                ),
+
+                                              Container(
+                                                  width: 85,
+                                                  child: Text(
+                                                    '${snapshotChallenge.data['points'][2]} Points',
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight: FontWeight.bold,
+                                                      // fontSize: 15
+                                                      ),
+                                                  ),
+                                                ),
+
+                                            // Container(
+                                            //   child: Icon(
+                                            //     Icons.check_box,
+                                            //     size: 15,
+                                            //     color: Colors.green,
+                                            //   ),
+                                            //)
+                                          ],
+                                        );
+                                      } 
+                                  }
+                                  }
+                                );                           
+                              }
+                            ),
+                          ],
+                        )
+                      ),
+
+                      Container(
+                        
+                        child: StreamBuilder(
+                          stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                          builder: (context, snapshot){
+                            if(!snapshot.hasData)
+                            {
+                              return Container();
+                            }
+                            User user = User.jsonToUser(snapshot.data.data);
+                            return StreamBuilder(
+                              stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+                              builder: (context, snapshotChallenge){
+                                if(!snapshotChallenge.hasData)
+                                {
+                                 return LinearPercentIndicator(
+                                    width: 400.0,
+                                    lineHeight: 14.0,
+                                    percent: 0.0,
+                                    backgroundColor: GSColors.darkCloud,
+                                    progressColor: GSColors.lightBlue,
+                                    center: Text("0%")
+                                  );                       
+                                }
+                                else{
+
+                                  if(user.challengeStatus[2] == snapshotChallenge.data['goal'][2])
+                                  {
+                                    return LinearPercentIndicator(
+                                      width: 400.0,
+                                      lineHeight: 14.0,
+                                      percent: 1.0,
+                                      backgroundColor: GSColors.darkCloud,
+                                      progressColor: Colors.green,
+                                      center: Text("100%"),
+                                      animation: true, 
+                                    );
+                                  }
+                                  else{
+                                    return LinearPercentIndicator(
+                                      width: 400.0,
+                                      lineHeight: 14.0,
+                                      percent: user.challengeStatus[2]/snapshotChallenge.data['goal'][2],
+                                      backgroundColor: GSColors.darkCloud,
+                                      progressColor: GSColors.lightBlue,
+                                      center: Text(
+                                        (user.challengeStatus[0]/snapshotChallenge.data['goal'][2] * 100).toStringAsFixed(0)
+                                      )
+                                    );
+                                  }
+                                }
+                              
+                              }
+                            );
+                          }
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        )
+      ),
+        onLongPress: () => _updateChallengeInfo(context),
+      )
+      );
+  }
+
+  Widget _buildChallengeProgess(BuildContext context){
+    return Container(
+      height: 260,
+      child: StreamBuilder(
+        stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+        builder: (context, snapshot){ 
+          if(!snapshot.hasData)
+          {
+            return Container();
+          }
+          User user = User.jsonToUser(snapshot.data.data);
+          
+          return StreamBuilder(
+            stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+            builder: (context, snapshotChallenge){
+              if(!snapshotChallenge.hasData)
+              {
+                return Text(
+                  ' Loading...'
+                  );                        
+              }
+           // if(user.challengeStatus[0] > 0 || )
+            //{
+
+              int totalProgress = user.challengeStatus[0] + user.challengeStatus[1] + user.challengeStatus[2];
+              int totalGoal = snapshotChallenge.data['goal'][0] + snapshotChallenge.data['goal'][1] + snapshotChallenge.data['goal'][2];
+              
+              if(totalProgress == totalGoal)
+              {
+                return CircularPercentIndicator(
+                radius: 200.0,
+                lineWidth: 17,
+                percent: totalProgress / totalGoal,
+                progressColor: Colors.green,
+                backgroundColor: GSColors.darkCloud,
+                circularStrokeCap: CircularStrokeCap.round,
+                footer:   
+                  Text(
+                    "Weekly Challenges Progress",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                  ),
+                center: 
+                  Text(
+                   "100%",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35.0),
+
+                ),
+              );
+              }
+              else
+              {
+              return CircularPercentIndicator(
+                radius: 200.0,
+                lineWidth: 17,
+                percent: totalProgress / totalGoal,
+                progressColor: GSColors.lightBlue,
+                backgroundColor: GSColors.darkCloud,
+                circularStrokeCap: CircularStrokeCap.round,
+                footer:   
+                  Text(
+                    "Weekly Challenges Progress",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                  ),
+                center: 
+                  Text(
+                    (totalProgress / totalGoal * 100.00).toStringAsFixed(0) + "%",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35.0),
+
+                ),
+              );
+              }
+            //}
+            // else
+            // {
+            //   return CircularPercentIndicator(
+            //     radius: 200.0,
+            //     lineWidth: 17,  
+            //     percent: 0,
+            //     progressColor: Colors.green,
+            //     backgroundColor: GSColors.darkCloud
+            //   );
+            // }
+          }
+          );
+        }
+          
+      )
     );
   }
 
@@ -685,10 +1675,25 @@ Future uploadFile() async {
 
 
 
+String getChallengeKey(){
+  
+  var now = DateTime.now();
+  int sunday = 7;
+
+  while(now.weekday != sunday)
+  {
+    now = now.subtract(Duration(days: 1));
+  }
+
+  return "weekOf" + now.toString().substring(0,10);
+} 
+
+
 void  _updateNutritionInfo(BuildContext context) async{
-      int protein, carbs, fats;
+      int protein, carbs, fats, currentCalories = 0, caloricGoal;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
       var macroFromDB = macroDoc.data['diet'];
+      var caloriesGoal = macroDoc.data['caloricGoal'];
       
     showDialog<String>(
       context: context,
@@ -700,7 +1705,8 @@ void  _updateNutritionInfo(BuildContext context) async{
         content:  
           Container(
           //Row(
-          height: 200,
+          height: 350,
+          width: 350,
           child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
@@ -717,13 +1723,13 @@ void  _updateNutritionInfo(BuildContext context) async{
                   ),
                   contentPadding: EdgeInsets.all(10.0)
                 ),
-                onChanged: (text) => 
-                  (text != null) ? protein = int.parse(text) : protein = 0,
+                onChanged: (text) {
+                  (text != null) ? protein = int.parse(text): protein = 0;
+                  (text != null) ? currentCalories += protein * 4: currentCalories += 0;
+                }
               ),
             ),
             
-            SizedBox(width: 5.0,),
-
             Flexible(
               child:  TextField(
                 keyboardType: TextInputType.number,
@@ -741,12 +1747,13 @@ void  _updateNutritionInfo(BuildContext context) async{
                   ),
                     contentPadding: EdgeInsets.all(10.0)
                 ),
-                onChanged: (text) => text != null ? carbs = int.parse(text) : carbs = 0,
+                onChanged: (text) { 
+                  text != null ? carbs = int.parse(text) : carbs = 0;
+                  text != null ? currentCalories += carbs * 4 : currentCalories += 0;
+                }
               ),
             ),
     
-            SizedBox(width: 5.0,),
-
             Flexible(
               child:  TextField(
                 keyboardType: TextInputType.number,
@@ -764,16 +1771,44 @@ void  _updateNutritionInfo(BuildContext context) async{
                   ),
                     contentPadding: EdgeInsets.all(10.0)
                 ),
-                onChanged: (text) => text != null ? fats = int.parse(text) : fats = 0,
+                onChanged: (text) {
+                    text != null ? fats = int.parse(text) : fats = 0;
+                    text != null ? currentCalories += fats * 9 : currentCalories += 0;
+                }
               ),
             ),
+
+
+             Flexible(
+              child:  TextField(
+                keyboardType: TextInputType.number,
+                maxLines: 1,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Caloric Goal',
+                  labelStyle: TextStyle(
+                    fontSize: 18.0,
+                    color: GSColors.darkBlue,
+                  ),
+                  hintStyle: TextStyle(
+                    fontSize: 16.0,
+                    color: GSColors.darkBlue,
+                  ),
+                    contentPadding: EdgeInsets.all(10.0)
+                ),
+                onChanged: (text) {
+                    text != null ? caloricGoal = int.parse(text) : caloricGoal = -1;
+                }
+              )
+             )
+
           ],
         )),
         actions: <Widget>[
           FlatButton(
             child: const Text('Cancel'),
             onPressed: (){
-
+              currentCalories = 0;
               Navigator.pop(context);
             }
           ),
@@ -787,12 +1822,25 @@ void  _updateNutritionInfo(BuildContext context) async{
               carbs = 0;
             if(fats == null)
               fats = 0;
-            macroFromDB[_myKey][0] += protein;
-            macroFromDB[_myKey][1] += carbs;
-            macroFromDB[_myKey][2] += fats;
+            if(currentCalories == null)
+              currentCalories = 0;
+            if(caloricGoal == null)
+              caloricGoal = -1;
+
+            macroFromDB[_dietKey][0] += protein;
+            macroFromDB[_dietKey][1] += carbs;
+            macroFromDB[_dietKey][2] += fats;
+            macroFromDB[_dietKey][3] += currentCalories;
+            if(caloricGoal != -1)
+              caloriesGoal = caloricGoal;
+              //macroFromDB[_dietKey][4] = caloricGoal;
+            
+            currentCalories = 0;
 
             Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
               {'diet': macroFromDB});
+            Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+              {'caloricGoal': caloriesGoal});
             _buildNutritionInfo(context);
 
             Navigator.pop(context);
@@ -802,7 +1850,7 @@ void  _updateNutritionInfo(BuildContext context) async{
       )
     );
   }
-}
+
 
 void  _updateWeightInfo(BuildContext context) async{
       String currentWeight, startingWeight;
@@ -822,25 +1870,8 @@ void  _updateWeightInfo(BuildContext context) async{
           height: 200,
           child: Column(
             children: <Widget>[
-             Expanded(
-              child:  TextField(
-                keyboardType: TextInputType.number,
-                maxLines: 1,
-                //maxLength: 3,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: 'Current',
-                  labelStyle: TextStyle(
-                    fontSize: 18.0,
-                    color: GSColors.darkBlue,
-                  ),
-                ),
-                onChanged: (text) => currentWeight = text,
-              ),
-            ),
-
-             SizedBox(width: 5.0,),
-
+             
+             
             Flexible(
               child:  TextField(
                 keyboardType: TextInputType.number,
@@ -857,9 +1888,29 @@ void  _updateWeightInfo(BuildContext context) async{
                 onChanged: (text) => startingWeight = text,
               ),
             ),
-            ]
-          ),
             
+             SizedBox(height: 50.0,),
+             
+             Flexible(
+              child:  TextField(
+                keyboardType: TextInputType.number,
+                maxLines: 1,
+                //maxLength: 3,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Current',
+                  labelStyle: TextStyle(
+                    fontSize: 18.0,
+                    color: GSColors.darkBlue,
+                  ),
+                ),
+                onChanged: (text) => currentWeight = text,
+              ),
+            ),
+
+
+            ]
+          ),       
         ),
         actions: <Widget>[
           FlatButton(
@@ -874,16 +1925,20 @@ void  _updateWeightInfo(BuildContext context) async{
             child: const Text('Save'),
             onPressed: (){
 
-            if (startingWeight != "")
+
+            print(startingWeight);
+            print(currentWeight);
+            if (startingWeight != null)
               {
                 Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'startingWeight' : double.parse(startingWeight) });
               }
 
-            if (currentWeight != "")
+            if (currentWeight != null)
             {
               Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'currentWeight' : double.parse(currentWeight) });
             }
-
+            _buildStartingWeight();
+            _buildCurrentWeight();
             Navigator.pop(context);
             }
           )
@@ -891,7 +1946,7 @@ void  _updateWeightInfo(BuildContext context) async{
       ),
     );
   }
-
+}
 
 class _SystemPadding extends StatelessWidget{
   final Widget child;

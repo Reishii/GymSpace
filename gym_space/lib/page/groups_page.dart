@@ -2,6 +2,7 @@ import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/group.dart';
 import 'package:GymSpace/page/group_profile_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/widgets/page_header.dart';
@@ -17,7 +18,7 @@ class GroupsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: AppDrawer(startPage: 3),
+      drawer: AppDrawer(startPage: 4),
       // backgroundColor: GSColors.olive,
       appBar: _buildAppBar(),
       // body: _buildGroupBackground(),
@@ -56,6 +57,14 @@ class GroupsPage extends StatelessWidget {
     group.startDate = '2019-04-26';
     group.endDate = '2019-07-26';
     group.bio = 'Looking to get rid of that dad bod? With this program, I guarentee that I can get you Summer ready in just 3 months. We will start this program on exactly 4/26/2019 and end on 7/26/2019.';
+    group.members = List();
+    group.members.addAll([
+      'TzlVADVHVaTZrJ3gUyRJirhgyiV2',
+      'XKgmeU51sxgmMig8ExV5J8JKq6n1',
+      'eyo4X5qYD9gQeWK1eef3t7yKFee2',
+      'mb6MLqrSAbVsSoXpoCtzZP0af1V2',
+    ]);
+    
 
     return Container(
       margin: EdgeInsets.symmetric(vertical: 20),

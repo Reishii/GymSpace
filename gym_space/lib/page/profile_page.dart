@@ -127,7 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   Row( // friend count
                     children: <Widget> [
                       Icon(Icons.group, color: Colors.white,),
-                      Text('  ${user.buddies.length} Friends', style: TextStyle(color: Colors.white),),
+                      Text('  ${user.buddies.length} Buddies', style: TextStyle(color: Colors.white),),
                     ],
                   )
                 ],
@@ -239,7 +239,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 FlatButton.icon(
                   icon: Icon(_isFriend ? Icons.check : Icons.add),
-                  label: Text(_isFriend ? 'Friends' : 'Add Friend'),
+                  label: Text(_isFriend ? 'Buddies' : 'Add Buddies'),
                   textColor: Colors.white,
                   color: GSColors.lightBlue,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
