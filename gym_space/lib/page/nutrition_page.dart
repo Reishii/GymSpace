@@ -175,76 +175,90 @@ class _NutritionPage extends State<NutritionPage> {
     }
 
     else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] > snapshot.data['caloricGoal']) {
-      return InkWell(
-        child: CircularPercentIndicator(
-          radius: 45.0,
-          lineWidth: 4.0,  
-          percent: 1.0,
-          progressColor: Colors.green,
-          backgroundColor: GSColors.darkCloud,
-          center: Text ( 
-            "100%",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-          ),
-          header:   
-            Text(
-              "M",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+      return Container(
+        margin: EdgeInsets.only(right: 12),
+        child: InkWell(
+          child: CircularPercentIndicator(
+            radius: 45.0,
+            lineWidth: 4.0,  
+            percent: 1.0,
+            progressColor: Colors.green,
+            backgroundColor: GSColors.darkCloud,
+            center: Text ( 
+              ">100%",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
             ),
-        ),
-        onTap: () {
-          // Set state to MONDAY
-          if(_currentDay != 1) 
-            setState(() => _currentDay = 1);
+            header:   
+              Text(
+                "M",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              ),
+          ),
+          onTap: () {
+            // Set state to MONDAY
+            if(_currentDay != 1) 
+              setState(() => _currentDay = 1);
           },
+        ),
       );
     }
 
     else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] == 0) {
-      return InkWell(
-        child: CircularPercentIndicator(
-          radius: 45.0,
-          lineWidth: 4.0,  
-          percent: 0.0,
-          progressColor: GSColors.darkCloud,
-          backgroundColor: GSColors.darkCloud,
-          center: Text ( 
-            "0%",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-          ),
-          header:   
-            Text(
-              "M",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+      return Container(
+        margin: EdgeInsets.only(right: 12),
+        child: InkWell(
+          child: CircularPercentIndicator(
+            radius: 45.0,
+            lineWidth: 4.0,  
+            percent: 0.0,
+            progressColor: GSColors.darkCloud,
+            backgroundColor: GSColors.darkCloud,
+            center: Text ( 
+              "0%",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
             ),
-        ),
-        onTap: () {
-          // Set state to MONDAY
-          if(_currentDay != 1) 
-            setState(() => _currentDay = 1);
+            header:   
+              Text(
+                "M",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              ),
+          ),
+          onTap: () {
+            // Set state to MONDAY
+            if(_currentDay != 1) 
+              setState(() => _currentDay = 1);
           },
+        ),
       );
     }
 
     else {
-      return InkWell(
-        child: CircularPercentIndicator(
-          radius: 45.0,
-          lineWidth: 4.0,  
-          percent: 0,
-          progressColor: GSColors.darkCloud,
-          backgroundColor: GSColors.darkCloud,
-          header:   
-            Text(
-              "M",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-            ),
+      return Container(
+        margin: EdgeInsets.only(right: 12),
+        child: InkWell(
+          child: CircularPercentIndicator(
+            radius: 45.0,
+            lineWidth: 4.0,  
+            percent: 0,
+            progressColor: GSColors.darkCloud,
+            backgroundColor: GSColors.darkCloud,
+            header:   
+              Text(
+                "M",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              ),
+            center: 
+              Text(
+                "0%",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              ),
+          ),
+          onTap: () {
+            // Set state to MONDAY
+            if(_currentDay != 1) 
+              setState(() => _currentDay = 1);
+          },
         ),
-        onTap: () {
-          // Set state to MONDAY
-          if(_currentDay != 1) 
-            setState(() => _currentDay = 1);
-        },
       );
     }
   }
