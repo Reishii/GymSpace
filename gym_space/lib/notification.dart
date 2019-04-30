@@ -37,7 +37,7 @@ class _NotificationState extends State<NotificationPage> {
 
   }
   
-  void handleOnMessageRouting(dynamic notification){
+  void handleRouting(dynamic notification){
     switch (notification['title']){
       case 'buddy':
         Navigator.of(context).push(
@@ -50,7 +50,7 @@ class _NotificationState extends State<NotificationPage> {
         );
     }
   }
-  void handleRouting(dynamic notification){
+  void handleOnResumeRouting(dynamic notification){
     switch (notification){
       case 'buddy':
         Navigator.of(context).push(
@@ -116,11 +116,11 @@ class _NotificationState extends State<NotificationPage> {
            body: notification['body']
          )); 
         });
-        handleOnMessageRouting(notification);
+        handleRouting(notification);
       },
       onLaunch:  (Map<String, dynamic> message) async {
         print("onLaunch: ${message.toString()}");
-         final notification = message['title'];
+         final notification = message['data'];
         setState(() {
          messages.add(Message(
            title: 'OnLaunch: ${notification['title']}',
@@ -131,7 +131,7 @@ class _NotificationState extends State<NotificationPage> {
       },
       onResume: (Map<String, dynamic> message) async {
         print("onResume: $message");
-         final notification = message['title'];
+         final notification = message['data'];
         print('this is notification $notification');
         handleRouting(notification);
       }
