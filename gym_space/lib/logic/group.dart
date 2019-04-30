@@ -11,6 +11,7 @@ class Group {
   String startDate; //yyyy-mm-dd
   String endDate;
   String documentID;
+  bool enabled = true;
 
   // Workout currentWorkout;
   // WorkoutPlan currentWorkoutPlan;
@@ -28,6 +29,7 @@ class Group {
     this.startDate = "",
     this.endDate = "",
     this.documentID,
+    this.enabled,
     this.likes,
     this.members,
     this.workoutPlans,
@@ -42,6 +44,7 @@ class Group {
       'status': status,
       'startDate': startDate,
       'endDate': endDate,
+      'enabled': enabled,
       'likes': likes ?? [],
       'members': members ?? [],
       'workoutPlans': workoutPlans ?? [],
@@ -57,6 +60,7 @@ class Group {
       status: data['status'],
       startDate: data['startDate'],
       endDate: data['endDate'],
+      enabled: data['enabled'],
       likes: data['likes'].cast<String>(),
       members: data['members'].cast<String>(),
       workoutPlans: data['workoutPlans'].cast<String>(),

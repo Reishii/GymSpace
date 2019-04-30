@@ -42,14 +42,14 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
   }
 
   void _joinGroup() {
-    Firestore.instance.collection('users').document(currentUserID).updateData({'groups': FieldValue.arrayUnion([group.documentID])})
+    Firestore.instance.collection('users').document(currentUserID).updateData({'joinedGroups': FieldValue.arrayUnion([group.documentID])})
       .then((_) => setState(() {
         _joined = true;
       }));
   }
 
   void _leaveGroup() {
-    Firestore.instance.collection('users').document(currentUserID).updateData({'groups': FieldValue.arrayRemove([group.documentID])})
+    Firestore.instance.collection('users').document(currentUserID).updateData({'joinedGroups': FieldValue.arrayRemove([group.documentID])})
       .then((_) => setState(() {
         group.members.remove(currentUserID);
         _joined = false;
@@ -86,10 +86,47 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-      ),
+      appBar: _buildAppbar(),
       body: _buildBody(),
+    );
+  }
+
+  Widget _buildAppbar() {
+    return AppBar(
+      elevation: 0,
+      actions: <Widget>[
+        _isAdmin ?
+        Container(
+          margin: EdgeInsets.all(10),
+          child: FlatButton.icon(
+            icon: Icon(Icons.add),
+            label: Text('Disable Group'),
+            textColor: Colors.white,
+            color: GSColors.yellow,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            onPressed: () {}),
+        ) : _joined ? Container(
+          margin: EdgeInsets.all(10),
+          child: FlatButton.icon(
+            icon: Icon(Icons.add),
+            label: Text('Leave'),
+            textColor: Colors.white,
+            color: GSColors.red,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            onPressed: _leaveGroup,
+          ),
+        ) : Container(
+          margin: EdgeInsets.all(10),
+          child: FlatButton.icon(
+            icon: Icon(Icons.add),
+            label: Text('Join'),
+            textColor: Colors.white,
+            color: GSColors.lightBlue,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            onPressed: _joinGroup,
+          ),
+        ),
+      ],
     );
   }
 
@@ -99,9 +136,9 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         children: <Widget>[
           _buildHeader(),
           _buildPillNavigator(),
-          _currentTab == 0 ? _buildOverview() 
-            : _currentTab == 1 ? _buildProgress() 
-            : _buildDiscussion(),
+          _currentTab == 0 ? _buildOverviewTab() 
+            : _currentTab == 1 ? _buildChallengesTab() 
+            : _buildDiscussionTab(),
         ],
       ),
     );
@@ -112,7 +149,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       child: Stack(
         children: <Widget>[
           Container(
-            height: 360,
+            height: 320,
             decoration: ShapeDecoration(
               color: GSColors.lightBlue,
               shadows: [BoxShadow(blurRadius: 1)],
@@ -170,7 +207,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(60), bottomRight: Radius.circular(60))
               )
             ),
-            height: 320,
+            height: 280,
             child: Column(
               // crossAxisAlignment: CrossAxisAlignment,
               children: <Widget>[
@@ -237,42 +274,12 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   margin: EdgeInsets.symmetric(horizontal: 80),
                   child: Text(
                     group.status,
+                    maxLines: 3,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
                     ),
                   )
-                ),
-                _isAdmin ?
-                Container(
-                  margin: EdgeInsets.only(top: 8),
-                  child: FlatButton.icon(
-                    icon: Icon(Icons.add),
-                    label: Text('Close Group'),
-                    textColor: Colors.white,
-                    color: GSColors.yellow,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    onPressed: () {}),
-                ) : _joined ? Container(
-                  margin: EdgeInsets.only(top: 8),
-                  child: FlatButton.icon(
-                    icon: Icon(Icons.add),
-                    label: Text('Leave'),
-                    textColor: Colors.white,
-                    color: GSColors.red,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    onPressed: _leaveGroup,
-                  ),
-                ) : Container(
-                  margin: EdgeInsets.only(top: 8),
-                  child: FlatButton.icon(
-                    icon: Icon(Icons.add),
-                    label: Text('Join'),
-                    textColor: Colors.white,
-                    color: GSColors.lightBlue,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    onPressed: _joinGroup,
-                  ),
                 ),
               ],
             ),
@@ -309,14 +316,14 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               ),
             ),
           ),
-          _joined ? MaterialButton( // Progress
+          _joined ? MaterialButton( // Challenges
             onPressed: () { 
               if (_currentTab != 1) {
                 setState(() => _currentTab = 1);
               }
             },
             child: Text(
-              'Progress',
+              'Challenges',
               style: TextStyle(
                 color: _currentTab == 1 ? Colors.white : Colors.white54,
                 fontSize: 12,
@@ -342,12 +349,13 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
     );
   }
 
-  Widget _buildOverview() {
+  Widget _buildOverviewTab() {
     return Container(
       child: Column(
         children: <Widget>[
           _buildAbout(),
           _buildMembersList(),
+          _buildWorkouts(),
         ],
       )
     );
@@ -486,13 +494,102 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
     return memberAvatars;
   }
 
-  Widget _buildProgress() {
+  Widget _buildWorkouts() {
     return Container(
-      child: Text('this is progress')      
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Workouts',
+            style: TextStyle(
+              fontSize: 24,
+              letterSpacing: 1.2,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.keyboard_arrow_right),
+            onPressed: () {},
+          )
+        ],
+      ),
     );
   }
 
-  Widget _buildDiscussion() {
+  Widget _buildChallengesTab() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: <Widget>[
+          _buildChallenges(),
+          _buildLeaderboard(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChallenges() {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        children: <Widget>[
+          Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget> [
+                Text(
+                  'Challenges',
+                  style: TextStyle(
+                    fontSize: 22,
+                    letterSpacing: 1.2,
+                    fontWeight: FontWeight.bold
+                  ),
+                ), _isAdmin ? 
+                IconButton(
+                  icon: Icon(Icons.add_circle_outline),
+                  onPressed: () {},
+                )
+                : Container(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLeaderboard() {
+    return Container(
+      height: 200,
+      width: double.maxFinite,
+      margin: EdgeInsets.symmetric(vertical: 10),
+      decoration: ShapeDecoration(
+        color: GSColors.darkBlue,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20)
+        )
+      ),
+      child: Column(
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.symmetric(vertical: 10),
+            child: Text(
+              'Leaderboard',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                letterSpacing: 1.2,
+                fontWeight: FontWeight.bold
+              ),
+            ),
+          ),
+          // SHOW ACTUAL CONTENT HERE
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDiscussionTab() {
     return Container(
       child: Text('this is disccusion')
     );

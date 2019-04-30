@@ -110,7 +110,7 @@ class GroupsPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(
-                          'Instructed by ${snapshot.data['firstName']} ${snapshot.data['lastName']}',
+                          'Instructed by ${snapshot.data['firstName']} ${snapshot.data['lastName']}  ',
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 12
@@ -119,6 +119,7 @@ class GroupsPage extends StatelessWidget {
                         Container(
                           child: CircleAvatar(
                             backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isNotEmpty ? snapshot.data['photoURL'] : Defaults.photoURL),
+                            radius: 10,
                           ),
                         )
                       ],
@@ -193,7 +194,7 @@ class GroupsPage extends StatelessWidget {
     }
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+      margin: EdgeInsets.only(left: 30, right: 30, top: 10),
       height: 50,
       child: Stack(
         children: memberIcons,
