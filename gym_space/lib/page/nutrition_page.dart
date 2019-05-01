@@ -20,7 +20,8 @@ class NutritionPage extends StatefulWidget {
 class _NutritionPage extends State<NutritionPage> {
   Future<DocumentSnapshot> _futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
   String _dietKey = DateTime.now().toString().substring(0,10);
-  String _weekKey;
+  final DateTime _currentDay = DateTime.now();
+  DateTime _week = DateTime.now();
   DateTime now = DateTime.now();
   DateTime _mon = DateTime.now();
   DateTime _tue = DateTime.now();
@@ -30,20 +31,15 @@ class _NutritionPage extends State<NutritionPage> {
   DateTime _sat = DateTime.now();
   DateTime _sun = DateTime.now();
   String _monKey, _tueKey, _wedKey, _thurKey, _friKey, _satKey, _sunKey;
-  // final int tuesday = 2;
-  // final int wednesday = 3;
-  // final int thursday = 4;
-  // final int friday = 5;
-  // final int saturday = 6;
-  // final int sunday = 7;
   external int get weekday;
 
   @override
   Widget build(BuildContext context) {
+    _checkToAddMacros();
     return Scaffold(
       drawer: AppDrawer(startPage: 3,),
       backgroundColor: GSColors.darkBlue,
-       floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         child: Icon(
           FontAwesomeIcons.plus,
           size: 14,
@@ -56,6 +52,12 @@ class _NutritionPage extends State<NutritionPage> {
       appBar: _buildAppBar(),
       body: _buildBody(context),
     );
+  }
+
+  void _checkToAddMacros() {
+    if(now.weekday >= _currentDay.weekday) {
+
+    }
   }
 
   Widget _buildAppBar() {
@@ -154,170 +156,75 @@ class _NutritionPage extends State<NutritionPage> {
   }
 
   Widget _buildWeeklyCircularProgress(User user, AsyncSnapshot<dynamic> snapshot) {
-
-    // ******* SUNDAY ********
+    _setWeek();
     return Container(
       child: Row(
         children: <Widget>[
-          _buildSundayNutrition(user, snapshot),
-          _buildMondayNutrition(user, snapshot),
-          _buildTuesdayNutrition(user, snapshot),
-          _buildWednesdayNutrition(user, snapshot),
-          _buildThursdayNutrition(user, snapshot),
-          _buildFridayNutrition(user, snapshot),
-          _buildSaturdayNutrition(user, snapshot),
+          _buildWeeklyCircle(user, snapshot, _sunKey, "S", 7, _sun),
+          _buildWeeklyCircle(user, snapshot, _monKey, "M", 1, _mon),
+          _buildWeeklyCircle(user, snapshot, _tueKey, "T", 2, _tue),
+          _buildWeeklyCircle(user, snapshot, _wedKey, "W", 3, _wed),
+          _buildWeeklyCircle(user, snapshot, _thurKey, "T", 4, _thur),
+          _buildWeeklyCircle(user, snapshot, _friKey, "F", 5, _fri),
+          _buildWeeklyCircle(user, snapshot, _satKey, "S", 6, _sat),
         ],
       )
     );
-
   }
 
-  Widget _buildSundayNutrition(User user, AsyncSnapshot<dynamic> snapshot) {
-    while(_sun.weekday != 7) 
-    {
-      print("Subtracting day");
-      print(_sun.toString());
+  void _setWeek() {
+    // Get Sunday as a base
+    while(_sun.weekday != 7)  // if not currently sunday
       _sun = _sun.subtract(Duration(days: 1));
-    }
 
-    //print(_sun.toString());
-    _sunKey = _sun.toString().substring(0,10);
+    _week = _sun;
+    // Sets this Sunday as base, do not go before this
+    _mon = _week;
+    _tue = _week;
+    _wed = _week;
+    _thur = _week;
+    _fri = _week;
+    _sat = _week;
 
-    if(user.diet[_sunKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_sunKey][3] <= snapshot.data['caloricGoal']) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            
-            animation: true,
-            radius: 45.0,
-            lineWidth: 5.0,
-            percent: snapshot.data['diet'][_sunKey][3] / snapshot.data['caloricGoal'],
-            progressColor: GSColors.lightBlue,
-            backgroundColor: GSColors.darkCloud,
-            circularStrokeCap: CircularStrokeCap.round,
-            header:   
-              Text(
-                "S",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-            ),
-            center: 
-              Text(
-                (100.0 * snapshot.data['diet'][_sunKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            )
-          ),
-          onTap: () {
-            // Set state to Sunday
-            while(now.weekday != 7) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
+    // Set each day of the week
+    while(_mon.weekday % 7 != 1)
+      _mon = _mon.add(Duration(days: 1));
 
-    else if(user.diet[_sunKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_sunKey][3] > snapshot.data['caloricGoal']) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 1.0,
-            progressColor: Colors.green,
-            backgroundColor: GSColors.darkCloud,
-            center: Text ( 
-              "+100%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            ),
-            header:   
-              Text(
-                "S",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            // Set state to Sunday
-            while(now.weekday != 7) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
+    while(_tue.weekday % 7 != 2)
+      _tue = _tue.add(Duration(days: 1));
 
-    else if(user.diet[_sunKey] != null && snapshot.data['caloricGoal'] == 0) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 0.0,
-            progressColor: GSColors.darkCloud,
-            backgroundColor: GSColors.darkCloud,
-            center: Text ( 
-              "0%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            ),
-            header:   
-              Text(
-                "S",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            // Set state to Sunday
-            while(now.weekday != 7) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
+    while(_wed.weekday % 7 != 3)
+      _wed = _wed.add(Duration(days: 1));
 
-    else {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 0,
-            progressColor: GSColors.darkCloud,
-            backgroundColor: GSColors.darkCloud,
-            header:   
-              Text(
-                "S",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-            center: 
-              Text(
-                "0%",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            // Set state to Sunday
-            while(now.weekday != 7) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
+    while(_thur.weekday % 7 != 4)
+      _thur = _thur.add(Duration(days: 1));
+
+    while(_fri.weekday % 7 != 5)
+      _fri = _fri.add(Duration(days: 1));
+
+    while(_sat.weekday % 7 != 6)
+      _sat = _sat.add(Duration(days: 1));
+  }
+
+  void _iterateWeekNutrition(DateTime _currentDayofWeek, int day) {
+    // If day selected is after current day, increment days
+    if(now.isAfter(_currentDayofWeek)) {
+      while(now.weekday != day) 
+        setState(() => now = now.subtract(Duration(days: 1)));
+    } 
+    // If day is selected before current day, decrement days
+    else if(now.isBefore(_currentDayofWeek)) {
+      while(now.weekday != day) 
+        setState(() => now = now.add(Duration(days: 1)));
     }
   }
 
-  Widget _buildMondayNutrition(User user, AsyncSnapshot<dynamic> snapshot) {
+  Widget _buildWeeklyCircle(User user, AsyncSnapshot<dynamic> snapshot, 
+                              String _dailyKey, String dayLetter, int dayNum, DateTime thisDay) {
 
-    while(_mon.weekday != 1) 
-    {
-      print("Subtracting day");
-      print(_mon.toString());
-      _mon = _mon.subtract(Duration(days: 1));
-    }
+    _dailyKey = thisDay.toString().substring(0,10);
 
-    //print(_sun.toString());
-    _monKey = _mon.toString().substring(0,10);
-
-    if(user.diet[_monKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_monKey][3] <= snapshot.data['caloricGoal']) {
+    if(user.diet[_dailyKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dailyKey][3] <= snapshot.data['caloricGoal']) {
       return Container(
         margin: EdgeInsets.only(right: 12),
         child: InkWell(
@@ -326,31 +233,29 @@ class _NutritionPage extends State<NutritionPage> {
             animation: true,
             radius: 45.0,
             lineWidth: 5.0,
-            percent: snapshot.data['diet'][_monKey][3] / snapshot.data['caloricGoal'],
+            percent: snapshot.data['diet'][_dailyKey][3] / snapshot.data['caloricGoal'],
             progressColor: GSColors.lightBlue,
             backgroundColor: GSColors.darkCloud,
             circularStrokeCap: CircularStrokeCap.round,
             header:   
               Text(
-                "M",
+                dayLetter,
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
             ),
             center: 
               Text(
-                (100.0 * snapshot.data['diet'][_monKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
+                (100.0 * snapshot.data['diet'][_dailyKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
             )
           ),
           onTap: () {
-            // Set state to Monday
-            while(now.weekday != 1) 
-              setState(() => now = now.subtract(Duration(days: 1)));
+            _iterateWeekNutrition(thisDay, dayNum);
           },
         ),
       );
     }
 
-    else if(user.diet[_monKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_monKey][3] > snapshot.data['caloricGoal']) {
+    else if(user.diet[_dailyKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dailyKey][3] > snapshot.data['caloricGoal']) {
       return Container(
         margin: EdgeInsets.only(right: 12),
         child: InkWell(
@@ -360,26 +265,23 @@ class _NutritionPage extends State<NutritionPage> {
             percent: 1.0,
             progressColor: Colors.green,
             backgroundColor: GSColors.darkCloud,
+            header: Text(
+                dayLetter,
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+            ),
             center: Text ( 
               "+100%",
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
             ),
-            header:   
-              Text(
-                "M",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
           ),
           onTap: () {
-            // Set state to Monday
-            while(now.weekday != 1) 
-              setState(() => now = now.subtract(Duration(days: 1)));
+            _iterateWeekNutrition(thisDay, dayNum);
           },
         ),
       );
     }
 
-    else if(user.diet[_monKey] != null && snapshot.data['caloricGoal'] == 0) {
+    else if(user.diet[_dailyKey] != null && snapshot.data['caloricGoal'] == 0) {
       return Container(
         margin: EdgeInsets.only(right: 12),
         child: InkWell(
@@ -389,20 +291,17 @@ class _NutritionPage extends State<NutritionPage> {
             percent: 0.0,
             progressColor: GSColors.darkCloud,
             backgroundColor: GSColors.darkCloud,
+            header: Text(
+                dayLetter,
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              ),
             center: Text ( 
               "0%",
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
             ),
-            header:   
-              Text(
-                "M",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
           ),
           onTap: () {
-            // Set state to Monday
-            while(now.weekday != 1) 
-              setState(() => now = now.subtract(Duration(days: 1)));
+            _iterateWeekNutrition(thisDay, dayNum);
           },
         ),
       );
@@ -418,684 +317,17 @@ class _NutritionPage extends State<NutritionPage> {
             percent: 0,
             progressColor: GSColors.darkCloud,
             backgroundColor: GSColors.darkCloud,
-            header:   
-              Text(
-                "M",
+            header: Text(
+                dayLetter,
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
               ),
-            center: 
-              Text(
+            center: Text(
                 "0%",
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
               ),
           ),
           onTap: () {
-            // Set state to Monday
-            while(now.weekday != 1) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-  }
-
-  Widget _buildTuesdayNutrition(User user, AsyncSnapshot<dynamic> snapshot) {
-
-    while(_tue.weekday != 2) 
-    {
-      print("Subtracting day");
-      print(_tue.toString());
-      _tue = _tue.subtract(Duration(days: 1));
-    }
-
-    //print(_sun.toString());
-    _tueKey = _tue.toString().substring(0,10);
-
-    if(user.diet[_tueKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_tueKey][3] <= snapshot.data['caloricGoal']) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            
-            animation: true,
-            radius: 45.0,
-            lineWidth: 5.0,
-            percent: snapshot.data['diet'][_tueKey][3] / snapshot.data['caloricGoal'],
-            progressColor: GSColors.lightBlue,
-            backgroundColor: GSColors.darkCloud,
-            circularStrokeCap: CircularStrokeCap.round,
-            header:   
-              Text(
-                "T",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-            ),
-            center: 
-              Text(
-                (100.0 * snapshot.data['diet'][_tueKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            )
-          ),
-          onTap: () {
-            // Set state to Tuesday
-            while(now.weekday != 2) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else if(user.diet[_tueKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_tueKey][3] > snapshot.data['caloricGoal']) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 1.0,
-            progressColor: Colors.green,
-            backgroundColor: GSColors.darkCloud,
-            center: Text ( 
-              "+100%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            ),
-            header:   
-              Text(
-                "T",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            // Set state to Tue
-            while(now.weekday != 2) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else if(user.diet[_tueKey] != null && snapshot.data['caloricGoal'] == 0) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 0.0,
-            progressColor: GSColors.darkCloud,
-            backgroundColor: GSColors.darkCloud,
-            center: Text ( 
-              "0%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            ),
-            header:   
-              Text(
-                "M",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            // Set state to Tue
-            while(now.weekday != 2) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 0,
-            progressColor: GSColors.darkCloud,
-            backgroundColor: GSColors.darkCloud,
-            header:   
-              Text(
-                "T",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-            center: 
-              Text(
-                "0%",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            // Set state to Tue
-            while(now.weekday != 2) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-  }
-
-  Widget _buildWednesdayNutrition(User user, AsyncSnapshot<dynamic> snapshot) {
-
-    while(_wed.weekday != 3) 
-    {
-      print("Subtracting day");
-      print(_wed.toString());
-      _wed = _wed.subtract(Duration(days: 1));
-    }
-
-    //print(_sun.toString());
-    _wedKey = _wed.toString().substring(0,10);
-
-    if(user.diet[_wedKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_wedKey][3] <= snapshot.data['caloricGoal']) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            
-            animation: true,
-            radius: 45.0,
-            lineWidth: 5.0,
-            percent: snapshot.data['diet'][_wedKey][3] / snapshot.data['caloricGoal'],
-            progressColor: GSColors.lightBlue,
-            backgroundColor: GSColors.darkCloud,
-            circularStrokeCap: CircularStrokeCap.round,
-            header:   
-              Text(
-                "W",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-            ),
-            center: 
-              Text(
-                (100.0 * snapshot.data['diet'][_wedKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            )
-          ),
-          onTap: () {
-            // Set state to wed
-            while(now.weekday != 3) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else if(user.diet[_wedKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_wedKey][3] > snapshot.data['caloricGoal']) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 1.0,
-            progressColor: Colors.green,
-            backgroundColor: GSColors.darkCloud,
-            center: Text ( 
-              "+100%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            ),
-            header:   
-              Text(
-                "W",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            // Set state to wed
-            while(now.weekday != 3) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else if(user.diet[_wedKey] != null && snapshot.data['caloricGoal'] == 0) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 0.0,
-            progressColor: GSColors.darkCloud,
-            backgroundColor: GSColors.darkCloud,
-            center: Text ( 
-              "0%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            ),
-            header:   
-              Text(
-                "W",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            // Set state to wed
-            while(now.weekday != 3) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 0,
-            progressColor: GSColors.darkCloud,
-            backgroundColor: GSColors.darkCloud,
-            header:   
-              Text(
-                "W",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-            center: 
-              Text(
-                "0%",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            // Set state to wed
-            while(now.weekday != 3) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-  }
-
-  Widget _buildThursdayNutrition(User user, AsyncSnapshot<dynamic> snapshot) {
-
-    while(_thur.weekday != 4) 
-    {
-      print("Subtracting day");
-      print(_thur.toString());
-      _thur = _thur.subtract(Duration(days: 1));
-    }
-
-    //print(_sun.toString());
-    _thurKey = _thur.toString().substring(0,10);
-
-    if(user.diet[_thurKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_thurKey][3] <= snapshot.data['caloricGoal']) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            
-            animation: true,
-            radius: 45.0,
-            lineWidth: 5.0,
-            percent: snapshot.data['diet'][_thurKey][3] / snapshot.data['caloricGoal'],
-            progressColor: GSColors.lightBlue,
-            backgroundColor: GSColors.darkCloud,
-            circularStrokeCap: CircularStrokeCap.round,
-            header:   
-              Text(
-                "T",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-            ),
-            center: 
-              Text(
-                (100.0 * snapshot.data['diet'][_thurKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            )
-          ),
-          onTap: () {
-            // Set state to thursday
-            while(now.weekday != 4) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else if(user.diet[_thurKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_thurKey][3] > snapshot.data['caloricGoal']) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 1.0,
-            progressColor: Colors.green,
-            backgroundColor: GSColors.darkCloud,
-            center: Text ( 
-              "+100%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            ),
-            header:   
-              Text(
-                "M",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            // Set state to Monday
-            while(now.weekday != 1) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else if(user.diet[_thurKey] != null && snapshot.data['caloricGoal'] == 0) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 0.0,
-            progressColor: GSColors.darkCloud,
-            backgroundColor: GSColors.darkCloud,
-            center: Text ( 
-              "0%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            ),
-            header:   
-              Text(
-                "T",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            // Set state to thu
-            while(now.weekday != 4) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 0,
-            progressColor: GSColors.darkCloud,
-            backgroundColor: GSColors.darkCloud,
-            header:   
-              Text(
-                "T",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-            center: 
-              Text(
-                "0%",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            // Set state to Thu
-            while(now.weekday != 4) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-  }
-
-  Widget _buildFridayNutrition(User user, AsyncSnapshot<dynamic> snapshot) {
-
-    while(_fri.weekday != 5) 
-    {
-      print("Subtracting day");
-      print(_fri.toString());
-      _fri = _fri.subtract(Duration(days: 1));
-    }
-
-    //print(_sun.toString());
-    _friKey = _fri.toString().substring(0,10);
-
-    if(user.diet[_friKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_friKey][3] <= snapshot.data['caloricGoal']) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            
-            animation: true,
-            radius: 45.0,
-            lineWidth: 5.0,
-            percent: snapshot.data['diet'][_friKey][3] / snapshot.data['caloricGoal'],
-            progressColor: GSColors.lightBlue,
-            backgroundColor: GSColors.darkCloud,
-            circularStrokeCap: CircularStrokeCap.round,
-            header:   
-              Text(
-                "F",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-            ),
-            center: 
-              Text(
-                (100.0 * snapshot.data['diet'][_friKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            )
-          ),
-          onTap: () {
-            // Set state to Friday
-            while(now.weekday != 5) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else if(user.diet[_friKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_friKey][3] > snapshot.data['caloricGoal']) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 1.0,
-            progressColor: Colors.green,
-            backgroundColor: GSColors.darkCloud,
-            center: Text ( 
-              "+100%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            ),
-            header:   
-              Text(
-                "F",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            while(now.weekday != 5) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else if(user.diet[_friKey] != null && snapshot.data['caloricGoal'] == 0) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 0.0,
-            progressColor: GSColors.darkCloud,
-            backgroundColor: GSColors.darkCloud,
-            center: Text ( 
-              "0%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            ),
-            header:   
-              Text(
-                "F",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            while(now.weekday != 5) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 0,
-            progressColor: GSColors.darkCloud,
-            backgroundColor: GSColors.darkCloud,
-            header:   
-              Text(
-                "F",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-            center: 
-              Text(
-                "0%",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            while(now.weekday != 5) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-  }
-
-  Widget _buildSaturdayNutrition(User user, AsyncSnapshot<dynamic> snapshot) {
-
-    while(_sat.weekday != 6) 
-    {
-      print("Subtracting day");
-      print(_sat.toString());
-      _sat = _sat.subtract(Duration(days: 1));
-    }
-
-    //print(_sun.toString());
-    _satKey = _sat.toString().substring(0,10);
-
-    if(user.diet[_satKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_satKey][3] <= snapshot.data['caloricGoal']) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            
-            animation: true,
-            radius: 45.0,
-            lineWidth: 5.0,
-            percent: snapshot.data['diet'][_satKey][3] / snapshot.data['caloricGoal'],
-            progressColor: GSColors.lightBlue,
-            backgroundColor: GSColors.darkCloud,
-            circularStrokeCap: CircularStrokeCap.round,
-            header:   
-              Text(
-                "S",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-            ),
-            center: 
-              Text(
-                (100.0 * snapshot.data['diet'][_satKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            )
-          ),
-          onTap: () {
-            while(now.weekday != 6) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else if(user.diet[_satKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_satKey][3] > snapshot.data['caloricGoal']) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 1.0,
-            progressColor: Colors.green,
-            backgroundColor: GSColors.darkCloud,
-            center: Text ( 
-              "+100%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            ),
-            header:   
-              Text(
-                "S",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            while(now.weekday != 6) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else if(user.diet[_satKey] != null && snapshot.data['caloricGoal'] == 0) {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 0.0,
-            progressColor: GSColors.darkCloud,
-            backgroundColor: GSColors.darkCloud,
-            center: Text ( 
-              "0%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            ),
-            header:   
-              Text(
-                "S",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            while(now.weekday != 6) 
-              setState(() => now = now.subtract(Duration(days: 1)));
-          },
-        ),
-      );
-    }
-
-    else {
-      return Container(
-        margin: EdgeInsets.only(right: 12),
-        child: InkWell(
-          child: CircularPercentIndicator(
-            radius: 45.0,
-            lineWidth: 4.0,  
-            percent: 0,
-            progressColor: GSColors.darkCloud,
-            backgroundColor: GSColors.darkCloud,
-            header:   
-              Text(
-                "S",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-            center: 
-              Text(
-                "0%",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
-          ),
-          onTap: () {
-            while(now.weekday != 6) 
-              setState(() => now = now.subtract(Duration(days: 1)));
+            _iterateWeekNutrition(thisDay, dayNum);
           },
         ),
       );
@@ -1144,7 +376,7 @@ class _NutritionPage extends State<NutritionPage> {
     );
   }
 
-  Future<void> _checkDailyMacrosExist() async{
+  void _checkDailyMacrosExist() async{
   List<int> newMacros = new List(5);
 
   DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
@@ -1178,23 +410,12 @@ class _NutritionPage extends State<NutritionPage> {
               child: Container(
                 height: 180,
                 child: Container(
-                //  child:  CircularPercentIndicator(
-                //           radius: 120.0,
-                //           lineWidth: 10,
-                //           percent: 0.8,
-                //           progressColor: Colors.green,
-                //           backgroundColor: GSColors.darkCloud,
-                //           animateFromLastPercent: true,
-                //           animation: true
-                //         ),
                   child: StreamBuilder(
                     stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                     builder: (context, snapshot){ 
                       if(!snapshot.hasData)
-                      {
                         return Container();
-                      }
-
+                    
                       User user = User.jsonToUser(snapshot.data.data);
 
                       // Set _dietKey to the circle user pressed
@@ -1283,15 +504,6 @@ class _NutritionPage extends State<NutritionPage> {
     
                     }
                   )
-
-                  // decoration: ShapeDecoration(
-                  //   shape: CircleBorder(
-                  //     side: BorderSide(
-                  //       width: 16,
-                  //       color: GSColors.darkBlue
-                  //     )
-                  //   )
-                  // ),
                 )
               ),
             ),
@@ -1467,34 +679,11 @@ class _NutritionPage extends State<NutritionPage> {
                                     return Text('${user.caloricGoal.toString()}',
                                       style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.w500));
                                   }
-                                // if(user.diet[_dietKey] == null)
-                                // {
-                                //   return Text(
-                                //     '0 '
-                                //   );                        
-                                // }
-                                // else
-                                // {
-                                //   return Text(
-                                //     '${user.diet[_dietKey][4].toString()} '
-                                //   );
-                                //}
                               }
                             )
                           ],
                         )
                       ),
-                      // Container(
-                      //   margin: EdgeInsets.only(top: 5, left: 55),
-                      //   child: MaterialButton(
-                      //     child: Icon(
-                      //       Icons.add_circle,
-                      //       color: Colors.green.withAlpha(220),
-                      //       size: 40,
-                      //     ),
-                      //     onPressed: () {_updateNutritionInfo(context);},
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),
@@ -1513,8 +702,6 @@ class _NutritionPage extends State<NutritionPage> {
       
     showDialog<String>(
       context: context,
-      //child: SingleChildScrollView(
-        //padding: EdgeInsets.all(5.0),
         child: AlertDialog(
         title: Text("Update your daily macros"),
         contentPadding: const EdgeInsets.all(16.0),
