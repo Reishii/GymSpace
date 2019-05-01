@@ -36,6 +36,7 @@ class _NutritionPage extends State<NutritionPage> {
 
   @override
   Widget build(BuildContext context) {
+    _highlightDay = now.weekday;
     return Scaffold(
       drawer: AppDrawer(startPage: 3,),
       backgroundColor: GSColors.darkBlue,
@@ -237,7 +238,6 @@ class _NutritionPage extends State<NutritionPage> {
         margin: EdgeInsets.only(right: 12),
         child: InkWell(
           child: CircularPercentIndicator(
-            
             animation: true,
             radius: 45.0,
             lineWidth: 5.0,
@@ -245,10 +245,12 @@ class _NutritionPage extends State<NutritionPage> {
             progressColor: GSColors.lightBlue,
             backgroundColor: GSColors.darkCloud,
             circularStrokeCap: CircularStrokeCap.round,
+
             // Highlight current day
             header: _highlightDay == dayNum ? Container(
-              width: 22,
-              height: 22,
+              margin: EdgeInsets.only(bottom: 3),
+              width: 20,
+              height: 20,
               decoration: ShapeDecoration(
                 color: GSColors.lightBlue,
                 shape: RoundedRectangleBorder(
@@ -258,13 +260,15 @@ class _NutritionPage extends State<NutritionPage> {
               child: Center(
                 child: Text(
                 dayLetter,
-                style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 16.0),
+                style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
               ),  
             )) 
-            : Text(
-                dayLetter,
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),  
+            : Container(
+                margin: EdgeInsets.only(bottom: 3),
+                child: Text(
+                  dayLetter,
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              )),  
 
             center: 
               Text(
@@ -275,7 +279,7 @@ class _NutritionPage extends State<NutritionPage> {
           onTap: () {
             _weeklyNavigator(thisDay, dayNum);
           },
-        ),
+        )
       );
     }
 
@@ -285,13 +289,15 @@ class _NutritionPage extends State<NutritionPage> {
         child: InkWell(
           child: CircularPercentIndicator(
             radius: 45.0,
-            lineWidth: 4.0,  
+            lineWidth: 5.0,  
             percent: 1.0,
             progressColor: Colors.green,
             backgroundColor: GSColors.darkCloud,
+
             header: _highlightDay == dayNum ? Container(
-              width: 22,
-              height: 22,
+              margin: EdgeInsets.only(bottom: 3),
+              width: 20,
+              height: 20,
               decoration: ShapeDecoration(
                 color: GSColors.lightBlue,
                 shape: RoundedRectangleBorder(
@@ -301,13 +307,15 @@ class _NutritionPage extends State<NutritionPage> {
               child: Center(
                 child: Text(
                 dayLetter,
-                style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 16.0),
+                style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
               ),  
             )) 
-            : Text(
-                dayLetter,
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),  
+            : Container(
+                margin: EdgeInsets.only(bottom: 3),
+                child: Text(
+                  dayLetter,
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              )),  
 
             center: Text ( 
               "+100%",
@@ -317,7 +325,7 @@ class _NutritionPage extends State<NutritionPage> {
           onTap: () {
             _weeklyNavigator(thisDay, dayNum);
           },
-        ),
+        ), 
       );
     }
 
@@ -331,9 +339,10 @@ class _NutritionPage extends State<NutritionPage> {
             percent: 0.0,
             progressColor: GSColors.darkCloud,
             backgroundColor: GSColors.darkCloud,
-           header: _highlightDay == dayNum ? Container(
-              width: 22,
-              height: 22,
+            header: _highlightDay == dayNum ? Container(
+              margin: EdgeInsets.only(bottom: 3),
+              width: 20,
+              height: 20,
               decoration: ShapeDecoration(
                 color: GSColors.lightBlue,
                 shape: RoundedRectangleBorder(
@@ -343,13 +352,15 @@ class _NutritionPage extends State<NutritionPage> {
               child: Center(
                 child: Text(
                 dayLetter,
-                style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 16.0),
+                style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
               ),  
             )) 
-            : Text(
-                dayLetter,
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),  
+            : Container(
+                margin: EdgeInsets.only(bottom: 3),
+                child: Text(
+                  dayLetter,
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              )),  
 
             center: Text ( 
               "0%",
@@ -363,6 +374,7 @@ class _NutritionPage extends State<NutritionPage> {
       );
     }
 
+    // CASE WITH 0%
     else {
       return Container(
         margin: EdgeInsets.only(right: 12),
@@ -374,8 +386,9 @@ class _NutritionPage extends State<NutritionPage> {
             progressColor: GSColors.darkCloud,
             backgroundColor: GSColors.darkCloud,
             header: _highlightDay == dayNum ? Container(
-              width: 22,
-              height: 22,
+              margin: EdgeInsets.only(bottom: 3),
+              width: 20,
+              height: 20,
               decoration: ShapeDecoration(
                 color: GSColors.lightBlue,
                 shape: RoundedRectangleBorder(
@@ -385,13 +398,15 @@ class _NutritionPage extends State<NutritionPage> {
               child: Center(
                 child: Text(
                 dayLetter,
-                style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 16.0),
+                style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
               ),  
             )) 
-            : Text(
-                dayLetter,
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),  
+            : Container(
+                margin: EdgeInsets.only(bottom: 3),
+                child: Text(
+                  dayLetter,
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              )),  
 
             center: Text(
                 "0%",
@@ -401,7 +416,7 @@ class _NutritionPage extends State<NutritionPage> {
           onTap: () {
             _weeklyNavigator(thisDay, dayNum);
           },
-        ),
+        ), 
       );
     }
   }
@@ -527,7 +542,7 @@ class _NutritionPage extends State<NutritionPage> {
                           progressColor: Colors.green,
                           backgroundColor: GSColors.darkCloud,
                           center: Text ( 
-                            "100%",
+                            "+100%",
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20.0),
                           ),
                           footer:   
