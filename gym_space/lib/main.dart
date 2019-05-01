@@ -49,6 +49,7 @@ class GymSpace extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'GymSpace',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: GSColors.darkBlue,
       ),
