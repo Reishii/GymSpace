@@ -10,8 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/group.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:percent_indicator/percent_indicator.dart';
-
 
 class GroupProfilePage extends StatefulWidget {
   Group group;
@@ -314,7 +312,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           Container(
             height: 40,
             decoration: ShapeDecoration(
-              color: _currentTab == 0 ? GSColors.lightBlue : GSColors.darkBlue,
+              // color: _currentTab == 0 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(40),
               ),
@@ -328,7 +326,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Overview',
                 style: TextStyle(
-                color: _currentTab == 0 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 0 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -339,12 +337,12 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           _joined ? Container(
             height: 40,
             decoration: ShapeDecoration(
-              color: _currentTab == 1 ? GSColors.lightBlue : GSColors.darkBlue,
+              // color: _currentTab == 1 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(40),
               ),
             ),
-            child: MaterialButton( // Challenges
+            child: MaterialButton( // Challengesradius
               onPressed: () { 
                 if (_currentTab != 1) {
                   setState(() => _currentTab = 1);
@@ -353,7 +351,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Challenges',
                 style: TextStyle(
-                color: _currentTab == 1 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 1 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -364,7 +362,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           _joined ? Container(
             height: 40,
             decoration: ShapeDecoration(
-              color: _currentTab == 2 ? GSColors.lightBlue : GSColors.darkBlue,
+              // color: _currentTab == 2 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(40),
               ),
@@ -378,7 +376,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Discussion',
                 style: TextStyle(
-                color: _currentTab == 2 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 2 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -571,9 +569,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
   Widget _buildChallenges() {
       String _challengeKey = getChallengeKey(); //challenge weekly date
-      String challengeTitle, challengeUnits;
-      int challengeGoal, challengePoints;
-    
+      String challengeTitle, challengeUnits, challengeGoal, challengePoints;
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -599,6 +595,9 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                       barrierDismissible: false,
                       context: context,
                       builder: (BuildContext context){
+
+                  
+
                         return AlertDialog(
                           title: Text("For Week:  " + _challengeKey),
                           content:
@@ -674,7 +673,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                                 contentPadding: EdgeInsets.all(10.0)
                                               ),
                                               onChanged: (text){
-                                                (text!= null) ? challengeGoal = int.parse(text) : challengeGoal = -9999;
+                                                (text!= null) ? challengeGoal = text : challengeGoal = 'error2';
                                               },
                                             )
                                         ),
@@ -697,7 +696,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                                 contentPadding: EdgeInsets.all(10.0)
                                               ),
                                               onChanged: (text){
-                                                (text!= null) ? challengePoints = int.parse(text) : challengePoints = -9999;
+                                                (text!= null) ? challengePoints = text : challengePoints = 'error3';
                                               },
                                             )
                                         ),
@@ -719,7 +718,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                 child: const Text('Save'),
                                 onPressed: (){
 
-                                  if(challengeTitle == 'error0' || challengeUnits == 'error1' || challengeGoal == -9999 || challengePoints == -9999)
+                                  if(challengeTitle == 'error0' || challengeUnits == 'error1' || challengeGoal == 'error2' || challengePoints == 'error3')
                                   {
                                    //send toast error message 
                                   } 
@@ -728,24 +727,24 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                   {
                                     Map<String, dynamic> newGroupChallenge;    
                                     List<Map> membersMapList = List();
-                                    Map<String, dynamic> membersMap = Map();
-                                    // Map<String, dynamic> tempMap = Map();
+                                    Map<String, dynamic> tempMap = Map();
 
                                     for(int i = 0; i < group.members.length; i++)
                                       {
-                                        membersMap[group.members[i]] = {'points': 0, 'progress' : 0};
-                                        //tempMap = {group.members[i]: {'points' : 0, 'progress' : 0}};
-                                        //membersMapList.add(tempMap);
-                                        //membersMapList.add(membersMap);
+                                        tempMap = {group.members[i]: {'points' : 0}};
+                                        membersMapList.add(tempMap);
                                       }
 
-                                    newGroupChallenge =  
+                                    newGroupChallenge = //{_challengeKey: 
+                                      //{ challengeTitle: 
                                         {'points' : challengePoints, 
                                           'units' : challengeUnits,
                                           'goal' : challengeGoal,
-                                          'members' : membersMap//membersMapList
-                                          };         
+                                          'members' : membersMapList
+                                          }; //}    ;            
+                                    //};        
                                     _uploadGroupChallenge(newGroupChallenge, _challengeKey, challengeTitle);
+
                                     Navigator.pop(context);
                                   }
                                 }
@@ -760,330 +759,22 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               ],
             ),
           ),
-          //Container(
-          InkWell(
-            onTap: (){
-              showDialog(
-                context: context,
-                builder: (BuildContext context)
-                {
-                  List<int> inputList = List();
-                  List<String> challengeNames = List();
-                  return AlertDialog(
-                    title: Text(
-                      "Update your progress on your group's weekly challenges"),
-                    content: 
-                    Container(
-                      height: 450,
-                      width: 350,
-                      child: Scrollbar(
-                        child: StreamBuilder(
-                          stream:  DatabaseHelper.getGroupStreamSnapshot(group.documentID),
-                          builder: (context, snapshotGroup){
-                            if(snapshotGroup.data == null)
-                            {
-                              return Container();
-                            }
-                            else
-                            {
-
-                              List<Widget> challengeList = [];
-                              int userIndex;
-                              snapshotGroup.data['challenges'][_challengeKey].cast<String, dynamic>().forEach((title, value){                          
-                              
-                                for(int i = 0; i < group.members.length; i++)
-                                {
-                                  if(value['members'][i] == DatabaseHelper.currentUserID)
-                                    userIndex = i;
-                                }
-
-                                challengeList.add(
-                                  TextField(
-                                    decoration: InputDecoration(
-                                      labelText: title,
-                                      labelStyle: TextStyle(
-                                        fontSize: 18.0,
-                                        color: GSColors.darkBlue
-                                        ),
-                                      contentPadding: EdgeInsets.all(10.0),
-                                      hintText: '${value['members'][DatabaseHelper.currentUserID]['progress'].toString()}/${value['goal'].toString()} ${value['units']} Completed',
-                                      hintStyle: TextStyle(
-                                        color: GSColors.lightBlue,
-                                        fontWeight: FontWeight.bold,
-                                        ) 
-                                      ),
-                                      maxLength: 5,
-                                      onChanged: (text){
-                                        (text != null) ? inputList.add(int.parse(text)) : inputList.add(-999999);
-                                        challengeNames.add(title);
-                                      },
-                                  )
-                                );
-                              });
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: challengeList,
-                              );
-
-                            }
-                          }
-                        ),
-                        // child: ListView(),
-                      ),
-                    ),
-                    actions: <Widget>[
-                      FlatButton(
-                        child: const Text('Cancel'),
-                        onPressed: (){
-                          Navigator.pop(context);
-                        },
-                      ),
-                      FlatButton(
-                        child: const Text('Save'),
-                        onPressed: (){
-                          // int temp;
-                          // for(int j = 0; j < inputList.length; j++)
-                          // {
-                          //   if(inputList[j] != -999999)
-                          //   {
-                          //     inputList[j] = 0;
-                          //   }
-
-                          // temp = inputList[j] + 
-
-                          // }
-                          _updateMemberChallengeProgress(inputList, challengeNames);
-                          _buildChallenges();
-                          Navigator.pop(context);
-                        },
-                      )
-
-                    ],
-                  );
-                }
-              );
-            },
-            child: Container(
-            width: double.maxFinite,
-            margin: EdgeInsets.symmetric(vertical: 10),
-            decoration: ShapeDecoration(
-              color: GSColors.darkBlue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20)
-              )
-            ),
-
-             //child: InkWell(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  // StreamBuilder( 
-                  //   stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                  //   builder: (context, snapshotUser){
-                  //     if(!snapshotUser.hasData){
-                  //       return Container();
-                  //     }
-                      //else{
-                        //return 
-                        StreamBuilder(
-                          stream: DatabaseHelper.getGroupStreamSnapshot(group.documentID),
-                          builder: (context, snapshotGroup){
-                            if(snapshotGroup.data['challenges'][_challengeKey] == null)
-                            {
-                              return Container();
-                            }
-                            else
-                            {
-                              // User user = User.jsonToUser(snapshotUser.data.data);
-                              List<Widget> challengeList = [];
-                              snapshotGroup.data['challenges'][_challengeKey].cast<String, Map>().forEach((title, value)
-                              {
-                                if(value['members'][DatabaseHelper.currentUserID]['progress'] == value['goal'])
-                                {
-                                  challengeList.add(
-                                    Container(
-                                    margin: EdgeInsets.fromLTRB(15, 15, 15, 15),
-                                    child :Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                      Container(
-                                        child: Text(
-                                          title,
-                                          style: TextStyle(
-                                            color: GSColors.cloud,
-                                            fontSize: 15.0,
-                                            fontWeight: FontWeight.bold
-                                          ),
-                                          textAlign: TextAlign.left,
-                                        ),
-                                      ),
-                                      Container(
-                                          height: 20,
-                                          child: (LinearPercentIndicator(
-                                          width: 330,
-                                          lineHeight: 14.0,
-                                          percent: 1.0,
-                                          backgroundColor: Colors.green,
-                                          progressColor: Colors.green,
-                                          center: Text("100%")
-                                          )  
-                                        ),  
-                                      )
-                                    ]
-                                  )
-                                    )
-                                  );
-                                }
-                                else{
-                                  challengeList.add(
-                                    Container(
-                                    margin: EdgeInsets.fromLTRB(15, 15, 15, 15),
-                                    child :Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                      Container(
-                                        child: Text(
-                                          title,
-                                          style: TextStyle(
-                                            color: GSColors.cloud,
-                                            fontSize: 15.0,
-                                            fontWeight: FontWeight.bold
-                                          ),
-                                          textAlign: TextAlign.left,
-                                        ),
-                                      ),
-                                      Container(
-                                          height: 20,
-                                          child: (LinearPercentIndicator(
-                                          width: 330,
-                                          lineHeight: 14.0,
-                                          percent: value['members'][DatabaseHelper.currentUserID]['progress']/value['goal'],
-                                          backgroundColor: GSColors.darkCloud,
-                                          progressColor: GSColors.lightBlue,
-                                          center: Text((value['members'][DatabaseHelper.currentUserID]['progress']/value['goal'] * 100).toStringAsFixed(0) + "%")
-                                          )  
-                                        ),  
-                                      )
-                                    ]
-                                  )
-                                    )
-                                  );
-                                }                   
-                              });               
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: challengeList,
-                                  
-                                  // Container(
-                                  //   height: 20,
-                                  //   child: (LinearPercentIndicator(
-                                  //     width: 350,
-                                  //     lineHeight: 14.0,
-                                  //     percent: 0.5,
-                                  //     backgroundColor: GSColors.darkCloud,
-                                  //     progressColor: GSColors.lightBlue,
-                                  //     center: Text("50%")
-                                  //     )  
-                                  //   ),
-
-                                  // )
-                                
-                              );
-                            }
-                          },
-                        )
-                      //}
-                    //}
-                  // )
-                ],
-              ),
-            )
-          )
         ],
       ),
     );
   }
 
-Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String> challengeName) async{
-  DocumentSnapshot groupChallenge = await Firestore.instance.collection('groups').document(group.documentID).get();
-  int temp, userPoints, groupPoints, newProgress;
-  String _challengeKey = getChallengeKey(); //challenge weekly date
-  //DocumentSnapshot userInfo = await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID).get();
-  DocumentSnapshot userInfo = await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
-
-  Map challengeMap = groupChallenge.data['challenges'];// = groupChallenge.data['challenges'][_challengeKey];
-
-  for(int i = 0; i < progressList.length; i++)
-  {
-    if(progressList[i] == -999999)
-      progressList[i] = 0;
-
-      //print(challengeName[0]);
-      print(challengeName.length);
-
-      temp = progressList[i] + groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['members'][DatabaseHelper.currentUserID]['progress'];
-
-      if(progressList[i] != 0 && temp >= groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['goal'] && groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['members'][DatabaseHelper.currentUserID]['progress'] != groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['goal'])
-      {
-        userPoints = groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['points'] + userInfo.data['points'];
-        groupPoints = groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['points'];
-        newProgress = groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['goal'];
-        
-        challengeMap[_challengeKey][challengeName[i]]['members'][DatabaseHelper.currentUserID]['points'] = groupPoints;
-        challengeMap[_challengeKey][challengeName[i]]['members'][DatabaseHelper.currentUserID]['progress'] = newProgress;
-
-
-        Firestore.instance.collection('groups').document(group.documentID).updateData(
-          {'challenges' : challengeMap}
-          );
-        Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
-          {'points' : userPoints}
-          );
-      }
-
-      else if(progressList[i] != 0 && groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['goal'] != groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['members'][DatabaseHelper.currentUserID]['progress'])
-      {
-        newProgress = groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['members'][DatabaseHelper.currentUserID]['progress']
-                    + progressList[i];
-
-        challengeMap[_challengeKey][challengeName[i]]['members'][DatabaseHelper.currentUserID]['progress'] = newProgress;
-        Firestore.instance.collection('groups').document(group.documentID).updateData(
-          {'challenges' : challengeMap}
-          );
-      }
-    
-    //  Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
-    //   {'points' : newPoints}
-    // );
-
-  }
-}
-
-  Future<void> _uploadGroupChallenge(Map challengeInfo, String challengeKey, String challengeTitle) async
+  Future<void> _uploadGroupChallenge(Map<String, dynamic> challengeInfo, String challengeKey, String challengeTitle) async
   {
     DocumentSnapshot groupChallengeSnap = await Firestore.instance.collection('groups').document(group.documentID).get();
     Map<String, dynamic> challengeMap = groupChallengeSnap.data['challenges'].cast<String, dynamic>();
-    Map<String, dynamic> newWeekMap = Map();
-
-    if(challengeMap[challengeKey] == null)
-    {
-      newWeekMap = {challengeKey: {}};
-      Firestore.instance.collection('groups').document(group.documentID).updateData(
-      {'challenges' : newWeekMap  }
-      );
-
-      _uploadGroupChallenge(challengeInfo, challengeKey, challengeTitle);
-    }
-
-    else{
+    
     challengeMap[challengeKey][challengeTitle] = challengeInfo;
     
     Firestore.instance.collection('groups').document(group.documentID).updateData(
       {'challenges' : challengeMap}
-      );
-    }
+    );
   }
-
 
   String getChallengeKey(){
   

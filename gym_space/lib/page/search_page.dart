@@ -1,10 +1,12 @@
 import 'package:GymSpace/logic/group.dart';
 import 'package:GymSpace/misc/colors.dart';
+import 'package:GymSpace/page/group_profile_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/global.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 enum SearchType {user, group, workoutplan}
 
@@ -224,9 +226,7 @@ class _SearchPageState extends State<SearchPage> {
           ),
           Container(
             child: Column(
-              children: <Widget>[
-                Container()
-              ],
+              children: _buildAllGroups(),
             ),
           ),
         ],
@@ -236,18 +236,36 @@ class _SearchPageState extends State<SearchPage> {
 
   List<Widget> _buildFoundGroups() {
     bool foundGroup = groupsFound.isNotEmpty;
+    List<Widget> groupCards = List();
+    for (int groupIndex in groupsFound) {
+      Group group = groups[groupIndex];
+      groupCards.add(_buildGroupItem(group));
+    }
     
     return <Widget>[
       foundGroup ?
         Container(
           margin: EdgeInsets.symmetric(vertical: 10),
-          child: Text(
-            'Found ${groupsFound.length} Groups',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2
-            ),
+          child: Column(
+            children: <Widget>[
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                  'Found ${groupsFound.length} groups',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              CarouselSlider(
+                items: groupCards,
+                enableInfiniteScroll: false,
+                enlargeCenterPage: true,
+                autoPlay: false,
+              ),
+            ],
           )
         ) : Container(),
     ];
@@ -256,79 +274,84 @@ class _SearchPageState extends State<SearchPage> {
   List<Widget> _buildAllGroups() {
     List<Widget> groupItems = List();
     groups.forEach((group) { 
-      groupItems.add(_buildGroupItem(group));
+      groupItems.add(
+        Container(
+          height: 200,
+          width: double.infinity,
+          margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+          child: _buildGroupItem(group)
+        )
+      );
     });
 
-    return groupItems;
+    return <Widget>[
+      Container(
+        margin: EdgeInsets.symmetric(vertical: 10),
+        child: Column(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 10),
+              child: Text(
+                'Explore Groups',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ] + groupItems,
+        )
+      )
+    ];
   }
 
   Widget _buildGroupItem(Group group) {
     return Container(
-      // margin: EdgeInsets.symmetric(vertical: 10),
-      // decoration: ShapeDecoration(
-      //   color: GSColors.darkBlue,
-      //   shape: RoundedRectangleBorder(
-      //     borderRadius: BorderRadius.circular(30),
-      //   )
-      // ),
-      // child: InkWell(
-      //   onTap: () {_buildProfile(user);},
-      //   child: Container(
-      //     margin: EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-      //     child:Row(
-      //       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //       children: <Widget>[
-      //         Expanded(
-      //           flex: 1,
-      //           child: Container(
-      //             decoration: ShapeDecoration(
-      //               shape: CircleBorder(
-      //                 side: BorderSide(
-      //                   width: 2,
-      //                   color: Colors.white
-      //                 )
-      //               )
-      //             ),
-      //             alignment: Alignment.centerLeft,
-      //             margin: EdgeInsets.symmetric(horizontal: 50), // only way I found to get circle avatar right
-      //             child: CircleAvatar(
-      //               backgroundImage: CachedNetworkImageProvider(
-      //                 user.photoURL.isNotEmpty ? user.photoURL : Defaults.photoURL,
-      //               ),
-      //               radius: 30,
-      //             ),
-      //           ),
-      //         ),
-      //         Expanded(
-      //           flex: 1,
-      //           child: Column(
-      //             crossAxisAlignment: CrossAxisAlignment.start,
-      //             children: <Widget>[
-      //               Text(
-      //                 '${user.firstName} ${user.lastName}',
-      //                 style: TextStyle(
-      //                   color: Colors.white
-      //                 ),
-      //               ),
-      //               Text(
-      //                 user.buddies.contains(DatabaseHelper.currentUserID) ? 'Buddies' : '   $mutualFriends mutual buddies',
-      //                 style: TextStyle(
-      //                   color: Colors.white54,
-      //                 ),
-      //               )
-      //             ],
-      //           )
-      //         ),
-      //       ],
-      //     ),
-      //   ),
-      // ),
+      width: double.infinity,
+      margin: EdgeInsets.symmetric(horizontal: 6),
+      decoration: ShapeDecoration(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        image: DecorationImage(
+          image: CachedNetworkImageProvider(group.photoURL.isNotEmpty ? group.photoURL : Defaults.photoURL),
+          fit: BoxFit.fill
+        )
+      ),
+      child: InkWell(
+        onTap: () => _buildGroup(group),
+        child:Card(
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          color: Colors.transparent,
+          child: Container(
+            alignment: Alignment.bottomCenter,
+            child: Text(
+              group.name, 
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontFamily: 'Montserrat',
+                // fontWeight: FontWeight.bold,
+                // letterSpacing: 1.2
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
   void _buildProfile(User user) {
     Navigator.push(context, MaterialPageRoute(
       builder: (context) => ProfilePage.fromUser(user)
+    ));
+  }
+
+  void _buildGroup(Group group) {
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) => GroupProfilePage(group: group)
     ));
   }
 }
