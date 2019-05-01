@@ -20,8 +20,16 @@ class NutritionPage extends StatefulWidget {
 class _NutritionPage extends State<NutritionPage> {
   Future<DocumentSnapshot> _futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
   String _dietKey = DateTime.now().toString().substring(0,10);
-  var day = DateTime.now();
+  String _weekKey;
+  DateTime now = DateTime.now();
   int _currentDay;
+  final int monday = 1;
+  final int tuesday = 2;
+  final int wednesday = 3;
+  final int thursday = 4;
+  final int friday = 5;
+  final int saturday = 6;
+  final int sunday = 7;
   external int get weekday;
 
   @override
@@ -141,7 +149,7 @@ class _NutritionPage extends State<NutritionPage> {
 
   Widget _buildWeeklyCircularProgress(User user, AsyncSnapshot<dynamic> snapshot) {
 
-    // ******* MONDAY ********
+    // ******* SUNDAY ********
     if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] <= snapshot.data['caloricGoal']) {
       return Container(
         margin: EdgeInsets.only(right: 12),
@@ -156,7 +164,7 @@ class _NutritionPage extends State<NutritionPage> {
             circularStrokeCap: CircularStrokeCap.round,
             header:   
               Text(
-                "M",
+                "S",
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
             ),
             center: 
@@ -166,9 +174,13 @@ class _NutritionPage extends State<NutritionPage> {
             )
           ),
           onTap: () {
-            // Set state to MONDAY
-            if(_currentDay != 1) 
-              setState(() => _currentDay = 1);
+            // Set state to Sunday
+            print("tapped");
+            while(now.weekday != sunday) 
+            {
+              print("Subtracting day");
+              setState(() => now = now.subtract(Duration(days: 1)));
+            }
           },
         ),
       );
@@ -185,19 +197,23 @@ class _NutritionPage extends State<NutritionPage> {
             progressColor: Colors.green,
             backgroundColor: GSColors.darkCloud,
             center: Text ( 
-              ">100%",
+              "+100%",
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
             ),
             header:   
               Text(
-                "M",
+                "S",
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
               ),
           ),
           onTap: () {
-            // Set state to MONDAY
-            if(_currentDay != 1) 
-              setState(() => _currentDay = 1);
+            // Set state to Sunday
+            print("tapped");
+            while(now.weekday != sunday) 
+            {
+              print("Subtracting day");
+              setState(() => now = now.subtract(Duration(days: 1)));
+            }
           },
         ),
       );
@@ -219,14 +235,14 @@ class _NutritionPage extends State<NutritionPage> {
             ),
             header:   
               Text(
-                "M",
+                "S",
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
               ),
           ),
           onTap: () {
-            // Set state to MONDAY
-            if(_currentDay != 1) 
-              setState(() => _currentDay = 1);
+            // Set state to Sunday
+            if(_currentDay != sunday) 
+              setState(() => _currentDay = sunday);
           },
         ),
       );
@@ -244,7 +260,7 @@ class _NutritionPage extends State<NutritionPage> {
             backgroundColor: GSColors.darkCloud,
             header:   
               Text(
-                "M",
+                "S",
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
               ),
             center: 
@@ -254,9 +270,9 @@ class _NutritionPage extends State<NutritionPage> {
               ),
           ),
           onTap: () {
-            // Set state to MONDAY
-            if(_currentDay != 1) 
-              setState(() => _currentDay = 1);
+            // Set state to Sunday
+            if(_currentDay != sunday) 
+              setState(() => _currentDay = sunday);
           },
         ),
       );
@@ -276,7 +292,7 @@ class _NutritionPage extends State<NutritionPage> {
                 child: Text(
                   //day.weekday.toString(),
                   // Get day of current nutrition thing
-                  DateFormat('EEEE, MMMM dd, y').format(day),
+                  DateFormat('EEEE, MMM dd, y').format(now),
                   style: TextStyle(
                     color: GSColors.darkBlue,
                     fontSize: 16,
@@ -355,8 +371,12 @@ class _NutritionPage extends State<NutritionPage> {
                       {
                         return Container();
                       }
+
                       User user = User.jsonToUser(snapshot.data.data);
                       
+                      // Set _dietKey to the circle user pressed
+                      _dietKey = now.toString().substring(0,10);       
+
                       //if(user.diet[_dietKey] != null && snapshot.data['diet'][_dietKey][4] > 0)
                       if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] <= snapshot.data['caloricGoal'])
                       {
@@ -823,9 +843,4 @@ class _NutritionPage extends State<NutritionPage> {
     );
   }
 
-  Widget _buildWeeklyInfo(BuildContext context) {
-    return Container(
-      
-    );
-  }
 }
