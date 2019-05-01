@@ -718,8 +718,6 @@ Future<void> _checkDailyMacrosExist() async{
       );
   }
 
-
-
   Widget _buildCurrentWeight() {
     return Row(
       children: <Widget>[

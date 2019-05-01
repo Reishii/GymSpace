@@ -18,18 +18,29 @@ class NutritionPage extends StatefulWidget {
 
 
 class _NutritionPage extends State<NutritionPage> {
-  Future<DocumentSnapshot> _futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
   String _dietKey = DateTime.now().toString().substring(0,10);
-  var day = DateTime.now();
-  int _currentDay;
+  final DateTime _currentDay = DateTime.now();
+  DateTime _week = DateTime.now();
+  DateTime now = DateTime.now();
+  DateTime _mon = DateTime.now();
+  DateTime _tue = DateTime.now();
+  DateTime _wed = DateTime.now();
+  DateTime _thur = DateTime.now();
+  DateTime _fri = DateTime.now();
+  DateTime _sat = DateTime.now();
+  DateTime _sun = DateTime.now();
+  String _monKey, _tueKey, _wedKey, _thurKey, _friKey, _satKey, _sunKey;
+  bool _selectDay = true;
+  int _highlightDay;
   external int get weekday;
 
   @override
   Widget build(BuildContext context) {
+    _highlightDay = now.weekday;
     return Scaffold(
       drawer: AppDrawer(startPage: 3,),
       backgroundColor: GSColors.darkBlue,
-       floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         child: Icon(
           FontAwesomeIcons.plus,
           size: 14,
@@ -61,7 +72,7 @@ class _NutritionPage extends State<NutritionPage> {
       child: ListView(
         children: <Widget>[
           _buildWeeklyLabel(),
-          _buildWeeklyNavigator(),
+          _buildWeeklyBuilder(),
           _buildNutritionLabel(),
           _buildNutritionInfo(context),
         ],
@@ -70,17 +81,20 @@ class _NutritionPage extends State<NutritionPage> {
   }
 
   Widget _buildWeeklyLabel() {
+    _setWeek();
     return Container(
       margin: EdgeInsets.only(top: 25),
       height: 40,
+      width: 40,
       child: Row(
         children: <Widget>[
           Expanded(
-            flex: 1,
-            child: Container(),
+            flex: 3,
+            child: Container(
+            ),
           ),
           Expanded(
-            flex: 2,
+            flex: 1,
             child: Container(
               alignment: Alignment.center,
               decoration: ShapeDecoration(
@@ -92,14 +106,24 @@ class _NutritionPage extends State<NutritionPage> {
                   )
                 )
               ),
-              child: Text(
-                "Weekly Nutrition",
-                style: TextStyle(
-                  color: GSColors.darkBlue,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2
-                ),
+              child: Row(
+                children: <Widget>[ 
+                  Center(
+                    child: Text(
+                      DateFormat('MMMM').format(_week),
+                      style: TextStyle(
+                      color: GSColors.darkBlue,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.2
+                    ),
+                  )),
+                  IconButton(
+                    icon: Icon(FontAwesomeIcons.chevronRight),
+                    iconSize: 15,
+                    onPressed: () {},
+                  ),
+                ],
               ),
             ),
           ),
@@ -108,7 +132,7 @@ class _NutritionPage extends State<NutritionPage> {
     );
   }
 
-  Widget _buildWeeklyNavigator() {
+  Widget _buildWeeklyBuilder() {
     return Container(
       height: 100, 
       margin: EdgeInsets.symmetric(vertical: 5),
@@ -118,7 +142,7 @@ class _NutritionPage extends State<NutritionPage> {
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.only(left: 12),
-              itemCount: 7,
+              itemCount: 1,
               itemBuilder: (BuildContext context, int i) {
 
               return StreamBuilder(
@@ -128,7 +152,7 @@ class _NutritionPage extends State<NutritionPage> {
                     return Container();
 
                     User user = User.jsonToUser(snapshot.data.data);
-                    return _buildWeeklyCircularProgress(user, snapshot);
+                    return _buildWeeklyProgress(user, snapshot);
                   }
                 );
               }
@@ -139,10 +163,89 @@ class _NutritionPage extends State<NutritionPage> {
     );
   }
 
-  Widget _buildWeeklyCircularProgress(User user, AsyncSnapshot<dynamic> snapshot) {
+  Widget _buildWeeklyProgress(User user, AsyncSnapshot<dynamic> snapshot) {
+    return Container(
+      child: Row(
+        children: <Widget>[
+          _buildWeeklyCircle(user, snapshot, _sunKey, "S", 7, _sun),
+          _buildWeeklyCircle(user, snapshot, _monKey, "M", 1, _mon),
+          _buildWeeklyCircle(user, snapshot, _tueKey, "T", 2, _tue),
+          _buildWeeklyCircle(user, snapshot, _wedKey, "W", 3, _wed),
+          _buildWeeklyCircle(user, snapshot, _thurKey, "T", 4, _thur),
+          _buildWeeklyCircle(user, snapshot, _friKey, "F", 5, _fri),
+          _buildWeeklyCircle(user, snapshot, _satKey, "S", 6, _sat),
+        ],
+      )
+    );
+  }
 
-    // ******* MONDAY ********
-    if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] <= snapshot.data['caloricGoal']) {
+  void _setWeek() {
+    // Get Sunday as a base
+    while(_sun.weekday != 7)  // if not currently sunday
+      _sun = _sun.subtract(Duration(days: 1));
+
+    _week = _sun;
+    // Sets this Sunday as base, do not go before this
+    _mon = _week;
+    _tue = _week;
+    _wed = _week;
+    _thur = _week;
+    _fri = _week;
+    _sat = _week;
+
+    // Set each day of the week
+    while(_mon.weekday % 7 != 1)
+      _mon = _mon.add(Duration(days: 1));
+
+    while(_tue.weekday % 7 != 2)
+      _tue = _tue.add(Duration(days: 1));
+
+    while(_wed.weekday % 7 != 3)
+      _wed = _wed.add(Duration(days: 1));
+
+    while(_thur.weekday % 7 != 4)
+      _thur = _thur.add(Duration(days: 1));
+
+    while(_fri.weekday % 7 != 5)
+      _fri = _fri.add(Duration(days: 1));
+
+    while(_sat.weekday % 7 != 6)
+      _sat = _sat.add(Duration(days: 1));
+  }
+
+  void _weeklyNavigator(DateTime _chosenDay, int day) {
+    // Cannot choose day after today
+    _checkDay(_chosenDay);
+
+    if(_selectDay) {
+      // If day selected is after chosen day, increment days
+      _highlightDay = day;
+      if(now.isAfter(_chosenDay)) {
+        while(now.weekday != day) 
+          setState(() => now = now.subtract(Duration(days: 1)));
+      } 
+      // If day is selected before chosen day, decrement days
+      else if(now.isBefore(_chosenDay)) {
+        _highlightDay = day;
+        while(now.weekday != day) 
+          setState(() => now = now.add(Duration(days: 1)));
+      }
+    }
+  }
+
+  void _checkDay(DateTime _chosenDay) {
+    if(_chosenDay.weekday > _currentDay.weekday && _chosenDay.weekday != 7) 
+      setState(() => _selectDay = false);
+    else
+      setState(() => _selectDay = true);
+  }
+
+  Widget _buildWeeklyCircle(User user, AsyncSnapshot<dynamic> snapshot, 
+                              String _dailyKey, String dayLetter, int dayNum, DateTime thisDay) {
+
+    _dailyKey = thisDay.toString().substring(0,10);
+
+    if(user.diet[_dailyKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dailyKey][3] <= snapshot.data['caloricGoal']) {
       return Container(
         margin: EdgeInsets.only(right: 12),
         child: InkWell(
@@ -150,60 +253,95 @@ class _NutritionPage extends State<NutritionPage> {
             animation: true,
             radius: 45.0,
             lineWidth: 5.0,
-            percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal'],
+            percent: snapshot.data['diet'][_dailyKey][3] / snapshot.data['caloricGoal'],
             progressColor: GSColors.lightBlue,
             backgroundColor: GSColors.darkCloud,
             circularStrokeCap: CircularStrokeCap.round,
-            header:   
-              Text(
-                "M",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-            ),
+
+            // Highlight current day
+            header: _highlightDay == dayNum ? Container(
+              margin: EdgeInsets.only(bottom: 3),
+              width: 20,
+              height: 20,
+              decoration: ShapeDecoration(
+                color: GSColors.lightBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                dayLetter,
+                style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
+              ),  
+            )) 
+            : Container(
+                margin: EdgeInsets.only(bottom: 3),
+                child: Text(
+                  dayLetter,
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              )),  
+
             center: 
               Text(
-                (100.0 * snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
+                (100.0 * snapshot.data['diet'][_dailyKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
             )
           ),
           onTap: () {
-            // Set state to MONDAY
-            if(_currentDay != 1) 
-              setState(() => _currentDay = 1);
+            _weeklyNavigator(thisDay, dayNum);
           },
-        ),
+        )
       );
     }
 
-    else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] > snapshot.data['caloricGoal']) {
+    else if(user.diet[_dailyKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dailyKey][3] > snapshot.data['caloricGoal']) {
       return Container(
         margin: EdgeInsets.only(right: 12),
         child: InkWell(
           child: CircularPercentIndicator(
             radius: 45.0,
-            lineWidth: 4.0,  
+            lineWidth: 4.5,  
             percent: 1.0,
             progressColor: Colors.green,
             backgroundColor: GSColors.darkCloud,
-            center: Text ( 
-              ">100%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
-            ),
-            header:   
-              Text(
-                "M",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+
+            header: _highlightDay == dayNum ? Container(
+              margin: EdgeInsets.only(bottom: 3),
+              width: 20,
+              height: 20,
+              decoration: ShapeDecoration(
+                color: GSColors.lightBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
+              child: Center(
+                child: Text(
+                dayLetter,
+                style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
+              ),  
+            )) 
+            : Container(
+                margin: EdgeInsets.only(bottom: 3),
+                child: Text(
+                  dayLetter,
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              )),  
+
+            center: Text ( 
+              "+100%",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11.0),
+            ),
           ),
           onTap: () {
-            // Set state to MONDAY
-            if(_currentDay != 1) 
-              setState(() => _currentDay = 1);
+            _weeklyNavigator(thisDay, dayNum);
           },
-        ),
+        ), 
       );
     }
 
-    else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] == 0) {
+    else if(user.diet[_dailyKey] != null && snapshot.data['caloricGoal'] == 0) {
       return Container(
         margin: EdgeInsets.only(right: 12),
         child: InkWell(
@@ -213,25 +351,42 @@ class _NutritionPage extends State<NutritionPage> {
             percent: 0.0,
             progressColor: GSColors.darkCloud,
             backgroundColor: GSColors.darkCloud,
+            header: _highlightDay == dayNum ? Container(
+              margin: EdgeInsets.only(bottom: 3),
+              width: 20,
+              height: 20,
+              decoration: ShapeDecoration(
+                color: GSColors.lightBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                dayLetter,
+                style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
+              ),  
+            )) 
+            : Container(
+                margin: EdgeInsets.only(bottom: 3),
+                child: Text(
+                  dayLetter,
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              )),  
+
             center: Text ( 
               "0%",
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
             ),
-            header:   
-              Text(
-                "M",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
-              ),
           ),
           onTap: () {
-            // Set state to MONDAY
-            if(_currentDay != 1) 
-              setState(() => _currentDay = 1);
+            _weeklyNavigator(thisDay, dayNum);
           },
         ),
       );
     }
 
+    // CASE WITH 0%
     else {
       return Container(
         margin: EdgeInsets.only(right: 12),
@@ -242,23 +397,38 @@ class _NutritionPage extends State<NutritionPage> {
             percent: 0,
             progressColor: GSColors.darkCloud,
             backgroundColor: GSColors.darkCloud,
-            header:   
-              Text(
-                "M",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+            header: _highlightDay == dayNum ? Container(
+              margin: EdgeInsets.only(bottom: 3),
+              width: 20,
+              height: 20,
+              decoration: ShapeDecoration(
+                color: GSColors.lightBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-            center: 
-              Text(
+              child: Center(
+                child: Text(
+                dayLetter,
+                style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
+              ),  
+            )) 
+            : Container(
+                margin: EdgeInsets.only(bottom: 3),
+                child: Text(
+                  dayLetter,
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
+              )),  
+
+            center: Text(
                 "0%",
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
               ),
           ),
           onTap: () {
-            // Set state to MONDAY
-            if(_currentDay != 1) 
-              setState(() => _currentDay = 1);
+            _weeklyNavigator(thisDay, dayNum);
           },
-        ),
+        ), 
       );
     }
   }
@@ -276,7 +446,7 @@ class _NutritionPage extends State<NutritionPage> {
                 child: Text(
                   //day.weekday.toString(),
                   // Get day of current nutrition thing
-                  DateFormat('EEEE, MMMM dd, y').format(day),
+                  DateFormat('EEEE, MMM dd, y').format(now),
                   style: TextStyle(
                     color: GSColors.darkBlue,
                     fontSize: 16,
@@ -305,7 +475,7 @@ class _NutritionPage extends State<NutritionPage> {
     );
   }
 
-  Future<void> _checkDailyMacrosExist() async{
+  void _checkDailyMacrosExist() async{
   List<int> newMacros = new List(5);
 
   DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
@@ -339,24 +509,17 @@ class _NutritionPage extends State<NutritionPage> {
               child: Container(
                 height: 180,
                 child: Container(
-                //  child:  CircularPercentIndicator(
-                //           radius: 120.0,
-                //           lineWidth: 10,
-                //           percent: 0.8,
-                //           progressColor: Colors.green,
-                //           backgroundColor: GSColors.darkCloud,
-                //           animateFromLastPercent: true,
-                //           animation: true
-                //         ),
                   child: StreamBuilder(
                     stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                     builder: (context, snapshot){ 
                       if(!snapshot.hasData)
-                      {
                         return Container();
-                      }
+                    
                       User user = User.jsonToUser(snapshot.data.data);
-                      
+
+                      // Set _dietKey to the circle user pressed
+                      _dietKey = now.toString().substring(0,10);       
+
                       //if(user.diet[_dietKey] != null && snapshot.data['diet'][_dietKey][4] > 0)
                       if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] <= snapshot.data['caloricGoal'])
                       {
@@ -391,7 +554,7 @@ class _NutritionPage extends State<NutritionPage> {
                           progressColor: Colors.green,
                           backgroundColor: GSColors.darkCloud,
                           center: Text ( 
-                            "100%",
+                            "+100%",
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20.0),
                           ),
                           footer:   
@@ -440,15 +603,6 @@ class _NutritionPage extends State<NutritionPage> {
     
                     }
                   )
-
-                  // decoration: ShapeDecoration(
-                  //   shape: CircleBorder(
-                  //     side: BorderSide(
-                  //       width: 16,
-                  //       color: GSColors.darkBlue
-                  //     )
-                  //   )
-                  // ),
                 )
               ),
             ),
@@ -624,34 +778,11 @@ class _NutritionPage extends State<NutritionPage> {
                                     return Text('${user.caloricGoal.toString()}',
                                       style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.w500));
                                   }
-                                // if(user.diet[_dietKey] == null)
-                                // {
-                                //   return Text(
-                                //     '0 '
-                                //   );                        
-                                // }
-                                // else
-                                // {
-                                //   return Text(
-                                //     '${user.diet[_dietKey][4].toString()} '
-                                //   );
-                                //}
                               }
                             )
                           ],
                         )
                       ),
-                      // Container(
-                      //   margin: EdgeInsets.only(top: 5, left: 55),
-                      //   child: MaterialButton(
-                      //     child: Icon(
-                      //       Icons.add_circle,
-                      //       color: Colors.green.withAlpha(220),
-                      //       size: 40,
-                      //     ),
-                      //     onPressed: () {_updateNutritionInfo(context);},
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),
@@ -670,8 +801,6 @@ class _NutritionPage extends State<NutritionPage> {
       
     showDialog<String>(
       context: context,
-      //child: SingleChildScrollView(
-        //padding: EdgeInsets.all(5.0),
         child: AlertDialog(
         title: Text("Update your daily macros"),
         contentPadding: const EdgeInsets.all(16.0),
@@ -823,9 +952,4 @@ class _NutritionPage extends State<NutritionPage> {
     );
   }
 
-  Widget _buildWeeklyInfo(BuildContext context) {
-    return Container(
-      
-    );
-  }
 }
