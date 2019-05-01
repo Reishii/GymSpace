@@ -850,10 +850,16 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                       "Update your progress on your group's weekly challenges"),
                     content: 
                     Container(
-                      height: 450,
-                      width: 350,
-                      child: Scrollbar(
-                        child: StreamBuilder(
+                      //height: 450,
+                      // width: 350,
+                      width: double.maxFinite,
+                      // child: Scrollbar(
+                        child: ListView(
+
+                        // child: StreamBuilder(
+                          children: <Widget>[
+                            
+                          StreamBuilder(
                           stream:  DatabaseHelper.getGroupStreamSnapshot(group.documentID),
                           builder: (context, snapshotGroup){
                             if(snapshotGroup.data == null)
@@ -902,8 +908,11 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                             }
                           }
                         ),
-                        // child: ListView(),
-                      ),
+                          ]
+                        )
+        
+                        //child: ListView(),
+                      //),
                     ),
                     actions: <Widget>[
                       FlatButton(
