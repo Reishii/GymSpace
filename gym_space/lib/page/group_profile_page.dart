@@ -312,7 +312,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           Container(
             height: 40,
             decoration: ShapeDecoration(
-              color: _currentTab == 0 ? GSColors.lightBlue : GSColors.darkBlue,
+              // color: _currentTab == 0 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(40),
               ),
@@ -326,7 +326,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Overview',
                 style: TextStyle(
-                color: _currentTab == 0 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 0 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -337,12 +337,12 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           _joined ? Container(
             height: 40,
             decoration: ShapeDecoration(
-              color: _currentTab == 1 ? GSColors.lightBlue : GSColors.darkBlue,
+              // color: _currentTab == 1 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(40),
               ),
             ),
-            child: MaterialButton( // Challenges
+            child: MaterialButton( // Challengesradius
               onPressed: () { 
                 if (_currentTab != 1) {
                   setState(() => _currentTab = 1);
@@ -351,7 +351,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Challenges',
                 style: TextStyle(
-                color: _currentTab == 1 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 1 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -362,7 +362,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           _joined ? Container(
             height: 40,
             decoration: ShapeDecoration(
-              color: _currentTab == 2 ? GSColors.lightBlue : GSColors.darkBlue,
+              // color: _currentTab == 2 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(40),
               ),
@@ -376,7 +376,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Discussion',
                 style: TextStyle(
-                color: _currentTab == 2 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 2 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,

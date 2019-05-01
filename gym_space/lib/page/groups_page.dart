@@ -22,7 +22,7 @@ class GroupsPage extends StatelessWidget {
     List<Group> allGroups = List();
     QuerySnapshot groupSnapshots = await Firestore.instance.collection('groups').getDocuments();
     groupSnapshots.documents.forEach((ds) {
-      print(ds.data);
+      // print(ds.data);
       Group group = Group.jsonToGroup(ds.data);
       group.documentID = ds.documentID;
       allGroups.add(group);
@@ -41,7 +41,7 @@ class GroupsPage extends StatelessWidget {
     return Scaffold(
       drawer: AppDrawer(startPage: 4),
       // backgroundColor: GSColors.olive,
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       // body: _buildGroupBackground(),
       body: _buildBody(context),
       floatingActionButton: FloatingActionButton(
@@ -52,7 +52,7 @@ class GroupsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(BuildContext context) {
     return PreferredSize(
       preferredSize: Size.fromHeight(100),
       child: PageHeader(
@@ -60,6 +60,7 @@ class GroupsPage extends StatelessWidget {
         backgroundColor: GSColors.darkBlue,
         showDrawer: true,
         showSearch: true,
+        searchFunction: () => _addPressed(context),
         titleColor: Colors.white,
       )
     );
