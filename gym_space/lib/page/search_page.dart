@@ -264,65 +264,65 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget _buildGroupItem(Group group) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      decoration: ShapeDecoration(
-        color: GSColors.darkBlue,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        )
-      ),
-      child: InkWell(
-        onTap: () {_buildProfile(user);},
-        child: Container(
-          margin: EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-          child:Row(
-            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Expanded(
-                flex: 1,
-                child: Container(
-                  decoration: ShapeDecoration(
-                    shape: CircleBorder(
-                      side: BorderSide(
-                        width: 2,
-                        color: Colors.white
-                      )
-                    )
-                  ),
-                  alignment: Alignment.centerLeft,
-                  margin: EdgeInsets.symmetric(horizontal: 50), // only way I found to get circle avatar right
-                  child: CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(
-                      user.photoURL.isNotEmpty ? user.photoURL : Defaults.photoURL,
-                    ),
-                    radius: 30,
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      '${user.firstName} ${user.lastName}',
-                      style: TextStyle(
-                        color: Colors.white
-                      ),
-                    ),
-                    Text(
-                      user.buddies.contains(DatabaseHelper.currentUserID) ? 'Buddies' : '   $mutualFriends mutual buddies',
-                      style: TextStyle(
-                        color: Colors.white54,
-                      ),
-                    )
-                  ],
-                )
-              ),
-            ],
-          ),
-        ),
-      ),
+      // margin: EdgeInsets.symmetric(vertical: 10),
+      // decoration: ShapeDecoration(
+      //   color: GSColors.darkBlue,
+      //   shape: RoundedRectangleBorder(
+      //     borderRadius: BorderRadius.circular(30),
+      //   )
+      // ),
+      // child: InkWell(
+      //   onTap: () {_buildProfile(user);},
+      //   child: Container(
+      //     margin: EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+      //     child:Row(
+      //       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //       children: <Widget>[
+      //         Expanded(
+      //           flex: 1,
+      //           child: Container(
+      //             decoration: ShapeDecoration(
+      //               shape: CircleBorder(
+      //                 side: BorderSide(
+      //                   width: 2,
+      //                   color: Colors.white
+      //                 )
+      //               )
+      //             ),
+      //             alignment: Alignment.centerLeft,
+      //             margin: EdgeInsets.symmetric(horizontal: 50), // only way I found to get circle avatar right
+      //             child: CircleAvatar(
+      //               backgroundImage: CachedNetworkImageProvider(
+      //                 user.photoURL.isNotEmpty ? user.photoURL : Defaults.photoURL,
+      //               ),
+      //               radius: 30,
+      //             ),
+      //           ),
+      //         ),
+      //         Expanded(
+      //           flex: 1,
+      //           child: Column(
+      //             crossAxisAlignment: CrossAxisAlignment.start,
+      //             children: <Widget>[
+      //               Text(
+      //                 '${user.firstName} ${user.lastName}',
+      //                 style: TextStyle(
+      //                   color: Colors.white
+      //                 ),
+      //               ),
+      //               Text(
+      //                 user.buddies.contains(DatabaseHelper.currentUserID) ? 'Buddies' : '   $mutualFriends mutual buddies',
+      //                 style: TextStyle(
+      //                   color: Colors.white54,
+      //                 ),
+      //               )
+      //             ],
+      //           )
+      //         ),
+      //       ],
+      //     ),
+      //   ),
+      // ),
     );
   }
 

@@ -15,16 +15,22 @@ import 'package:percent_indicator/percent_indicator.dart';
 
 
 
-class MePage extends StatelessWidget {
-  final Widget child;
+class MePage extends StatefulWidget {
+
+  MePage({Key key}) : super(key: key);
+  _MePageState createState() => _MePageState();
+}
+
+class _MePageState extends State<MePage> {
+
   Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
   final myController = TextEditingController();
-  MePage({Key key, this.child}) : super(key: key);
 
   File imageFile;
   String imageUrl;
   String _dietKey = DateTime.now().toString().substring(0,10);
   String _challengeKey;
+  int _currentTab = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -171,13 +177,127 @@ class MePage extends StatelessWidget {
   }
 
   // Future<void> _updateMeInfo() async{
-   
 
   Widget _buildBody(BuildContext context) {
     return Container(
       child: ListView(
         children: <Widget>[
           _buildProfileHeading(),
+          _buildPillNavigator(),
+          _currentTab == 0 ? _buildInfoTab(context) 
+            : _currentTab == 1 ? _buildInfoTab(context)
+            : _buildInfoTab(context)
+          // _buildNutritionLabel(),
+          // _buildNutritionInfo(context),
+          // _buildWeightInfo(context),
+          // _buildTodaysEventsLabel(),
+          // _buildTodaysEventsInfo(),
+          // _buildChallengesLabel(),
+          // _buildChallengesInfo(context),
+          // _buildChallengeProgess(context)
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPillNavigator() {
+    return Container(
+      height: 40,
+      margin: EdgeInsets.only(left: 20, right: 20, top: 10),
+      decoration: ShapeDecoration(
+        color: GSColors.darkBlue,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(40)
+        )
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Container(
+            height: 40,
+            decoration: ShapeDecoration(
+              color: _currentTab == 0 ? GSColors.lightBlue : GSColors.darkBlue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
+              ),
+            ),
+            child: MaterialButton( // overview
+              onPressed: () { 
+              if (_currentTab != 0) {
+                  setState(() => _currentTab = 0);
+              }
+              },
+            child: Text(
+              'Overview',
+              style: TextStyle(
+                color: _currentTab == 0 ? GSColors.darkBlue : Colors.white,
+                fontSize: 14,
+                letterSpacing: 1.0,
+                fontWeight: FontWeight.w700,
+              )),
+            ),
+          ),
+
+          // Media
+          Container(
+            height: 40,
+            decoration: ShapeDecoration(
+              color: _currentTab == 1 ? GSColors.lightBlue : GSColors.darkBlue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
+              ),
+            ),
+            child: MaterialButton( 
+            onPressed: () { 
+              if (_currentTab != 1) {
+                setState(() => _currentTab = 1);
+              }
+            },
+            child: Text(
+              'Something',
+              style: TextStyle(
+                color: _currentTab == 1 ? GSColors.darkBlue : Colors.white,
+                fontSize: 14,
+                letterSpacing: 1.0,
+                fontWeight: FontWeight.w700,
+              )),
+            ),
+          ), 
+
+          // Posts
+          Container(
+            height: 40,
+            decoration: ShapeDecoration(
+              color: _currentTab == 2 ? GSColors.lightBlue : GSColors.darkBlue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
+              ),
+            ),
+            child: MaterialButton( 
+            onPressed: () { 
+              if (_currentTab != 2) {
+                setState(() => _currentTab = 2);
+              }
+            },
+            child: Text(
+              'Posts',
+              style: TextStyle(
+                color: _currentTab == 2 ? GSColors.darkBlue : Colors.white,
+                fontSize: 14,
+                letterSpacing: 1.0,
+                fontWeight: FontWeight.w700,
+              )),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoTab(BuildContext context) {
+    return Container(
+      child: Column(
+        children: <Widget>[
           _buildNutritionLabel(),
           _buildNutritionInfo(context),
           _buildWeightInfo(context),
@@ -193,7 +313,7 @@ class MePage extends StatelessWidget {
 
   Widget _buildNutritionLabel() {
     return Container(
-      margin: EdgeInsets.only(top: 30),
+      margin: EdgeInsets.only(top: 20),
       child: Row(
         children: <Widget>[ 
           Expanded(
@@ -207,9 +327,9 @@ class MePage extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14,
-                    letterSpacing: 1.2
-                  ),
-                ),
+                    letterSpacing: 1.2,
+                    fontWeight: FontWeight.w700,
+                )),
                 decoration: ShapeDecoration(
                   color: GSColors.darkBlue,
                   shape: RoundedRectangleBorder(
@@ -387,7 +507,7 @@ Future<void> _checkDailyMacrosExist() async{
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(top: 10, bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
@@ -419,7 +539,7 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
@@ -450,7 +570,7 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
@@ -482,7 +602,7 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
@@ -514,7 +634,7 @@ Future<void> _checkDailyMacrosExist() async{
                         )
                       ),
                       Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
+                        margin:EdgeInsets.only(bottom: 10, right: 13),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
@@ -613,9 +733,9 @@ Future<void> _checkDailyMacrosExist() async{
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 14,
-                letterSpacing: 1.2
-              ),
-            ),
+                letterSpacing: 1.2,
+                fontWeight: FontWeight.w700,
+              )),
           ),
         ),
         Expanded(
@@ -703,9 +823,9 @@ Future<void> _checkDailyMacrosExist() async{
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 14,
-                letterSpacing: 1.2
-              ),
-            ),
+                letterSpacing: 1.2,
+                fontWeight: FontWeight.w700,
+              )),
           ),
         ),
         Expanded(
@@ -757,9 +877,9 @@ Future<void> _checkDailyMacrosExist() async{
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14,
-                    letterSpacing: 1.2
-                  ),
-                ),
+                    letterSpacing: 1.2,
+                    fontWeight: FontWeight.w700,
+                  )),
                 decoration: ShapeDecoration(
                   color: GSColors.darkBlue,
                   shape: RoundedRectangleBorder(
@@ -806,12 +926,12 @@ Future<void> _checkDailyMacrosExist() async{
               ),
               child: Text(
                 "Weekly Challenges",
-                style:TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontSize: 14,
-                  letterSpacing: 1.2
-                )
-              ),
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w700,
+              )),
             ),
           ),
         ],
