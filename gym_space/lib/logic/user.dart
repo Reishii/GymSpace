@@ -66,7 +66,7 @@ class User {
       'joinedGroups': joinedGroups == null ? [] : joinedGroups,
       'diet': diet == null ? Map() : diet,
       'workoutPlans': workoutPlans == null ? [] : workoutPlans,
-      'challengeStatus' : challengeStatus == null ? [] : challengeStatus,
+      'challengeStatus' : challengeStatus == null ? [0, 0, 0] : challengeStatus,
       'caloricGoal' : caloricGoal,
       'fcmToken' : fcmToken,
       'private' : private,
