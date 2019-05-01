@@ -81,17 +81,20 @@ class _NutritionPage extends State<NutritionPage> {
   }
 
   Widget _buildWeeklyLabel() {
+    _setWeek();
     return Container(
       margin: EdgeInsets.only(top: 25),
       height: 40,
+      width: 40,
       child: Row(
         children: <Widget>[
           Expanded(
-            flex: 1,
-            child: Container(),
+            flex: 3,
+            child: Container(
+            ),
           ),
           Expanded(
-            flex: 2,
+            flex: 1,
             child: Container(
               alignment: Alignment.center,
               decoration: ShapeDecoration(
@@ -103,14 +106,24 @@ class _NutritionPage extends State<NutritionPage> {
                   )
                 )
               ),
-              child: Text(
-                "Weekly Nutrition",
-                style: TextStyle(
-                  color: GSColors.darkBlue,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2
-                ),
+              child: Row(
+                children: <Widget>[ 
+                  Center(
+                    child: Text(
+                      DateFormat('MMMM').format(_week),
+                      style: TextStyle(
+                      color: GSColors.darkBlue,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.2
+                    ),
+                  )),
+                  IconButton(
+                    icon: Icon(FontAwesomeIcons.chevronRight),
+                    iconSize: 15,
+                    onPressed: () {},
+                  ),
+                ],
               ),
             ),
           ),
@@ -151,7 +164,6 @@ class _NutritionPage extends State<NutritionPage> {
   }
 
   Widget _buildWeeklyProgress(User user, AsyncSnapshot<dynamic> snapshot) {
-    _setWeek();
     return Container(
       child: Row(
         children: <Widget>[
@@ -289,7 +301,7 @@ class _NutritionPage extends State<NutritionPage> {
         child: InkWell(
           child: CircularPercentIndicator(
             radius: 45.0,
-            lineWidth: 5.0,  
+            lineWidth: 4.5,  
             percent: 1.0,
             progressColor: Colors.green,
             backgroundColor: GSColors.darkCloud,
@@ -319,7 +331,7 @@ class _NutritionPage extends State<NutritionPage> {
 
             center: Text ( 
               "+100%",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11.0),
             ),
           ),
           onTap: () {
