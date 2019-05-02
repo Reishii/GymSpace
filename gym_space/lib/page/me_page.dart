@@ -97,14 +97,16 @@ class _MePageState extends State<MePage> {
           User user = User.jsonToUser(snapshot.data.data);
           
           return Container(
+            margin: EdgeInsets.only(top: 10),
             child: Column(
               children: <Widget>[
                 InkWell( // profile pic
                   onLongPress: () => getImage(),
                   child: Container(
                     decoration: ShapeDecoration(
+                      shadows: [BoxShadow(color: Colors.black, blurRadius: 4, spreadRadius: 2)],
                       shape: CircleBorder(
-                        side: BorderSide(color: Colors.white, width: 1)
+                        side: BorderSide(color: Colors.white, width: .5)
                       )
                     ),
                     child: CircleAvatar(

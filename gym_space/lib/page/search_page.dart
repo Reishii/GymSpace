@@ -57,7 +57,6 @@ class _SearchPageState extends State<SearchPage> {
         usersFound = _searchController.text.isEmpty ? List() : await DatabaseHelper.searchDBForUserByName(_searchController.text);
         break;
       case SearchType.group:
-        int i = 0;
         for (Group group in groups) {
           if (group.name.toLowerCase().contains(text.toLowerCase())) {
             groupsFound.add(group);
@@ -93,7 +92,9 @@ class _SearchPageState extends State<SearchPage> {
           onChanged: (_) {       
             setState(() {
               _isEditing = true;
-              _search(_searchController.text);
+              if(searchType == SearchType.group) 
+                _search(_searchController.text);
+                
             });
           },
           onEditingComplete: () {
@@ -491,12 +492,15 @@ class _GroupInfoWidgetState extends State<GroupInfoWidget> {
               color: Colors.white,
             ), 
             label: Text(
-              _joined ? 'Open' : 'Join',
+              _joined ? 'Go' : 'Join',
+              style: TextStyle(
+                color: Colors.white
+              ),
             ),
             onPressed: () {
               if (_joined) {
                 Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => GroupProfilePage(group: group,)
+                  builder: (context) => GroupProfilePage(group: group)
                 ));
               }
             },
