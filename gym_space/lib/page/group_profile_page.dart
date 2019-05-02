@@ -53,10 +53,15 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
   }
 
   void _joinGroup() {
+
+      addNewMemberToWeeklyChallenges();
+    Firestore.instance.collection('groups').document(group.documentID).updateData({'members' : FieldValue.arrayUnion([DatabaseHelper.currentUserID])});
+
     Firestore.instance.collection('users').document(currentUserID).updateData({'joinedGroups': FieldValue.arrayUnion([group.documentID])})
       .then((_) => setState(() {
         _joined = true;
       }));
+
   }
 
   void _leaveGroup() {
@@ -597,7 +602,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   ),
                 ), 
                 //check if admin
-               _isAdmin ? 
+               //_isAdmin ? 
                 IconButton(
                   icon: Icon(Icons.add_circle_outline),
                   onPressed: () {
@@ -675,97 +680,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                         textCapitalization: TextCapitalization.sentences,
                                         keyboardType: TextInputType.number
                                       ), 
-                                        // Container(
-                                        //   padding: EdgeInsets.all(15.0),
-                                        //   child: TextField(
-                                        //       controller: _challengeTitleController,
-                                        //       decoration: InputDecoration(
-                                        //         labelText: 'Challenge Title',
-                                        //         labelStyle: TextStyle(
-                                        //           fontSize: 18.0,
-                                        //           color: GSColors.darkBlue
-                                        //         ),
-                                        //         hintText: 'E.g. Run 20 miles',
-                                        //         hintStyle: TextStyle(
-                                        //           fontSize: 16.0,
-                                        //           color: GSColors.lightBlue
-                                        //         ),
-                                        //         contentPadding: EdgeInsets.all(10.0)
-                                        //       ),
-                                        //       onChanged: (text) {
-                                        //         (text!= null) ? challengeTitle = text : challengeTitle = 'error0';
-                                        //       },
-                                        //     )
-                                        // ),
-
-                                        // Container(
-                                        //   padding: EdgeInsets.all(15.0),
-                                        //   child: TextField(
-                                        //       decoration: InputDecoration(
-                                        //         labelText: 'Units',
-                                        //         labelStyle: TextStyle(
-                                        //           fontSize: 18.0,
-                                        //           color: GSColors.darkBlue
-                                        //         ),
-                                        //         hintText: 'E.g. Miles',
-                                        //         hintStyle: TextStyle(
-                                        //           fontSize: 16.0,
-                                        //           color: GSColors.lightBlue
-                                        //         ),
-                                        //         contentPadding: EdgeInsets.all(10.0)
-                                        //       ),
-                                        //       onChanged: (text){
-                                        //        (text!= null) ? challengeUnits = text : challengeUnits = 'error1';
-                                        //       },
-                                        //     )
-                                        // ),
-
-                                        //  Container(
-                                        //   padding: EdgeInsets.all(15.0),
-                                        //   child: TextField(
-                                              
-                                        //       keyboardType: TextInputType.number,
-                                        //       decoration: InputDecoration(
-                                        //         labelText: 'Goal (number)',
-                                        //         labelStyle: TextStyle(
-                                        //           fontSize: 18.0,
-                                        //           color: GSColors.darkBlue
-                                        //         ),
-                                        //         hintText: 'E.g. 60',
-                                        //         hintStyle: TextStyle(
-                                        //           fontSize: 16.0,
-                                        //           color: GSColors.lightBlue
-                                        //         ),
-                                        //         contentPadding: EdgeInsets.all(10.0)
-                                        //       ),
-                                        //       onChanged: (text){
-                                        //         (text!= null) ? challengeGoal = int.parse(text) : challengeGoal = -9999;
-                                        //       },
-                                        //     )
-                                        // ),
-
-                                        //  Container(
-                                        //   padding: EdgeInsets.all(15.0),
-                                        //   child: TextField(
-                                        //       keyboardType: TextInputType.number,
-                                        //       decoration: InputDecoration(
-                                        //         labelText: 'Points on completion (number)',
-                                        //         labelStyle: TextStyle(
-                                        //           fontSize: 18.0,
-                                        //           color: GSColors.darkBlue
-                                        //         ),
-                                        //         hintText: 'E.g. 20',
-                                        //         hintStyle: TextStyle(
-                                        //           fontSize: 16.0,
-                                        //           color: GSColors.lightBlue
-                                        //         ),
-                                        //         contentPadding: EdgeInsets.all(10.0)
-                                        //       ),
-                                        //       onChanged: (text){
-                                        //         (text!= null) ? challengePoints = int.parse(text) : challengePoints = -9999;
-                                        //       },
-                                        //     )
-                                        // ),
+                                       
 
                                     ],
                                   )
@@ -806,9 +721,6 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                     for(int i = 0; i < group.members.length; i++)
                                       {
                                         membersMap[group.members[i]] = {'points': 0, 'progress' : 0};
-                                        //tempMap = {group.members[i]: {'points' : 0, 'progress' : 0}};
-                                        //membersMapList.add(tempMap);
-                                        //membersMapList.add(membersMap);
                                       }
 
                                     newGroupChallenge =  
@@ -817,12 +729,6 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                           'goal' : challengeGoal,
                                           'members' : membersMap//membersMapList
                                           };         
-
-                                    print("*****************************************************************************************************************");
-                                    print(challengeTitle);
-                                    print(challengeUnits);
-                                    print(challengeGoal);
-                                    print(challengePoints);
 
                                     _uploadGroupChallenge(newGroupChallenge, _challengeKey, challengeTitle);
                                     Navigator.pop(context);
@@ -835,7 +741,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                     );
                   },
                 )
-               : Container(),
+              // : Container(),
               ],
             ),
           ),
@@ -1095,6 +1001,24 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       ),
     );
   }
+
+
+//new user joins after weekly challenge is posted
+Future<void> addNewMemberToWeeklyChallenges() async {
+  DocumentSnapshot groupChallenge = await Firestore.instance.collection('groups').document(group.documentID).get();
+  String _challengeKey = getChallengeKey();
+  Map challengeMap = groupChallenge.data['challenges'];
+
+  challengeMap[_challengeKey].cast<String, dynamic>().forEach((title, value)
+  {
+    value['members'][DatabaseHelper.currentUserID] = {'points' : 0, 'progress' : 0};
+  });
+
+  Firestore.instance.collection('groups').document(group.documentID).updateData(
+          {'challenges' : challengeMap}
+          );
+}
+
 
 Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String> challengeName) async{
   DocumentSnapshot groupChallenge = await Firestore.instance.collection('groups').document(group.documentID).get();
