@@ -187,14 +187,6 @@ class _MePageState extends State<MePage> {
           _currentTab == 0 ? _buildInfoTab(context) 
             : _currentTab == 1 ? _buildInfoTab(context)
             : _buildInfoTab(context)
-          // _buildNutritionLabel(),
-          // _buildNutritionInfo(context),
-          // _buildWeightInfo(context),
-          // _buildTodaysEventsLabel(),
-          // _buildTodaysEventsInfo(),
-          // _buildChallengesLabel(),
-          // _buildChallengesInfo(context),
-          // _buildChallengeProgess(context)
         ],
       ),
     );
@@ -215,6 +207,7 @@ class _MePageState extends State<MePage> {
         children: <Widget>[
           Container(
             height: 40,
+            width: 123,
             decoration: ShapeDecoration(
               color: _currentTab == 0 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
@@ -223,9 +216,9 @@ class _MePageState extends State<MePage> {
             ),
             child: MaterialButton( // overview
               onPressed: () { 
-              if (_currentTab != 0) {
+                if (_currentTab != 0) {
                   setState(() => _currentTab = 0);
-              }
+                }
               },
             child: Text(
               'Overview',
@@ -241,6 +234,7 @@ class _MePageState extends State<MePage> {
           // Media
           Container(
             height: 40,
+            width: 123,
             decoration: ShapeDecoration(
               color: _currentTab == 1 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
@@ -267,6 +261,7 @@ class _MePageState extends State<MePage> {
           // Posts
           Container(
             height: 40,
+            width: 123,
             decoration: ShapeDecoration(
               color: _currentTab == 2 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
@@ -351,7 +346,7 @@ class _MePageState extends State<MePage> {
     );
   }
 
-Future<void> _checkDailyMacrosExist() async{
+  Future<void> _checkDailyMacrosExist() async{
   List<int> newMacros = new List(4);
 
   DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
@@ -370,7 +365,6 @@ Future<void> _checkDailyMacrosExist() async{
               {'diet': macroFromDB});
   }
 }
-
 
   Widget _buildNutritionInfo(BuildContext context) {
   _checkDailyMacrosExist();
@@ -1165,7 +1159,6 @@ Future<void> _checkDailyMacrosExist() async{
       )
     );
  }
- 
 
   Widget _buildChallengesInfo(BuildContext context) {
     _challengeKey = getChallengeKey().toString();
@@ -1764,16 +1757,15 @@ Future<void> _checkDailyMacrosExist() async{
     );
   }
 
-Future getImage() async {
+  Future getImage() async {
     imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
     
     if(imageFile != null){
       uploadFile();
     }
-}
+  }
 
-
-Future uploadFile() async {
+  Future uploadFile() async {
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
     StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
     StorageUploadTask uploadTask = reference.putFile(imageFile);
@@ -1791,9 +1783,7 @@ Future uploadFile() async {
 
   }
 
-
-
-String getChallengeKey(){
+  String getChallengeKey(){
   
   DateTime now = DateTime.now();
   int sunday = 7;
@@ -1806,8 +1796,7 @@ String getChallengeKey(){
   return "weekOf" + now.toString().substring(0,10);
 } 
 
-
-void  _updateNutritionInfo(BuildContext context) async{
+  void  _updateNutritionInfo(BuildContext context) async{
       int protein, carbs, fats, currentCalories = 0, caloricGoal;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
       Map<String, dynamic> macroFromDB = macroDoc.data['diet'].cast<String, dynamic>();
@@ -1896,7 +1885,6 @@ void  _updateNutritionInfo(BuildContext context) async{
               ),
             ),
 
-
              Flexible(
               child:  TextField(
                 keyboardType: TextInputType.number,
@@ -1969,8 +1957,7 @@ void  _updateNutritionInfo(BuildContext context) async{
     );
   }
 
-
-void  _updateWeightInfo(BuildContext context) async{
+  void  _updateWeightInfo(BuildContext context) async{
       String currentWeight, startingWeight;
       DocumentReference ref;
      // currentWeight = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}').;

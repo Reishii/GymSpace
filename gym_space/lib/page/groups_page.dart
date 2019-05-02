@@ -1,24 +1,33 @@
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/group.dart';
+import 'package:GymSpace/logic/workout.dart';
 import 'package:GymSpace/page/group_profile_page.dart';
 import 'package:GymSpace/page/search_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' as prefix0;
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/widgets/page_header.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:intl/intl.dart';
 
-class GroupsPage extends StatelessWidget {
+class GroupsPage extends StatefulWidget {
   final Widget child;
 
   GroupsPage({Key key, this.child}) : super(key: key);
 
-  void _addPressed(BuildContext context) async {
+  _GroupsPageState createState() => _GroupsPageState();
+}
+
+class _GroupsPageState extends State<GroupsPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  void _searchPressed(BuildContext context) async {
     List<Group> allGroups = List();
     QuerySnapshot groupSnapshots = await Firestore.instance.collection('groups').getDocuments();
     groupSnapshots.documents.forEach((ds) {
@@ -34,6 +43,55 @@ class GroupsPage extends StatelessWidget {
         groups: allGroups,
       )
     ));
+  }
+
+  Future<void>_addGroup(Group group) async {
+    return Firestore.instance.collection('groups').add(group.toJSON()).then(
+      (ds) => Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+        {'joinedGroups': FieldValue.arrayUnion([ds.documentID])}
+      )
+    );
+  }
+
+  void _addPressed(BuildContext context) {
+    Group newGroup = Group(
+      admin: DatabaseHelper.currentUserID,
+      name: '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Container(
+            width: double.maxFinite,
+            child: ListView(
+              children: <Widget>[
+                _buildForm(newGroup),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                _formKey.currentState.reset();
+                Navigator.pop(context);
+              },
+            ),
+            FlatButton(
+              child: Text('Create'),
+              onPressed: () {
+                if (_formKey.currentState.validate()) {
+                  _formKey.currentState.save();
+                  _addGroup(newGroup).then((_) => Navigator.pop(context));
+                }
+              },
+            ),
+          ],
+        );
+      }
+    );
   }
 
   @override
@@ -60,7 +118,7 @@ class GroupsPage extends StatelessWidget {
         backgroundColor: GSColors.darkBlue,
         showDrawer: true,
         showSearch: true,
-        searchFunction: () => _addPressed(context),
+        searchFunction: () => _searchPressed(context),
         titleColor: Colors.white,
       )
     );
@@ -184,7 +242,7 @@ class GroupsPage extends StatelessWidget {
                   )
                 ),
                 child: CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL']),
+                  backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isEmpty ? Defaults.photoURL : snapshot.data['photoURL']),
                   radius: 20,
                 ),
               ),
@@ -252,6 +310,52 @@ class GroupsPage extends StatelessWidget {
           ),
         );
       }
+    );
+  }
+
+  Widget _buildForm(Group group) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: <Widget>[
+          TextFormField(
+            decoration: InputDecoration(
+              hintText: 'New Group',
+              labelText: 'Group Name',
+            ),
+            onSaved: (name) => group.name = name,
+            validator: (text) => text.isEmpty ? 'Please enter a group name' : null,
+          ),
+          TextFormField(
+            decoration: InputDecoration(
+              hintText: 'Description ',
+              labelText: 'Bio',
+            ),
+            onSaved: (bio) => group.bio = bio,
+            validator: (text) => text.isEmpty ? 'Please enter a group description' : null,
+          ),
+          DateTimePickerFormField(
+            dateOnly: true,
+            format: DateFormat('yyyy-MM-dd'),
+            decoration: InputDecoration(
+              labelText: 'Start Date (optional)',
+            ),
+            // onChanged: (text) => print(text),
+            onSaved: (startDate) => group.startDate = startDate != null ? startDate.toString() : '',
+            // validator: ,
+          ),
+          DateTimePickerFormField(
+            dateOnly: true,
+            format: DateFormat('yyyy-MM-dd'),
+            decoration: InputDecoration(
+              labelText: 'End Date (optional)',
+            ),
+            // onChanged: (text) => print(text),
+            onSaved: (endDate) => group.endDate = endDate != null ? endDate.toString() : '',
+            // validator: ,
+          ),
+        ],
+      ),
     );
   }
 
