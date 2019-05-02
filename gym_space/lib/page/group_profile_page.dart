@@ -10,6 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/group.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:percent_indicator/percent_indicator.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+
 
 class GroupProfilePage extends StatefulWidget {
   Group group;
@@ -50,10 +54,15 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
   }
 
   void _joinGroup() {
+
+      addNewMemberToWeeklyChallenges();
+    Firestore.instance.collection('groups').document(group.documentID).updateData({'members' : FieldValue.arrayUnion([DatabaseHelper.currentUserID])});
+
     Firestore.instance.collection('users').document(currentUserID).updateData({'joinedGroups': FieldValue.arrayUnion([group.documentID])})
       .then((_) => setState(() {
         _joined = true;
       }));
+
   }
 
   void _leaveGroup() {
@@ -316,8 +325,9 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         children: <Widget>[
           Container(
             height: 40,
+            width: 123,
             decoration: ShapeDecoration(
-              // color: _currentTab == 0 ? GSColors.lightBlue : GSColors.darkBlue,
+              color: _currentTab == 0 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(40),
               ),
@@ -331,7 +341,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Overview',
                 style: TextStyle(
-                color: _currentTab == 0 ? Colors.white : Colors.white54,
+                color: _currentTab == 0 ? GSColors.darkBlue : Colors.white,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -341,13 +351,14 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
           _joined ? Container(
             height: 40,
+            width: 123,
             decoration: ShapeDecoration(
-              // color: _currentTab == 1 ? GSColors.lightBlue : GSColors.darkBlue,
+              color: _currentTab == 1 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(40),
               ),
             ),
-            child: MaterialButton( // Challengesradius
+            child: MaterialButton( // Challenges
               onPressed: () { 
                 if (_currentTab != 1) {
                   setState(() => _currentTab = 1);
@@ -356,7 +367,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Challenges',
                 style: TextStyle(
-                color: _currentTab == 1 ? Colors.white : Colors.white54,
+                color: _currentTab == 1 ? GSColors.darkBlue : Colors.white,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -366,8 +377,9 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
           _joined ? Container(
             height: 40,
+            width: 123,
             decoration: ShapeDecoration(
-              // color: _currentTab == 2 ? GSColors.lightBlue : GSColors.darkBlue,
+              color: _currentTab == 2 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(40),
               ),
@@ -381,7 +393,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Discussion',
                 style: TextStyle(
-                color: _currentTab == 2 ? Colors.white : Colors.white54,
+                color: _currentTab == 2 ? GSColors.darkBlue : Colors.white,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -574,7 +586,10 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
   Widget _buildChallenges() {
       String _challengeKey = getChallengeKey(); //challenge weekly date
-      String challengeTitle, challengeUnits, challengeGoal, challengePoints;
+      String challengeTitle, challengeUnits;
+      int challengeGoal, challengePoints;
+      GlobalKey<FormState> formKey = GlobalKey();
+
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -592,7 +607,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   ),
                 ), 
                 //check if admin
-                _isAdmin ? 
+               //_isAdmin ? 
                 IconButton(
                   icon: Icon(Icons.add_circle_outline),
                   onPressed: () {
@@ -600,117 +615,84 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                       barrierDismissible: false,
                       context: context,
                       builder: (BuildContext context){
-
-                  
-
+                        TextEditingController _challengeTitleController = TextEditingController();
                         return AlertDialog(
                           title: Text("For Week:  " + _challengeKey),
                           content:
                             Container(
                               height: 450,
                               width: 350,
-                              child: Scrollbar(
+                              //child: Scrollbar(
                               child: ListView(
                                 children: <Widget>[
-                                  Column(
+                                  Form(
+                                  key: formKey,
+                                  child: Column(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
-                                      //Flexible(
-                                        Container(
-                                          padding: EdgeInsets.all(15.0),
-                                          child: TextField(
-                                              decoration: InputDecoration(
-                                                labelText: 'Challenge Title',
-                                                labelStyle: TextStyle(
-                                                  fontSize: 18.0,
-                                                  color: GSColors.darkBlue
-                                                ),
-                                                hintText: 'E.g. Run 20 miles',
-                                                hintStyle: TextStyle(
-                                                  fontSize: 16.0,
-                                                  color: GSColors.lightBlue
-                                                ),
-                                                contentPadding: EdgeInsets.all(10.0)
-                                              ),
-                                              onChanged: (text) {
-                                                (text!= null) ? challengeTitle = text : challengeTitle = 'error0';
-                                              },
-                                            )
+                                      
+                                      TextFormField(//challenge Title
+                                        decoration: InputDecoration(
+                                          icon: Icon( FontAwesomeIcons.angleRight,
+                                          color: GSColors.darkBlue,
+                                          size: 30,),
+                                          hintText: "e.g Run 20 miles",
+                                          labelText: "Challenge Name"
                                         ),
+                                        onSaved: (name) => challengeTitle = name,
+                                        validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
+                                        textCapitalization: TextCapitalization.sentences
+                                      ),
 
-                                        Container(
-                                          padding: EdgeInsets.all(15.0),
-                                          child: TextField(
-                                              decoration: InputDecoration(
-                                                labelText: 'Units',
-                                                labelStyle: TextStyle(
-                                                  fontSize: 18.0,
-                                                  color: GSColors.darkBlue
-                                                ),
-                                                hintText: 'E.g. Miles',
-                                                hintStyle: TextStyle(
-                                                  fontSize: 16.0,
-                                                  color: GSColors.lightBlue
-                                                ),
-                                                contentPadding: EdgeInsets.all(10.0)
-                                              ),
-                                              onChanged: (text){
-                                               (text!= null) ? challengeUnits = text : challengeUnits = 'error1';
-                                              },
-                                            )
+                                      TextFormField(//units
+                                        decoration: InputDecoration(
+                                          icon: Icon( FontAwesomeIcons.angleRight,
+                                          color: GSColors.darkBlue,
+                                          size: 30,),
+                                          hintText: "e.g Miles",
+                                          labelText: "Units"
                                         ),
+                                        onSaved: (units) => challengeUnits = units,
+                                        validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
+                                        textCapitalization: TextCapitalization.sentences,
+                                      ), 
 
-                                         Container(
-                                          padding: EdgeInsets.all(15.0),
-                                          child: TextField(
-                                              keyboardType: TextInputType.number,
-                                              decoration: InputDecoration(
-                                                labelText: 'Goal (number)',
-                                                labelStyle: TextStyle(
-                                                  fontSize: 18.0,
-                                                  color: GSColors.darkBlue
-                                                ),
-                                                hintText: 'E.g. 60',
-                                                hintStyle: TextStyle(
-                                                  fontSize: 16.0,
-                                                  color: GSColors.lightBlue
-                                                ),
-                                                contentPadding: EdgeInsets.all(10.0)
-                                              ),
-                                              onChanged: (text){
-                                                (text!= null) ? challengeGoal = text : challengeGoal = 'error2';
-                                              },
-                                            )
+                                      TextFormField(//goal
+                                        decoration: InputDecoration(
+                                          icon: Icon( FontAwesomeIcons.angleRight,
+                                          color: GSColors.darkBlue,
+                                          size: 30,),
+                                          hintText: "e.g 20",
+                                          labelText: "Goal"
                                         ),
+                                        onSaved: (goal) => challengeGoal = int.parse(goal),
+                                        validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
+                                        textCapitalization: TextCapitalization.sentences,
+                                        keyboardType: TextInputType.number
 
-                                         Container(
-                                          padding: EdgeInsets.all(15.0),
-                                          child: TextField(
-                                              keyboardType: TextInputType.number,
-                                              decoration: InputDecoration(
-                                                labelText: 'Points on completion (number)',
-                                                labelStyle: TextStyle(
-                                                  fontSize: 18.0,
-                                                  color: GSColors.darkBlue
-                                                ),
-                                                hintText: 'E.g. 20',
-                                                hintStyle: TextStyle(
-                                                  fontSize: 16.0,
-                                                  color: GSColors.lightBlue
-                                                ),
-                                                contentPadding: EdgeInsets.all(10.0)
-                                              ),
-                                              onChanged: (text){
-                                                (text!= null) ? challengePoints = text : challengePoints = 'error3';
-                                              },
-                                            )
+                                      ), 
+
+                                       TextFormField(//points
+                                        decoration: InputDecoration(
+                                          icon: Icon( FontAwesomeIcons.angleRight,
+                                          color: GSColors.darkBlue,
+                                          size: 30,),
+                                          hintText: "e.g 100",
+                                          labelText: "Points upon completion"
                                         ),
+                                        onSaved: (points) => challengePoints = int.parse(points),
+                                        validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
+                                        textCapitalization: TextCapitalization.sentences,
+                                        keyboardType: TextInputType.number
+                                      ), 
+                                       
 
                                     ],
                                   )
+                                  )
                                 ],
                               ),
-                              )
+                             // )
                             ),
                             actions: <Widget>[
                               FlatButton(
@@ -722,34 +704,38 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                               FlatButton(
                                 child: const Text('Save'),
                                 onPressed: (){
+                                  // if(_challengeTitleController.text.isEmpty) {
+                                  //   _challengeTitleController.text = 'INVALID';
+                                  //   _challengeTit
+                                  // }
 
-                                  if(challengeTitle == 'error0' || challengeUnits == 'error1' || challengeGoal == 'error2' || challengePoints == 'error3')
-                                  {
-                                   //send toast error message 
-                                  } 
+                                  // if(challengeTitle == 'error0' || challengeUnits == 'error1' || challengeGoal == -9999 || challengePoints == -9999)
+                                  // {
+                                  //  //send toast error message 
+                                  // } 
 
-                                  else
+                                  //else
+                                  if(formKey.currentState.validate())
                                   {
+                                    formKey.currentState.save();
                                     Map<String, dynamic> newGroupChallenge;    
-                                    List<Map> membersMapList = List();
-                                    Map<String, dynamic> tempMap = Map();
+                                    //List<Map> membersMapList = List();
+                                    Map<String, dynamic> membersMap = Map();
+                                    // Map<String, dynamic> tempMap = Map();
 
                                     for(int i = 0; i < group.members.length; i++)
                                       {
-                                        tempMap = {group.members[i]: {'points' : 0}};
-                                        membersMapList.add(tempMap);
+                                        membersMap[group.members[i]] = {'points': 0, 'progress' : 0};
                                       }
 
-                                    newGroupChallenge = //{_challengeKey: 
-                                      //{ challengeTitle: 
+                                    newGroupChallenge =  
                                         {'points' : challengePoints, 
                                           'units' : challengeUnits,
                                           'goal' : challengeGoal,
-                                          'members' : membersMapList
-                                          }; //}    ;            
-                                    //};        
-                                    _uploadGroupChallenge(newGroupChallenge, _challengeKey, challengeTitle);
+                                          'members' : membersMap//membersMapList
+                                          };         
 
+                                    _uploadGroupChallenge(newGroupChallenge, _challengeKey, challengeTitle);
                                     Navigator.pop(context);
                                   }
                                 }
@@ -760,26 +746,365 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                     );
                   },
                 )
-                : Container(),
+              // : Container(),
               ],
             ),
           ),
+          //Container(
+          InkWell(
+            onTap: (){
+              showDialog(
+                context: context,
+                builder: (BuildContext context)
+                {
+                  List<int> inputList = List();
+                  List<String> challengeNames = List();
+                  return AlertDialog(
+                    title: Text(
+                      "Update your progress on your group's weekly challenges"),
+                    content: 
+                    Container(
+                      //height: 450,
+                      // width: 350,
+                      width: double.maxFinite,
+                      // child: Scrollbar(
+                        child: ListView(
+
+                        // child: StreamBuilder(
+                          children: <Widget>[
+                            
+                          StreamBuilder(
+                          stream:  DatabaseHelper.getGroupStreamSnapshot(group.documentID),
+                          builder: (context, snapshotGroup){
+                            if(snapshotGroup.data == null)
+                            {
+                              return Container();
+                            }
+                            else
+                            {
+                              List<Widget> challengeList = [];
+                              // int userIndex;
+                              snapshotGroup.data.data['challenges'][_challengeKey].cast<String, dynamic>().forEach((title, value){                          
+                              
+                                // for(int i = 0; i < group.members.length; i++)
+                                // {
+                                //   if(value['members'][i] == DatabaseHelper.currentUserID)
+                                //     userIndex = i;
+                                // }
+                                challengeList.add(
+                                  TextField(
+                                    decoration: InputDecoration(
+                                      labelText: title,
+                                      labelStyle: TextStyle(
+                                        fontSize: 18.0,
+                                        color: GSColors.darkBlue
+                                        ),
+                                      contentPadding: EdgeInsets.all(10.0),
+                                      hintText: '${value['members'][DatabaseHelper.currentUserID]['progress'].toString()}/${value['goal'].toString()} ${value['units']} Completed',
+                                      hintStyle: TextStyle(
+                                        color: GSColors.lightBlue,
+                                        fontWeight: FontWeight.bold,
+                                        ) 
+                                      ),
+                                      maxLength: 5,
+                                      onChanged: (text){
+                                        (text != null) ? inputList.add(int.parse(text)) : inputList.add(-999999);
+                                        challengeNames.add(title);
+                                      },
+                                  )
+                                );
+                              });
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: challengeList,
+                              );
+
+                            }
+                          }
+                        ),
+                          ]
+                        )
+        
+                        //child: ListView(),
+                      //),
+                    ),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: const Text('Cancel'),
+                        onPressed: (){
+                          Navigator.pop(context);
+                        },
+                      ),
+                      FlatButton(
+                        child: const Text('Save'),
+                        onPressed: (){
+                          // int temp;
+                          // for(int j = 0; j < inputList.length; j++)
+                          // {
+                          //   if(inputList[j] != -999999)
+                          //   {
+                          //     inputList[j] = 0;
+                          //   }
+
+                          // temp = inputList[j] + 
+
+                          // }
+                          _updateMemberChallengeProgress(inputList, challengeNames);
+                          _buildChallenges();
+                          Navigator.pop(context);
+                        },
+                      )
+
+                    ],
+                  );
+                }
+              );
+            },
+            child: Container(
+            width: double.maxFinite,
+            margin: EdgeInsets.symmetric(vertical: 10),
+            decoration: ShapeDecoration(
+              color: GSColors.darkBlue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)
+              )
+            ),
+
+             //child: InkWell(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  // StreamBuilder( 
+                  //   stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                  //   builder: (context, snapshotUser){
+                  //     if(!snapshotUser.hasData){
+                  //       return Container();
+                  //     }
+                      //else{
+                        //return 
+                        StreamBuilder(
+                          stream: DatabaseHelper.getGroupStreamSnapshot(group.documentID),
+                          builder: (context, snapshotGroup){
+                            if(!snapshotGroup.hasData)
+                            {
+                              return Container();
+                            }
+                            Map tmpMap = Map();
+                            tmpMap = snapshotGroup.data.data['challenges'];
+                            if(tmpMap.length == 0)
+                            {
+                              return Container();
+                            }
+                            else
+                            {
+                              // User user = User.jsonToUser(snapshotUser.data.data);
+                              List<Widget> challengeList = [];
+                              snapshotGroup.data.data['challenges'][_challengeKey].cast<String, Map>().forEach((title, value)
+                              {
+                                if(value['members'][DatabaseHelper.currentUserID]['progress'] == value['goal'])
+                                {
+                                  challengeList.add(
+                                    Container(
+                                    margin: EdgeInsets.fromLTRB(15, 15, 15, 15),
+                                    child :Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                      Container(
+                                        child: Text(
+                                          title,
+                                          style: TextStyle(
+                                            color: GSColors.cloud,
+                                            fontSize: 15.0,
+                                            fontWeight: FontWeight.bold
+                                          ),
+                                          textAlign: TextAlign.left,
+                                        ),
+                                      ),
+                                      Container(
+                                          height: 20,
+                                          child: (LinearPercentIndicator(
+                                          width: 330,
+                                          lineHeight: 14.0,
+                                          percent: 1.0,
+                                          backgroundColor: Colors.green,
+                                          progressColor: Colors.green,
+                                          center: Text("100%")
+                                          )  
+                                        ),  
+                                      )
+                                    ]
+                                  )
+                                    )
+                                  );
+                                }
+                                else{
+                                  challengeList.add(
+                                    Container(
+                                    margin: EdgeInsets.fromLTRB(15, 15, 15, 15),
+                                    child :Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                      Container(
+                                        child: Text(
+                                          title,
+                                          style: TextStyle(
+                                            color: GSColors.cloud,
+                                            fontSize: 15.0,
+                                            fontWeight: FontWeight.bold
+                                          ),
+                                          textAlign: TextAlign.left,
+                                        ),
+                                      ),
+                                      Container(
+                                          height: 20,
+                                          child: (LinearPercentIndicator(
+                                          width: 330,
+                                          lineHeight: 14.0,
+                                          percent: value['members'][DatabaseHelper.currentUserID]['progress']/value['goal'],
+                                          backgroundColor: GSColors.darkCloud,
+                                          progressColor: GSColors.lightBlue,
+                                          center: Text((value['members'][DatabaseHelper.currentUserID]['progress']/value['goal'] * 100).toStringAsFixed(0) + "%")
+                                          )  
+                                        ),  
+                                      )
+                                    ]
+                                  )
+                                    )
+                                  );
+                                }                   
+                              });               
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: challengeList,
+                                  
+                                  // Container(
+                                  //   height: 20,
+                                  //   child: (LinearPercentIndicator(
+                                  //     width: 350,
+                                  //     lineHeight: 14.0,
+                                  //     percent: 0.5,
+                                  //     backgroundColor: GSColors.darkCloud,
+                                  //     progressColor: GSColors.lightBlue,
+                                  //     center: Text("50%")
+                                  //     )  
+                                  //   ),
+
+                                  // )
+                                
+                              );
+                            }
+                          },
+                        )
+                      //}
+                    //}
+                  // )
+                ],
+              ),
+            )
+          )
         ],
       ),
     );
   }
 
-  Future<void> _uploadGroupChallenge(Map<String, dynamic> challengeInfo, String challengeKey, String challengeTitle) async
+
+//new user joins after weekly challenge is posted
+Future<void> addNewMemberToWeeklyChallenges() async {
+  DocumentSnapshot groupChallenge = await Firestore.instance.collection('groups').document(group.documentID).get();
+  String _challengeKey = getChallengeKey();
+  Map challengeMap = groupChallenge.data['challenges'];
+
+  challengeMap[_challengeKey].cast<String, dynamic>().forEach((title, value)
+  {
+    value['members'][DatabaseHelper.currentUserID] = {'points' : 0, 'progress' : 0};
+  });
+
+  Firestore.instance.collection('groups').document(group.documentID).updateData(
+          {'challenges' : challengeMap}
+          );
+}
+
+
+Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String> challengeName) async{
+  DocumentSnapshot groupChallenge = await Firestore.instance.collection('groups').document(group.documentID).get();
+  int temp, userPoints, groupPoints, newProgress;
+  String _challengeKey = getChallengeKey(); //challenge weekly date
+  //DocumentSnapshot userInfo = await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID).get();
+  DocumentSnapshot userInfo = await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+
+  Map challengeMap = groupChallenge.data['challenges'];// = groupChallenge.data['challenges'][_challengeKey];
+
+  for(int i = 0; i < progressList.length; i++)
+  {
+    if(progressList[i] == -999999)
+      progressList[i] = 0;
+
+      //print(challengeName[0]);
+      print(challengeName.length);
+
+      temp = progressList[i] + groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['members'][DatabaseHelper.currentUserID]['progress'];
+
+      if(progressList[i] != 0 && temp >= groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['goal'] && groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['members'][DatabaseHelper.currentUserID]['progress'] != groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['goal'])
+      {
+        userPoints = groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['points'] + userInfo.data['points'];
+        groupPoints = groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['points'];
+        newProgress = groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['goal'];
+        
+        challengeMap[_challengeKey][challengeName[i]]['members'][DatabaseHelper.currentUserID]['points'] = groupPoints;
+        challengeMap[_challengeKey][challengeName[i]]['members'][DatabaseHelper.currentUserID]['progress'] = newProgress;
+
+
+        Firestore.instance.collection('groups').document(group.documentID).updateData(
+          {'challenges' : challengeMap}
+          );
+        Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+          {'points' : userPoints}
+          );
+      }
+
+      else if(progressList[i] != 0 && groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['goal'] != groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['members'][DatabaseHelper.currentUserID]['progress'])
+      {
+        newProgress = groupChallenge.data['challenges'][_challengeKey][challengeName[i]]['members'][DatabaseHelper.currentUserID]['progress']
+                    + progressList[i];
+
+        challengeMap[_challengeKey][challengeName[i]]['members'][DatabaseHelper.currentUserID]['progress'] = newProgress;
+        Firestore.instance.collection('groups').document(group.documentID).updateData(
+          {'challenges' : challengeMap}
+          );
+      }
+    
+    //  Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+    //   {'points' : newPoints}
+    // );
+
+  }
+}
+
+  Future<void> _uploadGroupChallenge(Map challengeInfo, String challengeKey, String challengeTitle) async
   {
     DocumentSnapshot groupChallengeSnap = await Firestore.instance.collection('groups').document(group.documentID).get();
     Map<String, dynamic> challengeMap = groupChallengeSnap.data['challenges'].cast<String, dynamic>();
-    
+    Map<String, dynamic> newWeekMap = Map();
+
+    if(challengeMap[challengeKey] == null)
+    {
+      newWeekMap = {challengeKey: {}};
+      Firestore.instance.collection('groups').document(group.documentID).updateData(
+      {'challenges' : newWeekMap  }
+      );
+
+      _uploadGroupChallenge(challengeInfo, challengeKey, challengeTitle);
+    }
+
+    else{
     challengeMap[challengeKey][challengeTitle] = challengeInfo;
     
     Firestore.instance.collection('groups').document(group.documentID).updateData(
       {'challenges' : challengeMap}
-    );
+      );
+    }
   }
+
 
   String getChallengeKey(){
   
