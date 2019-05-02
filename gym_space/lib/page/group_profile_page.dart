@@ -1020,8 +1020,8 @@ Future<void> addNewMemberToWeeklyChallenges() async {
   });
 
   Firestore.instance.collection('groups').document(group.documentID).updateData(
-          {'challenges' : challengeMap}
-          );
+      {'challenges' : challengeMap}
+  );
 }
 
 
@@ -1121,7 +1121,7 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
 
   Widget _buildLeaderboard() {
     return Container(
-      height: 200,
+      //height: 200,
       width: double.maxFinite,
       margin: EdgeInsets.symmetric(vertical: 10),
       decoration: ShapeDecoration(
@@ -1144,6 +1144,131 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
               ),
             ),
           ),
+
+          Container(
+            margin: EdgeInsets.fromLTRB(15, 0, 15, 20),
+            child: StreamBuilder(
+              stream:  DatabaseHelper.getGroupStreamSnapshot(group.documentID),
+               builder: (context, snapshotGroup){
+                if(snapshotGroup.data == null)
+                {
+                  return Container();
+                }
+              
+                else
+                {
+                  List<Widget> leaderBoardList = List();
+                  List<Map> memberPointsList = List(group.members.length);
+                  List<Map> finalPointsList = List();
+                  //Map<String, int> memberPointsMap = Map();
+                  String _challengeKey = getChallengeKey();
+                  int i = 0;
+                  int tmpPoints = 0;
+
+                // print("***************************************************************************************************");
+
+
+                  //initialize list
+                  for(int j = 0; j < members.length; j++)
+                  {
+                    // print(members[j].firstName);
+                    // for(int k = 0; k < members.length; k++)
+                    // {
+                    //   if(members[k].documentID == group.members[j])
+                    //   {
+                    //     print(members[k].documentID + "  " + group.members[j]);
+                    //    memberPointsList[j] = {'userID' : group.members[j], 'points' : 0, 'name' : members[k].firstName + " " + members[k].lastName};
+                    //   }
+                    // }
+                    memberPointsList[j] = {'userID' : members[j].documentID, 'points' : 0, 'name' : members[j].firstName + " " + members[j].lastName};
+                    print(memberPointsList[j]);
+                  }
+
+                 snapshotGroup.data.data['challenges'][_challengeKey].cast<String, dynamic>().forEach((title, subMap0){
+                   subMap0['members'].cast<String, dynamic>().forEach((memberName, memberInfo) {
+                      // if(memberPointsList[i] == null && subMap0['members'][memberName] == null)
+                      // {
+                      //   tmpPoints = 0;
+                      // }
+                      // if(memberPointsList[i] == null)
+                      // {
+                      //   tmpPoints = memberInfo['points'];
+                      // }
+                      //else
+                      {
+                        tmpPoints = memberInfo['points'] + memberPointsList[i]['points'];
+                      }
+                      memberPointsList[i] = {'userID' : memberName, 'points' : tmpPoints, 'name' : memberPointsList[i]['name']};
+                      
+                      i++;
+                      tmpPoints = 0;
+                   });
+                    i = 0;
+                 });
+
+
+                  // for(int i = 0; i < group.members.length; i++)
+                  // {
+                  //   memberPointsList[i] = {'name' :group.members[i], 'points' : 0};
+                  // }
+                  
+                  //sort 
+                  memberPointsList.sort((a, b) => a['points'].compareTo(b['points']));
+                  for(int j = memberPointsList.length - 1; j >= 0; j--)
+                  {
+
+                    leaderBoardList.add(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(left: 4),
+                          child: Text(
+                            memberPointsList[j]['name'],
+                            style: TextStyle(
+                              color: GSColors.cloud,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500
+                            ),
+                          )
+                        ),
+                        
+                        Spacer(flex: 1),
+
+                        Container(
+                          margin: EdgeInsets.only(right: 0),
+                          child: Text(
+                            memberPointsList[j]['points'].toString(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: GSColors.cloud,
+                              fontSize: 18
+                            ),
+                          )
+                        ),
+                        Container(
+                          margin: EdgeInsets.only(left: 4),
+                          child: Icon(
+                            Icons.stars,
+                            size: 14,
+                            color: Colors.yellow,
+                          )
+                        )
+                      ],)
+                    );
+
+
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: leaderBoardList,
+
+                  );
+                }
+               }
+            )
+          )
           // SHOW ACTUAL CONTENT HERE
         ],
       ),
