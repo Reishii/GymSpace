@@ -97,7 +97,7 @@ class MediaTab extends StatelessWidget {
 
   Widget _buildBody(BuildContext context) {
     return Container(
-      child: Column(
+      child: Row(
         children: <Widget>[ 
           // Container(
           //   child: FutureBuilder(
