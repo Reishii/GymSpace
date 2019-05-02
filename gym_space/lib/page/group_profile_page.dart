@@ -25,6 +25,8 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
   Group get group => widget.group;
   String get currentUserID => DatabaseHelper.currentUserID;
 
+  User admin;
+
   int _currentTab = 0;
   bool _loadingMembers = true;
   bool _joined = false;
@@ -37,7 +39,6 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       Fluttertoast.showToast(
         msg: 'Already Liked!', 
         fontSize: 14, 
-        backgroundColor: GSColors.purple,
         textColor: Colors.white,
       );
       return;
@@ -75,6 +76,10 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         _joined = true;
       });
     }
+
+    DatabaseHelper.getUserSnapshot(group.admin).then((ds) {
+      setState(() => admin = User.jsonToUser(ds.data));
+    });
 
     group.members.forEach((member) {
       DatabaseHelper.getUserSnapshot(member).then((ds) {

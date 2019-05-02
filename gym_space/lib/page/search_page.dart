@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/global.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 enum SearchType {user, group, workoutplan}
 
@@ -29,18 +30,20 @@ class _SearchPageState extends State<SearchPage> {
   SearchType get searchType => widget.searchType;
   List<String> get friends => widget.currentUser.buddies;
   List<Group> get groups => widget.groups;
+  Group _currentGroup;
   bool _isEditing = true;
 
   TextEditingController _searchController = TextEditingController();
   List<User> usersFound = List();
-  List<int> groupsFound = List();
+  List<Group> groupsFound = List();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // drawer: AppDrawer(),
       appBar: _buildAppBar(),
-      body: _isEditing ? Container() : _buildResults(),
+      // body: _isEditing ? Container() : _buildResults(),
+      body: _buildResults(),
     );
   }
 
@@ -54,9 +57,9 @@ class _SearchPageState extends State<SearchPage> {
         break;
       case SearchType.group:
         int i = 0;
-        for (i; i < groups.length; i++) {
-          if (groups[i].name.contains(text)) {
-            groupsFound.add(i);
+        for (Group group in groups) {
+          if (group.name.toLowerCase().contains(text.toLowerCase())) {
+            groupsFound.add(group);
           }
         }
 
@@ -74,7 +77,7 @@ class _SearchPageState extends State<SearchPage> {
       // backgroundColor: GSColors.rand,
       title: Container(
         child: TextField(
-          autofocus: true,
+          autofocus: searchType == SearchType.user ? true : false,
           controller: _searchController,
           textCapitalization: TextCapitalization.words,
           onTap: () {
@@ -87,7 +90,10 @@ class _SearchPageState extends State<SearchPage> {
               _isEditing = true;
             });
           },
-          onEditingComplete: () => _search(_searchController.text),
+          onEditingComplete: () {
+            FocusScope.of(context).requestFocus(FocusNode());
+            _search(_searchController.text);
+          },
           style: TextStyle(
             color: Colors.white
           ),
@@ -217,7 +223,9 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget _buildResultsGroups() {
     return Container(
+      margin: EdgeInsets.only(top: 20),
       child: ListView(
+        shrinkWrap: true,
         children: <Widget>[
           Container(
             child: Column(
@@ -225,8 +233,27 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
           Container(
-            child: Column(
+            margin: EdgeInsets.symmetric(vertical: 10),
+            child: Container(
+              alignment: Alignment.center,
+              margin: EdgeInsets.symmetric(vertical: 10),
+              child: Text(
+                'Explore Groups',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+           Container(
+            // color: Colors.red,
+            child: GridView.count(
+              shrinkWrap: true,
+              crossAxisCount: 2,
               children: _buildAllGroups(),
+              childAspectRatio: 1
             ),
           ),
         ],
@@ -236,12 +263,32 @@ class _SearchPageState extends State<SearchPage> {
 
   List<Widget> _buildFoundGroups() {
     bool foundGroup = groupsFound.isNotEmpty;
+    String adminPhotoURL = Defaults.photoURL;
+
     List<Widget> groupCards = List();
-    for (int groupIndex in groupsFound) {
-      Group group = groups[groupIndex];
+    for (Group group in groupsFound) {
       groupCards.add(_buildGroupItem(group));
     }
-    
+
+    if (foundGroup) {
+      _currentGroup = groupsFound[0];
+      // DatabaseHelper.getUserSnapshot(_currentGroup.admin).then((ds) {
+      //   setState(() {
+      //     adminPhotoURL = ds.data['photoURL'];
+      //   });
+      // });
+    }
+
+    CarouselSlider _carousel = CarouselSlider(
+      items: groupCards,
+      enableInfiniteScroll: true,
+      enlargeCenterPage: true,
+      autoPlay: false,
+      viewportFraction: .75,
+      aspectRatio: 1.5,
+      onPageChanged: (page) => setState(() => _currentGroup = groupsFound[page])
+    );
+
     return <Widget>[
       foundGroup ?
         Container(
@@ -253,17 +300,77 @@ class _SearchPageState extends State<SearchPage> {
                 child: Text(
                   'Found ${groupsFound.length} groups',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 22,
                     fontFamily: 'Montserrat',
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              CarouselSlider(
-                items: groupCards,
-                enableInfiniteScroll: false,
-                enlargeCenterPage: true,
-                autoPlay: false,
+              _carousel,
+              _currentGroup == null ? Container() :
+              Stack(
+                alignment: Alignment.bottomCenter,
+                fit: StackFit.loose,
+                children: <Widget> [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: ShapeDecoration(
+                        color: GSColors.cloud,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        shadows: [BoxShadow(color: Colors.black26)]
+                      ),
+                      // height: 300,
+                      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                      // padding: EdgeInsets.only(top: 10, bottom: 20, left: 10, right: 10),
+                      child: Container(
+                        // padding: EdgeInsets.only(bottom: 20),
+                        // color: Colors.blue,
+                        child:Container(
+                          margin: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                          padding: EdgeInsets.only(bottom: 16),
+                          // color: Colors.red,
+                          child: Text(
+                            _currentGroup.bio,
+                            softWrap: true,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              color: GSColors.darkBlue,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              // letterSpacing: 1.2
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    alignment: Alignment.bottomLeft,
+                    margin: EdgeInsets.only(left: 30),
+                    child: CircleAvatar(
+                      backgroundImage: CachedNetworkImageProvider(
+                        adminPhotoURL
+                      ),
+                    ),
+                  ),
+                  Container(
+                    alignment: Alignment.bottomCenter,
+                    child: FlatButton.icon(
+                      color: GSColors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      icon: Icon(Icons.add), 
+                      label: Text('Join',),
+                      onPressed: () {},
+                    )
+                  )
+                ],
               ),
             ],
           )
@@ -276,66 +383,50 @@ class _SearchPageState extends State<SearchPage> {
     groups.forEach((group) { 
       groupItems.add(
         Container(
-          height: 200,
-          width: double.infinity,
-          margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          child: _buildGroupItem(group)
+          // width: double.infinity,
+          margin: EdgeInsets.all(10),
+          child: _buildGroupItem(group),
         )
       );
     });
-
-    return <Widget>[
-      Container(
-        margin: EdgeInsets.symmetric(vertical: 10),
-        child: Column(
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 10),
-              child: Text(
-                'Explore Groups',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ] + groupItems,
-        )
-      )
-    ];
+    
+    return groupItems;
   }
 
   Widget _buildGroupItem(Group group) {
     return Container(
-      width: double.infinity,
-      margin: EdgeInsets.symmetric(horizontal: 6),
-      decoration: ShapeDecoration(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        image: DecorationImage(
-          image: CachedNetworkImageProvider(group.photoURL.isNotEmpty ? group.photoURL : Defaults.photoURL),
-          fit: BoxFit.fill
-        )
-      ),
+      width: double.maxFinite,
       child: InkWell(
-        onTap: () => _buildGroup(group),
-        child:Card(
-          clipBehavior: Clip.antiAliasWithSaveLayer,
-          color: Colors.transparent,
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
           child: Container(
-            alignment: Alignment.bottomCenter,
-            child: Text(
-              group.name, 
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontFamily: 'Montserrat',
-                // fontWeight: FontWeight.bold,
-                // letterSpacing: 1.2
+            decoration: ShapeDecoration(
+              image: DecorationImage(
+                image: CachedNetworkImageProvider(group.photoURL),
+                fit: BoxFit.fill,
               ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)
+              )
+            ),
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: <Widget>[
+                Text(
+                  group.name,
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.bold,
+                    // letterSpacing: 1.2
+                  ),
+                ),
+              ],
             ),
           ),
         ),
