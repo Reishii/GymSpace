@@ -32,6 +32,7 @@ class _SearchPageState extends State<SearchPage> {
   List<Group> get groups => widget.groups;
   Group _currentGroup;
   bool _isEditing = true;
+  bool _switchedPage = false;
 
   TextEditingController _searchController = TextEditingController();
   List<User> usersFound = List();
@@ -63,6 +64,10 @@ class _SearchPageState extends State<SearchPage> {
           }
         }
 
+        if (groupsFound.isNotEmpty) {
+          _currentGroup = groupsFound[0];
+        }
+
         break;
       default:
     }
@@ -88,6 +93,7 @@ class _SearchPageState extends State<SearchPage> {
           onChanged: (_) {       
             setState(() {
               _isEditing = true;
+              _search(_searchController.text);
             });
           },
           onEditingComplete: () {
@@ -223,7 +229,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget _buildResultsGroups() {
     return Container(
-      margin: EdgeInsets.only(top: 20),
+      // margin: EdgeInsets.only(top: 20),
       child: ListView(
         shrinkWrap: true,
         children: <Widget>[
@@ -263,40 +269,19 @@ class _SearchPageState extends State<SearchPage> {
 
   List<Widget> _buildFoundGroups() {
     bool foundGroup = groupsFound.isNotEmpty;
-    String adminPhotoURL = Defaults.photoURL;
-
     List<Widget> groupCards = List();
     for (Group group in groupsFound) {
       groupCards.add(_buildGroupItem(group));
     }
 
-    if (foundGroup) {
-      _currentGroup = groupsFound[0];
-      // DatabaseHelper.getUserSnapshot(_currentGroup.admin).then((ds) {
-      //   setState(() {
-      //     adminPhotoURL = ds.data['photoURL'];
-      //   });
-      // });
-    }
-
-    CarouselSlider _carousel = CarouselSlider(
-      items: groupCards,
-      enableInfiniteScroll: true,
-      enlargeCenterPage: true,
-      autoPlay: false,
-      viewportFraction: .75,
-      aspectRatio: 1.5,
-      onPageChanged: (page) => setState(() => _currentGroup = groupsFound[page])
-    );
-
     return <Widget>[
       foundGroup ?
         Container(
-          margin: EdgeInsets.symmetric(vertical: 10),
+          // margin: EdgeInsets.symmetric(vertical: 10),
           child: Column(
             children: <Widget>[
               Container(
-                margin: EdgeInsets.symmetric(vertical: 10),
+                margin: EdgeInsets.only(top: 30, bottom: 10),
                 child: Text(
                   'Found ${groupsFound.length} groups',
                   style: TextStyle(
@@ -306,72 +291,19 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                 ),
               ),
-              _carousel,
-              _currentGroup == null ? Container() :
-              Stack(
-                alignment: Alignment.bottomCenter,
-                fit: StackFit.loose,
-                children: <Widget> [
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: ShapeDecoration(
-                        color: GSColors.cloud,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        shadows: [BoxShadow(color: Colors.black26)]
-                      ),
-                      // height: 300,
-                      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-                      // padding: EdgeInsets.only(top: 10, bottom: 20, left: 10, right: 10),
-                      child: Container(
-                        // padding: EdgeInsets.only(bottom: 20),
-                        // color: Colors.blue,
-                        child:Container(
-                          margin: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                          padding: EdgeInsets.only(bottom: 16),
-                          // color: Colors.red,
-                          child: Text(
-                            _currentGroup.bio,
-                            softWrap: true,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: 'Montserrat',
-                              color: GSColors.darkBlue,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              // letterSpacing: 1.2
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    alignment: Alignment.bottomLeft,
-                    margin: EdgeInsets.only(left: 30),
-                    child: CircleAvatar(
-                      backgroundImage: CachedNetworkImageProvider(
-                        adminPhotoURL
-                      ),
-                    ),
-                  ),
-                  Container(
-                    alignment: Alignment.bottomCenter,
-                    child: FlatButton.icon(
-                      color: GSColors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      icon: Icon(Icons.add), 
-                      label: Text('Join',),
-                      onPressed: () {},
-                    )
-                  )
-                ],
+              CarouselSlider(
+                items: groupCards,
+                enableInfiniteScroll: true,
+                enlargeCenterPage: true,
+                autoPlay: false,
+                viewportFraction: .75,
+                aspectRatio: 1.5,
+                onPageChanged: (page) => setState(() {
+                  _currentGroup = groupsFound[page];
+                }),
               ),
+              _currentGroup == null ? Container() :
+              GroupInfoWidget(group: _currentGroup,),
             ],
           )
         ) : Container(),
@@ -385,7 +317,7 @@ class _SearchPageState extends State<SearchPage> {
         Container(
           // width: double.infinity,
           margin: EdgeInsets.all(10),
-          child: _buildGroupItem(group),
+          child: _buildGroupItem(group, forAll: true),
         )
       );
     });
@@ -393,10 +325,15 @@ class _SearchPageState extends State<SearchPage> {
     return groupItems;
   }
 
-  Widget _buildGroupItem(Group group) {
+  Widget _buildGroupItem(Group group, {bool forAll = false}) {
     return Container(
       width: double.maxFinite,
       child: InkWell(
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) => GroupProfilePage(group: group,)
+          ));
+        },
         child: Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)
@@ -405,7 +342,7 @@ class _SearchPageState extends State<SearchPage> {
             decoration: ShapeDecoration(
               image: DecorationImage(
                 image: CachedNetworkImageProvider(group.photoURL),
-                fit: BoxFit.fill,
+                fit: BoxFit.cover,
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20)
@@ -414,16 +351,26 @@ class _SearchPageState extends State<SearchPage> {
             child: Stack(
               alignment: Alignment.bottomCenter,
               children: <Widget>[
-                Text(
-                  group.name,
-                  softWrap: true,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
+                Container(
+                  padding: EdgeInsets.all(10),
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  decoration: ShapeDecoration(
                     color: Colors.white,
-                    fontSize: 24,
-                    fontFamily: 'Montserrat',
-                    fontWeight: FontWeight.bold,
-                    // letterSpacing: 1.2
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)
+                    )
+                  ),
+                  child: Text(
+                    group.name,
+                    softWrap: true,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: forAll ? 12 : 18,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.bold,
+                      // letterSpacing: 1.2
+                    ),
                   ),
                 ),
               ],
@@ -444,5 +391,118 @@ class _SearchPageState extends State<SearchPage> {
     Navigator.push(context, MaterialPageRoute(
       builder: (context) => GroupProfilePage(group: group)
     ));
+  }
+}
+
+class GroupInfoWidget extends StatefulWidget {
+  final Group group;
+
+  GroupInfoWidget({
+    this.group,
+    Key key}) : super(key: key);
+
+  _GroupInfoWidgetState createState() => _GroupInfoWidgetState();
+}
+
+class _GroupInfoWidgetState extends State<GroupInfoWidget> {
+  Group get group => widget.group;
+
+  @override
+  Widget build(BuildContext context) {
+    bool _joined = group.members.contains(DatabaseHelper.currentUserID) || group.admin == DatabaseHelper.currentUserID;
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      fit: StackFit.loose,
+      children: <Widget> [
+        Container(
+          padding: EdgeInsets.all(10),
+          child: Container(
+            alignment: Alignment.center,
+            decoration: ShapeDecoration(
+              color: GSColors.cloud,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              shadows: [BoxShadow(color: Colors.black26)]
+            ),
+            // height: 300,
+            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+            // padding: EdgeInsets.only(top: 10, bottom: 20, left: 10, right: 10),
+            child: Container(
+              // padding: EdgeInsets.only(bottom: 20),
+              // color: Colors.blue,
+              child:Container(
+                margin: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                padding: EdgeInsets.only(bottom: 16),
+                // color: Colors.red,
+                child: Text(
+                  group.bio,
+                  softWrap: true,
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    color: GSColors.darkBlue,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    // letterSpacing: 1.2
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          alignment: Alignment.bottomLeft,
+          margin: EdgeInsets.only(left: 30),
+          child: FutureBuilder(
+            future: DatabaseHelper.getUserSnapshot(group.admin),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return CircleAvatar(
+                  backgroundImage: CachedNetworkImageProvider(
+                    Defaults.photoURL,
+                  )
+                );
+              }
+              
+              return CircleAvatar(
+                backgroundImage: CachedNetworkImageProvider(
+                  snapshot.data['photoURL'].isEmpty ? Defaults.photoURL : snapshot.data['photoURL'],
+                )
+              );
+            },
+          ),
+          // child: CircleAvatar(
+          //   backgroundImage: CachedNetworkImageProvider(
+          //     group.photoURL,
+          //   ),
+          // ),
+        ),
+        Container(
+          alignment: Alignment.bottomCenter,
+          child: FlatButton.icon(
+            color: GSColors.green,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            icon: Icon(
+              _joined ? FontAwesomeIcons.doorOpen: Icons.add,
+              size: _joined ? 16 : 22,
+              color: Colors.white,
+            ), 
+            label: Text(
+              _joined ? 'Open' : 'Join',
+            ),
+            onPressed: () {
+              if (_joined) {
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => GroupProfilePage(group: group,)
+                ));
+              }
+            },
+          )
+        )
+      ],
+    );
   }
 }
