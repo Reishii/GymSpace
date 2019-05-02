@@ -83,20 +83,28 @@ class _NutritionPage extends State<NutritionPage> {
   Widget _buildWeeklyLabel() {
     _setWeek();
     return Container(
-      margin: EdgeInsets.only(top: 25),
+      margin: EdgeInsets.only(top: 5),
       height: 40,
       width: 40,
       child: Row(
         children: <Widget>[
           Expanded(
-            flex: 3,
-            child: Container(
-            ),
+            flex: 4,
+            child: Container(),
           ),
           Expanded(
             flex: 1,
             child: Container(
-              alignment: Alignment.center,
+              alignment: Alignment.centerRight,
+              child: Text(
+                DateFormat('MMMM').format(_week),
+                style: TextStyle(
+                  color: GSColors.darkBlue,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                ),
+              ),
               decoration: ShapeDecoration(
                 color: Colors.white,
                 shape: RoundedRectangleBorder(
@@ -105,26 +113,17 @@ class _NutritionPage extends State<NutritionPage> {
                     topLeft: Radius.circular(20),
                   )
                 )
-              ),
-              child: Row(
-                children: <Widget>[ 
-                  Center(
-                    child: Text(
-                      DateFormat('MMMM').format(_week),
-                      style: TextStyle(
-                      color: GSColors.darkBlue,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.2
-                    ),
-                  )),
-                  IconButton(
-                    icon: Icon(FontAwesomeIcons.chevronRight),
-                    iconSize: 15,
-                    onPressed: () {},
-                  ),
-                ],
-              ),
+              )
+            )
+          ),
+          Container(
+            color: Colors.white,
+            child: IconButton(
+              icon: Icon(FontAwesomeIcons.chevronRight),
+              iconSize: 12,
+              onPressed: () {
+                // Possibly open up monthly nutrition, let user look at complete past 
+              },
             ),
           ),
         ],
@@ -134,8 +133,8 @@ class _NutritionPage extends State<NutritionPage> {
 
   Widget _buildWeeklyBuilder() {
     return Container(
-      height: 100, 
-      margin: EdgeInsets.symmetric(vertical: 5),
+      height: 80, 
+      margin: EdgeInsets.symmetric(vertical: 2),
       child: Column(
         children: <Widget>[
           Expanded(
@@ -435,6 +434,7 @@ class _NutritionPage extends State<NutritionPage> {
 
   Widget _buildNutritionLabel() {
     return Container(
+      margin: EdgeInsets.only(top: 10),
       child: Row(
         children: <Widget>[ 
           Expanded(
@@ -501,7 +501,7 @@ class _NutritionPage extends State<NutritionPage> {
     return Container(
       //onTap: () => print("Open nutrition info"),
       child: Container(
-        margin: EdgeInsets.only(top: 20),
+        margin: EdgeInsets.only(top: 15),
         child: Row(
           children: <Widget>[
             Expanded(
@@ -525,21 +525,21 @@ class _NutritionPage extends State<NutritionPage> {
                       {
                         return CircularPercentIndicator(
                           animation: true,
-                          radius: 130.0,
-                          lineWidth: 17,
+                          radius: 140.0,
+                          lineWidth: 15,
                           percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal'],
                           progressColor: GSColors.lightBlue,
                           backgroundColor: GSColors.darkCloud,
                           circularStrokeCap: CircularStrokeCap.round,
                           footer:   
                             Text(
-                              "Daily Caloric Goal",
+                              "Calories Consumed",
                               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.0),
                             ),
                           center: 
                             Text(
-                              (100.0 * snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20.0),
+                              '${user.diet[_dietKey][3].toString()}',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 32.0),
 
                           ),
                         );
@@ -548,18 +548,18 @@ class _NutritionPage extends State<NutritionPage> {
                       else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] > snapshot.data['caloricGoal'])
                       {
                         return CircularPercentIndicator(
-                          radius: 130.0,
-                          lineWidth: 17,  
+                          radius: 140.0,
+                          lineWidth: 15, 
                           percent: 1.0,
                           progressColor: Colors.green,
                           backgroundColor: GSColors.darkCloud,
                           center: Text ( 
-                            "+100%",
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20.0),
+                            '${user.diet[_dietKey][3].toString()}',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 32.0),
                           ),
                           footer:   
                             Text(
-                              "Daily Caloric Goal",
+                              "Calories Consumed",
                               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.0),
                             ),
                           
@@ -568,18 +568,18 @@ class _NutritionPage extends State<NutritionPage> {
                       else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] == 0)
                       {
                         return CircularPercentIndicator(
-                          radius: 130.0,
-                          lineWidth: 17,  
+                          radius: 140.0,
+                          lineWidth: 15,
                           percent: 0.0,
                           progressColor: GSColors.darkCloud,
                           backgroundColor: GSColors.darkCloud,
                           center: Text ( 
-                            "No Caloric Goal",
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10.0),
+                            '${user.diet[_dietKey][3].toString()}',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 32.0),
                           ),
                           footer:   
                             Text(
-                              "Daily Caloric Goal",
+                              "Calories Consumed",
                               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.0),
                             ),
                         );
@@ -588,14 +588,14 @@ class _NutritionPage extends State<NutritionPage> {
                       else
                       {
                         return CircularPercentIndicator(
-                          radius: 130.0,
-                          lineWidth: 17,  
+                          radius: 140.0,
+                          lineWidth: 15,
                           percent: 0,
                           progressColor: GSColors.darkCloud,
                           backgroundColor: GSColors.darkCloud,
                           footer:   
                             Text(
-                              "Daily Caloric Goal",
+                              "Calories Consumed",
                               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.0),
                             ),
                         );
@@ -620,7 +620,7 @@ class _NutritionPage extends State<NutritionPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Protein: ",
-                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                              style: TextStyle(fontSize: 18.0, color: Colors.white, fontWeight: FontWeight.w500)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -633,14 +633,14 @@ class _NutritionPage extends State<NutritionPage> {
                                 {
                                   return Text(
                                     '0 g ',
-                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                                      style: TextStyle(fontSize: 18.0, color: Colors.lightGreen, fontWeight: FontWeight.w500)
                                   );                        
                                 }
                                 else
                                 {
                                   return Text(
                                     '${user.diet[_dietKey][0].toString()} g ',
-                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                                      style: TextStyle(fontSize: 18.0, color: Colors.lightGreen, fontWeight: FontWeight.w500)
                                   );
                                 }
                               
@@ -655,7 +655,7 @@ class _NutritionPage extends State<NutritionPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Carbs: ",
-                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                                      style: TextStyle(fontSize: 18.0, color: Colors.white, fontWeight: FontWeight.w500)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -668,14 +668,14 @@ class _NutritionPage extends State<NutritionPage> {
                                 {
                                   return Text(  
                                     '0 g ',
-                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                                      style: TextStyle(fontSize: 18.0, color: Colors.lightGreen, fontWeight: FontWeight.w500)
                                   );                        
                                 }
                                 else
                                 {
                                   return Text(
                                     '${user.diet[_dietKey][1].toString()} g ',
-                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                                      style: TextStyle(fontSize: 18.0, color: Colors.lightGreen, fontWeight: FontWeight.w500)
                                   );
                                 } 
                               }
@@ -689,7 +689,7 @@ class _NutritionPage extends State<NutritionPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Fats: ",
-                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                                      style: TextStyle(fontSize: 18.0, color: Colors.white, fontWeight: FontWeight.w500)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -702,14 +702,14 @@ class _NutritionPage extends State<NutritionPage> {
                                 {
                                   return Text(
                                     '0 g ',
-                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                                      style: TextStyle(fontSize: 18.0, color: Colors.lightGreen, fontWeight: FontWeight.w500)
                                   );                        
                                 }
                                 else
                                 {
                                   return Text(
                                     '${user.diet[_dietKey][2].toString()} g ',
-                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                                      style: TextStyle(fontSize: 18.0, color: Colors.lightGreen, fontWeight: FontWeight.w500)
                                   );
                                 }
                               
@@ -718,48 +718,47 @@ class _NutritionPage extends State<NutritionPage> {
                           ],
                         )
                       ),
-                      Container(
-                        margin:EdgeInsets.only(bottom: 10, right: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Daily Calories: ",
-                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-                            StreamBuilder(
-                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData) {
-                                  return Container();
-                                }
-                                User user = User.jsonToUser(snapshot.data.data);
+                      // Container(
+                      //   margin:EdgeInsets.only(bottom: 10, right: 10),
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //     children: <Widget>[
+                      //       Text("Daily Calories: ",
+                      //                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                      //       StreamBuilder(
+                      //         stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                      //         builder: (context, snapshot) {
+                      //           if (!snapshot.hasData) {
+                      //             return Container();
+                      //           }
+                      //           User user = User.jsonToUser(snapshot.data.data);
 
-                                if(user.diet[_dietKey] == null)
-                                {
-                                  return Text(
-                                    '0 ',
-                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
-                                  );                        
-                                }
-                                else
-                                {
-                                  return Text(
-                                    '${user.diet[_dietKey][3].toString()} ',
-                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
-                                  );
-                                }
-                              
-                              }
-                            )
-                          ],
-                        )
-                      ),
+                      //           if(user.diet[_dietKey] == null)
+                      //           {
+                      //             return Text(
+                      //               '0 ',
+                      //                 style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                      //             );                        
+                      //           }
+                      //           else
+                      //           {
+                      //             return Text(
+                      //               '${user.diet[_dietKey][3].toString()} ',
+                      //                 style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
+                      //             );
+                      //           }
+                      //         }
+                      //       )
+                      //     ],
+                      //   )
+                      // ),
                       Container(
                         margin:EdgeInsets.only(right: 15),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text("Caloric Goal: ",
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                                  style: TextStyle(fontSize: 18.0, color: Colors.white, fontWeight: FontWeight.w500)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -771,12 +770,12 @@ class _NutritionPage extends State<NutritionPage> {
                                   if(user.caloricGoal == null)
                                   {
                                     return Text('0 ',
-                                      style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500));
+                                      style: TextStyle(fontSize: 18.0, color: Colors.lightGreen, fontWeight: FontWeight.w500));
                                   }
                                   else
                                   {
                                     return Text('${user.caloricGoal.toString()}',
-                                      style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.w500));
+                                      style: TextStyle(fontSize: 18.0, color: Colors.yellow, fontWeight: FontWeight.w500));
                                   }
                               }
                             )

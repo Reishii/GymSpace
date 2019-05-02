@@ -11,6 +11,7 @@ class User {
   String bio = "";
   String documentID = "";
   List<String> buddies = List();
+  List<String> photos = List();
   int points = 0;
   int age = 0;
   double startingWeight = 0;

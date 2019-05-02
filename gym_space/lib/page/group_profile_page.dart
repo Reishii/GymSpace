@@ -315,6 +315,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         children: <Widget>[
           Container(
             height: 40,
+            width: 123,
             decoration: ShapeDecoration(
               color: _currentTab == 0 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
@@ -340,6 +341,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
           _joined ? Container(
             height: 40,
+            width: 123,
             decoration: ShapeDecoration(
               color: _currentTab == 1 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
@@ -365,6 +367,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
           _joined ? Container(
             height: 40,
+            width: 123,
             decoration: ShapeDecoration(
               color: _currentTab == 2 ? GSColors.lightBlue : GSColors.darkBlue,
               shape: RoundedRectangleBorder(
