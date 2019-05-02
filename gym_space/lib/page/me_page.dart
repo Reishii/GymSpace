@@ -935,7 +935,7 @@ class _MePageState extends State<MePage> {
  int challenge1, challenge2, challenge3;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
       List<int> challengeFromUser = macroDoc.data['challengeStatus'].cast<int>();
-      int pointsFromUser = macroDoc.data['points'].cast<int>();
+      int pointsFromUser = macroDoc.data['points'];
       DocumentSnapshot challengeDoc = await Firestore.instance.collection('challenges').document(_challengeKey).get();
       List<int> challengeInfoDB = challengeDoc.data['goal'].cast<int>();
       List<int> pointsFromChallenge = challengeDoc.data['points'].cast<int>();
@@ -1800,7 +1800,7 @@ class _MePageState extends State<MePage> {
       int protein, carbs, fats, currentCalories = 0, caloricGoal;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
       Map<String, dynamic> macroFromDB = macroDoc.data['diet'].cast<String, dynamic>();
-      int caloriesGoal = macroDoc.data['caloricGoal'].cast<int>();
+      int caloriesGoal = macroDoc.data['caloricGoal'];
       
     showDialog<String>(
       context: context,
