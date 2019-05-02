@@ -194,7 +194,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   FlatButton.icon(
                     icon: Icon(Icons.thumb_up),
                     textColor: Colors.white,
-                    label: Text('${group.likes.length} Likes'),
+                    label: Text('${group.likes.length} Likes', style: TextStyle(fontSize: 16)),
                     onPressed: _likeGroup,
                   ),
                   // Row(
@@ -324,15 +324,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         mainAxisAlignment: _joined ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
         children: <Widget>[
           Container(
-            height: 40,
-            width: 123,
-            decoration: ShapeDecoration(
-              color: _currentTab == 0 ? GSColors.lightBlue : GSColors.darkBlue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(40),
-              ),
-            ),
-              child: MaterialButton( // overview
+            child: MaterialButton( // overview
               onPressed: () { 
                 if (_currentTab != 0) {
                   setState(() => _currentTab = 0);
@@ -341,7 +333,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Overview',
                 style: TextStyle(
-                color: _currentTab == 0 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 0 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -350,14 +342,6 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           ),
 
           _joined ? Container(
-            height: 40,
-            width: 123,
-            decoration: ShapeDecoration(
-              color: _currentTab == 1 ? GSColors.lightBlue : GSColors.darkBlue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(40),
-              ),
-            ),
             child: MaterialButton( // Challenges
               onPressed: () { 
                 if (_currentTab != 1) {
@@ -367,7 +351,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Challenges',
                 style: TextStyle(
-                color: _currentTab == 1 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 1 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -376,14 +360,6 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           ) : Container(),
 
           _joined ? Container(
-            height: 40,
-            width: 123,
-            decoration: ShapeDecoration(
-              color: _currentTab == 2 ? GSColors.lightBlue : GSColors.darkBlue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(40),
-              ),
-            ),
             child: MaterialButton( // Discussion
               onPressed: () { 
                 if (_currentTab != 2) {
@@ -393,7 +369,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Discussion',
                 style: TextStyle(
-                color: _currentTab == 2 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 2 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -901,6 +877,24 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                               List<Widget> challengeList = [];
                               snapshotGroup.data.data['challenges'][_challengeKey].cast<String, Map>().forEach((title, value)
                               {
+                                if (_isAdmin) {
+                                  challengeList.add(
+                                    Container(
+                                      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                                      child: Text(
+                                        title,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    )
+                                  );
+
+                                  return Column(
+                                    children: challengeList,
+                                  );
+                                }
+
                                 if(value['members'][DatabaseHelper.currentUserID]['progress'] == value['goal'])
                                 {
                                   challengeList.add(

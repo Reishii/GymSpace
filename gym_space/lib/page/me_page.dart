@@ -205,14 +205,6 @@ class _MePageState extends State<MePage> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           Container(
-            height: 40,
-            width: 123,
-            decoration: ShapeDecoration(
-              color: _currentTab == 0 ? GSColors.lightBlue : GSColors.darkBlue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(40),
-              ),
-            ),
             child: MaterialButton( // overview
               onPressed: () { 
                 if (_currentTab != 0) {
@@ -222,7 +214,7 @@ class _MePageState extends State<MePage> {
             child: Text(
               'Overview',
               style: TextStyle(
-                color: _currentTab == 0 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 0 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -232,14 +224,6 @@ class _MePageState extends State<MePage> {
 
           // Media
           Container(
-            height: 40,
-            width: 123,
-            decoration: ShapeDecoration(
-              color: _currentTab == 1 ? GSColors.lightBlue : GSColors.darkBlue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(40),
-              ),
-            ),
             child: MaterialButton( 
             onPressed: () { 
               if (_currentTab != 1) {
@@ -249,7 +233,7 @@ class _MePageState extends State<MePage> {
             child: Text(
               'Media',
               style: TextStyle(
-                color: _currentTab == 1 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 1 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -259,14 +243,6 @@ class _MePageState extends State<MePage> {
 
           // Posts
           Container(
-            height: 40,
-            width: 123,
-            decoration: ShapeDecoration(
-              color: _currentTab == 2 ? GSColors.lightBlue : GSColors.darkBlue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(40),
-              ),
-            ),
             child: MaterialButton( 
             onPressed: () { 
               if (_currentTab != 2) {
@@ -276,7 +252,7 @@ class _MePageState extends State<MePage> {
             child: Text(
               'Posts',
               style: TextStyle(
-                color: _currentTab == 2 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 2 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -422,7 +398,7 @@ class _MePageState extends State<MePage> {
                           radius: 130.0,
                           lineWidth: 17,  
                           percent: 1.0,
-                          progressColor: Colors.green,
+                          progressColor: GSColors.green,
                           backgroundColor: GSColors.darkCloud,
                           center: Text ( 
                             '${user.diet[_dietKey][3]}',
@@ -741,7 +717,7 @@ class _MePageState extends State<MePage> {
                  {
                     return Row(
                       children: <Widget>[
-                        Icon(FontAwesomeIcons.caretUp, color: Colors.green, size: 16),
+                        Icon(FontAwesomeIcons.caretUp, color: GSColors.green, size: 16),
                         Text(
                           weightLost.toStringAsFixed(2),
                           style: TextStyle(
@@ -1287,7 +1263,7 @@ class _MePageState extends State<MePage> {
                                       lineHeight: 14.0,
                                       percent: 1.0,
                                       backgroundColor: GSColors.darkCloud,
-                                      progressColor: Colors.green,
+                                      progressColor: GSColors.green,
                                       center: Text("100%"),
                                       animation: true, 
                                     );
@@ -1441,7 +1417,7 @@ class _MePageState extends State<MePage> {
                                       lineHeight: 14.0,
                                       percent: 1.0,
                                       backgroundColor: GSColors.darkCloud,
-                                      progressColor: Colors.green,
+                                      progressColor: GSColors.green,
                                       center: Text("100%"),
                                       animation: true, 
                                     );
@@ -1664,7 +1640,7 @@ class _MePageState extends State<MePage> {
                 radius: 200.0,
                 lineWidth: 17,
                 percent: totalProgress / totalGoal,
-                progressColor: Colors.green,
+                progressColor: GSColors.green,
                 backgroundColor: GSColors.darkCloud,
                 circularStrokeCap: CircularStrokeCap.round,
                 footer:   
