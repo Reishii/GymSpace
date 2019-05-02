@@ -1015,8 +1015,8 @@ Future<void> addNewMemberToWeeklyChallenges() async {
   });
 
   Firestore.instance.collection('groups').document(group.documentID).updateData(
-          {'challenges' : challengeMap}
-          );
+      {'challenges' : challengeMap}
+  );
 }
 
 

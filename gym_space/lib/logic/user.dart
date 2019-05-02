@@ -1,4 +1,3 @@
-import 'meal.dart';
 import 'group.dart';
 import 'workout_plan.dart';
 
@@ -11,7 +10,7 @@ class User {
   String bio = "";
   String documentID = "";
   List<String> buddies = List();
-  List<String> photos = List();
+  List<String> media = List();
   int points = 0;
   int age = 0;
   double startingWeight = 0;
@@ -34,7 +33,7 @@ class User {
     this.liftingType = "",
     this.photoURL = "",
     this.buddies,
-    this.photos,
+    this.media,
     this.points = 0,
     this.age = 0,
     this.startingWeight = 0,
@@ -60,7 +59,7 @@ class User {
       'photoURL': photoURL,
       'bio': bio,
       'buddies': buddies == null ? [] : buddies,
-      'photos': photos == null ? [] : photos,
+      'media': media == null ? [] : media,
       'points': points,
       'age': age,
       'startingWeight': startingWeight,
@@ -87,7 +86,7 @@ class User {
       photoURL: data['photoURL'],
       bio: data['bio'],
       buddies: data['buddies'].cast<String>(),
-      //photos: data['photos'].cast<String>(),
+      media: data['media'].cast<String>(),
       points: data['points'].round(),
       age: data['age'].round(),
       startingWeight: data['startingWeight'].toDouble(),
