@@ -1,5 +1,6 @@
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/nutrition_page.dart';
+import 'package:GymSpace/widgets/media_tab.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
@@ -13,8 +14,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
-
-
 class MePage extends StatefulWidget {
 
   MePage({Key key}) : super(key: key);
@@ -25,12 +24,13 @@ class _MePageState extends State<MePage> {
 
   Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
   final myController = TextEditingController();
-
-  File imageFile;
-  String imageUrl;
+  String filePath;
+  String mediaUrl, profileImageUrl;
   String _dietKey = DateTime.now().toString().substring(0,10);
   String _challengeKey;
   int _currentTab = 0;
+  User user;
+  bool _newMedia = true;
 
   @override
   Widget build(BuildContext context) {
@@ -72,10 +72,7 @@ class _MePageState extends State<MePage> {
       //     ),
       //   ],
       // ),
-      
-
     );
-
   }
 
   Widget _buildProfileHeading() {
@@ -100,7 +97,7 @@ class _MePageState extends State<MePage> {
             child: Column(
               children: <Widget>[
                 InkWell( // profile pic
-                  onLongPress: () => getImage(),
+                  onLongPress: () => MediaTab(context).getProfileImage(),
                   child: Container(
                     decoration: ShapeDecoration(
                       shape: CircleBorder(
@@ -185,8 +182,8 @@ class _MePageState extends State<MePage> {
           _buildProfileHeading(),
           _buildPillNavigator(),
           _currentTab == 0 ? _buildInfoTab(context) 
-            : _currentTab == 1 ? _buildInfoTab(context)
-            : _buildInfoTab(context)
+            : _currentTab == 1 ? MediaTab(context)
+            : _buildPostsTab(context)
         ],
       ),
     );
@@ -248,7 +245,7 @@ class _MePageState extends State<MePage> {
               }
             },
             child: Text(
-              'Something',
+              'Media',
               style: TextStyle(
                 color: _currentTab == 1 ? GSColors.darkBlue : Colors.white,
                 fontSize: 14,
@@ -304,6 +301,10 @@ class _MePageState extends State<MePage> {
         ],
       ),
     );
+  }
+
+  Widget _buildPostsTab(BuildContext context) {
+    return Container();
   }
 
   Widget _buildNutritionLabel() {
@@ -379,15 +380,6 @@ class _MePageState extends State<MePage> {
               child: Container(
                 height: 180,
                 child: Container(
-                //  child:  CircularPercentIndicator(
-                //           radius: 120.0,
-                //           lineWidth: 10,
-                //           percent: 0.8,
-                //           progressColor: Colors.green,
-                //           backgroundColor: GSColors.darkCloud,
-                //           animateFromLastPercent: true,
-                //           animation: true
-                //         ),
                   child: StreamBuilder(
                     stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                     builder: (context, snapshot){ 
@@ -410,13 +402,13 @@ class _MePageState extends State<MePage> {
                           circularStrokeCap: CircularStrokeCap.round,
                           footer:   
                             Text(
-                              "Daily Caloric Goal",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                              "Calories Consumed",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
                             ),
                           center: 
                             Text(
-                              (100.0 * snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                              '${user.diet[_dietKey][3]}',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0),
 
                           ),
                         );
@@ -431,13 +423,13 @@ class _MePageState extends State<MePage> {
                           progressColor: Colors.green,
                           backgroundColor: GSColors.darkCloud,
                           center: Text ( 
-                            "100%",
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                            '${user.diet[_dietKey][3]}',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0),
                           ),
                           footer:   
                             Text(
-                              "Daily Caloric Goal",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                              "Calories Consumed",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
                             ),
                           
                         );
@@ -451,13 +443,13 @@ class _MePageState extends State<MePage> {
                           progressColor: GSColors.darkCloud,
                           backgroundColor: GSColors.darkCloud,
                           center: Text ( 
-                            "No Caloric Goal",
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+                            '${user.diet[_dietKey][3]}',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0),
                           ),
                           footer:   
                             Text(
-                              "Daily Caloric Goal",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                              "Calories Consumed",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
                             ),
                         );
                       }
@@ -472,30 +464,20 @@ class _MePageState extends State<MePage> {
                           backgroundColor: GSColors.darkCloud,
                           footer:   
                             Text(
-                              "Daily Caloric Goal",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                              "Calories Consumed",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
                             ),
                         );
                       }
     
                     }
                   )
-
-                  // decoration: ShapeDecoration(
-                  //   shape: CircleBorder(
-                  //     side: BorderSide(
-                  //       width: 16,
-                  //       color: GSColors.darkBlue
-                  //     )
-                  //   )
-                  // ),
                 )
               ),
             ),
             Expanded(
               flex: 1,
               child: Container(
-                // margin: EdgeInsets.only(right: 100),
                 child: Container(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -505,7 +487,8 @@ class _MePageState extends State<MePage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text("Protein: "),
+                            Text("Proteins: ",
+                                      style: TextStyle(fontSize: 16)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -517,13 +500,15 @@ class _MePageState extends State<MePage> {
                                 if(user.diet[_dietKey] == null)
                                 {
                                   return Text(
-                                    '0 g '
+                                    '0 g ',
+                                      style: TextStyle(fontSize: 16),
                                   );                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_dietKey][0].toString()} g '
+                                    '${user.diet[_dietKey][0].toString()} g ',
+                                      style: TextStyle(fontSize: 16),
                                   );
                                 }
                               
@@ -537,7 +522,8 @@ class _MePageState extends State<MePage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text("Carbs: "),
+                            Text("Carbs: ",
+                                      style: TextStyle(fontSize: 16)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -549,13 +535,15 @@ class _MePageState extends State<MePage> {
                                if(user.diet[_dietKey] == null)
                                 {
                                   return Text(  
-                                    '0 g '
+                                    '0 g ',
+                                      style: TextStyle(fontSize: 16),
                                   );                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_dietKey][1].toString()} g '
+                                    '${user.diet[_dietKey][1].toString()} g ',
+                                      style: TextStyle(fontSize: 16),
                                   );
                                 } 
                               }
@@ -568,7 +556,8 @@ class _MePageState extends State<MePage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text("Fats: "),
+                            Text("Fats: " ,
+                                      style: TextStyle(fontSize: 16)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -580,45 +569,15 @@ class _MePageState extends State<MePage> {
                                 if(user.diet[_dietKey] == null)
                                 {
                                   return Text(
-                                    '0 g '
+                                    '0 g ',
+                                      style: TextStyle(fontSize: 16),
                                   );                        
                                 }
                                 else
                                 {
                                   return Text(
-                                    '${user.diet[_dietKey][2].toString()} g '
-                                  );
-                                }
-                              
-                              }
-                            )
-                          ],
-                        )
-                      ),
-                      Container(
-                        margin:EdgeInsets.only(bottom: 10, right: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Daily Calories: "),
-                            StreamBuilder(
-                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData) {
-                                  return Container();
-                                }
-                                User user = User.jsonToUser(snapshot.data.data);
-
-                                if(user.diet[_dietKey] == null)
-                                {
-                                  return Text(
-                                    '0 '
-                                  );                        
-                                }
-                                else
-                                {
-                                  return Text(
-                                    '${user.diet[_dietKey][3].toString()} '
+                                    '${user.diet[_dietKey][2].toString()} g ',
+                                      style: TextStyle(fontSize: 16),
                                   );
                                 }
                               
@@ -632,7 +591,8 @@ class _MePageState extends State<MePage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Text("Caloric Goal: "),
+                            Text("Caloric Goal: ",
+                                  style: TextStyle(fontSize: 16)),
                             StreamBuilder(
                               stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
                               builder: (context, snapshot) {
@@ -643,11 +603,13 @@ class _MePageState extends State<MePage> {
 
                                   if(user.caloricGoal == null)
                                   {
-                                    return Text('0 ');
+                                    return Text('0 ',
+                                      style: TextStyle(fontSize: 16));
                                   }
                                   else
                                   {
-                                    return Text('${user.caloricGoal.toString()}');
+                                    return Text('${user.caloricGoal.toString()}',
+                                      style: TextStyle(fontSize: 16));
                                   }
                                 // if(user.diet[_dietKey] == null)
                                 // {
@@ -931,7 +893,7 @@ class _MePageState extends State<MePage> {
     );
   }
 
- void _updateChallengeInfo(BuildContext context) async{
+  void _updateChallengeInfo(BuildContext context) async{
  int challenge1, challenge2, challenge3;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
       List<int> challengeFromUser = macroDoc.data['challengeStatus'].cast<int>();
@@ -1755,32 +1717,6 @@ class _MePageState extends State<MePage> {
           
       )
     );
-  }
-
-  Future getImage() async {
-    imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
-    
-    if(imageFile != null){
-      uploadFile();
-    }
-  }
-
-  Future uploadFile() async {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = reference.putFile(imageFile);
-    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
-    await storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
-      imageUrl = downloadUrl;
-    }, onError: (err) {
-
-      Fluttertoast.showToast(msg: 'This file is not an image');
-    });
-
-        
-  Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'photoURL' : imageUrl });
-            
-
   }
 
   String getChallengeKey(){

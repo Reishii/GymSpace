@@ -283,7 +283,7 @@ class _NutritionPage extends State<NutritionPage> {
 
             center: 
               Text(
-                (100.0 * snapshot.data['diet'][_dailyKey][3] / snapshot.data['caloricGoal']).toStringAsFixed(0) + "%",
+                '${user.diet[_dailyKey][3]}',
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
             )
           ),
@@ -329,7 +329,7 @@ class _NutritionPage extends State<NutritionPage> {
               )),  
 
             center: Text ( 
-              "+100%",
+              '${user.diet[_dailyKey][3]}',
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11.0),
             ),
           ),
@@ -374,7 +374,7 @@ class _NutritionPage extends State<NutritionPage> {
               )),  
 
             center: Text ( 
-              "0%",
+              '${user.diet[_dailyKey][3]}',
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
             ),
           ),
@@ -420,7 +420,7 @@ class _NutritionPage extends State<NutritionPage> {
               )),  
 
             center: Text(
-                "0%",
+                '0',
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
               ),
           ),
@@ -534,7 +534,7 @@ class _NutritionPage extends State<NutritionPage> {
                           footer:   
                             Text(
                               "Calories Consumed",
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.0),
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 20.0),
                             ),
                           center: 
                             Text(
@@ -560,7 +560,7 @@ class _NutritionPage extends State<NutritionPage> {
                           footer:   
                             Text(
                               "Calories Consumed",
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.0),
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 20.0),
                             ),
                           
                         );
@@ -580,7 +580,7 @@ class _NutritionPage extends State<NutritionPage> {
                           footer:   
                             Text(
                               "Calories Consumed",
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.0),
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 20.0),
                             ),
                         );
                       }

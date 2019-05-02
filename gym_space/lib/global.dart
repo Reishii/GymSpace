@@ -25,16 +25,20 @@ class DatabaseHelper {
     return await FirebaseAuth.instance.currentUser();
   }
 
-  static Future<DocumentSnapshot> getCurrentUserBuddiesSnapshot(String userID) async {
-    DocumentSnapshot ds = await getUserSnapshot(userID);
-    DocumentSnapshot buddySnap = ds.data['buddies'];
-    return buddySnap;
-  }
-
   static Future<List<String>> getCurrentUserBuddies() async {
     DocumentSnapshot ds = await getUserSnapshot(currentUserID);
     List<String> buddies = ds.data['buddies'].cast<String>().toList();
     return buddies;
+  }
+
+  static Future<List<String>> getCurrentUserMedia() async {
+    DocumentSnapshot ds = await getUserSnapshot(currentUserID);
+    List<String> media = ds.data['media'].cast<String>().toList();
+    return media;
+  }
+
+  static Stream<DocumentSnapshot> getUserStreamSnapshot(String userID) {
+    return Firestore.instance.collection('users').document(userID).snapshots();
   }
 
   static Future<List<String>> getCurrentUserGroups() async {
@@ -45,10 +49,6 @@ class DatabaseHelper {
 
   static Future<DocumentSnapshot> getUserSnapshot(String userID) async {
     return Firestore.instance.collection('users').document(userID).get();
-  }
-
-  static Stream<DocumentSnapshot> getUserStreamSnapshot(String userID) {
-    return Firestore.instance.collection('users').document(userID).snapshots();
   }
 
   static Future<List<User>> searchDBForUserByName(String name) async {
