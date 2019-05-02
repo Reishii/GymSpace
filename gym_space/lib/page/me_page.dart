@@ -1874,15 +1874,17 @@ class _MePageState extends State<MePage> {
             macroFromDB[_dietKey][2] += fats;
             macroFromDB[_dietKey][3] += currentCalories;
             if(caloricGoal != -1)
-              caloriesGoal = caloricGoal;
+               Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+              {'caloricGoal': caloricGoal});
+              // caloriesGoal = caloricGoal;
               //macroFromDB[_dietKey][4] = caloricGoal;
             
             currentCalories = 0;
 
             Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
               {'diet': macroFromDB});
-            Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
-              {'caloricGoal': caloriesGoal});
+            // Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+            //   {'caloricGoal': caloriesGoal});
             _buildNutritionInfo(context);
 
             Navigator.pop(context);
