@@ -1113,7 +1113,7 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
 
   Widget _buildLeaderboard() {
     return Container(
-      height: 200,
+      //height: 200,
       width: double.maxFinite,
       margin: EdgeInsets.symmetric(vertical: 10),
       decoration: ShapeDecoration(
@@ -1136,6 +1136,79 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
               ),
             ),
           ),
+
+          Container(
+            child: StreamBuilder(
+              stream:  DatabaseHelper.getGroupStreamSnapshot(group.documentID),
+               builder: (context, snapshotGroup){
+                if(snapshotGroup.data == null)
+                {
+                  return Container();
+                }
+              
+                else
+                {
+                  List<Widget> leaderBoardList = List();
+                  List<Map> memberPointsList = List();
+                  //Map<String, int> memberPointsMap = Map();
+                  String _challengeKey = getChallengeKey();
+                  int i = 0;
+                  int tmpPoints = 0;
+
+                  //initialize list
+
+                 snapshotGroup.data.data['challenges'][_challengeKey].cast<String, dynamic>().forEach((title, subMap0){
+                   subMap0['members'].cast<String, dynamic>().forEach((memberName, memberInfo) {
+                      if(memberPointsList[i] == null && subMap0['members'][memberName] == null)
+                      {
+                        tmpPoints = 0;
+                      }
+                      else if(memberPointsList[i] == null)
+                      {
+                        tmpPoints = memberInfo['points'];
+                      }
+                      else
+                      {
+                        tmpPoints = memberInfo['points'] + memberPointsList[i]['points'];
+                      }
+                      memberPointsList[i] = {'userID' : memberName, 'points' : tmpPoints};
+                      
+                      i++;
+                      tmpPoints = 0;
+                   });
+                    i = 0;
+                 });
+
+
+                  // for(int i = 0; i < group.members.length; i++)
+                  // {
+                  //   memberPointsList[i] = {'name' :group.members[i], 'points' : 0};
+                  // }
+                  
+                  //sort 
+                  memberPointsList.sort((a, b) => a['points'].compareTo(b['points']));
+                  for(int j = 0; j < memberPointsList.length; j++)
+                  {
+
+                    leaderBoardList.add(
+                      Row(children: <Widget>[
+                        Text(memberPointsList[j]['userID']),
+                        Text(memberPointsList[j]['points'].toString())
+                      ],)
+                    );
+
+
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: leaderBoardList,
+
+                  );
+                }
+               }
+            )
+          )
           // SHOW ACTUAL CONTENT HERE
         ],
       ),
