@@ -27,7 +27,8 @@ class MediaTab extends StatelessWidget {
       child: Column(
         children: <Widget>[
           _buildMediaLabel(),
-          _buildBody(context),
+          _buildButton(),
+          _buildMediaList(context),
         ],
       )
       // margin: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
@@ -95,9 +96,9 @@ class MediaTab extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context) {
+  Widget _buildButton() {
     return Container(
-      child: Row(
+      child: Column(
         children: <Widget>[ 
           // Container(
           //   child: FutureBuilder(
@@ -152,11 +153,42 @@ class MediaTab extends StatelessWidget {
     );
   }
 
-  Widget _buildMediaItem(User user) {
+  Widget _buildMediaList(BuildContext context) {
     return Container(
-      child: Row(
-        children: <Widget> [
-        InkWell( // profile pic
+      child: FutureBuilder(
+        future: _listFutureUser,
+        builder: (context, snapshot) {
+          if(!snapshot.hasData)
+            return Container();
+
+          media = snapshot.data;
+          return ListView.builder(
+            itemCount: media.length,
+            itemBuilder: (BuildContext context, int i) {
+
+              return _buildMediaItem(media[i]);
+ 
+              // return StreamBuilder(
+              //   stream: DatabaseHelper.getUserStreamSnapshot(media[i]),
+              //   builder: (context, mediaSnap) {
+              //     if(!mediaSnap.hasData)
+              //       return Container();
+
+              //     User user = User.jsonToUser(mediaSnap.data.data);
+              //     return _buildMediaItem(user);
+                  //return Container();
+                }
+              );
+            }
+          )
+    );
+  }
+
+  Widget _buildMediaItem(String media) {
+    return Container(
+      //child: Row(
+        //children: <Widget> [
+        child: InkWell( // profile pic
           onLongPress: () => MediaTab(context).getProfileImage(),
           child: Container(
             decoration: ShapeDecoration(
@@ -165,14 +197,14 @@ class MediaTab extends StatelessWidget {
               )
             ),
             child: CircleAvatar(
-              backgroundImage: CachedNetworkImageProvider(user.media.toString(), errorListener: () => print('Failed to download')),
+              backgroundImage: CachedNetworkImageProvider(media.toString(), errorListener: () => print('Failed to download')),
               backgroundColor: Colors.white,
               radius: 70,
             ),
           ),
         ),
-      ],
-    ),
+      //],
+    //),
     );
   }
 

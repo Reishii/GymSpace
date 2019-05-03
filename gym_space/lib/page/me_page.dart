@@ -1735,8 +1735,8 @@ class _MePageState extends State<MePage> {
 } 
 
   void  _updateWeightInfo(BuildContext context) async{
-      String currentWeight, startingWeight;
-      DocumentReference ref;
+    String currentWeight, startingWeight;
+    DocumentReference ref;
      // currentWeight = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}').;
 
     showDialog<String>(
