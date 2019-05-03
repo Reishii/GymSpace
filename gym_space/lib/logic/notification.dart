@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 class Notifications{
   String title;
   String body;

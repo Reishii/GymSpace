@@ -78,18 +78,19 @@ class _NotificationState extends State<NotificationPage> {
       {'notifications': FieldValue.arrayUnion([notification])}
     );
   }
-  Future<void> _deleteNotificationOnDB(String fcm, String route) async  {
+  Future<void> _deleteNotificationOnDB(String sender, String route, String receiver) async  {
     // Get specific notification from DB
     DocumentSnapshot itemCount = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();
     User userInfo = User.jsonToUser(itemCount.data);
     Map<dynamic, dynamic> notification;
     List<Map<dynamic,dynamic>> jsonData = userInfo.notifications;
+    // fully check to find the specific array in the Notifications
     for(final name in jsonData){
-      if(name.containsValue(fcm))
-        if(name.containsValue(route))
-          notification = name;
+      if(name.containsValue(sender))  // narrow down the sender's value first
+        if(name.containsValue(route)) // then narrow down to route's value
+          if(name.containsValue(receiver))  // then last check the receiver's value 
+             notification = name;
     }
-    print(fcm);
     // Delete specific notification from DB
     Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
       {'notifications': FieldValue.arrayRemove([notification])}
@@ -148,7 +149,7 @@ class _NotificationState extends State<NotificationPage> {
           title: Text(notify.title),
           subtitle: Text(notify.body),
           onTap: (){
-            _deleteNotificationOnDB(notify.receiver, notify.route);
+            _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver);
           } 
         )
       ), 
