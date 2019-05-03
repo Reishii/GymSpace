@@ -1,8 +1,10 @@
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/nutrition_page.dart';
+import 'package:GymSpace/widgets/image_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
+import 'package:GymSpace/widgets/image_widget.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
@@ -103,8 +105,6 @@ class MediaTab extends StatelessWidget {
             ),
           ),
         ],
-    //),
-  //],
     );
   }
 
@@ -136,7 +136,12 @@ class MediaTab extends StatelessWidget {
 
   Widget _buildMediaItem(String media) {
     return InkWell(
-      onTap: () => _buildImage(media),
+      onTap: () => 
+        Navigator.push(context, MaterialPageRoute<void> (
+          builder: (BuildContext context) {
+            return ImageWidget(media, context);
+          }
+        )),
       child: Container(
         decoration: ShapeDecoration(
           shape: CircleBorder(
@@ -150,10 +155,6 @@ class MediaTab extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Widget _buildImage(String media) {
-    return Image.network(media, height: 400, width: 400,);
   }
 
   // *****************************************************************************

@@ -17,7 +17,6 @@ class NutritionPage extends StatefulWidget {
   _NutritionPage createState() => _NutritionPage();
 }
 
-
 class _NutritionPage extends State<NutritionPage> {
   String _dietKey = DateTime.now().toString().substring(0,10);
   final DateTime _currentDay = DateTime.now();

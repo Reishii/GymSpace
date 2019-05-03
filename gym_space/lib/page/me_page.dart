@@ -24,7 +24,7 @@ class MePage extends StatefulWidget {
 
 class _MePageState extends State<MePage> {
 
-  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
+  final Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
   final myController = TextEditingController();
   String filePath;
   String mediaUrl, profileImageUrl;
@@ -32,7 +32,6 @@ class _MePageState extends State<MePage> {
   String _challengeKey;
   int _currentTab = 0;
   User user;
-  bool _newMedia = true;
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +80,7 @@ class _MePageState extends State<MePage> {
               child: Column(
                 children: <Widget>[
                   InkWell( // profile pic
-                    onLongPress: () => MediaTab(context).getProfileImage(),
+                    onLongPress: () => MediaTab(context).getMediaImage(),
                     child: Container(
                       decoration: ShapeDecoration(
                         shadows: [BoxShadow(color: Colors.black, blurRadius: 4, spreadRadius: 2)],

@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
+
 class BuddyPage extends StatefulWidget {
   final Widget child;
 
@@ -28,7 +29,6 @@ class _BuddyPageState extends State<BuddyPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Future<List<String>> _listFutureUser = DatabaseHelper.getCurrentUserBuddies();
-  bool _isFriend = false;
   User user;
   
   //Algolia get algolia => DatabaseConnections.algolia;

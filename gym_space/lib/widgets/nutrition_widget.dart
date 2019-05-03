@@ -15,7 +15,6 @@ class NutritionWidget extends StatelessWidget {
     return Container();
   }
 
-
   void  updateNutritionInfo(BuildContext context, String _dietKey) async{
       int protein, carbs, fats, currentCalories = 0, caloricGoal;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
