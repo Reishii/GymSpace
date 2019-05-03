@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/nutrition_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
@@ -42,102 +44,92 @@ class _AppDrawerState extends State<AppDrawer> {
     return Drawer(
       child: SafeArea(
         child: Container(
-        child: Column(
-          children: <Widget>[
-            Container(
-              child: Align(
-                alignment: FractionalOffset.centerLeft,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.menu,
-                    color: GSColors.darkBlue,
-                  ),
-                  onPressed: () {Navigator.pop(context);},
-                )
-              )
-            ),
-            Container(
-              child: FutureBuilder(
-                future: _futureUser,
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return CircleAvatar(
-                      radius: 40,
-                      backgroundImage: CachedNetworkImageProvider(Defaults.photoURL),
+          child: Column(
+            children: <Widget>[
+              Container(
+                margin: EdgeInsets.only(top: 20),
+                child: FutureBuilder(
+                  future: _futureUser,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return CircleAvatar(
+                        radius: 40,
+                        backgroundImage: CachedNetworkImageProvider(Defaults.photoURL),
+                      );
+                    }
+
+                    User user = User.jsonToUser(snapshot.data.data);
+                    user.documentID = snapshot.data.documentID;
+
+                    String photoURL = user.photoURL.isNotEmpty ? user.photoURL : Defaults.photoURL;
+
+                    return Container(
+                      decoration: ShapeDecoration(
+                        shadows: [BoxShadow(blurRadius: 4,)],
+                        shape: CircleBorder(
+                          side: BorderSide(color: Colors.white, width: .5)
+                        )
+                      ),
+                      child: InkWell(
+                        child: CircleAvatar(
+                          backgroundColor: Colors.transparent,
+                          radius: 70,
+                          backgroundImage: CachedNetworkImageProvider(photoURL),
+                        ),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => ProfilePage.fromUser(user)
+                        )),
+                      )
+                    );
+                  },
+                ),
+              ),
+              Center(
+                child: FutureBuilder(
+                  future: _futureUser,
+                  builder: (contex, snapshot) {
+                    String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
+                    
+                    return Container(
+                      margin: EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
                     );
                   }
-
-                  User user = User.jsonToUser(snapshot.data.data);
-                  user.documentID = snapshot.data.documentID;
-
-                  String photoURL = user.photoURL.isNotEmpty ? user.photoURL : Defaults.photoURL;
-
-                  return Container(
-                    child: InkWell(
-                      child: CircleAvatar(
-                        backgroundColor: Colors.transparent,
-                        radius: 70,
-                        backgroundImage: CachedNetworkImageProvider(photoURL),
-                      ),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => ProfilePage.fromUser(user)
-                      )),
-                    )
-                  );
-                },
+                )
               ),
-            ),
-            Center(
-              child: FutureBuilder(
-                future: _futureUser,
-                builder: (contex, snapshot) {
-                  String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
-                  
-                  return Container(
-                    margin: EdgeInsets.symmetric(vertical: 10),
-                    child: Text(
-                      name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                  );
-                }
-              )
-            ),
-            Expanded(
-              child: ListView(
-                children: <Widget>[
-                  _buildDrawerItem("Newsfeed", FontAwesomeIcons.newspaper, 0),
-                  _buildDrawerItem("Workout Plans", FontAwesomeIcons.dumbbell, 1),
-                  _buildDrawerItem("Profile", FontAwesomeIcons.userCircle, 2),
-                  _buildDrawerItem("Nutrition", FontAwesomeIcons.utensils, 3),
-                  _buildDrawerItem("Groups", FontAwesomeIcons.users, 4),
-                  _buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 5),
-                  _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 6),
-                  _buildDrawerItem("Messages", FontAwesomeIcons.comments, 7),
-                  _buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 8),
-                ],
+              Expanded(
+                child: ListView(
+                  children: <Widget>[
+                    _buildDrawerItem("Newsfeed", FontAwesomeIcons.newspaper, 0),
+                    _buildDrawerItem("Workout Plans", FontAwesomeIcons.dumbbell, 1),
+                    _buildDrawerItem("Profile", FontAwesomeIcons.userCircle, 2),
+                    _buildDrawerItem("Nutrition", FontAwesomeIcons.utensils, 3),
+                    _buildDrawerItem("Groups", FontAwesomeIcons.users, 4),
+                    _buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 5),
+                    _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 6),
+                    _buildDrawerItem("Messages", FontAwesomeIcons.comments, 7),
+                    _buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 8),
+                  ],
+                ),
               ),
-            ),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  Divider(),
-                  ListTile(
-                    onTap: _loggedOut,
-                    title: Text(
-                      "Logout", style:TextStyle(color: Colors.red),
-                    ),
-                    leading: Icon(FontAwesomeIcons.signOutAlt, color: Colors.red,),
-                  )
-                ],
-              )
-            ),
-          ],
+              Container(
+                child: ListTile(
+                  onTap: _loggedOut,
+                  title: Text(
+                    "Logout", style:TextStyle(color: Colors.red),
+                  ),
+                  leading: Icon(FontAwesomeIcons.signOutAlt, color: Colors.red,),
+                )
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
@@ -157,185 +159,186 @@ class _SettingsState extends State<SettingsPage> {
       )
     );
   }
-  Widget _buildGeneral(){
-    return Container(
-      height: 250,
-      margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      decoration: ShapeDecoration(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20)
-        )
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          FutureBuilder(
-            future: _futureUser,
-            builder: (context, snapshot){
-              bool isPrivate = snapshot.hasData ? snapshot.data['private'] : true;
-              bool isLocation = snapshot.hasData ? snapshot.data['location'] : true;
-              bool isNotification = snapshot.hasData ? snapshot.data['notification'] : true;
-              bool isClearSearch = true;
-              return Container(
-                child: Column(
-                children: <Widget>[   
-                  Container(
-                    alignment: Alignment.center,
-                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 125),
-                    child: Text(
-                      'General',
-                      style:TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontFamily: "WorkSansMedium"
-                      ),
-                    ),
-                    decoration: ShapeDecoration(
-                      color: GSColors.darkBlue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(60)
-                      ) 
-                    ),
-                  ),  
-                  Container(
-                    margin: EdgeInsets.only(left: 15),
-                    child: Row(
-                      children: <Widget> [
-                        Text(
-                          'Private Account',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16
-                          )
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 130),
-                          child: Switch(
-                            value: isPrivate,
-                            onChanged: (value){
-                              setState(() {
-                               isPrivate = value;
-                               String userID = DatabaseHelper.currentUserID;
-                               if(value == false){
-                                 Firestore.instance.collection('users').document(userID).updateData({'private': false});
-                               }
-                               else{
-                                 Firestore.instance.collection('users').document(userID).updateData({'private': true});
-                               }
-                              });
-                            },
-                            activeColor: GSColors.darkBlue,
-                          ),
-                        )
-                      ] 
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(left: 15),
-                    child: Row(
-                      children: <Widget> [
-                        Text(
-                          'Allow Location access',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16
-                          )
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 83),
-                          child: Switch(
-                            value: isLocation,
-                            onChanged: (value){
-                              setState(() {
-                               isLocation = value; 
-                               String userID = DatabaseHelper.currentUserID;
-                               if(value == false){
-                                 Firestore.instance.collection('users').document(userID).updateData({'location': false});
-                               }
-                               else{
-                                 Firestore.instance.collection('users').document(userID).updateData({'location': true});
-                               }
-                              });
-                            },
-                            activeColor: GSColors.darkBlue,
-                          ),
-                        )
-                      ] 
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(left: 15),
-                    child: Row(
-                      children: <Widget> [
-                        Text(
-                          'Notifications',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16
-                          )
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 150),
-                          child: Switch.adaptive(
-                            value: isNotification,
-                            onChanged: (value){
-                              setState(() {
-                               isNotification = value; 
-                              });
-                              String userID = DatabaseHelper.currentUserID;
-                               if(value == false){
-                                 Firestore.instance.collection('users').document(userID).updateData({'notification': false});
-                                 print("Notification: $value");
-                               }
-                               else if(value == true){
-                                 Firestore.instance.collection('users').document(userID).updateData({'notification': true});
-                                 print("Notification: $value");
-                               }
-                            },
-                            activeColor: GSColors.darkBlue,
-                          ),
-                        )
-                      ] 
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(left: 15),
-                    child: Row(
-                      children: <Widget> [
-                        Text(
-                          'Clear Search History',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16
-                          )
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 95),
-                          child: Switch(
-                            value: isClearSearch,
-                            onChanged: (value){
-                              setState(() {
-                               isClearSearch = value; 
-                              });
-                            },
-                            activeColor: GSColors.darkBlue,
-                          ),
-                        )
-                      ] 
-                    ),
-                  ),
-                ],
-                )
-              );
-            },
-          ),
-        ],
-      )
-    );
-  }
+  
+  // Widget _buildGeneral(){
+  //   return Container(
+  //     height: 250,
+  //     margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+  //     decoration: ShapeDecoration(
+  //       color: Colors.white,
+  //       shape: RoundedRectangleBorder(
+  //         borderRadius: BorderRadius.circular(20)
+  //       )
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: <Widget>[
+  //         FutureBuilder(
+  //           future: _futureUser,
+  //           builder: (context, snapshot){
+  //             bool isPrivate = snapshot.hasData ? snapshot.data['private'] : true;
+  //             bool isLocation = snapshot.hasData ? snapshot.data['location'] : true;
+  //             bool isNotification = snapshot.hasData ? snapshot.data['notification'] : true;
+  //             bool isClearSearch = true;
+  //             return Container(
+  //               child: Column(
+  //               children: <Widget>[   
+  //                 Container(
+  //                   alignment: Alignment.center,
+  //                   margin: EdgeInsets.symmetric(vertical: 10, horizontal: 125),
+  //                   child: Text(
+  //                     'General',
+  //                     style:TextStyle(
+  //                       color: Colors.white,
+  //                       fontSize: 20,
+  //                       fontFamily: "WorkSansMedium"
+  //                     ),
+  //                   ),
+  //                   decoration: ShapeDecoration(
+  //                     color: GSColors.darkBlue,
+  //                     shape: RoundedRectangleBorder(
+  //                       borderRadius: BorderRadius.circular(60)
+  //                     ) 
+  //                   ),
+  //                 ),  
+  //                 Container(
+  //                   margin: EdgeInsets.only(left: 15),
+  //                   child: Row(
+  //                     children: <Widget> [
+  //                       Text(
+  //                         'Private Account',
+  //                         style: TextStyle(
+  //                           color: Colors.black,
+  //                           fontWeight: FontWeight.bold,
+  //                           fontSize: 16
+  //                         )
+  //                       ),
+  //                       Padding(
+  //                         padding: EdgeInsets.only(left: 130),
+  //                         child: Switch(
+  //                           value: isPrivate,
+  //                           onChanged: (value){
+  //                             setState(() {
+  //                              isPrivate = value;
+  //                              String userID = DatabaseHelper.currentUserID;
+  //                              if(value == false){
+  //                                Firestore.instance.collection('users').document(userID).updateData({'private': false});
+  //                              }
+  //                              else{
+  //                                Firestore.instance.collection('users').document(userID).updateData({'private': true});
+  //                              }
+  //                             });
+  //                           },
+  //                           activeColor: GSColors.darkBlue,
+  //                         ),
+  //                       )
+  //                     ] 
+  //                   ),
+  //                 ),
+  //                 Container(
+  //                   margin: EdgeInsets.only(left: 15),
+  //                   child: Row(
+  //                     children: <Widget> [
+  //                       Text(
+  //                         'Allow Location access',
+  //                         style: TextStyle(
+  //                           color: Colors.black,
+  //                           fontWeight: FontWeight.bold,
+  //                           fontSize: 16
+  //                         )
+  //                       ),
+  //                       Padding(
+  //                         padding: EdgeInsets.only(left: 83),
+  //                         child: Switch(
+  //                           value: isLocation,
+  //                           onChanged: (value){
+  //                             setState(() {
+  //                              isLocation = value; 
+  //                              String userID = DatabaseHelper.currentUserID;
+  //                              if(value == false){
+  //                                Firestore.instance.collection('users').document(userID).updateData({'location': false});
+  //                              }
+  //                              else{
+  //                                Firestore.instance.collection('users').document(userID).updateData({'location': true});
+  //                              }
+  //                             });
+  //                           },
+  //                           activeColor: GSColors.darkBlue,
+  //                         ),
+  //                       )
+  //                     ] 
+  //                   ),
+  //                 ),
+  //                 Container(
+  //                   margin: EdgeInsets.only(left: 15),
+  //                   child: Row(
+  //                     children: <Widget> [
+  //                       Text(
+  //                         'Notifications',
+  //                         style: TextStyle(
+  //                           color: Colors.black,
+  //                           fontWeight: FontWeight.bold,
+  //                           fontSize: 16
+  //                         )
+  //                       ),
+  //                       Padding(
+  //                         padding: EdgeInsets.only(left: 150),
+  //                         child: Switch.adaptive(
+  //                           value: isNotification,
+  //                           onChanged: (value){
+  //                             setState(() {
+  //                              isNotification = value; 
+  //                             });
+  //                             String userID = DatabaseHelper.currentUserID;
+  //                              if(value == false){
+  //                                Firestore.instance.collection('users').document(userID).updateData({'notification': false});
+  //                                print("Notification: $value");
+  //                              }
+  //                              else if(value == true){
+  //                                Firestore.instance.collection('users').document(userID).updateData({'notification': true});
+  //                                print("Notification: $value");
+  //                              }
+  //                           },
+  //                           activeColor: GSColors.darkBlue,
+  //                         ),
+  //                       )
+  //                     ] 
+  //                   ),
+  //                 ),
+  //                 Container(
+  //                   margin: EdgeInsets.only(left: 15),
+  //                   child: Row(
+  //                     children: <Widget> [
+  //                       Text(
+  //                         'Clear Search History',
+  //                         style: TextStyle(
+  //                           color: Colors.black,
+  //                           fontWeight: FontWeight.bold,
+  //                           fontSize: 16
+  //                         )
+  //                       ),
+  //                       Padding(
+  //                         padding: EdgeInsets.only(left: 95),
+  //                         child: Switch(
+  //                           value: isClearSearch,
+  //                           onChanged: (value){
+  //                             setState(() {
+  //                              isClearSearch = value; 
+  //                             });
+  //                           },
+  //                           activeColor: GSColors.darkBlue,
+  //                         ),
+  //                       )
+  //                     ] 
+  //                   ),
+  //                 ),
+  //               ],
+  //               )
+  //             );
+  //           },
+  //         ),
+  //       ],
+  //     )
+  //   );
+  // }
 }

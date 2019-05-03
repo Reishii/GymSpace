@@ -1,7 +1,6 @@
-import 'workout.dart';
 import 'package:GymSpace/global.dart';
+import 'package:GymSpace/logic/workout.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'workout.dart';
 import 'dart:async';
 
 class WorkoutPlan {

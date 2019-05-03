@@ -32,7 +32,6 @@ class _SearchPageState extends State<SearchPage> {
   List<Group> get groups => widget.groups;
   Group _currentGroup;
   bool _isEditing = true;
-  bool _switchedPage = false;
 
   TextEditingController _searchController = TextEditingController();
   List<User> usersFound = List();
@@ -151,81 +150,76 @@ class _SearchPageState extends State<SearchPage> {
             }
           });
 
-          return Container(
-            margin: EdgeInsets.symmetric(vertical: 10),
-            decoration: ShapeDecoration(
-              color: GSColors.darkBlue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              )
-            ),
-            child: InkWell(
-              onTap: () {_buildProfile(user);},
-              child: Container(
-                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                child:Row(
-                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Expanded(
-                      flex: 1,
-                      child: Container(
-                        decoration: ShapeDecoration(
-                          shape: CircleBorder(
-                            side: BorderSide(
-                              width: 2,
-                              color: Colors.white
-                            )
-                          )
-                        ),
-                        alignment: Alignment.centerLeft,
-                        margin: EdgeInsets.symmetric(horizontal: 50), // only way I found to get circle avatar right
-                        child: CircleAvatar(
-                          backgroundImage: CachedNetworkImageProvider(
-                            user.photoURL.isNotEmpty ? user.photoURL : Defaults.photoURL,
-                          ),
-                          radius: 30,
-                        ),
-                      //   child: Container(
-                      //     height: 60,
-                      //     width: 30,
-                      //     decoration: BoxDecoration(
-                      //       shape: BoxShape.circle,
-                      //       image: DecorationImage(
-                      //         fit: BoxFit.fill,
-                      //         image: CachedNetworkImageProvider(user.photoURL)
-                      //       )
-                      //     ),
-                      //   ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            '${user.firstName} ${user.lastName}',
-                            style: TextStyle(
-                              color: Colors.white
-                            ),
-                          ),
-                          Text(
-                            user.buddies.contains(DatabaseHelper.currentUserID) ? ' 0 mutual buddies' : '   $mutualFriends mutual buddies',
-                            style: TextStyle(
-                              color: Colors.white54,
-                            ),
-                          )
-                        ],
-                      )
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
+          return _buildUserResult(user);
         },
       ),
     );
+  }
+
+  Widget _buildUserResult(User user) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: InkWell(
+        child: Stack(
+          alignment: Alignment.centerLeft,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(left: 20),
+              padding: EdgeInsets.symmetric(vertical: 16),
+              decoration: ShapeDecoration(
+                color: GSColors.darkBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50)
+                )
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          '${user.firstName} ${user.lastName}',
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          ),
+                        ),
+                        Text(
+                          '${user.liftingType}',
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 4),
+              decoration: ShapeDecoration(
+                shadows: [BoxShadow(blurRadius: 2, color: GSColors.darkBlue)],
+                shape: CircleBorder(
+                  side: BorderSide(color: Colors.white, width: .5)
+                ),
+              ),
+              child: CircleAvatar(
+                backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL, errorListener: () => print('Failed to download')),
+                radius: 50,
+              ),
+            ),
+          ]
+        ),
+        onTap: () => _buildProfile(user),
+      ),
+    );  
   }
 
   Widget _buildResultsGroups() {
@@ -387,12 +381,6 @@ class _SearchPageState extends State<SearchPage> {
   void _buildProfile(User user) {
     Navigator.push(context, MaterialPageRoute(
       builder: (context) => ProfilePage.fromUser(user)
-    ));
-  }
-
-  void _buildGroup(Group group) {
-    Navigator.push(context, MaterialPageRoute(
-      builder: (context) => GroupProfilePage(group: group)
     ));
   }
 }

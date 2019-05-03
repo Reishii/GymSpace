@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/nutrition_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -158,9 +160,10 @@ class MediaTab extends StatelessWidget {
     var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
     
     if(tempImage != null) {
-      final profileImage = tempImage;
-      uploadProfileFile(profileImage);   
+      uploadProfileFile(tempImage);   
     }
+
+    return tempImage.uri.toString();
   }
 
   Future uploadProfileFile(File profileImage) async {
@@ -187,9 +190,10 @@ class MediaTab extends StatelessWidget {
     var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
     
     if(tempImage != null) {
-      final mediaImage = tempImage;
-      uploadMediaFile(mediaImage);   
+      uploadMediaFile(tempImage);   
     }
+
+    return tempImage.uri.toString();
   }
 
   Future uploadMediaFile(File mediaImage) async {

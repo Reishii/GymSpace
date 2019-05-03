@@ -9,7 +9,7 @@ class PageHeader extends StatelessWidget {
   final Color titleColor;
   final bool showDrawer;
   final bool showSearch;
-  Function searchFunction;
+  final Function searchFunction;
 
   PageHeader({
     this.title, 

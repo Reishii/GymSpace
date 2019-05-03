@@ -1,11 +1,11 @@
+import 'dart:async';
+
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/notification.dart';
 import 'package:GymSpace/page/message_thread_page.dart';
-import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/logic/user.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -41,6 +41,7 @@ class _ProfilePageState extends State<ProfilePage> {
     DatabaseHelper.getUserSnapshot(widget.forUserID).then((ds) {
       setState(() {
         user = User.jsonToUser(ds.data);
+        user.documentID = ds.documentID;
         if (user.buddies.contains(DatabaseHelper.currentUserID)) {
           _isFriend = true;
         }
@@ -48,7 +49,7 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
-  void _addFriend() async {
+  void _addPressed() async {
     if (user.buddies.contains(DatabaseHelper.currentUserID)) {
       return;
     }
@@ -77,6 +78,56 @@ class _ProfilePageState extends State<ProfilePage> {
       user.buddies.toList().add(DatabaseHelper.currentUserID);
       _isFriend = true;
     });
+  }
+
+  void _deletePressed() async {
+   showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20)
+        ),
+        title: Text('Remove Friend?'),
+        contentPadding: EdgeInsets.fromLTRB(24, 24, 24, 0),
+        content: Container(
+          child: Text(
+            'Do you want unfriend this person?',
+            style: TextStyle(
+              color: Colors.black54,
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+            textColor: GSColors.green,
+          ),
+          FlatButton(
+            onPressed: () => _deleteBuddy(user.documentID),
+            child: Text('Yes'),
+            textColor: GSColors.green,
+          ),
+        ],
+      )
+    ); 
+  }
+
+  Future<void> _deleteBuddy(String buddyID) async {
+    await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+      {'buddies': FieldValue.arrayRemove([buddyID])}
+    ).then((_) => print('Successfully deleted buddy from current user'));
+
+    await Firestore.instance.collection('users').document(buddyID).updateData(
+      {'buddies': FieldValue.arrayRemove([DatabaseHelper.currentUserID])}
+    ).then((_) {
+      print('Successfully deleted current user from buddy.');
+      setState(() {
+        _isFriend = false;
+        Navigator.pop(context);
+      });
+    });
+
   }
 
   void _openMessages() {
@@ -112,41 +163,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildAppBar() {
     return Container(
-      // color: Colors.red,
-      // height: 400,
       child: Stack(
         children: <Widget>[
-          // Container(
-          //   height: 360,
-          //   // color: Colors.green,
-          //   decoration: ShapeDecoration(
-          //     color: GSColors.darkBlue,
-          //     shape: RoundedRectangleBorder(
-          //       borderRadius: BorderRadius.circular(36)
-          //     )
-          //   ),
-          //   child: Container(
-          //     alignment: Alignment.bottomCenter,
-          //     margin: EdgeInsets.symmetric(vertical: 10),
-          //     child: Row(
-          //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //       children: <Widget>[
-          //         // Row( // likes
-          //         //   children: <Widget> [
-          //         //     Icon(Icons.thumb_up, color: Colors.white,),
-          //         //     Text('  64 Likes', style: TextStyle(color: Colors.white),),
-          //         //   ],
-          //         // ),
-          //         // Row( // friend count
-          //         //   children: <Widget> [
-          //         //     Icon(Icons.group, color: Colors.white,),
-          //         //     Text('  ${user.buddies.length} Buddies', style: TextStyle(color: Colors.white),),
-          //         //   ],
-          //         // )
-          //       ],
-          //     ),
-          //   ),
-          // ),
           Container(
             height: 320,
             child: AppBar(
@@ -262,7 +280,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   textColor: GSColors.darkBlue,
                   color: GSColors.lightBlue,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  onPressed: () => _addFriend(),
+                  onPressed: () => _isFriend ? _deletePressed() : _addPressed(),
                 ),
               ],
             ),

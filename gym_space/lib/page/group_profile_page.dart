@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/misc/colors.dart';
-import 'package:GymSpace/page/group_edit_page.dart';
 import 'package:GymSpace/page/group_members_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -131,9 +130,20 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppbar(),
-      body: _buildBody(),
+    return WillPopScope(
+      onWillPop: () {
+        if (_isEditing) {
+          setState(() {
+            _isEditing = false;
+          });
+        } else {
+          Navigator.pop(context);
+        }
+      },
+      child: Scaffold(
+        appBar: _buildAppbar(),
+        body: _buildBody(),
+      ),
     );
   }
 
@@ -666,7 +676,6 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                       barrierDismissible: false,
                       context: context,
                       builder: (BuildContext context){
-                        TextEditingController _challengeTitleController = TextEditingController();
                         return AlertDialog(
                           title: Text("For Week:  " + _challengeKey),
                           content:

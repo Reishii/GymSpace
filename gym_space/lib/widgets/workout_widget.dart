@@ -81,10 +81,6 @@ class _WorkoutWidgetState extends State<WorkoutWidget> {
             )
           ],
         );
-
-        setState(() {
-          
-        });
       }
     );
   }
