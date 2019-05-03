@@ -1,5 +1,3 @@
-import 'package:GymSpace/logic/workout.dart';
-import 'package:GymSpace/logic/workout_plan.dart';
 import 'package:meta/meta.dart';
 
 class Group {

@@ -1,19 +1,15 @@
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/group.dart';
-import 'package:GymSpace/logic/workout.dart';
 import 'package:GymSpace/page/group_profile_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/search_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
-import 'package:GymSpace/widgets/page_header.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
 

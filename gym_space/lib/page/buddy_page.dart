@@ -4,16 +4,12 @@ import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/search_page.dart';
 import 'package:GymSpace/widgets/page_header.dart';
-import 'package:algolia/algolia.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
-import 'package:GymSpace/widgets/buddy_widget.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 
 class BuddyPage extends StatefulWidget {
@@ -25,10 +21,6 @@ class BuddyPage extends StatefulWidget {
 
 class _BuddyPageState extends State<BuddyPage> {
   List<String> buddies =  [];
-  final TextEditingController _searchController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  Future<List<String>> _listFutureUser = DatabaseHelper.getCurrentUserBuddies();
   User user;
   
   //Algolia get algolia => DatabaseConnections.algolia;
@@ -88,8 +80,9 @@ class _BuddyPageState extends State<BuddyPage> {
       {'buddies': FieldValue.arrayRemove([DatabaseHelper.currentUserID])}
     ).then((_) {
       print('Successfully deleted current user from buddy.');
-      setState(() {});
-      Navigator.pop(context);
+      setState(() {
+        Navigator.pop(context);
+      });
     });
 
   }
@@ -136,12 +129,12 @@ class _BuddyPageState extends State<BuddyPage> {
 
   Widget _buildBuddyList() {
     return StreamBuilder(
-      stream: _listFutureUser.asStream(),
+      stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
       builder: (context, snapshot) {
         if(!snapshot.hasData) 
           return Container();
                
-        buddies = snapshot.data;
+        buddies = snapshot.data.data['buddies'].cast<String>();
         return ListView.builder(
           itemCount: buddies.length,
           itemBuilder: (BuildContext context, int i) {            
@@ -163,68 +156,78 @@ class _BuddyPageState extends State<BuddyPage> {
   }
 
   Widget _buildBuddy(User user) {
-    return Stack(
-      children: <Widget>[
-        Container(
-          height: 100,
-          margin: EdgeInsets.only(bottom: 10),
-          decoration: ShapeDecoration(
-            color: GSColors.darkBlue,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(50),
-            )
-          ),
-          child: Center(
-            child: ListTile(
-              leading: Container(
-              //margin: EdgeInsets.only(left: 20),
-                decoration: ShapeDecoration(
-                  shape: CircleBorder(
-                    side: BorderSide(color: Colors.white, width: 1),
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: InkWell(
+        child: Stack(
+          alignment: Alignment.centerLeft,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(left: 20),
+              padding: EdgeInsets.symmetric(vertical: 16),
+              decoration: ShapeDecoration(
+                color: GSColors.darkBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50)
+                )
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  Container(
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          '${user.firstName} ${user.lastName}',
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          ),
+                        ),
+                        Text(
+                          '${user.liftingType}',
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 20),
+                    child:IconButton(
+                    icon: Icon(
+                      Icons.remove_circle,
+                      color: Colors.red,
+                    ),
+                    onPressed: () => _deletePressed(user.documentID),
                   )
-                ),
-                child: CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL, errorListener: () => print('Failed to download')),
-                  radius: 27,
-                ),
+                  )
+                ],
               ),
-          
-              title: Text(
-                '${user.firstName} ${user.lastName}',
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  // fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2
-                  ),
-                ),
-
-              subtitle: Text(
-                '${user.liftingType}',
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                  ),
-                ),
-              trailing: Container(
-                child: IconButton(
-                  icon: Icon(
-                    Icons.remove_circle,
-                    color: GSColors.red,
-                    size: 24,
-                  ),
-                  onPressed: () => _deletePressed(user.documentID),
-                ),
-              ),
-              onTap: () => _buildBuddyProfile(user),
             ),
-          ),
-        )
-      ]
+            Container(
+              margin: EdgeInsets.only(left: 4),
+              decoration: ShapeDecoration(
+                shadows: [BoxShadow(blurRadius: 2, color: GSColors.darkBlue)],
+                shape: CircleBorder(
+                  side: BorderSide(color: Colors.white, width: .5)
+                ),
+              ),
+              child: CircleAvatar(
+                backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL, errorListener: () => print('Failed to download')),
+                radius: 50,
+              ),
+            ),
+          ]
+        ),
+        onTap: () => _buildBuddyProfile(user),
+      ),
     );  
   }
 

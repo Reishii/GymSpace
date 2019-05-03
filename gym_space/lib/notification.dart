@@ -6,7 +6,6 @@ import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/logic/notification.dart';
 import 'package:GymSpace/notification_api.dart';
-import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/global.dart';
 
 import 'package:GymSpace/page/buddy_page.dart';
@@ -35,8 +34,6 @@ class _NotificationState extends State<NotificationPage> {
   final TextEditingController titleController = TextEditingController(text: 'Title');
   final TextEditingController bodyController = TextEditingController(text: 'Body123');
   final List<Message> messages = [];
-
-  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
 
   void sendNotification() async {
     final response = await Messaging.sendTo(
