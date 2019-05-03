@@ -16,45 +16,25 @@ import 'package:percent_indicator/percent_indicator.dart';
 class MediaTab extends StatelessWidget {
   BuildContext context;
   String mediaUrl, profileImageUrl;
-  Future<List<String>> _listFutureUser = DatabaseHelper.getCurrentUserMedia();
   List<String> media = [];
+  Future<List<String>> _listFutureUser = DatabaseHelper.getCurrentUserMedia();
 
   MediaTab(this.context, {Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: <Widget>[
-          _buildMediaLabel(),
-          _buildButton(),
-          _buildMediaList(context),
-        ],
-      )
-      // margin: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-      // child: Row(
-      //   children: <Widget>[
-      //     InkWell(
-      //       child: Container(
-      //         alignment: Alignment.center,
-      //         child: Icon(Icons.add),
-      //         height: 50.0,
-      //         width: 50,
-      //         color: Colors.red,
-      //       ),
-      //       onTap: () {
-      //         uploadImage(sampleImage);
-      //       },
-      //     ),
-      //     sampleImage == null ? Text('Post an image') : enableUpload(),
-      //   ],
-      // )
+    return Stack(
+      children: <Widget>[
+        _buildMediaLabel(),
+        _buildMediaList(context),
+        _buildButton(),
+      ],
     );
   }
 
   Widget _buildMediaLabel() {
     return Container(
-      margin: EdgeInsets.only(top: 20),
+      margin: EdgeInsets.only(top: 10, bottom: 10),
       child: Row(
         children: <Widget>[ 
           Expanded(
@@ -97,115 +77,78 @@ class MediaTab extends StatelessWidget {
   }
 
   Widget _buildButton() {
-    return Container(
-      child: Column(
-        children: <Widget>[ 
-          // Container(
-          //   child: FutureBuilder(
-          //     future: _listFutureUser,
-          //     builder: (context, snapshot) {
-          //       if(!snapshot.hasData)
-          //         return Container();
-
-          //       media = snapshot.data;
-          //       return ListView.builder(
-          //         itemCount: media.length,
-          //         itemBuilder: (BuildContext context, int i) {
-
-          //           return StreamBuilder(
-          //             stream: DatabaseHelper.getUserStreamSnapshot(media[i]),
-          //             builder: (context, mediaSnap) {
-          //               if(!mediaSnap.hasData)
-          //                 return Container();
-
-          //               User user = User.jsonToUser(mediaSnap.data.data);
-          //               //return _buildMediaItem(user);
-          //               return Container();
-          //             }
-          //           );
-          //         }
-          //       );
-          //     }
-          //   ),
-          // ),
-          //DIY floating action button!
-          Container(
-            margin: EdgeInsets.only(top: 150),
-            height: 60,
-            width: 60,
-            decoration: ShapeDecoration(
-              color: GSColors.purple,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(50)),
+    return Column(
+      children: <Widget>[
+        //DIY floating action button!
+        Container(
+          alignment: Alignment.bottomRight,
+            child: Container(
+              margin: EdgeInsets.only(top: 15, right: 50),
+              height: 40,
+              width: 40,
+              decoration: ShapeDecoration(
+                color: GSColors.purple,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(50)),
+                ),
               ),
-            ),
-            child: IconButton(
-              icon: Icon(FontAwesomeIcons.plus),
-              iconSize: 12,
-              color: Colors.white,
-              onPressed: () {
-                getMediaImage();
-              },
+              child: IconButton(
+                icon: Icon(FontAwesomeIcons.plus),
+                iconSize: 12,
+                color: Colors.white,
+                onPressed: () {
+                  getMediaImage();
+                },
+              ),
             ),
           ),
         ],
-      ),
+    //),
+  //],
     );
   }
 
   Widget _buildMediaList(BuildContext context) {
     return Container(
-      child: FutureBuilder(
-        future: _listFutureUser,
+      margin: EdgeInsets.only(top: 75, left: 10, right: 10, bottom: 10),
+      child: StreamBuilder(
+        stream: _listFutureUser.asStream(),
         builder: (context, snapshot) {
           if(!snapshot.hasData)
             return Container();
 
           media = snapshot.data;
-          return ListView.builder(
+          return GridView.builder(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            primary: false,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
             itemCount: media.length,
             itemBuilder: (BuildContext context, int i) {
 
-            
             return _buildMediaItem(media[i]);
- 
-              // return StreamBuilder(
-              //   stream: DatabaseHelper.getUserStreamSnapshot(media[i]),
-              //   builder: (context, mediaSnap) {
-              //     if(!mediaSnap.hasData)
-              //       return Container();
-
-              //     User user = User.jsonToUser(mediaSnap.data.data);
-              //     return _buildMediaItem(user);
-                  //return Container();
-                }
-              );
             }
-          )
+          );
+        }
+      )
     );
   }
 
   Widget _buildMediaItem(String media) {
-    return Container(
-      //child: Row(
-        //children: <Widget> [
-        child: InkWell( // profile pic
-          onLongPress: () => MediaTab(context).getProfileImage(),
-          child: Container(
-            decoration: ShapeDecoration(
-              shape: CircleBorder(
-                side: BorderSide(color: Colors.white, width: 1)
-              )
-            ),
-            child: CircleAvatar(
-              backgroundImage: CachedNetworkImageProvider(media.toString(), errorListener: () => print('Failed to download')),
-              backgroundColor: Colors.white,
-              radius: 70,
-            ),
-          ),
+    return InkWell(
+      onTap: () => Image.asset(media),
+      child: Container(
+        decoration: ShapeDecoration(
+          shape: CircleBorder(
+            side: BorderSide(color: GSColors.darkBlue, width: 1.2)
+          )
         ),
-      //],
-    //),
+        child: CircleAvatar(
+          backgroundImage: CachedNetworkImageProvider(media, errorListener: () => print('Failed to download')),
+          backgroundColor: Colors.white,
+          radius: 80,
+        ),
+      ),
     );
   }
 
