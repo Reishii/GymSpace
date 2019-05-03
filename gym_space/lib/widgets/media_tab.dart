@@ -166,7 +166,8 @@ class MediaTab extends StatelessWidget {
             itemCount: media.length,
             itemBuilder: (BuildContext context, int i) {
 
-              return _buildMediaItem(media[i]);
+            
+            return _buildMediaItem(media[i]);
  
               // return StreamBuilder(
               //   stream: DatabaseHelper.getUserStreamSnapshot(media[i]),
