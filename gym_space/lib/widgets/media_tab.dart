@@ -136,7 +136,7 @@ class MediaTab extends StatelessWidget {
 
   Widget _buildMediaItem(String media) {
     return InkWell(
-      onTap: () => Image.asset(media),
+      onTap: () => _buildImage(media),
       child: Container(
         decoration: ShapeDecoration(
           shape: CircleBorder(
@@ -150,6 +150,10 @@ class MediaTab extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildImage(String media) {
+    return Image.network(media, height: 400, width: 400,);
   }
 
   // *****************************************************************************

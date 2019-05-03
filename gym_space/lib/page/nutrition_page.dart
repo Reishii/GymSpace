@@ -50,7 +50,7 @@ class _NutritionPage extends State<NutritionPage> {
         backgroundColor: GSColors.purple,
         onPressed: () => NutritionWidget().updateNutritionInfo(context, _dietKey), 
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: _buildAppBar(),
       body: _buildBody(context),
     );
