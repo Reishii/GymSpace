@@ -150,11 +150,12 @@ class _ProfilePageState extends State<ProfilePage> {
           Container(
             height: 320,
             child: AppBar(
+              elevation: 1,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(36),
                   bottomRight: Radius.circular(36),
-                )
+                ),
               ),
               bottom: PreferredSize(
                 preferredSize: Size.fromHeight(60),
@@ -169,6 +170,20 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildProfileHeading() {
     return Container(
+      decoration: ShapeDecoration(
+        gradient: LinearGradient(
+          begin: FractionalOffset.topCenter,
+          end: FractionalOffset.bottomCenter,
+          stops: [.3, .3,],
+          colors: [GSColors.darkBlue, Colors.white],
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(36),
+            bottomRight: Radius.circular(36),
+          ),
+        )
+      ),
       child: Column(
         children: <Widget>[
           Container(
@@ -185,14 +200,14 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           ),
-          Divider(),
+          Divider(color: Colors.transparent,),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text( // name
                 '${user.firstName} ${user.lastName}',
                 style: TextStyle(
-                  color: Colors.white,
+                  // color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
                 ),
@@ -222,7 +237,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Text(
               user.liftingType,
               style: TextStyle(
-                color: Colors.white,
+                // color: Colors.white,
                 fontWeight: FontWeight.w300
               ),
             ),
@@ -242,6 +257,8 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
+                user == null || user.documentID == DatabaseHelper.currentUserID || widget.forUserID == DatabaseHelper.currentUserID ? 
+                Container() : 
                 FlatButton.icon(
                   icon: Icon(Icons.mail_outline),
                   label: Text('Message'),
@@ -250,10 +267,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   onPressed: () => _openMessages(),
                 ),
+                user == null || user.documentID == DatabaseHelper.currentUserID || widget.forUserID == DatabaseHelper.currentUserID ? 
+                Container() : 
                 FlatButton.icon(
                   icon: Icon(_isFriend ? Icons.check : Icons.add),
-                  label: Text(_isFriend ? 'Buddies' : 'Add Buddies'),
-                  textColor: Colors.white,
+                  label: Text(_isFriend ? 'Buddies' : 'Add Buddy'),
+                  textColor: GSColors.darkBlue,
                   color: GSColors.lightBlue,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   onPressed: () => _addFriend(),

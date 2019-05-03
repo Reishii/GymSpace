@@ -18,7 +18,7 @@ class _SettingsState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      drawer: AppDrawer(startPage: 7,),
+      drawer: AppDrawer(startPage: 8,),
       backgroundColor: GSColors.darkBlue,
       body: _buildBody(),
     );
@@ -40,7 +40,7 @@ class _SettingsState extends State<SettingsPage> {
       child: ListView(
         children: <Widget>[
           _buildAccount(),
-          _buildGeneral()
+          // _buildGeneral()
         ],
       )
     );
@@ -69,9 +69,10 @@ class _SettingsState extends State<SettingsPage> {
                 children: <Widget>[   
                   Container(
                     alignment: Alignment.center,
+                    padding: EdgeInsets.all(10),
                     margin: EdgeInsets.symmetric(vertical: 10, horizontal: 105),
                     child: Text(
-                      'Accounts',
+                      'Profile Settings',
                       style:TextStyle(
                         color: Colors.white,
                         fontSize: 20
@@ -279,7 +280,7 @@ class _SettingsState extends State<SettingsPage> {
                         ),
                         Padding(
                           padding: EdgeInsets.only(left: 150),
-                          child: Switch(
+                          child: Switch.adaptive(
                             value: isNotification,
                             onChanged: (value){
                               setState(() {

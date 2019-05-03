@@ -2,6 +2,7 @@ import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/group.dart';
 import 'package:GymSpace/logic/workout.dart';
 import 'package:GymSpace/page/group_profile_page.dart';
+import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/search_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -127,6 +128,7 @@ class _GroupsPageState extends State<GroupsPage> {
 
   Widget _buildBody(BuildContext context) {
     return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10),
       // color: Colors.white
       child: FutureBuilder(
         future: DatabaseHelper.getCurrentUserGroups(),
@@ -158,7 +160,7 @@ class _GroupsPageState extends State<GroupsPage> {
 
   Widget _buildGroupItem(Group group, context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 20),
+      margin: EdgeInsets.symmetric(vertical: 10),
       decoration: ShapeDecoration(
         color: GSColors.darkBlue,
         shape: RoundedRectangleBorder(
@@ -180,7 +182,16 @@ class _GroupsPageState extends State<GroupsPage> {
                   fontSize: 20,
                 ),
               ),
-              _buildMembersList(group.members),
+              group.members.isNotEmpty ? _buildMembersList(group.members) :
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                  'Be the first to join this group!',
+                  style: TextStyle(
+                    color: Colors.white
+                  ),
+                )
+              ),
               Container(
                 child: FutureBuilder(
                   future: DatabaseHelper.getUserSnapshot(group.admin),
@@ -200,9 +211,14 @@ class _GroupsPageState extends State<GroupsPage> {
                           ),
                         ),
                         Container(
-                          child: CircleAvatar(
-                            backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isNotEmpty ? snapshot.data['photoURL'] : Defaults.photoURL),
-                            radius: 10,
+                          child: MaterialButton(
+                            child: CircleAvatar(
+                              backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isNotEmpty ? snapshot.data['photoURL'] : Defaults.photoURL),
+                              radius: 10,
+                            ),
+                            onPressed: () => Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => ProfilePage(forUserID: snapshot.data.documentID,))
+                            ),
                           ),
                         )
                       ],
@@ -214,7 +230,7 @@ class _GroupsPageState extends State<GroupsPage> {
           ),
         ),
         onTap: () => Navigator.push(context, MaterialPageRoute(
-            builder: (context) => GroupProfilePage(group: group,) 
+            builder: (context) => GroupProfilePage(group: group) 
           )
         ),
       ),
@@ -282,34 +298,6 @@ class _GroupsPageState extends State<GroupsPage> {
       child: Stack(
         children: memberIcons,
       ),
-    );
-  }
-
-  Widget _buildGroupBackground() {
-    return ListView.builder(
-      padding: EdgeInsets.only(top: 20),
-      itemCount: 5,
-      itemBuilder: (BuildContext context, int i) {
-        return Container(
-          height: 200, 
-          margin: EdgeInsets.symmetric(vertical: 20, horizontal: 0),
-          decoration: ShapeDecoration(
-            color: Colors.white,
-            shape: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(40),
-            ),
-          ),
-          child: InkWell(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute<void>(
-                builder: (context) {
-                  //_buildGroupProfile();
-                }
-              ));
-            }
-          ),
-        );
-      }
     );
   }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/search_page.dart';
@@ -44,13 +46,61 @@ class _BuddyPageState extends State<BuddyPage> {
     ));
   }
 
+  void _deletePressed(String buddyID) async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20)
+        ),
+        title: Text('Remove Friend?'),
+        contentPadding: EdgeInsets.fromLTRB(24, 24, 24, 0),
+        content: Container(
+          child: Text(
+            'Are you sure you want unfriend this person?',
+            style: TextStyle(
+              color: Colors.black54,
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+            textColor: GSColors.green,
+          ),
+          FlatButton(
+            onPressed: () => _deleteBuddy(buddyID),
+            child: Text('Yes'),
+            textColor: GSColors.green,
+          ),
+        ],
+      )
+    );
+  }
+
+  Future<void> _deleteBuddy(String buddyID) async {
+    await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+      {'buddies': FieldValue.arrayRemove([buddyID])}
+    ).then((_) => print('Successfully deleted buddy from current user'));
+
+    await Firestore.instance.collection('users').document(buddyID).updateData(
+      {'buddies': FieldValue.arrayRemove([DatabaseHelper.currentUserID])}
+    ).then((_) {
+      print('Successfully deleted current user from buddy.');
+      setState(() {});
+      Navigator.pop(context);
+    });
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(startPage: 5,),
       backgroundColor: GSColors.darkBlue,
       appBar: _buildAppBar(),
-      body: _buildBuddyBackground(),
+      body: _buildBody(),
     );
   }
 
@@ -68,9 +118,8 @@ class _BuddyPageState extends State<BuddyPage> {
     );  
   }
 
-  Widget _buildBuddyBackground() {
+  Widget _buildBody() {
     return Container(
-      height: (150 * 7.0),
       margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
       decoration: ShapeDecoration(
         color: Colors.white,
@@ -78,7 +127,6 @@ class _BuddyPageState extends State<BuddyPage> {
           borderRadius: BorderRadius.circular(50),
         ),
       ),
-      
       child: Container(
         margin: EdgeInsets.all(20),
         child: _buildBuddyList(),
@@ -147,7 +195,7 @@ class _BuddyPageState extends State<BuddyPage> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 26,
+                  fontSize: 22,
                   // fontWeight: FontWeight.bold,
                   letterSpacing: 1.2
                   ),
@@ -159,11 +207,19 @@ class _BuddyPageState extends State<BuddyPage> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white70,
-                  fontSize: 16,
+                  fontSize: 14,
                   ),
                 ),
-
-              trailing: _checkIfFriend(),
+              trailing: Container(
+                child: IconButton(
+                  icon: Icon(
+                    Icons.remove_circle,
+                    color: GSColors.red,
+                    size: 24,
+                  ),
+                  onPressed: () => _deletePressed(user.documentID),
+                ),
+              ),
               onTap: () => _buildBuddyProfile(user),
             ),
           ),
@@ -176,35 +232,5 @@ class _BuddyPageState extends State<BuddyPage> {
     Navigator.push(context, MaterialPageRoute(
       builder: (context) => ProfilePage.fromUser(user)
     ));
-  }
-
-  void _addFriend() async {
-    if (user.buddies.contains(DatabaseHelper.currentUserID)) {
-      return;
-    }
-
-    await DatabaseHelper.getUserSnapshot(user.documentID).then(
-      (ds) => ds.reference.updateData({'buddies': FieldValue.arrayUnion([DatabaseHelper.currentUserID])})
-    );
-    
-    await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
-      (ds) => ds.reference.updateData({'buddies': FieldValue.arrayUnion([user.documentID])})
-    );
-
-    setState(() {
-      user.buddies.toList().add(DatabaseHelper.currentUserID);
-      _isFriend = true;
-    });
-  }
-
-  Widget _checkIfFriend() {
-    return Container(
-      child: IconButton(
-        icon: Icon(_isFriend ? Icons.check_circle : Icons.add_circle,),
-        iconSize: 25,
-        color: GSColors.purple,
-        onPressed: () => _addFriend(),
-      ),
-    );
   }
 }

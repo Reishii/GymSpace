@@ -342,11 +342,13 @@ class _SearchPageState extends State<SearchPage> {
           child: Container(
             decoration: ShapeDecoration(
               image: DecorationImage(
-                image: CachedNetworkImageProvider(group.photoURL),
+                image: CachedNetworkImageProvider(
+                  group.photoURL.isNotEmpty ? group.photoURL : Defaults.photoURL,
+                ),
                 fit: BoxFit.cover,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20)
+                borderRadius: BorderRadius.circular(20),
               )
             ),
             child: Stack(
