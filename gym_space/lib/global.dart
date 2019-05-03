@@ -52,11 +52,14 @@ class DatabaseHelper {
   }
 
   static Future<List<User>> searchDBForUserByName(String name) async {
+    String lowerName = name.toLowerCase();
+    String searchName = lowerName.replaceRange(0, 1, name[0].toUpperCase());
+
     Query firstNameQuery = Firestore.instance.collection('users')
-      .where('firstName', isEqualTo: name);
+      .where('firstName', isEqualTo: searchName);
 
     Query lastNameQuery = Firestore.instance.collection('users')
-      .where('lastName', isEqualTo: name);
+      .where('lastName', isEqualTo: searchName);
     
     QuerySnapshot firstNameQuerySnap = await firstNameQuery.getDocuments();
     QuerySnapshot lastNameQuerySnap = await lastNameQuery.getDocuments();

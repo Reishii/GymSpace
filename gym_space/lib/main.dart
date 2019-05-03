@@ -52,6 +52,7 @@ class GymSpace extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: GSColors.darkBlue,
+        fontFamily: 'Lato'
       ),
       home: home,
     );

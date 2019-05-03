@@ -9,11 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/widgets/buddy_widget.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
-import 'package:GymSpace/database.dart';
-
 class BuddyPage extends StatefulWidget {
   final Widget child;
 
@@ -43,65 +42,13 @@ class _BuddyPageState extends State<BuddyPage> {
         return SearchPage(searchType: SearchType.user, currentUser: _currentUser,);
       } 
     ));
-    // showDialog(
-    //   context: _currentContext,
-    //   builder: (context) {
-    //     return SimpleDialog(
-    //       shape: RoundedRectangleBorder(
-    //         borderRadius: BorderRadius.circular(20)
-    //       ),
-    //       children: <Widget>[
-    //         Container( // search
-    //           margin: EdgeInsets.symmetric(horizontal: 20),
-    //           child: TextField(
-    //             controller: _searchController,
-    //             decoration: InputDecoration(
-    //               labelText: 'Search First Name',
-    //               hintText: 'Jane',
-    //             ),
-    //             onEditingComplete: () async {
-    //               print('...Searching for: ${_searchController.text}');
-    //               await _searchDBForUser(_searchController.text);
-    //             },
-    //           ),
-    //         ),
-
-    //       ],
-    //     );
-    //   }
-    // );
   }
-
-  Future<List<User>> _searchDBForUser(String name) async {
-    Query firstNameQuery = Firestore.instance.collection('users')
-      .where('firstName'.toLowerCase(), isEqualTo: name.toLowerCase());
-    
-    QuerySnapshot querySnapshot = await firstNameQuery.getDocuments();
-    List<User> foundUsers = List();
-    querySnapshot.documents.forEach((ds) {
-      User user = User.jsonToUser(ds.data);
-      user.documentID = ds.documentID;
-      foundUsers.add(user);
-    });
-    
-    return foundUsers;
-  }
-
-  // Future<void> testSearch(String name) async {
-  //   AlgoliaQuery searchQuery = algolia.instance.index('users').search('Jane');
-  //   var snap = await searchQuery.getObjects();
-  //   print('# of hits: ${snap.hits}');
-  //   List<AlgoliaObjectSnapshot> s = snap.hits;
-  //   s.forEach((object) {
-  //     print(object.data);
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(startPage: 5,),
-      backgroundColor: Colors.white,
+      backgroundColor: GSColors.darkBlue,
       appBar: _buildAppBar(),
       body: _buildBuddyBackground(),
     );
@@ -112,9 +59,9 @@ class _BuddyPageState extends State<BuddyPage> {
       preferredSize: Size.fromHeight(100),
       child: PageHeader(
         title: 'Buddies', 
-        backgroundColor: GSColors.darkBlue, 
+        backgroundColor: Colors.white,
         showDrawer: true,
-        titleColor: Colors.white,
+        titleColor: GSColors.darkBlue,
         showSearch: true,
         searchFunction: searchPressed,
       )
@@ -126,19 +73,22 @@ class _BuddyPageState extends State<BuddyPage> {
       height: (150 * 7.0),
       margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
       decoration: ShapeDecoration(
-        color: GSColors.darkBlue,
+        color: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(50),
         ),
       ),
       
-      child: _buildBuddyList(),
+      child: Container(
+        margin: EdgeInsets.all(20),
+        child: _buildBuddyList(),
+      )
     );
   }
 
   Widget _buildBuddyList() {
-    return FutureBuilder(
-      future: _listFutureUser,
+    return StreamBuilder(
+      stream: _listFutureUser.asStream(),
       builder: (context, snapshot) {
         if(!snapshot.hasData) 
           return Container();
@@ -146,11 +96,7 @@ class _BuddyPageState extends State<BuddyPage> {
         buddies = snapshot.data;
         return ListView.builder(
           itemCount: buddies.length,
-          itemBuilder: (BuildContext context, int i) {
-            // Check if buddy has user as buddy and is part of buddy list , need to figure out first part
-            if(buddies[i] != null)
-              _isFriend = true;
-            
+          itemBuilder: (BuildContext context, int i) {            
             return StreamBuilder(
               stream: DatabaseHelper.getUserStreamSnapshot(buddies[i]),
               builder: (context, snapshot) {
@@ -158,6 +104,7 @@ class _BuddyPageState extends State<BuddyPage> {
                   return Container();
 
                 user = User.jsonToUser(snapshot.data.data);
+                user.documentID = snapshot.data.documentID;
                 return _buildBuddy(user);
               },
             );
@@ -171,11 +118,11 @@ class _BuddyPageState extends State<BuddyPage> {
     return Stack(
       children: <Widget>[
         Container(
-          height: 80,
+          height: 100,
           margin: EdgeInsets.only(bottom: 10),
           decoration: ShapeDecoration(
-            color: GSColors.darkCloud,
-            shape: OutlineInputBorder(
+            color: GSColors.darkBlue,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(50),
             )
           ),
@@ -185,7 +132,7 @@ class _BuddyPageState extends State<BuddyPage> {
               //margin: EdgeInsets.only(left: 20),
                 decoration: ShapeDecoration(
                   shape: CircleBorder(
-                    side: BorderSide(color: Colors.black, width: 1.2),
+                    side: BorderSide(color: Colors.white, width: 1),
                   )
                 ),
                 child: CircleAvatar(
@@ -196,19 +143,22 @@ class _BuddyPageState extends State<BuddyPage> {
           
               title: Text(
                 '${user.firstName} ${user.lastName}',
+                overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: GSColors.darkBlue,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 26,
+                  // fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2
                   ),
                 ),
 
               subtitle: Text(
                 '${user.liftingType}',
+                overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.blueGrey,
+                  color: Colors.white70,
                   fontSize: 16,
                   ),
                 ),
@@ -250,7 +200,7 @@ class _BuddyPageState extends State<BuddyPage> {
   Widget _checkIfFriend() {
     return Container(
       child: IconButton(
-        icon: Icon(_isFriend ? Icons.check_circle : Icons.add_circle),
+        icon: Icon(_isFriend ? Icons.check_circle : Icons.add_circle,),
         iconSize: 25,
         color: GSColors.purple,
         onPressed: () => _addFriend(),
