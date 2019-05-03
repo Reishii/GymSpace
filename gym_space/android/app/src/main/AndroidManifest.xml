@@ -15,7 +15,7 @@
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="GymSpace"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/gymspace">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

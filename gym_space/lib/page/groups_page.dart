@@ -1,28 +1,34 @@
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/group.dart';
 import 'package:GymSpace/page/group_profile_page.dart';
+import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/search_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' as prefix0;
 import 'package:flutter/widgets.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
-import 'package:GymSpace/widgets/page_header.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:intl/intl.dart';
 
-class GroupsPage extends StatelessWidget {
+class GroupsPage extends StatefulWidget {
   final Widget child;
 
   GroupsPage({Key key, this.child}) : super(key: key);
 
-  void _addPressed(BuildContext context) async {
+  _GroupsPageState createState() => _GroupsPageState();
+}
+
+class _GroupsPageState extends State<GroupsPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  void _searchPressed(BuildContext context) async {
     List<Group> allGroups = List();
     QuerySnapshot groupSnapshots = await Firestore.instance.collection('groups').getDocuments();
     groupSnapshots.documents.forEach((ds) {
-      print(ds.data);
+      // print(ds.data);
       Group group = Group.jsonToGroup(ds.data);
       group.documentID = ds.documentID;
       allGroups.add(group);
@@ -36,12 +42,61 @@ class GroupsPage extends StatelessWidget {
     ));
   }
 
+  Future<void>_addGroup(Group group) async {
+    return Firestore.instance.collection('groups').add(group.toJSON()).then(
+      (ds) => Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+        {'joinedGroups': FieldValue.arrayUnion([ds.documentID])}
+      )
+    );
+  }
+
+  void _addPressed(BuildContext context) {
+    Group newGroup = Group(
+      admin: DatabaseHelper.currentUserID,
+      name: '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Container(
+            width: double.maxFinite,
+            child: ListView(
+              children: <Widget>[
+                _buildForm(newGroup),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                _formKey.currentState.reset();
+                Navigator.pop(context);
+              },
+            ),
+            FlatButton(
+              child: Text('Create'),
+              onPressed: () {
+                if (_formKey.currentState.validate()) {
+                  _formKey.currentState.save();
+                  _addGroup(newGroup).then((_) => Navigator.pop(context));
+                }
+              },
+            ),
+          ],
+        );
+      }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(startPage: 4),
       // backgroundColor: GSColors.olive,
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       // body: _buildGroupBackground(),
       body: _buildBody(context),
       floatingActionButton: FloatingActionButton(
@@ -52,7 +107,7 @@ class GroupsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(BuildContext context) {
     return PreferredSize(
       preferredSize: Size.fromHeight(100),
       child: PageHeader(
@@ -60,6 +115,7 @@ class GroupsPage extends StatelessWidget {
         backgroundColor: GSColors.darkBlue,
         showDrawer: true,
         showSearch: true,
+        searchFunction: () => _searchPressed(context),
         titleColor: Colors.white,
       )
     );
@@ -68,6 +124,7 @@ class GroupsPage extends StatelessWidget {
 
   Widget _buildBody(BuildContext context) {
     return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10),
       // color: Colors.white
       child: FutureBuilder(
         future: DatabaseHelper.getCurrentUserGroups(),
@@ -99,7 +156,7 @@ class GroupsPage extends StatelessWidget {
 
   Widget _buildGroupItem(Group group, context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 20),
+      margin: EdgeInsets.symmetric(vertical: 10),
       decoration: ShapeDecoration(
         color: GSColors.darkBlue,
         shape: RoundedRectangleBorder(
@@ -121,7 +178,16 @@ class GroupsPage extends StatelessWidget {
                   fontSize: 20,
                 ),
               ),
-              _buildMembersList(group.members),
+              group.members.isNotEmpty ? _buildMembersList(group.members) :
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                  'Be the first to join this group!',
+                  style: TextStyle(
+                    color: Colors.white
+                  ),
+                )
+              ),
               Container(
                 child: FutureBuilder(
                   future: DatabaseHelper.getUserSnapshot(group.admin),
@@ -141,9 +207,14 @@ class GroupsPage extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          child: CircleAvatar(
-                            backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isNotEmpty ? snapshot.data['photoURL'] : Defaults.photoURL),
-                            radius: 10,
+                          child: MaterialButton(
+                            child: CircleAvatar(
+                              backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isNotEmpty ? snapshot.data['photoURL'] : Defaults.photoURL),
+                              radius: 10,
+                            ),
+                            onPressed: () => Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => ProfilePage(forUserID: snapshot.data.documentID,))
+                            ),
                           ),
                         )
                       ],
@@ -155,7 +226,7 @@ class GroupsPage extends StatelessWidget {
           ),
         ),
         onTap: () => Navigator.push(context, MaterialPageRoute(
-            builder: (context) => GroupProfilePage(group: group,) 
+            builder: (context) => GroupProfilePage(group: group) 
           )
         ),
       ),
@@ -183,7 +254,7 @@ class GroupsPage extends StatelessWidget {
                   )
                 ),
                 child: CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL']),
+                  backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isEmpty ? Defaults.photoURL : snapshot.data['photoURL']),
                   radius: 20,
                 ),
               ),
@@ -226,31 +297,49 @@ class GroupsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildGroupBackground() {
-    return ListView.builder(
-      padding: EdgeInsets.only(top: 20),
-      itemCount: 5,
-      itemBuilder: (BuildContext context, int i) {
-        return Container(
-          height: 200, 
-          margin: EdgeInsets.symmetric(vertical: 20, horizontal: 0),
-          decoration: ShapeDecoration(
-            color: Colors.white,
-            shape: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(40),
+  Widget _buildForm(Group group) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: <Widget>[
+          TextFormField(
+            decoration: InputDecoration(
+              hintText: 'New Group',
+              labelText: 'Group Name',
             ),
+            onSaved: (name) => group.name = name,
+            validator: (text) => text.isEmpty ? 'Please enter a group name' : null,
           ),
-          child: InkWell(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute<void>(
-                builder: (context) {
-                  //_buildGroupProfile();
-                }
-              ));
-            }
+          TextFormField(
+            decoration: InputDecoration(
+              hintText: 'Description ',
+              labelText: 'Bio',
+            ),
+            onSaved: (bio) => group.bio = bio,
+            validator: (text) => text.isEmpty ? 'Please enter a group description' : null,
           ),
-        );
-      }
+          DateTimePickerFormField(
+            dateOnly: true,
+            format: DateFormat('yyyy-MM-dd'),
+            decoration: InputDecoration(
+              labelText: 'Start Date (optional)',
+            ),
+            // onChanged: (text) => print(text),
+            onSaved: (startDate) => group.startDate = startDate != null ? startDate.toString() : '',
+            // validator: ,
+          ),
+          DateTimePickerFormField(
+            dateOnly: true,
+            format: DateFormat('yyyy-MM-dd'),
+            decoration: InputDecoration(
+              labelText: 'End Date (optional)',
+            ),
+            // onChanged: (text) => print(text),
+            onSaved: (endDate) => group.endDate = endDate != null ? endDate.toString() : '',
+            // validator: ,
+          ),
+        ],
+      ),
     );
   }
 

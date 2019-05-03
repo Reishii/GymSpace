@@ -1,20 +1,24 @@
 import 'dart:async';
-
+import 'dart:io';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/page/group_members_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/group.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+
 
 
 class GroupProfilePage extends StatefulWidget {
-  Group group;
+  final Group group;
 
   GroupProfilePage({
     this.group,
@@ -27,10 +31,18 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
   Group get group => widget.group;
   String get currentUserID => DatabaseHelper.currentUserID;
 
+  User admin;
+
   int _currentTab = 0;
   bool _loadingMembers = true;
   bool _joined = false;
   bool _isAdmin = false;
+  bool _isEditing = false;
+  
+  String newName = '';
+  String newPhotoURL = '';
+  String newStatus = '';
+  String newAbout = '';
 
   List<User> members = List();
 
@@ -39,8 +51,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       Fluttertoast.showToast(
         msg: 'Already Liked!', 
         fontSize: 14, 
-        backgroundColor: GSColors.purple,
-        textColor: Colors.white,
+        textColor: GSColors.darkBlue,
       );
       return;
     }
@@ -51,10 +62,15 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
   }
 
   void _joinGroup() {
+
+      addNewMemberToWeeklyChallenges();
+    Firestore.instance.collection('groups').document(group.documentID).updateData({'members' : FieldValue.arrayUnion([DatabaseHelper.currentUserID])});
+
     Firestore.instance.collection('users').document(currentUserID).updateData({'joinedGroups': FieldValue.arrayUnion([group.documentID])})
       .then((_) => setState(() {
         _joined = true;
       }));
+
   }
 
   void _leaveGroup() {
@@ -64,6 +80,22 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         _joined = false;
       }));
   }
+
+  void _editPressed() {
+    setState(() {
+      print('Editing');
+      _isEditing = true;
+    });
+    // Navigator.push(context, MaterialPageRoute(
+    //   builder: (context) => GroupEditPage(group: group,)
+    // ));
+  }
+
+  // void _savePressed() {
+  //   setState(() {
+  //     _isEditing = false;
+  //   });
+  // }
 
   @override
   void initState() {
@@ -77,6 +109,10 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         _joined = true;
       });
     }
+
+    DatabaseHelper.getUserSnapshot(group.admin).then((ds) {
+      setState(() => admin = User.jsonToUser(ds.data));
+    });
 
     group.members.forEach((member) {
       DatabaseHelper.getUserSnapshot(member).then((ds) {
@@ -94,9 +130,20 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppbar(),
-      body: _buildBody(),
+    return WillPopScope(
+      onWillPop: () {
+        if (_isEditing) {
+          setState(() {
+            _isEditing = false;
+          });
+        } else {
+          Navigator.pop(context);
+        }
+      },
+      child: Scaffold(
+        appBar: _buildAppbar(),
+        body: _buildBody(),
+      ),
     );
   }
 
@@ -105,16 +152,31 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       elevation: 0,
       actions: <Widget>[
         _isAdmin ?
-        Container(
-          margin: EdgeInsets.all(10),
-          child: FlatButton.icon(
-            icon: Icon(Icons.add),
-            label: Text('Disable Group'),
-            textColor: Colors.white,
-            color: GSColors.yellow,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            onPressed: () {}),
-        ) : _joined ? Container(
+          _isEditing ? Container(
+            margin: EdgeInsets.all(10),
+            child: FlatButton.icon(
+              icon: Icon(Icons.save_alt),
+              label: Text('Save'),
+              textColor: Colors.white,
+              color: GSColors.yellow,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)
+              ),
+              onPressed: _savePressed,
+            )
+          ) 
+          : Container(
+              margin: EdgeInsets.all(10),
+              child: FlatButton.icon(
+                icon: Icon(Icons.edit),
+                label: Text('Edit'),
+                textColor: Colors.white,
+                color: GSColors.yellow,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)
+                ),
+                onPressed: _editPressed,
+              )
+          )
+        : _joined ? Container(
           margin: EdgeInsets.all(10),
           child: FlatButton.icon(
             icon: Icon(Icons.add),
@@ -158,7 +220,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       child: Stack(
         children: <Widget>[
           Container(
-            height: 320,
+            height: _isEditing ? 340 : 320,
             decoration: ShapeDecoration(
               color: GSColors.lightBlue,
               shadows: [BoxShadow(blurRadius: 1)],
@@ -182,7 +244,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   FlatButton.icon(
                     icon: Icon(Icons.thumb_up),
                     textColor: Colors.white,
-                    label: Text('${group.likes.length} Likes'),
+                    label: Text('${group.likes.length} Likes', style: TextStyle(fontSize: 14)),
                     onPressed: _likeGroup,
                   ),
                   // Row(
@@ -216,30 +278,61 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(60), bottomRight: Radius.circular(60))
               )
             ),
-            height: 280,
+            height: _isEditing ? 300 : 280,
             child: Column(
               // crossAxisAlignment: CrossAxisAlignment,
               children: <Widget>[
-                Container( // group photo
-                  decoration: ShapeDecoration(
-                    shape: CircleBorder(
-                      side: BorderSide(color: Colors.white, width: 1),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget> [
+                    Container( // group photo
+                      decoration: ShapeDecoration(
+                        shadows: [BoxShadow(color: Colors.black, blurRadius: 4, spreadRadius: 2)],
+                        shape: CircleBorder(
+                          side: BorderSide(color: Colors.white, width: .5),
+                        ),
+                      ),
+                      child: CircleAvatar(
+                        backgroundImage: CachedNetworkImageProvider(group.photoURL.isNotEmpty ? group.photoURL : Defaults.photoURL),
+                        radius: 80,
+                        child: _isEditing ? Container(
+                          decoration: ShapeDecoration(
+                            color: Colors.white,
+                            shape: CircleBorder(
+                              side: BorderSide()
+                            )
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.edit,
+                              color: GSColors.darkBlue,
+                            ),
+                            onPressed: _editGroupPic,
+                          )
+                        ) : null,
+                      ),
                     ),
-                  ),
-                  child: CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(group.photoURL.isNotEmpty ? group.photoURL : Defaults.photoURL),
-                    radius: 80,
-                  ),
+                  ]
                 ),
                 Divider(color: Colors.transparent, height: 4,),
                 Container( // name
-                  child: Text(
-                    group.name,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 26,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        group.name,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 26,
+                        ),
+                      ),
+                      _isEditing ? IconButton(
+                        color: Colors.white,
+                        icon: Icon(Icons.edit),
+                        onPressed: _editName,
+                      ): Container(),
+                    ],
                   ),
                 ),
                 Divider(color: Colors.transparent, height: 4,),
@@ -284,6 +377,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   child: Text(
                     group.status,
                     maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
@@ -306,20 +400,14 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         color: GSColors.darkBlue,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(40)
-        )
+        ),
+        // shadows: [BoxShadow()],
       ),
       child: Row(
         mainAxisAlignment: _joined ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
         children: <Widget>[
           Container(
-            height: 40,
-            decoration: ShapeDecoration(
-              color: _currentTab == 0 ? GSColors.lightBlue : GSColors.darkBlue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(40),
-              ),
-            ),
-              child: MaterialButton( // overview
+            child: MaterialButton( // overview
               onPressed: () { 
                 if (_currentTab != 0) {
                   setState(() => _currentTab = 0);
@@ -328,7 +416,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Overview',
                 style: TextStyle(
-                color: _currentTab == 0 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 0 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -337,13 +425,6 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           ),
 
           _joined ? Container(
-            height: 40,
-            decoration: ShapeDecoration(
-              color: _currentTab == 1 ? GSColors.lightBlue : GSColors.darkBlue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(40),
-              ),
-            ),
             child: MaterialButton( // Challenges
               onPressed: () { 
                 if (_currentTab != 1) {
@@ -353,7 +434,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Challenges',
                 style: TextStyle(
-                color: _currentTab == 1 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 1 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -362,13 +443,6 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           ) : Container(),
 
           _joined ? Container(
-            height: 40,
-            decoration: ShapeDecoration(
-              color: _currentTab == 2 ? GSColors.lightBlue : GSColors.darkBlue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(40),
-              ),
-            ),
             child: MaterialButton( // Discussion
               onPressed: () { 
                 if (_currentTab != 2) {
@@ -378,7 +452,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               child: Text(
                 'Discussion',
                 style: TextStyle(
-                color: _currentTab == 2 ? GSColors.darkBlue : Colors.white,
+                color: _currentTab == 2 ? Colors.white : Colors.white54,
                 fontSize: 14,
                 letterSpacing: 1.0,
                 fontWeight: FontWeight.w700,
@@ -409,6 +483,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       decoration: ShapeDecoration(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(60)),
         color: GSColors.darkBlue,
+        // shadows: [BoxShadow(blurRadius: 1)]
       ),
       child: Column(
         children: <Widget>[
@@ -449,14 +524,15 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           color: GSColors.darkBlue,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(60),
-          )
+          ),
+          // shadows: [BoxShadow(blurRadius: 1.5)]
         ),
         child: Column(
           children: <Widget>[
             Container(
               margin: EdgeInsets.only(top: 10),
               child: Text(
-                'Members',
+                ' ${group.members.length} Members',
                 style: TextStyle(
                   color: Colors.white,
                   letterSpacing: 1.2,
@@ -573,7 +649,8 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       String _challengeKey = getChallengeKey(); //challenge weekly date
       String challengeTitle, challengeUnits;
       int challengeGoal, challengePoints;
-    
+      GlobalKey<FormState> formKey = GlobalKey();
+
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -591,7 +668,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   ),
                 ), 
                 //check if admin
-                _isAdmin ? 
+               //_isAdmin ? 
                 IconButton(
                   icon: Icon(Icons.add_circle_outline),
                   onPressed: () {
@@ -605,108 +682,77 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                             Container(
                               height: 450,
                               width: 350,
-                              child: Scrollbar(
+                              //child: Scrollbar(
                               child: ListView(
                                 children: <Widget>[
-                                  Column(
+                                  Form(
+                                  key: formKey,
+                                  child: Column(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
-                                      //Flexible(
-                                        Container(
-                                          padding: EdgeInsets.all(15.0),
-                                          child: TextField(
-                                              decoration: InputDecoration(
-                                                labelText: 'Challenge Title',
-                                                labelStyle: TextStyle(
-                                                  fontSize: 18.0,
-                                                  color: GSColors.darkBlue
-                                                ),
-                                                hintText: 'E.g. Run 20 miles',
-                                                hintStyle: TextStyle(
-                                                  fontSize: 16.0,
-                                                  color: GSColors.lightBlue
-                                                ),
-                                                contentPadding: EdgeInsets.all(10.0)
-                                              ),
-                                              onChanged: (text) {
-                                                (text!= null) ? challengeTitle = text : challengeTitle = 'error0';
-                                              },
-                                            )
+                                      
+                                      TextFormField(//challenge Title
+                                        decoration: InputDecoration(
+                                          icon: Icon( FontAwesomeIcons.angleRight,
+                                          color: GSColors.darkBlue,
+                                          size: 30,),
+                                          hintText: "e.g Run 20 miles",
+                                          labelText: "Challenge Name"
                                         ),
+                                        onSaved: (name) => challengeTitle = name,
+                                        validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
+                                        textCapitalization: TextCapitalization.sentences
+                                      ),
 
-                                        Container(
-                                          padding: EdgeInsets.all(15.0),
-                                          child: TextField(
-                                              decoration: InputDecoration(
-                                                labelText: 'Units',
-                                                labelStyle: TextStyle(
-                                                  fontSize: 18.0,
-                                                  color: GSColors.darkBlue
-                                                ),
-                                                hintText: 'E.g. Miles',
-                                                hintStyle: TextStyle(
-                                                  fontSize: 16.0,
-                                                  color: GSColors.lightBlue
-                                                ),
-                                                contentPadding: EdgeInsets.all(10.0)
-                                              ),
-                                              onChanged: (text){
-                                               (text!= null) ? challengeUnits = text : challengeUnits = 'error1';
-                                              },
-                                            )
+                                      TextFormField(//units
+                                        decoration: InputDecoration(
+                                          icon: Icon( FontAwesomeIcons.angleRight,
+                                          color: GSColors.darkBlue,
+                                          size: 30,),
+                                          hintText: "e.g Miles",
+                                          labelText: "Units"
                                         ),
+                                        onSaved: (units) => challengeUnits = units,
+                                        validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
+                                        textCapitalization: TextCapitalization.sentences,
+                                      ), 
 
-                                         Container(
-                                          padding: EdgeInsets.all(15.0),
-                                          child: TextField(
-                                              keyboardType: TextInputType.number,
-                                              decoration: InputDecoration(
-                                                labelText: 'Goal (number)',
-                                                labelStyle: TextStyle(
-                                                  fontSize: 18.0,
-                                                  color: GSColors.darkBlue
-                                                ),
-                                                hintText: 'E.g. 60',
-                                                hintStyle: TextStyle(
-                                                  fontSize: 16.0,
-                                                  color: GSColors.lightBlue
-                                                ),
-                                                contentPadding: EdgeInsets.all(10.0)
-                                              ),
-                                              onChanged: (text){
-                                                (text!= null) ? challengeGoal = int.parse(text) : challengeGoal = -9999;
-                                              },
-                                            )
+                                      TextFormField(//goal
+                                        decoration: InputDecoration(
+                                          icon: Icon( FontAwesomeIcons.angleRight,
+                                          color: GSColors.darkBlue,
+                                          size: 30,),
+                                          hintText: "e.g 20",
+                                          labelText: "Goal"
                                         ),
+                                        onSaved: (goal) => challengeGoal = int.parse(goal),
+                                        validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
+                                        textCapitalization: TextCapitalization.sentences,
+                                        keyboardType: TextInputType.number
 
-                                         Container(
-                                          padding: EdgeInsets.all(15.0),
-                                          child: TextField(
-                                              keyboardType: TextInputType.number,
-                                              decoration: InputDecoration(
-                                                labelText: 'Points on completion (number)',
-                                                labelStyle: TextStyle(
-                                                  fontSize: 18.0,
-                                                  color: GSColors.darkBlue
-                                                ),
-                                                hintText: 'E.g. 20',
-                                                hintStyle: TextStyle(
-                                                  fontSize: 16.0,
-                                                  color: GSColors.lightBlue
-                                                ),
-                                                contentPadding: EdgeInsets.all(10.0)
-                                              ),
-                                              onChanged: (text){
-                                                (text!= null) ? challengePoints = int.parse(text) : challengePoints = -9999;
-                                              },
-                                            )
+                                      ), 
+
+                                       TextFormField(//points
+                                        decoration: InputDecoration(
+                                          icon: Icon( FontAwesomeIcons.angleRight,
+                                          color: GSColors.darkBlue,
+                                          size: 30,),
+                                          hintText: "e.g 100",
+                                          labelText: "Points upon completion"
                                         ),
+                                        onSaved: (points) => challengePoints = int.parse(points),
+                                        validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
+                                        textCapitalization: TextCapitalization.sentences,
+                                        keyboardType: TextInputType.number
+                                      ), 
+                                       
 
                                     ],
                                   )
+                                  )
                                 ],
                               ),
-                              )
+                             // )
                             ),
                             actions: <Widget>[
                               FlatButton(
@@ -718,25 +764,28 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                               FlatButton(
                                 child: const Text('Save'),
                                 onPressed: (){
+                                  // if(_challengeTitleController.text.isEmpty) {
+                                  //   _challengeTitleController.text = 'INVALID';
+                                  //   _challengeTit
+                                  // }
 
-                                  if(challengeTitle == 'error0' || challengeUnits == 'error1' || challengeGoal == -9999 || challengePoints == -9999)
-                                  {
-                                   //send toast error message 
-                                  } 
+                                  // if(challengeTitle == 'error0' || challengeUnits == 'error1' || challengeGoal == -9999 || challengePoints == -9999)
+                                  // {
+                                  //  //send toast error message 
+                                  // } 
 
-                                  else
+                                  //else
+                                  if(formKey.currentState.validate())
                                   {
+                                    formKey.currentState.save();
                                     Map<String, dynamic> newGroupChallenge;    
-                                    List<Map> membersMapList = List();
+                                    //List<Map> membersMapList = List();
                                     Map<String, dynamic> membersMap = Map();
                                     // Map<String, dynamic> tempMap = Map();
 
                                     for(int i = 0; i < group.members.length; i++)
                                       {
                                         membersMap[group.members[i]] = {'points': 0, 'progress' : 0};
-                                        //tempMap = {group.members[i]: {'points' : 0, 'progress' : 0}};
-                                        //membersMapList.add(tempMap);
-                                        //membersMapList.add(membersMap);
                                       }
 
                                     newGroupChallenge =  
@@ -745,6 +794,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                           'goal' : challengeGoal,
                                           'members' : membersMap//membersMapList
                                           };         
+
                                     _uploadGroupChallenge(newGroupChallenge, _challengeKey, challengeTitle);
                                     Navigator.pop(context);
                                   }
@@ -756,7 +806,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                     );
                   },
                 )
-                : Container(),
+              // : Container(),
               ],
             ),
           ),
@@ -774,10 +824,16 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                       "Update your progress on your group's weekly challenges"),
                     content: 
                     Container(
-                      height: 450,
-                      width: 350,
-                      child: Scrollbar(
-                        child: StreamBuilder(
+                      //height: 450,
+                      // width: 350,
+                      width: double.maxFinite,
+                      // child: Scrollbar(
+                        child: ListView(
+
+                        // child: StreamBuilder(
+                          children: <Widget>[
+                            
+                          StreamBuilder(
                           stream:  DatabaseHelper.getGroupStreamSnapshot(group.documentID),
                           builder: (context, snapshotGroup){
                             if(snapshotGroup.data == null)
@@ -786,17 +842,15 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                             }
                             else
                             {
-
                               List<Widget> challengeList = [];
-                              int userIndex;
-                              snapshotGroup.data['challenges'][_challengeKey].cast<String, dynamic>().forEach((title, value){                          
+                              // int userIndex;
+                              snapshotGroup.data.data['challenges'][_challengeKey].cast<String, dynamic>().forEach((title, value){                          
                               
-                                for(int i = 0; i < group.members.length; i++)
-                                {
-                                  if(value['members'][i] == DatabaseHelper.currentUserID)
-                                    userIndex = i;
-                                }
-
+                                // for(int i = 0; i < group.members.length; i++)
+                                // {
+                                //   if(value['members'][i] == DatabaseHelper.currentUserID)
+                                //     userIndex = i;
+                                // }
                                 challengeList.add(
                                   TextField(
                                     decoration: InputDecoration(
@@ -828,8 +882,11 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                             }
                           }
                         ),
-                        // child: ListView(),
-                      ),
+                          ]
+                        )
+        
+                        //child: ListView(),
+                      //),
                     ),
                     actions: <Widget>[
                       FlatButton(
@@ -888,7 +945,13 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                         StreamBuilder(
                           stream: DatabaseHelper.getGroupStreamSnapshot(group.documentID),
                           builder: (context, snapshotGroup){
-                            if(snapshotGroup.data['challenges'][_challengeKey] == null)
+                            if(!snapshotGroup.hasData)
+                            {
+                              return Container();
+                            }
+                            Map tmpMap = Map();
+                            tmpMap = snapshotGroup.data.data['challenges'];
+                            if(tmpMap.length == 0)
                             {
                               return Container();
                             }
@@ -896,8 +959,26 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                             {
                               // User user = User.jsonToUser(snapshotUser.data.data);
                               List<Widget> challengeList = [];
-                              snapshotGroup.data['challenges'][_challengeKey].cast<String, Map>().forEach((title, value)
+                              snapshotGroup.data.data['challenges'][_challengeKey].cast<String, Map>().forEach((title, value)
                               {
+                                if (_isAdmin) {
+                                  challengeList.add(
+                                    Container(
+                                      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                                      child: Text(
+                                        title,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    )
+                                  );
+
+                                  return Column(
+                                    children: challengeList,
+                                  );
+                                }
+
                                 if(value['members'][DatabaseHelper.currentUserID]['progress'] == value['goal'])
                                 {
                                   challengeList.add(
@@ -1004,6 +1085,24 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
     );
   }
 
+
+//new user joins after weekly challenge is posted
+Future<void> addNewMemberToWeeklyChallenges() async {
+  DocumentSnapshot groupChallenge = await Firestore.instance.collection('groups').document(group.documentID).get();
+  String _challengeKey = getChallengeKey();
+  Map challengeMap = groupChallenge.data['challenges'];
+
+  challengeMap[_challengeKey].cast<String, dynamic>().forEach((title, value)
+  {
+    value['members'][DatabaseHelper.currentUserID] = {'points' : 0, 'progress' : 0};
+  });
+
+  Firestore.instance.collection('groups').document(group.documentID).updateData(
+      {'challenges' : challengeMap}
+  );
+}
+
+
 Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String> challengeName) async{
   DocumentSnapshot groupChallenge = await Firestore.instance.collection('groups').document(group.documentID).get();
   int temp, userPoints, groupPoints, newProgress;
@@ -1100,7 +1199,7 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
 
   Widget _buildLeaderboard() {
     return Container(
-      height: 200,
+      //height: 200,
       width: double.maxFinite,
       margin: EdgeInsets.symmetric(vertical: 10),
       decoration: ShapeDecoration(
@@ -1123,6 +1222,131 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
               ),
             ),
           ),
+
+          Container(
+            margin: EdgeInsets.fromLTRB(15, 0, 15, 20),
+            child: StreamBuilder(
+              stream:  DatabaseHelper.getGroupStreamSnapshot(group.documentID),
+               builder: (context, snapshotGroup){
+                if(snapshotGroup.data == null)
+                {
+                  return Container();
+                }
+              
+                else
+                {
+                  List<Widget> leaderBoardList = List();
+                  List<Map> memberPointsList = List(group.members.length);
+                  List<Map> finalPointsList = List();
+                  //Map<String, int> memberPointsMap = Map();
+                  String _challengeKey = getChallengeKey();
+                  int i = 0;
+                  int tmpPoints = 0;
+
+                // print("***************************************************************************************************");
+
+
+                  //initialize list
+                  for(int j = 0; j < members.length; j++)
+                  {
+                    // print(members[j].firstName);
+                    // for(int k = 0; k < members.length; k++)
+                    // {
+                    //   if(members[k].documentID == group.members[j])
+                    //   {
+                    //     print(members[k].documentID + "  " + group.members[j]);
+                    //    memberPointsList[j] = {'userID' : group.members[j], 'points' : 0, 'name' : members[k].firstName + " " + members[k].lastName};
+                    //   }
+                    // }
+                    memberPointsList[j] = {'userID' : members[j].documentID, 'points' : 0, 'name' : members[j].firstName + " " + members[j].lastName};
+                    print(memberPointsList[j]);
+                  }
+
+                 snapshotGroup.data.data['challenges'][_challengeKey].cast<String, dynamic>().forEach((title, subMap0){
+                   subMap0['members'].cast<String, dynamic>().forEach((memberName, memberInfo) {
+                      // if(memberPointsList[i] == null && subMap0['members'][memberName] == null)
+                      // {
+                      //   tmpPoints = 0;
+                      // }
+                      // if(memberPointsList[i] == null)
+                      // {
+                      //   tmpPoints = memberInfo['points'];
+                      // }
+                      //else
+                      {
+                        tmpPoints = memberInfo['points'] + memberPointsList[i]['points'];
+                      }
+                      memberPointsList[i] = {'userID' : memberName, 'points' : tmpPoints, 'name' : memberPointsList[i]['name']};
+                      
+                      i++;
+                      tmpPoints = 0;
+                   });
+                    i = 0;
+                 });
+
+
+                  // for(int i = 0; i < group.members.length; i++)
+                  // {
+                  //   memberPointsList[i] = {'name' :group.members[i], 'points' : 0};
+                  // }
+                  
+                  //sort 
+                  memberPointsList.sort((a, b) => a['points'].compareTo(b['points']));
+                  for(int j = memberPointsList.length - 1; j >= 0; j--)
+                  {
+
+                    leaderBoardList.add(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(left: 4),
+                          child: Text(
+                            memberPointsList[j]['name'],
+                            style: TextStyle(
+                              color: GSColors.cloud,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500
+                            ),
+                          )
+                        ),
+                        
+                        Spacer(flex: 1),
+
+                        Container(
+                          margin: EdgeInsets.only(right: 0),
+                          child: Text(
+                            memberPointsList[j]['points'].toString(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: GSColors.cloud,
+                              fontSize: 18
+                            ),
+                          )
+                        ),
+                        Container(
+                          margin: EdgeInsets.only(left: 4),
+                          child: Icon(
+                            Icons.stars,
+                            size: 14,
+                            color: Colors.yellow,
+                          )
+                        )
+                      ],)
+                    );
+
+
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: leaderBoardList,
+
+                  );
+                }
+               }
+            )
+          )
           // SHOW ACTUAL CONTENT HERE
         ],
       ),
@@ -1132,6 +1356,85 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
   Widget _buildDiscussionTab() {
     return Container(
       child: Text('this is disccusion')
+    );
+  }
+
+  // Methods to update the group
+  Future<void> _savePressed() async {
+    if (newPhotoURL.isEmpty)
+      newPhotoURL = group.photoURL;
+
+    if (newName.isEmpty) 
+      newName = group.name;
+
+    await Firestore.instance.collection('groups').document(group.documentID).updateData({
+      'photoURL': newPhotoURL,
+      'name': newName,
+    }).then((_) {
+      setState(() {
+        group.photoURL = newPhotoURL;
+        group.name = newName;
+        _isEditing = false;
+      });
+    }).catchError((e) {
+      print('Failed to save edits');
+      setState(() {
+        _isEditing = false;
+      });
+    });
+  }
+
+  Future<void> _editGroupPic() async {
+    File newImage = await ImagePicker.pickImage(source: ImageSource.gallery);
+    if (newImage == null) {
+      return;
+    }
+
+    // upload the image
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask = reference.putFile(newImage);
+    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
+
+    await storageTaskSnapshot.ref.getDownloadURL().then((downloadURL) {
+      newPhotoURL = downloadURL;
+      print('new photo url: $newPhotoURL');
+    }).catchError((e) => Fluttertoast.showToast(msg: 'This file is not an image'));
+  }
+
+  Future<void> _editName() async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          contentPadding: EdgeInsets.fromLTRB(24, 24, 24, 10),
+          content: Container(
+            child: TextField(
+              textCapitalization: TextCapitalization.words,
+              decoration: InputDecoration(
+                hintText: 'Enter new name for the group',
+              ),
+              onChanged: (value) => newName = value,
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.pop(context);
+                newName = '';
+              }
+            ),
+            FlatButton(
+              child: Text('Okay'),
+              onPressed: () => Navigator.pop(context),
+            )
+          ],
+        );
+      }
     );
   }
 }

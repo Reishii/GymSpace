@@ -1,7 +1,6 @@
-import 'workout.dart';
 import 'package:GymSpace/global.dart';
+import 'package:GymSpace/logic/workout.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'workout.dart';
 import 'dart:async';
 
 class WorkoutPlan {
@@ -10,6 +9,7 @@ class WorkoutPlan {
   String muscleGroup = "";
   String description = "";
   String documentID = "";
+  String groupID = "";
   List<Workout> workouts = List();
 
   WorkoutPlan({
@@ -18,6 +18,7 @@ class WorkoutPlan {
     this.muscleGroup = "",
     this.description = "",
     this.documentID = "",
+    this.groupID = "",
     this.workouts,
   });
 
@@ -27,6 +28,7 @@ class WorkoutPlan {
       'author': author,
       'muscleGroup': muscleGroup,
       'description': description,
+      'groupID': groupID,
       'workouts': workouts == null ? [] : workouts,
     };
   }
@@ -54,6 +56,7 @@ class WorkoutPlan {
         name: data['name'],
         description: data['description'],
         muscleGroup: data['muscleGroup'],
+        groupID: data['groupID'],
         documentID: workoutPlanID,
         workouts: workouts,
       );

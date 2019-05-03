@@ -1,4 +1,3 @@
-import 'meal.dart';
 import 'group.dart';
 import 'workout_plan.dart';
 class User {
@@ -10,6 +9,7 @@ class User {
   String bio = "";
   String documentID = "";
   List<String> buddies = List();
+  List<String> media = List();
   int points = 0;
   int age = 0;
   double startingWeight = 0;
@@ -34,6 +34,7 @@ class User {
     this.liftingType = "",
     this.photoURL = "",
     this.buddies,
+    this.media,
     this.points = 0,
     this.age = 0,
     this.startingWeight = 0,
@@ -60,6 +61,7 @@ class User {
       'photoURL': photoURL,
       'bio': bio,
       'buddies': buddies == null ? [] : buddies,
+      'media': media == null ? [] : media,
       'points': points,
       'age': age,
       'startingWeight': startingWeight,
@@ -68,7 +70,7 @@ class User {
       'joinedGroups': joinedGroups == null ? [] : joinedGroups,
       'diet': diet == null ? Map() : diet,
       'workoutPlans': workoutPlans == null ? [] : workoutPlans,
-      'challengeStatus' : challengeStatus == null ? [] : challengeStatus,
+      'challengeStatus' : challengeStatus == null ? [0, 0, 0] : challengeStatus,
       'caloricGoal' : caloricGoal,
       'fcmToken' : fcmToken,
       'private' : private,
@@ -89,6 +91,7 @@ class User {
       photoURL: data['photoURL'],
       bio: data['bio'],
       buddies: data['buddies'].cast<String>(),
+      media: data['media'].cast<String>(),
       points: data['points'].round(),
       age: data['age'].round(),
       startingWeight: data['startingWeight'].toDouble(),

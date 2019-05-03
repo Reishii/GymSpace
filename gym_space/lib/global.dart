@@ -25,17 +25,18 @@ class DatabaseHelper {
     return await FirebaseAuth.instance.currentUser();
   }
 
-  static Future<DocumentSnapshot> getCurrentUserBuddiesSnapshot(String userID) async {
-    DocumentSnapshot ds = await getUserSnapshot(userID);
-    DocumentSnapshot buddySnap = ds.data['buddies'];
-    return buddySnap;
-  }
-
   static Future<List<String>> getCurrentUserBuddies() async {
     DocumentSnapshot ds = await getUserSnapshot(currentUserID);
     List<String> buddies = ds.data['buddies'].cast<String>().toList();
     return buddies;
   }
+
+    static Future<List<String>> getCurrentUserMedia() async {
+    DocumentSnapshot ds = await getUserSnapshot(currentUserID);
+    List<String> media = ds.data['media'].cast<String>().toList();
+    return media;
+  }
+
 
   static Future<List<String>> getCurrentUserGroups() async {
     DocumentSnapshot ds = await getUserSnapshot(currentUserID);
@@ -47,16 +48,15 @@ class DatabaseHelper {
     return Firestore.instance.collection('users').document(userID).get();
   }
 
-  static Stream<DocumentSnapshot> getUserStreamSnapshot(String userID) {
-    return Firestore.instance.collection('users').document(userID).snapshots();
-  }
-
   static Future<List<User>> searchDBForUserByName(String name) async {
+    String lowerName = name.toLowerCase();
+    String searchName = lowerName.replaceRange(0, 1, name[0].toUpperCase());
+
     Query firstNameQuery = Firestore.instance.collection('users')
-      .where('firstName', isEqualTo: name);
+      .where('firstName', isEqualTo: searchName);
 
     Query lastNameQuery = Firestore.instance.collection('users')
-      .where('lastName', isEqualTo: name);
+      .where('lastName', isEqualTo: searchName);
     
     QuerySnapshot firstNameQuerySnap = await firstNameQuery.getDocuments();
     QuerySnapshot lastNameQuerySnap = await lastNameQuery.getDocuments();
@@ -76,13 +76,17 @@ class DatabaseHelper {
       }
     });
     
-    
     return foundUsers;
   }
 
   // workouts
   static Future<DocumentSnapshot> getWorkoutPlanSnapshot(String workoutPlanID) async {
     return Firestore.instance.collection('workoutPlans').document(workoutPlanID).get();
+  }
+
+  // media
+  static Stream<DocumentSnapshot> getUserStreamSnapshot(String userID) {
+    return Firestore.instance.collection('users').document(userID).snapshots();
   }
 
   static Future<DocumentSnapshot> getWorkoutSnapshot(String workoutID) async {

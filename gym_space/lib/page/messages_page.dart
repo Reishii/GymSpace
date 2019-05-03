@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,7 +11,6 @@ import 'package:GymSpace/global.dart';
 class MessagesPage extends StatelessWidget {
   // Change to MessagesPage() - Must be StatelessWidget that returns a Scaffold - move to page folder
 
-  @override
   Widget buildItem(BuildContext context, DocumentSnapshot document) {
     if (document['userID'] == FirebaseAuth.instance.currentUser()) {
       return Container();
@@ -57,6 +54,7 @@ class MessagesPage extends StatelessWidget {
                       new Container(
                         child: Text(
                           ' ${document['bio'] ?? 'Not available'}',
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: GSColors.cloud,
                             fontWeight: FontWeight.w300,
@@ -101,7 +99,7 @@ class MessagesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(
-        startPage: 6,
+        startPage: 7,
       ),
       appBar: _buildAppBar(),
       // floatingActionButton: new FloatingActionButton(

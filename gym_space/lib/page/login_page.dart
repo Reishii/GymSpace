@@ -169,7 +169,7 @@ void moveToRegister() {
                     width: 250.0,
                     height: 191.0,
                     fit:BoxFit.fill, 
-                    image: new AssetImage("lib/assets/gymspace_logo.png")
+                    image: new AssetImage("lib/assets/gymspacelogo.png")
                   ),
                 ),
                 Padding (

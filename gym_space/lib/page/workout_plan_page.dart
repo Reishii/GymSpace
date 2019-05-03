@@ -207,11 +207,11 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
       .then((_) => print('-> Removed workout from workout plan'))
       .catchError((e) => print('-> Failed to remove workout from workout plan.\nError: $e'));
 
-    if (false) { // This feature is currently off. Before removing, must check to see if the current user is the author of the workout
-      await Firestore.instance.collection('workouts').document(workout.documentID).delete()
-        .then((_) => print('-> Removed workout from collection.'))
-        .catchError((e) => print('-> Failed to remove workout from colection.\nError: $e'));
-    }
+    // if (false) { // This feature is currently off. Before removing, must check to see if the current user is the author of the workout
+    //   await Firestore.instance.collection('workouts').document(workout.documentID).delete()
+    //     .then((_) => print('-> Removed workout from collection.'))
+    //     .catchError((e) => print('-> Failed to remove workout from colection.\nError: $e'));
+    // }
 
     workoutPlan.workouts.remove(workout);
   }

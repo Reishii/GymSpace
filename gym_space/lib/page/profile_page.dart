@@ -1,11 +1,11 @@
+import 'dart:async';
+
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/notification_page.dart';
 import 'package:GymSpace/page/message_thread_page.dart';
-import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/logic/user.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -41,6 +41,7 @@ class _ProfilePageState extends State<ProfilePage> {
     DatabaseHelper.getUserSnapshot(widget.forUserID).then((ds) {
       setState(() {
         user = User.jsonToUser(ds.data);
+        user.documentID = ds.documentID;
         if (user.buddies.contains(DatabaseHelper.currentUserID)) {
           _isFriend = true;
         }
@@ -48,7 +49,7 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
-  void _addFriend() async {
+  void _addPressed() async {
     if (user.buddies.contains(DatabaseHelper.currentUserID)) {
       return;
     }
@@ -77,6 +78,56 @@ class _ProfilePageState extends State<ProfilePage> {
       user.buddies.toList().add(DatabaseHelper.currentUserID);
       _isFriend = true;
     });
+  }
+
+  void _deletePressed() async {
+   showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20)
+        ),
+        title: Text('Remove Friend?'),
+        contentPadding: EdgeInsets.fromLTRB(24, 24, 24, 0),
+        content: Container(
+          child: Text(
+            'Do you want unfriend this person?',
+            style: TextStyle(
+              color: Colors.black54,
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+            textColor: GSColors.green,
+          ),
+          FlatButton(
+            onPressed: () => _deleteBuddy(user.documentID),
+            child: Text('Yes'),
+            textColor: GSColors.green,
+          ),
+        ],
+      )
+    ); 
+  }
+
+  Future<void> _deleteBuddy(String buddyID) async {
+    await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+      {'buddies': FieldValue.arrayRemove([buddyID])}
+    ).then((_) => print('Successfully deleted buddy from current user'));
+
+    await Firestore.instance.collection('users').document(buddyID).updateData(
+      {'buddies': FieldValue.arrayRemove([DatabaseHelper.currentUserID])}
+    ).then((_) {
+      print('Successfully deleted current user from buddy.');
+      setState(() {
+        _isFriend = false;
+        Navigator.pop(context);
+      });
+    });
+
   }
 
   void _openMessages() {
@@ -112,49 +163,17 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildAppBar() {
     return Container(
-      // color: Colors.red,
-      // height: 400,
       child: Stack(
         children: <Widget>[
           Container(
-            height: 360,
-            // color: Colors.green,
-            decoration: ShapeDecoration(
-              color: GSColors.lightBlue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(36)
-              )
-            ),
-            child: Container(
-              alignment: Alignment.bottomCenter,
-              margin: EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Row( // likes
-                    children: <Widget> [
-                      Icon(Icons.thumb_up, color: Colors.white,),
-                      Text('  64 Likes', style: TextStyle(color: Colors.white),),
-                    ],
-                  ),
-                  Row( // friend count
-                    children: <Widget> [
-                      Icon(Icons.group, color: Colors.white,),
-                      Text('  ${user.buddies.length} Buddies', style: TextStyle(color: Colors.white),),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ),
-          Container(
             height: 320,
             child: AppBar(
+              // elevation: .5,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(36),
                   bottomRight: Radius.circular(36),
-                )
+                ),
               ),
               bottom: PreferredSize(
                 preferredSize: Size.fromHeight(60),
@@ -169,30 +188,31 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildProfileHeading() {
     return Container(
+      decoration: ShapeDecoration(
+        gradient: LinearGradient(
+          begin: FractionalOffset.topCenter,
+          end: FractionalOffset.bottomCenter,
+          stops: [.3, .3,],
+          colors: [GSColors.darkBlue, Colors.white],
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(36),
+            bottomRight: Radius.circular(36),
+          ),
+        )
+      ),
       child: Column(
         children: <Widget>[
-          Container(
-            child: CircleAvatar(
-              radius: 70,
-              backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL),
-            ),
-            decoration: ShapeDecoration(
-              shape: CircleBorder(
-                side: BorderSide(
-                  color: Colors.white,
-                  width: 1,
-                )
-              ),
-            ),
-          ),
-          Divider(),
+          _buildAvatarStack(),
+          Divider(color: Colors.transparent,),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text( // name
                 '${user.firstName} ${user.lastName}',
                 style: TextStyle(
-                  color: Colors.white,
+                  // color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
                 ),
@@ -222,7 +242,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Text(
               user.liftingType,
               style: TextStyle(
-                color: Colors.white,
+                // color: Colors.white,
                 fontWeight: FontWeight.w300
               ),
             ),
@@ -242,6 +262,8 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
+                user == null || user.documentID == DatabaseHelper.currentUserID || widget.forUserID == DatabaseHelper.currentUserID ? 
+                Container() : 
                 FlatButton.icon(
                   icon: Icon(Icons.mail_outline),
                   label: Text('Message'),
@@ -250,18 +272,83 @@ class _ProfilePageState extends State<ProfilePage> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   onPressed: () => _openMessages(),
                 ),
+                user == null || user.documentID == DatabaseHelper.currentUserID || widget.forUserID == DatabaseHelper.currentUserID ? 
+                Container() : 
                 FlatButton.icon(
                   icon: Icon(_isFriend ? Icons.check : Icons.add),
-                  label: Text(_isFriend ? 'Buddies' : 'Add Buddies'),
-                  textColor: Colors.white,
+                  label: Text(_isFriend ? 'Buddies' : 'Add Buddy'),
+                  textColor: GSColors.darkBlue,
                   color: GSColors.lightBlue,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  onPressed: () => _addFriend(),
+                  onPressed: () => _isFriend ? _deletePressed() : _addPressed(),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAvatarStack() {
+    return Container(
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: <Widget>[
+          Positioned(
+            left: 40,
+            child: Row( // likes
+              children: <Widget> [
+                Icon(Icons.thumb_up, color: GSColors.green,),
+                Text(' 100 Likes', style: TextStyle(color: GSColors.green),),
+              ],
+            ),
+          ),
+          Container(
+            alignment: Alignment.center,
+            child: CircleAvatar(
+              radius: 70,
+              backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL),
+            ),
+            decoration: ShapeDecoration(
+              shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
+              shape: CircleBorder(
+                side: BorderSide(
+                  color: Colors.white,
+                  width: 1,
+                )
+              ),
+            ),
+          ),
+          Positioned(
+            right: 40,
+            child: Row( // likes
+              children: <Widget> [
+                Icon(Icons.group, color: GSColors.purple,),
+                StreamBuilder(
+                  stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
+                    }
+
+                    int mutualFriends = 0;
+                    for(String buddyID in user.buddies) {
+                      if (snapshot.data['buddies'].contains(buddyID)) 
+                        mutualFriends++;
+                    }
+
+                    if (mutualFriends == 0) {
+                      return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
+                    }
+
+                    return Text(' $mutualFriends mutual', style: TextStyle(color: GSColors.purple),);
+                  },
+                )
+              ],
+            ),
+          )
+        ]
       ),
     );
   }

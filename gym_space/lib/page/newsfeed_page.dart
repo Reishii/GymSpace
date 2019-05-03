@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:GymSpace/global.dart';
+// import 'package:GymSpace/global.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/page_header.dart';

@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/nutrition_page.dart';
+import 'package:GymSpace/page/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/misc/colors.dart';
@@ -38,92 +42,93 @@ class _AppDrawerState extends State<AppDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: Container(
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: ListView(
-                children: <Widget>[
-                  Container(
-                    child: Align(
-                      alignment: FractionalOffset.centerLeft,
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.menu,
-                          color: GSColors.darkBlue,
-                        ),
-                        onPressed: () {Navigator.pop(context);},
-                      )
-                    )
-                  ),
-                  Container(height: 20),
-                  Container(
-                    height: 100, // height and margin should == to make circle
-                    margin: EdgeInsets.symmetric(horizontal: 100),
-                    child: FutureBuilder(
-                      future: _futureUser,
-                      builder: (context, snapshot) {
-                        String photoURL = snapshot.hasData && !snapshot.data['photoURL'].isEmpty? snapshot.data['photoURL'] : Defaults.photoURL;
-                        return CircleAvatar(
-                        // child: ClipOval(
-                        //   child: Image.network(
-                        //     "https://cdn.pixabay.com/photo/2015/03/03/08/55/portrait-photography-657116_960_720.jpg",
-                        //     fit: BoxFit.fill,
-                        //     width: 140,
-                        //     height: 140,
-                        //   ),
-                        // ),
+      child: SafeArea(
+        child: Container(
+          child: Column(
+            children: <Widget>[
+              Container(
+                margin: EdgeInsets.only(top: 20),
+                child: FutureBuilder(
+                  future: _futureUser,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return CircleAvatar(
+                        radius: 40,
+                        backgroundImage: CachedNetworkImageProvider(Defaults.photoURL),
+                      );
+                    }
+
+                    User user = User.jsonToUser(snapshot.data.data);
+                    user.documentID = snapshot.data.documentID;
+
+                    String photoURL = user.photoURL.isNotEmpty ? user.photoURL : Defaults.photoURL;
+
+                    return Container(
+                      decoration: ShapeDecoration(
+                        shadows: [BoxShadow(blurRadius: 4,)],
+                        shape: CircleBorder(
+                          side: BorderSide(color: Colors.white, width: .5)
+                        )
+                      ),
+                      child: InkWell(
+                        child: CircleAvatar(
                           backgroundColor: Colors.transparent,
-                          radius: 40,
+                          radius: 70,
                           backgroundImage: CachedNetworkImageProvider(photoURL),
-                        );
-                      },
-                    ),
-                  ),
-                  Container(height: 10),
-                  Center(
-                    child: FutureBuilder(
-                      future: _futureUser,
-                      builder: (contex, snapshot) {
-                        String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
-                        return Text(
-                          name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        );
-                      }
-                    )
-                  ),
-                  Container(height: 20),
-                  _buildDrawerItem("Newsfeed", FontAwesomeIcons.newspaper, 0),
-                  _buildDrawerItem("Workout Plans", FontAwesomeIcons.dumbbell, 1),
-                  _buildDrawerItem("Profile", FontAwesomeIcons.userCircle, 2),
-                  _buildDrawerItem("Nutrition", FontAwesomeIcons.utensils, 3),
-                  _buildDrawerItem("Groups", FontAwesomeIcons.users, 4),
-                  _buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 5),
-                  _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 6),
-                  _buildDrawerItem("Messages", FontAwesomeIcons.comments, 7),
-                  _buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 8),
-                ],
+                        ),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => ProfilePage.fromUser(user)
+                        )),
+                      )
+                    );
+                  },
+                ),
               ),
-            ),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  Divider(),
-                  ListTile(
-                    onTap: _loggedOut,
-                    title: Text(
-                      "Logout", style:TextStyle(color: Colors.red),
-                    ),
-                    leading: Icon(FontAwesomeIcons.signOutAlt, color: Colors.red,),
-                  )
-                ],
-              )
-            ),
-          ],
+              Center(
+                child: FutureBuilder(
+                  future: _futureUser,
+                  builder: (contex, snapshot) {
+                    String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
+                    
+                    return Container(
+                      margin: EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    );
+                  }
+                )
+              ),
+              Expanded(
+                child: ListView(
+                  children: <Widget>[
+                    _buildDrawerItem("Newsfeed", FontAwesomeIcons.newspaper, 0),
+                    _buildDrawerItem("Workout Plans", FontAwesomeIcons.dumbbell, 1),
+                    _buildDrawerItem("Profile", FontAwesomeIcons.userCircle, 2),
+                    _buildDrawerItem("Nutrition", FontAwesomeIcons.utensils, 3),
+                    _buildDrawerItem("Groups", FontAwesomeIcons.users, 4),
+                    _buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 5),
+                    _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 6),
+                    _buildDrawerItem("Messages", FontAwesomeIcons.comments, 7),
+                    _buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 8),
+                  ],
+                ),
+              ),
+              Container(
+                child: ListTile(
+                  onTap: _loggedOut,
+                  title: Text(
+                    "Logout", style:TextStyle(color: Colors.red),
+                  ),
+                  leading: Icon(FontAwesomeIcons.signOutAlt, color: Colors.red,),
+                )
+              ),
+            ],
+          ),
         ),
       ),
     );
