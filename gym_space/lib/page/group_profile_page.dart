@@ -1,22 +1,25 @@
 import 'dart:async';
-
+import 'dart:io';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/misc/colors.dart';
+import 'package:GymSpace/page/group_edit_page.dart';
 import 'package:GymSpace/page/group_members_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/group.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 
 
 
 class GroupProfilePage extends StatefulWidget {
-  Group group;
+  final Group group;
 
   GroupProfilePage({
     this.group,
@@ -35,6 +38,12 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
   bool _loadingMembers = true;
   bool _joined = false;
   bool _isAdmin = false;
+  bool _isEditing = false;
+  
+  String newName = '';
+  String newPhotoURL = '';
+  String newStatus = '';
+  String newAbout = '';
 
   List<User> members = List();
 
@@ -72,6 +81,22 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         _joined = false;
       }));
   }
+
+  void _editPressed() {
+    setState(() {
+      print('Editing');
+      _isEditing = true;
+    });
+    // Navigator.push(context, MaterialPageRoute(
+    //   builder: (context) => GroupEditPage(group: group,)
+    // ));
+  }
+
+  // void _savePressed() {
+  //   setState(() {
+  //     _isEditing = false;
+  //   });
+  // }
 
   @override
   void initState() {
@@ -117,16 +142,31 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       elevation: 0,
       actions: <Widget>[
         _isAdmin ?
-        Container(
-          margin: EdgeInsets.all(10),
-          child: FlatButton.icon(
-            icon: Icon(Icons.add),
-            label: Text('Disable Group'),
-            textColor: Colors.white,
-            color: GSColors.yellow,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            onPressed: () {}),
-        ) : _joined ? Container(
+          _isEditing ? Container(
+            margin: EdgeInsets.all(10),
+            child: FlatButton.icon(
+              icon: Icon(Icons.save_alt),
+              label: Text('Save'),
+              textColor: Colors.white,
+              color: GSColors.yellow,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)
+              ),
+              onPressed: _savePressed,
+            )
+          ) 
+          : Container(
+              margin: EdgeInsets.all(10),
+              child: FlatButton.icon(
+                icon: Icon(Icons.edit),
+                label: Text('Edit'),
+                textColor: Colors.white,
+                color: GSColors.yellow,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)
+                ),
+                onPressed: _editPressed,
+              )
+          )
+        : _joined ? Container(
           margin: EdgeInsets.all(10),
           child: FlatButton.icon(
             icon: Icon(Icons.add),
@@ -170,7 +210,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       child: Stack(
         children: <Widget>[
           Container(
-            height: 320,
+            height: _isEditing ? 340 : 320,
             decoration: ShapeDecoration(
               color: GSColors.lightBlue,
               shadows: [BoxShadow(blurRadius: 1)],
@@ -228,30 +268,61 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(60), bottomRight: Radius.circular(60))
               )
             ),
-            height: 280,
+            height: _isEditing ? 300 : 280,
             child: Column(
               // crossAxisAlignment: CrossAxisAlignment,
               children: <Widget>[
-                Container( // group photo
-                  decoration: ShapeDecoration(
-                    shape: CircleBorder(
-                      side: BorderSide(color: Colors.white, width: 1),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget> [
+                    Container( // group photo
+                      decoration: ShapeDecoration(
+                        shadows: [BoxShadow(color: Colors.black, blurRadius: 4, spreadRadius: 2)],
+                        shape: CircleBorder(
+                          side: BorderSide(color: Colors.white, width: .5),
+                        ),
+                      ),
+                      child: CircleAvatar(
+                        backgroundImage: CachedNetworkImageProvider(group.photoURL.isNotEmpty ? group.photoURL : Defaults.photoURL),
+                        radius: 80,
+                        child: _isEditing ? Container(
+                          decoration: ShapeDecoration(
+                            color: Colors.white,
+                            shape: CircleBorder(
+                              side: BorderSide()
+                            )
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.edit,
+                              color: GSColors.darkBlue,
+                            ),
+                            onPressed: _editGroupPic,
+                          )
+                        ) : null,
+                      ),
                     ),
-                  ),
-                  child: CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(group.photoURL.isNotEmpty ? group.photoURL : Defaults.photoURL),
-                    radius: 80,
-                  ),
+                  ]
                 ),
                 Divider(color: Colors.transparent, height: 4,),
                 Container( // name
-                  child: Text(
-                    group.name,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 26,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        group.name,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 26,
+                        ),
+                      ),
+                      _isEditing ? IconButton(
+                        color: Colors.white,
+                        icon: Icon(Icons.edit),
+                        onPressed: _editName,
+                      ): Container(),
+                    ],
                   ),
                 ),
                 Divider(color: Colors.transparent, height: 4,),
@@ -296,6 +367,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   child: Text(
                     group.status,
                     maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
@@ -319,7 +391,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(40)
         ),
-        shadows: [BoxShadow(blurRadius: 1)],
+        // shadows: [BoxShadow()],
       ),
       child: Row(
         mainAxisAlignment: _joined ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
@@ -450,7 +522,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
             Container(
               margin: EdgeInsets.only(top: 10),
               child: Text(
-                'Members',
+                ' ${group.members.length} Members',
                 style: TextStyle(
                   color: Colors.white,
                   letterSpacing: 1.2,
@@ -1275,6 +1347,85 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
   Widget _buildDiscussionTab() {
     return Container(
       child: Text('this is disccusion')
+    );
+  }
+
+  // Methods to update the group
+  Future<void> _savePressed() async {
+    if (newPhotoURL.isEmpty)
+      newPhotoURL = group.photoURL;
+
+    if (newName.isEmpty) 
+      newName = group.name;
+
+    await Firestore.instance.collection('groups').document(group.documentID).updateData({
+      'photoURL': newPhotoURL,
+      'name': newName,
+    }).then((_) {
+      setState(() {
+        group.photoURL = newPhotoURL;
+        group.name = newName;
+        _isEditing = false;
+      });
+    }).catchError((e) {
+      print('Failed to save edits');
+      setState(() {
+        _isEditing = false;
+      });
+    });
+  }
+
+  Future<void> _editGroupPic() async {
+    File newImage = await ImagePicker.pickImage(source: ImageSource.gallery);
+    if (newImage == null) {
+      return;
+    }
+
+    // upload the image
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask = reference.putFile(newImage);
+    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
+
+    await storageTaskSnapshot.ref.getDownloadURL().then((downloadURL) {
+      newPhotoURL = downloadURL;
+      print('new photo url: $newPhotoURL');
+    }).catchError((e) => Fluttertoast.showToast(msg: 'This file is not an image'));
+  }
+
+  Future<void> _editName() async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          contentPadding: EdgeInsets.fromLTRB(24, 24, 24, 10),
+          content: Container(
+            child: TextField(
+              textCapitalization: TextCapitalization.words,
+              decoration: InputDecoration(
+                hintText: 'Enter new name for the group',
+              ),
+              onChanged: (value) => newName = value,
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.pop(context);
+                newName = '';
+              }
+            ),
+            FlatButton(
+              child: Text('Okay'),
+              onPressed: () => Navigator.pop(context),
+            )
+          ],
+        );
+      }
     );
   }
 }

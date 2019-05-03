@@ -56,7 +56,6 @@ class PageHeader extends StatelessWidget {
               title,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontFamily: 'Roboto',
                 fontSize: 26,
                 letterSpacing: 4,
                 color: titleColor,

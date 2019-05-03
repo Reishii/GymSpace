@@ -116,41 +116,41 @@ class _ProfilePageState extends State<ProfilePage> {
       // height: 400,
       child: Stack(
         children: <Widget>[
-          Container(
-            height: 360,
-            // color: Colors.green,
-            decoration: ShapeDecoration(
-              color: GSColors.lightBlue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(36)
-              )
-            ),
-            child: Container(
-              alignment: Alignment.bottomCenter,
-              margin: EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Row( // likes
-                    children: <Widget> [
-                      Icon(Icons.thumb_up, color: Colors.white,),
-                      Text('  64 Likes', style: TextStyle(color: Colors.white),),
-                    ],
-                  ),
-                  Row( // friend count
-                    children: <Widget> [
-                      Icon(Icons.group, color: Colors.white,),
-                      Text('  ${user.buddies.length} Buddies', style: TextStyle(color: Colors.white),),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ),
+          // Container(
+          //   height: 360,
+          //   // color: Colors.green,
+          //   decoration: ShapeDecoration(
+          //     color: GSColors.darkBlue,
+          //     shape: RoundedRectangleBorder(
+          //       borderRadius: BorderRadius.circular(36)
+          //     )
+          //   ),
+          //   child: Container(
+          //     alignment: Alignment.bottomCenter,
+          //     margin: EdgeInsets.symmetric(vertical: 10),
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //       children: <Widget>[
+          //         // Row( // likes
+          //         //   children: <Widget> [
+          //         //     Icon(Icons.thumb_up, color: Colors.white,),
+          //         //     Text('  64 Likes', style: TextStyle(color: Colors.white),),
+          //         //   ],
+          //         // ),
+          //         // Row( // friend count
+          //         //   children: <Widget> [
+          //         //     Icon(Icons.group, color: Colors.white,),
+          //         //     Text('  ${user.buddies.length} Buddies', style: TextStyle(color: Colors.white),),
+          //         //   ],
+          //         // )
+          //       ],
+          //     ),
+          //   ),
+          // ),
           Container(
             height: 320,
             child: AppBar(
-              elevation: 1,
+              // elevation: .5,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(36),
@@ -186,20 +186,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       child: Column(
         children: <Widget>[
-          Container(
-            child: CircleAvatar(
-              radius: 70,
-              backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL),
-            ),
-            decoration: ShapeDecoration(
-              shape: CircleBorder(
-                side: BorderSide(
-                  color: Colors.white,
-                  width: 1,
-                )
-              ),
-            ),
-          ),
+          _buildAvatarStack(),
           Divider(color: Colors.transparent,),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -281,6 +268,69 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAvatarStack() {
+    return Container(
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: <Widget>[
+          Positioned(
+            left: 40,
+            child: Row( // likes
+              children: <Widget> [
+                Icon(Icons.thumb_up, color: GSColors.green,),
+                Text(' 100 Likes', style: TextStyle(color: GSColors.green),),
+              ],
+            ),
+          ),
+          Container(
+            alignment: Alignment.center,
+            child: CircleAvatar(
+              radius: 70,
+              backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL),
+            ),
+            decoration: ShapeDecoration(
+              shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
+              shape: CircleBorder(
+                side: BorderSide(
+                  color: Colors.white,
+                  width: 1,
+                )
+              ),
+            ),
+          ),
+          Positioned(
+            right: 40,
+            child: Row( // likes
+              children: <Widget> [
+                Icon(Icons.group, color: GSColors.purple,),
+                StreamBuilder(
+                  stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
+                    }
+
+                    int mutualFriends = 0;
+                    for(String buddyID in user.buddies) {
+                      if (snapshot.data['buddies'].contains(buddyID)) 
+                        mutualFriends++;
+                    }
+
+                    if (mutualFriends == 0) {
+                      return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
+                    }
+
+                    return Text(' $mutualFriends mutual', style: TextStyle(color: GSColors.purple),);
+                  },
+                )
+              ],
+            ),
+          )
+        ]
       ),
     );
   }

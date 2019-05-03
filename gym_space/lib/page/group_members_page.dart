@@ -5,17 +5,80 @@ import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class GroupMembersPage extends StatelessWidget {
+class GroupMembersPage extends StatefulWidget {
   final Group group;
-  final List<User> members;
+  List<User> members;
   
-  const GroupMembersPage({
+  GroupMembersPage({
     @required this.group,
     @required this.members,
     Key key
   }) : super(key: key);
+
+  _GroupsMembersPageState createState() => _GroupsMembersPageState();
+}
+
+class _GroupsMembersPageState extends State<GroupMembersPage> {
+  Group get group => widget.group;
+  List<User> get members => widget.members;
+
+  void _memberLongPressed(User member) {
+    if (group.admin == DatabaseHelper.currentUserID) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20)
+            ),
+            title: Text('Remove from ${group.name}?'),
+            content: Text(
+              'Are you sure you want to remove ${member.firstName} from the group?',
+            ),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel'),
+              ),
+              FlatButton(
+                onPressed: () => _removeMemberFromGroup(member),
+                child: Text('Remove'),
+              )
+            ],
+          );
+        }
+      );
+    }
+  }
+
+  Future<void> _removeMemberFromGroup(User member) async {
+    print('Removing ${member.firstName} ${member.lastName} from the group: ${group.name}');
+    
+    Firestore.instance.collection('groups').document(group.documentID).updateData({
+      'members': FieldValue.arrayRemove([member.documentID])
+    }).then((ds) {
+      Firestore.instance.collection('users').document(member.documentID).updateData({
+        'joinedGroups': FieldValue.arrayRemove([group.documentID])
+      }).then((_) {
+        print('Successfully removed ${member.firstName} ${member.lastName} from the group: ${group.name}');
+        setState(() {
+          group.members = group.members.toList();
+          group.members.remove(member.documentID);
+          widget.members = members.toList();
+          widget.members.remove(member);
+        });
+        
+        Firestore.instance.collection('groups').document(group.documentID).updateData({
+          'likes': FieldValue.arrayRemove([member.documentID])
+        });
+      });
+    });
+
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,10 +113,11 @@ class GroupMembersPage extends StatelessWidget {
         child: GridView.builder(
           itemCount: members.length,
           itemBuilder: (context, i) {
-            return MaterialButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(
+            return InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute(
                 builder: (context) => ProfilePage.fromUser(members[i])
               )),
+              onLongPress: () => _memberLongPressed(members[i]),
               child: Container(
                 child: Column(
                   children: <Widget>[
