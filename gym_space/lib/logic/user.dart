@@ -1,7 +1,6 @@
 import 'meal.dart';
 import 'group.dart';
 import 'workout_plan.dart';
-
 class User {
   String firstName = "";
   String lastName = "";
@@ -25,6 +24,8 @@ class User {
   bool private = true;
   bool location = true;
   bool notification = true;
+  List<Map<dynamic, dynamic>> notifications ;
+
   User({
     this.firstName = "",
     this.lastName = "",
@@ -46,7 +47,8 @@ class User {
     this.fcmToken = "",
     this.private,
     this.location,
-    this.notification
+    this.notification,
+    this.notifications
   });
 
   Map<String, dynamic> toJSON() {
@@ -71,11 +73,14 @@ class User {
       'fcmToken' : fcmToken,
       'private' : private,
       'location' : location,
-      'notification': notification
+      'notification': notification,
+      'notifications': notifications,
     };
   }
 
   static User jsonToUser(Map<String, dynamic> data) {
+    //List<dynamic> list = data['notifications'];
+    //List<Notifications> listNotify = list.map((i) => Notifications.fromJSON(i)).toList();
     return User(
       firstName: data['firstName'],
       lastName: data['lastName'],
@@ -98,6 +103,8 @@ class User {
       private: data['private'],
       location: data['location'],
       notification: data['notification'],
+      notifications: data['notifications'].cast<Map<dynamic,dynamic>>(),
     );
   }
 }
+

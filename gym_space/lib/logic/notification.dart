@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
+class Notifications{
+  String title;
+  String body;
+  String route;
+  String receiver;
+  String sender;
 
-@immutable
-class Message {
-  final String title;
-  final String body;
-  const Message({
-    @required this.title,
-    @required this.body,
+  Notifications({
+    this.title,
+    this.body,
+    this.route,
+    this.receiver,
+    this.sender
   });
+ factory Notifications.fromJSON(Map<dynamic, dynamic> json){
+    return Notifications(
+     title: json['title'],
+     body: json['body'],
+     route: json['route'],
+     receiver: json['fcmToken'],
+     sender: json['sender']
+    );
+  }
 }
-

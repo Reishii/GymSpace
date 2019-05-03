@@ -1,5 +1,5 @@
 import 'package:GymSpace/global.dart';
-import 'package:GymSpace/notification.dart';
+import 'package:GymSpace/notification_page.dart';
 import 'package:GymSpace/page/message_thread_page.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:flutter/material.dart';
@@ -68,7 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         currentUser = User.jsonToUser(ds.data);
         NotificationPage notify = new NotificationPage();
-        notify.sendNotifications('buddy', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}');
+        notify.sendNotifications('buddy', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}','buddy', '${currentUser.fcmToken}');
       });
     });
 
