@@ -98,7 +98,7 @@ class _NutritionPage extends State<NutritionPage> {
             child: Container(
               alignment: Alignment.centerRight,
               child: Text(
-                DateFormat('MMMM').format(_week),
+                DateFormat('MMMM').format(now),
                 style: TextStyle(
                   color: GSColors.darkBlue,
                   fontSize: 16,
@@ -113,7 +113,7 @@ class _NutritionPage extends State<NutritionPage> {
                     bottomLeft: Radius.circular(20),
                     topLeft: Radius.circular(20),
                   )
-                )
+                 )
               )
             )
           ),
