@@ -43,7 +43,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       Fluttertoast.showToast(
         msg: 'Already Liked!', 
         fontSize: 14, 
-        textColor: Colors.white,
+        textColor: GSColors.darkBlue,
       );
       return;
     }
@@ -194,7 +194,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   FlatButton.icon(
                     icon: Icon(Icons.thumb_up),
                     textColor: Colors.white,
-                    label: Text('${group.likes.length} Likes', style: TextStyle(fontSize: 16)),
+                    label: Text('${group.likes.length} Likes', style: TextStyle(fontSize: 14)),
                     onPressed: _likeGroup,
                   ),
                   // Row(
@@ -318,7 +318,8 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         color: GSColors.darkBlue,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(40)
-        )
+        ),
+        shadows: [BoxShadow(blurRadius: 1)],
       ),
       child: Row(
         mainAxisAlignment: _joined ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
@@ -400,6 +401,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       decoration: ShapeDecoration(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(60)),
         color: GSColors.darkBlue,
+        // shadows: [BoxShadow(blurRadius: 1)]
       ),
       child: Column(
         children: <Widget>[
@@ -440,7 +442,8 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           color: GSColors.darkBlue,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(60),
-          )
+          ),
+          // shadows: [BoxShadow(blurRadius: 1.5)]
         ),
         child: Column(
           children: <Widget>[

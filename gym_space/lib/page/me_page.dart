@@ -42,137 +42,119 @@ class _MePageState extends State<MePage> {
       // appBar: _buildAppBar(context),
       appBar: AppBar(elevation: 0,),
       body: _buildBody(context),
-      
-      // floatingActionButton: Column(
-      //   //crossAxisAlignment: CrossAxisAlignment.center,
-      //   //mainAxisSize: MainAxisSize.min,
-        
-      //   children: <Widget>[
-      //     FloatingActionButton(
-      //       heroTag: null,
-      //       child: Icon(Icons.edit, color: GSColors.cloud),
-      //       onPressed:(){
-      //         _updateMeInfo(context);
-      //       },
-      //       backgroundColor: GSColors.blue,
-
-      //     ),
-      //     SizedBox(
-      //       height: 200.0,
-      //     ),
-      //     FloatingActionButton(
-      //       heroTag: null,
-      //       child: Icon(Icons.edit, color: GSColors.cloud),
-      //       onPressed: (){
-      //         _updateMeInfo(context);
-      //       },
-      //       backgroundColor: GSColors.blue,
-
-      //     ),
-      //      SizedBox(
-      //       height: 350.0,
-      //     ),
-      //   ],
-      // ),
     );
   }
 
   Widget _buildProfileHeading() {
     return Container(
-      decoration: ShapeDecoration(
-        color: GSColors.darkBlue,
-        shadows: [BoxShadow(blurRadius: 3)],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
-        )
-      ),
-      child: StreamBuilder(
-        stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Container();
-          }
+      child: Container(
+        decoration: ShapeDecoration(
+          color: GSColors.darkBlue,
+          shadows: [BoxShadow(blurRadius: 3)],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
+          )
+        ),
+        child: StreamBuilder(
+          stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Container();
+            }
 
-          User user = User.jsonToUser(snapshot.data.data);
-          
-          return Container(
-            margin: EdgeInsets.only(top: 10),
-            child: Column(
-              children: <Widget>[
-                InkWell( // profile pic
-                  onLongPress: () => MediaTab(context).getProfileImage(),
-                  child: Container(
-                    decoration: ShapeDecoration(
-                      shadows: [BoxShadow(color: Colors.black, blurRadius: 4, spreadRadius: 2)],
-                      shape: CircleBorder(
-                        side: BorderSide(color: Colors.white, width: .5)
-                      )
-                    ),
-                    child: CircleAvatar(
-                      backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL, errorListener: () => print('Failed to download')),
-                      backgroundColor: Colors.white,
-                      radius: 70,
+            User user = User.jsonToUser(snapshot.data.data);
+            
+            return Container(
+              margin: EdgeInsets.only(top: 10),
+              decoration: ShapeDecoration(
+                // color: Colors.red,
+                gradient: LinearGradient(
+                  begin: FractionalOffset.topCenter,
+                  end: FractionalOffset.bottomCenter,
+                  stops: [.25, .25, .25],
+                  colors: [GSColors.darkBlue, Colors.white, GSColors.babyPowder],
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(0), bottomRight: Radius.circular(0))
+                )
+              ),
+              child: Column(
+                children: <Widget>[
+                  InkWell( // profile pic
+                    onLongPress: () => MediaTab(context).getProfileImage(),
+                    child: Container(
+                      decoration: ShapeDecoration(
+                        shadows: [BoxShadow(color: Colors.black, blurRadius: 4, spreadRadius: 2)],
+                        shape: CircleBorder(
+                          side: BorderSide(color: Colors.white, width: .5)
+                        )
+                      ),
+                      child: CircleAvatar(
+                        backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL, errorListener: () => print('Failed to download')),
+                        backgroundColor: Colors.white,
+                        radius: 70,
+                      ),
                     ),
                   ),
-                ),
-                Divider(color: Colors.transparent),
-                Row( // name, points
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      '${user.firstName} ${user.lastName}',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(left: 10),
-                      child: Icon(
-                        Icons.stars,
-                        size: 14,
-                        color: Colors.yellow,
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(left: 4),
-                      child: Text(
-                        user.points.toString(),
+                  Divider(color: Colors.transparent),
+                  Row( // name, points
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        '${user.firstName} ${user.lastName}',
                         style: TextStyle(
-                          color: Colors.yellow,
-                          fontSize: 14
+                          // color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20
                         ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(left: 10),
+                        child: Icon(
+                          Icons.stars,
+                          size: 14,
+                          color: GSColors.green,
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(left: 4),
+                        child: Text(
+                          user.points.toString(),
+                          style: TextStyle(
+                            color: GSColors.green,
+                            fontSize: 14
+                          ),
+                        )
                       )
-                    )
-                  ],
-                ),
-                Divider(color: Colors.transparent),
-                user.liftingType.isEmpty ? Container() : Text( // lifting type
-                  user.liftingType,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w300
+                    ],
                   ),
-                ),
-                Divider(color: Colors.transparent),
-                user.liftingType.isEmpty ? Container() : Container(
-                  margin: EdgeInsets.symmetric(horizontal: 30),
-                  child: Text( // bio
-                    user.bio,
-                    textAlign: TextAlign.center,
+                  Divider(color: Colors.transparent),
+                  user.liftingType.isEmpty ? Container() : Text( // lifting type
+                    user.liftingType,
                     style: TextStyle(
-                      color: Colors.white,
-                      fontStyle: FontStyle.italic,
+                      // color: Colors.white,
                       fontWeight: FontWeight.w300
                     ),
                   ),
-                ),
-                Divider(color: Colors.transparent),
-              ],
-            ),
-          );
-        },
+                  Divider(color: Colors.transparent),
+                  user.liftingType.isEmpty ? Container() : Container(
+                    margin: EdgeInsets.symmetric(horizontal: 30),
+                    child: Text( // bio
+                      user.bio,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        // color: Colors.white,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.w300
+                      ),
+                    ),
+                  ),
+                  Divider(color: Colors.transparent),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -1106,507 +1088,91 @@ class _MePageState extends State<MePage> {
     _challengeKey = getChallengeKey().toString();
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 30),
+      margin: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
       child: InkWell(
+        onLongPress: () => _updateChallengeInfo(context),
         child: Container(
-        margin: EdgeInsets.only(top: 10),
-        child: Row(
-          children: <Widget>[
-            // Expanded(
-            //   flex: 2,
-            //   child: Container(
-            //     height: 140,
-            //     child: Container(
-            //       decoration: ShapeDecoration(
-            //         shape: CircleBorder(
-            //           side: BorderSide(
-            //             width: 16,
-            //             color: GSColors.darkBlue
-            //           )
-            //         )
-            //       ),
-            //     )
-            //   ),
-            // ),
-            Expanded(
-              flex: 1,
-              child: Container(
-                child: Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            //Text("1: "),
-                            StreamBuilder(
-                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                              builder: (context, snapshotUser) {
-                                if (!snapshotUser.hasData) {
-                                  return Container();
-                                }
-                                User user = User.jsonToUser(snapshotUser.data.data);
-                                return StreamBuilder(
-                                  stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
-                                  builder: (context, snapshotChallenge){
-                                  
-                                   
-                                    if(!snapshotChallenge.hasData)
-                                    {
-                                      return Text(
-                                        ' Loading...'
-                                        );                        
-                                    }
-                                    else
-                                    {
-                                      //if(user.challengeStatus[0] < snapshotChallenge.data['goal'][0])
-                                      {
-                                          return Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                          children: <Widget>[
-                                            Container(
-                                                  width: 300,
-                                                  child: Text(
-                                                    ' 1. ${snapshotChallenge.data['title'][0]}'
-                                                  ),
-                                                ),
+          margin: EdgeInsets.only(top: 10),
+          child: StreamBuilder(
+            stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) 
+                return Container();
 
-                                              Container(
-                                                  width: 85,
-                                                  child: Text(
-                                                    '${snapshotChallenge.data['points'][0]} Points',
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontWeight: FontWeight.bold,
-                                                      // fontSize: 15
-                                                      ),
-                                                  ),
-                                                ),
-                                          ],
-                                        );
-                                      }
-                                    
-                                      // else
-                                      // {
-                                      //   return Row(
-                                      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      //     children: <Widget>[
-                                      //       Container(
-                                      //             width: 300,
-                                      //             child: Text(
-                                      //               ' 1. ${snapshotChallenge.data['title'][0]}'
-                                      //             ),
-                                      //           ),
+              User user = User.jsonToUser(snapshot.data.data);
+              user.documentID = snapshot.data.documentID;
 
-                                      //         Container(
-                                      //             width: 85,
-                                      //             child: Text(
-                                      //               '${snapshotChallenge.data['points'][0]} Points',
-                                      //               style: TextStyle(
-                                      //                 color: Colors.black,
-                                      //                 fontWeight: FontWeight.bold,
-                                      //                 // fontSize: 15
-                                      //                 ),
-                                      //             ),
-                                      //           ),
+              return Container(
+                child: StreamBuilder(
+                  stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
+                  builder: (context, snapshotChallenge) {
+                    if (!snapshotChallenge.hasData) {
+                      return Column(
+                        children: <Widget> [
+                          Text(' Loading...'),
+                          LinearPercentIndicator( // challenge progress
+                            lineHeight: 14.0,
+                            percent: 0.0,
+                            backgroundColor: GSColors.darkCloud,
+                            progressColor: GSColors.lightBlue,
+                            center: Text('0%'),
+                          )
+                        ]
+                      );
+                    }
 
-                                      //       Container(
-                                      //         child: Icon(
-                                      //           Icons.check_box,
-                                      //           size: 15,
-                                      //           color: Colors.green,
-                                      //         ),
-                                      //       )
-                                      //     ],
-                                      //   );
-                                      // }
-                                    // return Text(
-                                    //     ' 1. ${challenge.title[0]}' //+ ' ${challenge.points[2].toString()}'
-                                    //   );
-                                    } 
-                                  }
-                                );                           
-                              }
-                            ),                      
-                          ],
-                        )
-                      ),
+                    List<Widget> challengeWidgets = List();
+                    for (int challengeIndex = 0; challengeIndex < snapshotChallenge.data.data['title'].length; challengeIndex++) {
+                      challengeWidgets.add(_buildChallenge(snapshotChallenge.data.data, challengeIndex, user));
+                    }
 
-                      Container(
-                        child: StreamBuilder(
-                          stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                          builder: (context, snapshot){
-                            if(!snapshot.hasData)
-                            {
-                              return Container();
-                            }
-                            User user = User.jsonToUser(snapshot.data.data);
-                            return StreamBuilder(
-                              stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
-                              builder: (context, snapshotChallenge){
-                                if(!snapshotChallenge.hasData)
-                                {
-                                 return LinearPercentIndicator(
-                                    width: 400.0,
-                                    lineHeight: 14.0,
-                                    percent: 0.0,
-                                    backgroundColor: GSColors.darkCloud,
-                                    progressColor: GSColors.lightBlue,
-                                    center: Text("0%")
-                                  );                       
-                                }
-                                else{
-                                  if(user.challengeStatus[0] == snapshotChallenge.data['goal'][0])
-                                  {
-                                    return LinearPercentIndicator(
-                                      width: 400.0,
-                                      lineHeight: 14.0,
-                                      percent: 1.0,
-                                      backgroundColor: GSColors.darkCloud,
-                                      progressColor: GSColors.green,
-                                      center: Text("100%"),
-                                      animation: true, 
-                                    );
-                                  }
-                                  else
-                                  {
-                                  return LinearPercentIndicator(
-                                    //width: 275.0,
-                                    width: 400.0,
-                                    lineHeight: 14.0,
-                                    percent: user.challengeStatus[0]/snapshotChallenge.data['goal'][0],
-                                    backgroundColor: GSColors.darkCloud,
-                                    progressColor: GSColors.lightBlue,
-                                    center: Text(
-                                      (user.challengeStatus[0]/snapshotChallenge.data['goal'][0] * 100).toStringAsFixed(0)
-                                    )
-                                  );
-                                  }
-                                }
-                              
-                              }
-                            );
-                          }
-                        ),
-                      ),
+                    return Column(children: challengeWidgets);
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+      )
+    );
+  }
 
-
-                      Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            //Text("2: "),
-                            StreamBuilder(
-                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                              builder: (context, snapshotUser) {
-                                if (!snapshotUser.hasData) {
-                                  return Container();
-                                }
-                                User user = User.jsonToUser(snapshotUser.data.data);
-                                return StreamBuilder(
-                                  stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
-                                  builder: (context, snapshotChallenge){
-                                    if(!snapshotChallenge.hasData)
-                                    {
-                                      return Text(
-                                        ' Loading...'
-                                        );                        
-                                    }
-                                    else
-                                    {
-                                    //if(user.challengeStatus[1] <= snapshotChallenge.data['goal'][1])
-                                      {
-                                          return Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                          children: <Widget>[
-                                            Container(
-                                                  width: 300,
-                                                  child: Text(
-                                                    ' 2. ${snapshotChallenge.data['title'][1]}'
-                                                  ),
-                                                ),
-
-                                              Container(
-                                                  width: 85,
-                                                  child: Text(
-                                                    '${snapshotChallenge.data['points'][1]} Points',
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontWeight: FontWeight.bold,
-                                                      // fontSize: 15
-                                                      ),
-                                                  ),
-                                                ),
-                                          ],
-                                        );
-                                      }
-                                    
-                                      //else
-                                      // {
-                                      //   return Row(
-                                      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      //     children: <Widget>[
-                                      //       Container(
-                                      //             width: 300,
-                                      //             child: Text(
-                                      //               ' 2. ${snapshotChallenge.data['title'][1]}'
-                                      //             ),
-                                      //           ),
-
-                                      //         Container(
-                                      //             width: 85,
-                                      //             child: Text(
-                                      //               '${snapshotChallenge.data['points'][1]} Points',
-                                      //               style: TextStyle(
-                                      //                 color: Colors.black,
-                                      //                 fontWeight: FontWeight.bold,
-                                      //                 // fontSize: 15
-                                      //                 ),
-                                      //             ),
-                                      //           ),
-
-                                      //       Container(
-                                      //         child: Icon(
-                                      //           Icons.check_box,
-                                      //           size: 15,
-                                      //           color: Colors.green,
-                                      //         ),
-                                      //       )
-                                      //     ],
-                                      //   );
-                                      // }
-                                    } 
-                                  }
-                                );                           
-                              }
-                            ),
-                          ],
-                        )
-                      ),
-
-                      Container(
-                        child: StreamBuilder(
-                          stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                          builder: (context, snapshot){
-                            if(!snapshot.hasData)
-                            {
-                              return Container();
-                            }
-                            User user = User.jsonToUser(snapshot.data.data);
-                            return StreamBuilder(
-                              stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
-                              builder: (context, snapshotChallenge){
-                                if(!snapshotChallenge.hasData)
-                                {
-                                 return LinearPercentIndicator(
-                                    width: 400.0,
-                                    lineHeight: 14.0,
-                                    percent: 0.0,
-                                    backgroundColor: GSColors.darkCloud,
-                                    progressColor: GSColors.lightBlue,
-                                    center: Text("0%")
-                                  );                       
-                                }
-                                else{
-
-                                  if(user.challengeStatus[1] == snapshotChallenge.data['goal'][1])
-                                  {
-                                    return LinearPercentIndicator(
-                                      width: 400.0,
-                                      lineHeight: 14.0,
-                                      percent: 1.0,
-                                      backgroundColor: GSColors.darkCloud,
-                                      progressColor: GSColors.green,
-                                      center: Text("100%"),
-                                      animation: true, 
-                                    );
-                                  }
-                                  else{
-                                    return LinearPercentIndicator(
-                                      width: 400.0,
-                                      lineHeight: 14.0,
-                                      percent: user.challengeStatus[1]/snapshotChallenge.data['goal'][1],
-                                      backgroundColor: GSColors.darkCloud,
-                                      progressColor: GSColors.lightBlue,
-                                      center: Text(
-                                        (user.challengeStatus[0]/snapshotChallenge.data['goal'][1] * 100).toStringAsFixed(0)
-                                      )
-                                    );
-                                  }
-                                }
-                              
-                              }
-                            );
-                          }
-                        ),
-                      ),
-
-                      Container(
-                        margin:EdgeInsets.symmetric(vertical: 5),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            //Text("3: "),
-                            StreamBuilder(
-                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                              builder: (context, snapshotUser) {
-                                if (!snapshotUser.hasData) {
-                                  return Container();
-                                }
-                                User user = User.jsonToUser(snapshotUser.data.data);
-                                return StreamBuilder(
-                                  stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
-                                  builder: (context, snapshotChallenge){
-                                    // Challenge challenge = Challenge.jsonToChallenge(snapshotChallenge.data.data);
-                                    if(!snapshotChallenge.hasData)
-                                    {
-                                      return Text(
-                                        ' Loading...'
-                                        );                        
-                                    }
-                                    
-                                    else {
-                                      if(user.challengeStatus[2] < snapshotChallenge.data['goal'][2])
-                                      {
-                                          return Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                          children: <Widget>[
-                                            Container(
-                                                  width: 300,
-                                                  child: Text(
-                                                    ' 3. ${snapshotChallenge.data['title'][2]}'
-                                                  ),
-                                                ),
-
-                                              Container(
-                                                  width: 85,
-                                                  child: Text(
-                                                    '${snapshotChallenge.data['points'][2]} Points',
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontWeight: FontWeight.bold,
-                                                      // fontSize: 15
-                                                      ),
-                                                  ),
-                                                ),
-                                          ],
-                                        );
-                                      }
-                                    
-                                      else
-                                      {
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                          children: <Widget>[
-                                            Container(
-                                                  width: 300,
-                                                  child: Text(
-                                                    ' 3. ${snapshotChallenge.data['title'][2]}'
-                                                  ),
-                                                ),
-
-                                              Container(
-                                                  width: 85,
-                                                  child: Text(
-                                                    '${snapshotChallenge.data['points'][2]} Points',
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontWeight: FontWeight.bold,
-                                                      // fontSize: 15
-                                                      ),
-                                                  ),
-                                                ),
-
-                                            // Container(
-                                            //   child: Icon(
-                                            //     Icons.check_box,
-                                            //     size: 15,
-                                            //     color: Colors.green,
-                                            //   ),
-                                            //)
-                                          ],
-                                        );
-                                      } 
-                                  }
-                                  }
-                                );                           
-                              }
-                            ),
-                          ],
-                        )
-                      ),
-
-                      Container(
-                        
-                        child: StreamBuilder(
-                          stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                          builder: (context, snapshot){
-                            if(!snapshot.hasData)
-                            {
-                              return Container();
-                            }
-                            User user = User.jsonToUser(snapshot.data.data);
-                            return StreamBuilder(
-                              stream: DatabaseHelper.getWeeklyChallenges(_challengeKey),
-                              builder: (context, snapshotChallenge){
-                                if(!snapshotChallenge.hasData)
-                                {
-                                 return LinearPercentIndicator(
-                                    width: 400.0,
-                                    lineHeight: 14.0,
-                                    percent: 0.0,
-                                    backgroundColor: GSColors.darkCloud,
-                                    progressColor: GSColors.lightBlue,
-                                    center: Text("0%")
-                                  );                       
-                                }
-                                else{
-
-                                  if(user.challengeStatus[2] == snapshotChallenge.data['goal'][2])
-                                  {
-                                    return LinearPercentIndicator(
-                                      width: 400.0,
-                                      lineHeight: 14.0,
-                                      percent: 1.0,
-                                      backgroundColor: GSColors.darkCloud,
-                                      progressColor: Colors.green,
-                                      center: Text("100%"),
-                                      animation: true, 
-                                    );
-                                  }
-                                  else{
-                                    return LinearPercentIndicator(
-                                      width: 400.0,
-                                      lineHeight: 14.0,
-                                      percent: user.challengeStatus[2]/snapshotChallenge.data['goal'][2],
-                                      backgroundColor: GSColors.darkCloud,
-                                      progressColor: GSColors.lightBlue,
-                                      center: Text(
-                                        (user.challengeStatus[0]/snapshotChallenge.data['goal'][2] * 100).toStringAsFixed(0)
-                                      )
-                                    );
-                                  }
-                                }
-                              
-                              }
-                            );
-                          }
-                        ),
-                      )
-                    ],
+  Widget _buildChallenge(Map<String, dynamic> challenge, int i, user) {
+    return Container(
+      child: Column(
+        children: <Widget> [
+          Row( // challenge info
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Container(
+                child: Text(
+                  ' $i. ${challenge['title'][i]}'
+                ),
+              ),
+              Container(
+                child: Text(
+                  '${challenge['points'][i]} Points',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-            ),
-          ],
-        )
+            ],
+          ),
+          Container(
+            child: LinearPercentIndicator(
+              lineHeight: 14.0,
+              percent: user.challengeStatus[i] / challenge['goal'][i],
+              backgroundColor: GSColors.darkCloud,
+              progressColor: user.challengeStatus[i] == challenge['goal'][i] ? GSColors.green : GSColors.lightBlue,
+              center: Text(
+                (user.challengeStatus[i] / challenge['goal'][i] * 100).toStringAsFixed(0) + ' %'
+              )
+            )
+          )
+        ],
       ),
-        onLongPress: () => _updateChallengeInfo(context),
-      )
-      );
+    );
   }
 
   Widget _buildChallengeProgess(BuildContext context){

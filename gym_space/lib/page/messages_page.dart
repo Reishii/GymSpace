@@ -57,6 +57,7 @@ class MessagesPage extends StatelessWidget {
                       new Container(
                         child: Text(
                           ' ${document['bio'] ?? 'Not available'}',
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: GSColors.cloud,
                             fontWeight: FontWeight.w300,
@@ -101,7 +102,7 @@ class MessagesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(
-        startPage: 6,
+        startPage: 7,
       ),
       appBar: _buildAppBar(),
       // floatingActionButton: new FloatingActionButton(

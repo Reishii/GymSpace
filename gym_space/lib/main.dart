@@ -31,13 +31,7 @@ Future<void> main() async{
     _defaultHome = MePage();
   }
 
-  // _defaultHome = testProfile();
-  
   runApp(GymSpace(_defaultHome));
-}
-
-Widget testProfile() {
-  return ProfilePage(forUserID: 'XKgmeU51sxgmMig8ExV5J8JKq6n1',);
 }
 
 class GymSpace extends StatelessWidget {
