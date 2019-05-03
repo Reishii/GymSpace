@@ -31,15 +31,12 @@ class DatabaseHelper {
     return buddies;
   }
 
-  static Future<List<String>> getCurrentUserMedia() async {
+    static Future<List<String>> getCurrentUserMedia() async {
     DocumentSnapshot ds = await getUserSnapshot(currentUserID);
     List<String> media = ds.data['media'].cast<String>().toList();
     return media;
   }
 
-  static Stream<DocumentSnapshot> getUserStreamSnapshot(String userID) {
-    return Firestore.instance.collection('users').document(userID).snapshots();
-  }
 
   static Future<List<String>> getCurrentUserGroups() async {
     DocumentSnapshot ds = await getUserSnapshot(currentUserID);
@@ -79,13 +76,17 @@ class DatabaseHelper {
       }
     });
     
-    
     return foundUsers;
   }
 
   // workouts
   static Future<DocumentSnapshot> getWorkoutPlanSnapshot(String workoutPlanID) async {
     return Firestore.instance.collection('workoutPlans').document(workoutPlanID).get();
+  }
+
+  // media
+  static Stream<DocumentSnapshot> getUserStreamSnapshot(String userID) {
+    return Firestore.instance.collection('users').document(userID).snapshots();
   }
 
   static Future<DocumentSnapshot> getWorkoutSnapshot(String workoutID) async {
