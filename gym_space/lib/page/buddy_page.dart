@@ -212,9 +212,8 @@ class _BuddyPageState extends State<BuddyPage> {
                 ),
                 child: CircleAvatar(
                   radius: 46,
-                  backgroundImage: CachedNetworkImageProvider(
-                    user.photoURL.isNotEmpty ? user.photoURL : Defaults.userPhoto
-                  ),
+                  backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
+                   : AssetImage(Defaults.userPhoto),
                 ),
               )
             ),

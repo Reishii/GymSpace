@@ -18,7 +18,7 @@ import 'package:image_picker/image_picker.dart';
 
 
 class GroupProfilePage extends StatefulWidget {
-  final Group group;
+  Group group;
 
   GroupProfilePage({
     this.group,
@@ -293,7 +293,8 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                         ),
                       ),
                       child: CircleAvatar(
-                        backgroundImage: CachedNetworkImageProvider(group.photoURL.isNotEmpty ? group.photoURL : Defaults.userPhoto),
+                        backgroundImage: group.photoURL.isNotEmpty ? CachedNetworkImageProvider(group.photoURL)
+                        : AssetImage(Defaults.userPhoto),
                         radius: 80,
                         child: _isEditing ? Container(
                           decoration: ShapeDecoration(

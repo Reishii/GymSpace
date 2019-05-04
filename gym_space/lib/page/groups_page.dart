@@ -124,7 +124,7 @@ class _GroupsPageState extends State<GroupsPage> {
 
   Widget _buildBody(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10),
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       // color: Colors.white
       child: FutureBuilder(
         future: DatabaseHelper.getCurrentUserGroups(),
@@ -265,7 +265,8 @@ class _GroupsPageState extends State<GroupsPage> {
                         Container(
                           child: MaterialButton(
                             child: CircleAvatar(
-                              backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isNotEmpty ? snapshot.data['photoURL'] : Defaults.userPhoto),
+                              backgroundImage: snapshot.data['photoURL'].isNotEmpty ? CachedNetworkImageProvider(snapshot.data['photoURL']) 
+                              : AssetImage(Defaults.groupPhoto),
                               radius: 10,
                             ),
                             onPressed: () => Navigator.push(context, MaterialPageRoute(
@@ -310,7 +311,8 @@ class _GroupsPageState extends State<GroupsPage> {
                   )
                 ),
                 child: CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isEmpty ? Defaults.userPhoto : snapshot.data['photoURL']),
+                  backgroundImage: snapshot.data['photoURL'].isNotEmpty ? CachedNetworkImageProvider(snapshot.data['photoURL'])
+                  : AssetImage(Defaults.userPhoto),
                   radius: 20,
                 ),
               ),

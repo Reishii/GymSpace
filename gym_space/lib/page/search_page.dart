@@ -251,6 +251,7 @@ class _SearchPageState extends State<SearchPage> {
            Container(
             // color: Colors.red,
             child: GridView.count(
+              physics: ScrollPhysics(),
               shrinkWrap: true,
               crossAxisCount: 2,
               children: _buildAllGroups(),
@@ -336,9 +337,8 @@ class _SearchPageState extends State<SearchPage> {
           child: Container(
             decoration: ShapeDecoration(
               image: DecorationImage(
-                image: CachedNetworkImageProvider(
-                  group.photoURL.isNotEmpty ? group.photoURL : Defaults.userPhoto,
-                ),
+                image: group.photoURL.isNotEmpty ? CachedNetworkImageProvider(group.photoURL)
+                : AssetImage(Defaults.userPhoto),
                 fit: BoxFit.cover,
               ),
               shape: RoundedRectangleBorder(
@@ -457,9 +457,8 @@ class _GroupInfoWidgetState extends State<GroupInfoWidget> {
               }
               
               return CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(
-                  snapshot.data['photoURL'].isEmpty ? Defaults.userPhoto : snapshot.data['photoURL'],
-                )
+                backgroundImage: snapshot.data['photoURL'].isNotEmpty ? CachedNetworkImageProvider(snapshot.data['photoURL'])
+                : AssetImage(Defaults.userPhoto),
               );
             },
           ),
