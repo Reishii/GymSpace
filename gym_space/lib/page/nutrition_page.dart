@@ -97,7 +97,8 @@ class _NutritionPage extends State<NutritionPage> {
             child: Container(
               alignment: Alignment.centerRight,
               child: Text(
-                DateFormat('MMMM').format(now),
+                // Get month of latest day in the week
+                DateFormat('MMMM').format(_sat),
                 style: TextStyle(
                   color: GSColors.darkBlue,
                   fontSize: 16,
