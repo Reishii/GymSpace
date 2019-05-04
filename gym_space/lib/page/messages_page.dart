@@ -31,7 +31,7 @@ class MessagesPage extends StatelessWidget {
                     height: 50.0,
                     padding: EdgeInsets.all(15.0),
                   ),
-                  imageUrl: document['photoURL'].isEmpty ? Defaults.photoURL : document['photoURL'],
+                  imageUrl: document['photoURL'].isEmpty ? Defaults.userPhotoDB : document['photoURL'],
                   width: 50.0,
                   height: 50.0,
                   fit: BoxFit.cover,
@@ -77,7 +77,7 @@ class MessagesPage extends StatelessWidget {
                 new MaterialPageRoute(
                     builder: (context) => new MessageThreadPage(
                           peerId: document.documentID,
-                          peerAvatar: document['photoURL'] ?? Defaults.photoURL,
+                          peerAvatar: document['photoURL'] ?? Defaults.userPhotoDB,
                           peerFirstName: document['firstName'],
                           peerLastName: document['lastName'],
                         )));

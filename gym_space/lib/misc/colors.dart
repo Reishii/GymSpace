@@ -10,6 +10,6 @@ class GSColors {
   static const Color purple       = Color(0xff9b59b6);
   static const Color green        = Color(0xff2EC4B6);
   static const Color babyPowder   = Color(0xffFDFFFC);
-  static const Color red          = Color(0xffE71D36);
+  static const Color red          = Color(0xfff03031);
   static const Color yellow       = Color(0xffFF9F1C);
 }

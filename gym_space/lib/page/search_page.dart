@@ -211,7 +211,7 @@ class _SearchPageState extends State<SearchPage> {
                 ),
               ),
               child: CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL, errorListener: () => print('Failed to download')),
+                backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.userPhoto : user.photoURL, errorListener: () => print('Failed to download')),
                 radius: 50,
               ),
             ),
@@ -251,6 +251,7 @@ class _SearchPageState extends State<SearchPage> {
            Container(
             // color: Colors.red,
             child: GridView.count(
+              physics: ScrollPhysics(),
               shrinkWrap: true,
               crossAxisCount: 2,
               children: _buildAllGroups(),
@@ -336,9 +337,8 @@ class _SearchPageState extends State<SearchPage> {
           child: Container(
             decoration: ShapeDecoration(
               image: DecorationImage(
-                image: CachedNetworkImageProvider(
-                  group.photoURL.isNotEmpty ? group.photoURL : Defaults.photoURL,
-                ),
+                image: group.photoURL.isNotEmpty ? CachedNetworkImageProvider(group.photoURL)
+                : AssetImage(Defaults.userPhoto),
                 fit: BoxFit.cover,
               ),
               shape: RoundedRectangleBorder(
@@ -451,15 +451,14 @@ class _GroupInfoWidgetState extends State<GroupInfoWidget> {
               if (!snapshot.hasData) {
                 return CircleAvatar(
                   backgroundImage: CachedNetworkImageProvider(
-                    Defaults.photoURL,
+                    Defaults.userPhoto,
                   )
                 );
               }
               
               return CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(
-                  snapshot.data['photoURL'].isEmpty ? Defaults.photoURL : snapshot.data['photoURL'],
-                )
+                backgroundImage: snapshot.data['photoURL'].isNotEmpty ? CachedNetworkImageProvider(snapshot.data['photoURL'])
+                : AssetImage(Defaults.userPhoto),
               );
             },
           ),

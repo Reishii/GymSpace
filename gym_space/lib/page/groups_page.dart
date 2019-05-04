@@ -124,7 +124,7 @@ class _GroupsPageState extends State<GroupsPage> {
 
   Widget _buildBody(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10),
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       // color: Colors.white
       child: FutureBuilder(
         future: DatabaseHelper.getCurrentUserGroups(),
@@ -133,8 +133,13 @@ class _GroupsPageState extends State<GroupsPage> {
             return Container();
           }
           
-          return ListView.builder(
+          return GridView.builder(
             itemCount: snapshot.data.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 4,
+              crossAxisSpacing: 4,
+            ),
             itemBuilder: (context, i) {
               return StreamBuilder(
                 stream: DatabaseHelper.getGroupStreamSnapshot(snapshot.data[i]),
@@ -144,7 +149,7 @@ class _GroupsPageState extends State<GroupsPage> {
                   }
                   Group joinedGroup = Group.jsonToGroup(groupSnap.data.data);
                   joinedGroup.documentID = groupSnap.data.documentID;
-                  return _buildGroupItem(joinedGroup, context);
+                  return _buildGroupItem(joinedGroup);
                 },
               );
             },
@@ -154,7 +159,58 @@ class _GroupsPageState extends State<GroupsPage> {
     );
   }
 
-  Widget _buildGroupItem(Group group, context) {
+  Widget _buildGroupItem(Group group) {
+    return Container(
+      child: InkWell(
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          child: Container(
+            decoration: ShapeDecoration(
+              image: DecorationImage(
+                image: group.photoURL.isNotEmpty ? CachedNetworkImageProvider(group.photoURL)
+                : AssetImage(Defaults.groupPhoto),
+                fit: BoxFit.cover,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              )
+            ),
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: <Widget>[
+                Container(
+                  padding: EdgeInsets.all(10),
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  decoration: ShapeDecoration(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)
+                    )
+                  ),
+                  child: Text(
+                    group.name,
+                    softWrap: true,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.bold,
+                      // letterSpacing: 1.2
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGroupItem1(Group group, context) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       decoration: ShapeDecoration(
@@ -209,7 +265,8 @@ class _GroupsPageState extends State<GroupsPage> {
                         Container(
                           child: MaterialButton(
                             child: CircleAvatar(
-                              backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isNotEmpty ? snapshot.data['photoURL'] : Defaults.photoURL),
+                              backgroundImage: snapshot.data['photoURL'].isNotEmpty ? CachedNetworkImageProvider(snapshot.data['photoURL']) 
+                              : AssetImage(Defaults.groupPhoto),
                               radius: 10,
                             ),
                             onPressed: () => Navigator.push(context, MaterialPageRoute(
@@ -254,7 +311,8 @@ class _GroupsPageState extends State<GroupsPage> {
                   )
                 ),
                 child: CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isEmpty ? Defaults.photoURL : snapshot.data['photoURL']),
+                  backgroundImage: snapshot.data['photoURL'].isNotEmpty ? CachedNetworkImageProvider(snapshot.data['photoURL'])
+                  : AssetImage(Defaults.userPhoto),
                   radius: 20,
                 ),
               ),

@@ -24,7 +24,7 @@ class User {
   bool private = true;
   bool location = true;
   bool notification = true;
-  List<Map<dynamic, dynamic>> notifications ;
+  List<Map<dynamic, dynamic>> notifications = List();
 
   User({
     this.firstName = "",
@@ -76,7 +76,7 @@ class User {
       'private' : private,
       'location' : location,
       'notification': notification,
-      'notifications': notifications,
+      'notifications': notifications ?? [],
     };
   }
 
