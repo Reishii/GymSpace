@@ -5,6 +5,7 @@ import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/search_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:GymSpace/widgets/page_header.dart';
@@ -206,6 +207,20 @@ class _GroupsPageState extends State<GroupsPage> {
                     ),
                   ),
                 ),
+                // Container(
+                //   alignment: Alignment.topRight,
+                //   child: Container(
+                //     constraints: BoxConstraints.tight(Size.fromRadius(14)),
+                //     decoration: ShapeDecoration(
+                //       color: Colors.red,
+                //       shape: CircleBorder(),
+                //     ),
+                //     child: InkWell(
+                //       child: Icon(Icons.cancel, color: Colors.white,),
+                //       onTap: () {},
+                //     ),
+                //   )
+                // )
               ],
             ),
           ),
