@@ -69,13 +69,18 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
     Firestore.instance.collection('users').document(currentUserID).updateData({'joinedGroups': FieldValue.arrayUnion([group.documentID])})
       .then((_) => setState(() {
         _joined = true;
-      }));
+         group.members = group.members.toList();
+
+      }));  
 
   }
 
   void _leaveGroup() {
     Firestore.instance.collection('users').document(currentUserID).updateData({'joinedGroups': FieldValue.arrayRemove([group.documentID])})
       .then((_) => setState(() {
+        // group.members.remove(currentUserID);
+         _currentTab = 0;
+        group.members = group.members.toList();
         group.members.remove(currentUserID);
         _joined = false;
       }));
@@ -608,7 +613,6 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         ),
       )
     );
-
     return memberAvatars;
   }
 
@@ -669,7 +673,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   ),
                 ), 
                 //check if admin
-               //_isAdmin ? 
+               _isAdmin ? 
                 IconButton(
                   icon: Icon(Icons.add_circle_outline),
                   onPressed: () {
@@ -765,24 +769,11 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                               FlatButton(
                                 child: const Text('Save'),
                                 onPressed: (){
-                                  // if(_challengeTitleController.text.isEmpty) {
-                                  //   _challengeTitleController.text = 'INVALID';
-                                  //   _challengeTit
-                                  // }
-
-                                  // if(challengeTitle == 'error0' || challengeUnits == 'error1' || challengeGoal == -9999 || challengePoints == -9999)
-                                  // {
-                                  //  //send toast error message 
-                                  // } 
-
-                                  //else
                                   if(formKey.currentState.validate())
                                   {
                                     formKey.currentState.save();
                                     Map<String, dynamic> newGroupChallenge;    
-                                    //List<Map> membersMapList = List();
                                     Map<String, dynamic> membersMap = Map();
-                                    // Map<String, dynamic> tempMap = Map();
 
                                     for(int i = 0; i < group.members.length; i++)
                                       {
@@ -807,7 +798,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                     );
                   },
                 )
-              // : Container(),
+             : Container(),
               ],
             ),
           ),
@@ -825,8 +816,6 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                       "Update your progress on your group's weekly challenges"),
                     content: 
                     Container(
-                      //height: 450,
-                      // width: 350,
                       width: double.maxFinite,
                       // child: Scrollbar(
                         child: ListView(
@@ -879,15 +868,11 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: challengeList,
                               );
-
                             }
                           }
                         ),
                           ]
                         )
-        
-                        //child: ListView(),
-                      //),
                     ),
                     actions: <Widget>[
                       FlatButton(
@@ -899,17 +884,6 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                       FlatButton(
                         child: const Text('Save'),
                         onPressed: (){
-                          // int temp;
-                          // for(int j = 0; j < inputList.length; j++)
-                          // {
-                          //   if(inputList[j] != -999999)
-                          //   {
-                          //     inputList[j] = 0;
-                          //   }
-
-                          // temp = inputList[j] + 
-
-                          // }
                           _updateMemberChallengeProgress(inputList, challengeNames);
                           _buildChallenges();
                           Navigator.pop(context);
@@ -930,153 +904,122 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                 borderRadius: BorderRadius.circular(20)
               )
             ),
-
-             //child: InkWell(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  // StreamBuilder( 
-                  //   stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                  //   builder: (context, snapshotUser){
-                  //     if(!snapshotUser.hasData){
-                  //       return Container();
-                  //     }
-                      //else{
-                        //return 
-                        StreamBuilder(
-                          stream: DatabaseHelper.getGroupStreamSnapshot(group.documentID),
-                          builder: (context, snapshotGroup){
-                            if(!snapshotGroup.hasData)
-                            {
-                              return Container();
-                            }
-                            Map tmpMap = Map();
-                            tmpMap = snapshotGroup.data.data['challenges'];
-                            if(tmpMap.length == 0)
-                            {
-                              return Container();
-                            }
-                            else
-                            {
-                              // User user = User.jsonToUser(snapshotUser.data.data);
-                              List<Widget> challengeList = [];
-                              snapshotGroup.data.data['challenges'][_challengeKey].cast<String, Map>().forEach((title, value)
-                              {
-                                if (_isAdmin) {
-                                  challengeList.add(
-                                    Container(
-                                      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-                                      child: Text(
-                                        title,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    )
-                                  );
-
-                                  return Column(
-                                    children: challengeList,
-                                  );
-                                }
-
-                                if(value['members'][DatabaseHelper.currentUserID]['progress'] == value['goal'])
-                                {
-                                  challengeList.add(
-                                    Container(
-                                    margin: EdgeInsets.fromLTRB(15, 15, 15, 15),
-                                    child :Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                      Container(
-                                        child: Text(
-                                          title,
-                                          style: TextStyle(
-                                            color: GSColors.cloud,
-                                            fontSize: 15.0,
-                                            fontWeight: FontWeight.bold
-                                          ),
-                                          textAlign: TextAlign.left,
-                                        ),
-                                      ),
-                                      Container(
-                                          height: 20,
-                                          child: (LinearPercentIndicator(
-                                          width: 330,
-                                          lineHeight: 14.0,
-                                          percent: 1.0,
-                                          backgroundColor: Colors.green,
-                                          progressColor: Colors.green,
-                                          center: Text("100%")
-                                          )  
-                                        ),  
-                                      )
-                                    ]
-                                  )
-                                    )
-                                  );
-                                }
-                                else{
-                                  challengeList.add(
-                                    Container(
-                                    margin: EdgeInsets.fromLTRB(15, 15, 15, 15),
-                                    child :Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                      Container(
-                                        child: Text(
-                                          title,
-                                          style: TextStyle(
-                                            color: GSColors.cloud,
-                                            fontSize: 15.0,
-                                            fontWeight: FontWeight.bold
-                                          ),
-                                          textAlign: TextAlign.left,
-                                        ),
-                                      ),
-                                      Container(
-                                          height: 20,
-                                          child: (LinearPercentIndicator(
-                                          width: 330,
-                                          lineHeight: 14.0,
-                                          percent: value['members'][DatabaseHelper.currentUserID]['progress']/value['goal'],
-                                          backgroundColor: GSColors.darkCloud,
-                                          progressColor: GSColors.lightBlue,
-                                          center: Text((value['members'][DatabaseHelper.currentUserID]['progress']/value['goal'] * 100).toStringAsFixed(0) + "%")
-                                          )  
-                                        ),  
-                                      )
-                                    ]
-                                  )
-                                    )
-                                  );
-                                }                   
-                              });               
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: challengeList,
-                                  
-                                  // Container(
-                                  //   height: 20,
-                                  //   child: (LinearPercentIndicator(
-                                  //     width: 350,
-                                  //     lineHeight: 14.0,
-                                  //     percent: 0.5,
-                                  //     backgroundColor: GSColors.darkCloud,
-                                  //     progressColor: GSColors.lightBlue,
-                                  //     center: Text("50%")
-                                  //     )  
-                                  //   ),
-
-                                  // )
-                                
-                              );
-                            }
-                          },
-                        )
-                      //}
-                    //}
-                  // )
+                  StreamBuilder(
+                    stream: DatabaseHelper.getGroupStreamSnapshot(group.documentID),
+                    builder: (context, snapshotGroup){
+                      if(!snapshotGroup.hasData)
+                      {
+                        return Container();
+                      }
+                      Map tmpMap = Map();
+                      tmpMap = snapshotGroup.data.data['challenges'];
+                      if(tmpMap.length == 0)
+                      {
+                        return Container();
+                      }
+                      else
+                      {
+                        List<Widget> challengeList = [];
+                        snapshotGroup.data.data['challenges'][_challengeKey].cast<String, Map>().forEach((title, value)
+                        {
+                          if (_isAdmin) {
+                            challengeList.add(
+                              Container(
+                                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                                child: Text(
+                                  title,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
+                            );
+                            return Column(
+                              children: challengeList,
+                            );
+                          }
+                          if(value['members'][DatabaseHelper.currentUserID]['progress'] == value['goal'])
+                          {
+                            challengeList.add(
+                              Container(
+                              margin: EdgeInsets.fromLTRB(15, 15, 15, 15),
+                              child :Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                Container(
+                                  child: Text(
+                                    title,
+                                    style: TextStyle(
+                                      color: GSColors.cloud,
+                                      fontSize: 15.0,
+                                      fontWeight: FontWeight.bold
+                                    ),
+                                    textAlign: TextAlign.left,
+                                  ),
+                                ),
+                                Container(
+                                    height: 20,
+                                    child: (LinearPercentIndicator(
+                                    width: 330,
+                                    lineHeight: 14.0,
+                                    percent: 1.0,
+                                    backgroundColor: Colors.green,
+                                    progressColor: Colors.green,
+                                    center: Text("100%")
+                                    )  
+                                  ),  
+                                )
+                              ]
+                            )
+                              )
+                            );
+                          }
+                          else{
+                            challengeList.add(
+                              Container(
+                              margin: EdgeInsets.fromLTRB(15, 15, 15, 15),
+                              child :Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                Container(
+                                  child: Text(
+                                    title,
+                                    style: TextStyle(
+                                      color: GSColors.cloud,
+                                      fontSize: 15.0,
+                                      fontWeight: FontWeight.bold
+                                    ),
+                                    textAlign: TextAlign.left,
+                                  ),
+                                ),
+                                Container(
+                                    height: 20,
+                                    child: (LinearPercentIndicator(
+                                    width: 330,
+                                    lineHeight: 14.0,
+                                    percent: value['members'][DatabaseHelper.currentUserID]['progress']/value['goal'],
+                                    backgroundColor: GSColors.darkCloud,
+                                    progressColor: GSColors.lightBlue,
+                                    center: Text((value['members'][DatabaseHelper.currentUserID]['progress']/value['goal'] * 100).toStringAsFixed(0) + "%")
+                                    )  
+                                  ),  
+                                )
+                              ]
+                            )
+                              )
+                            );
+                          }                   
+                        });               
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: challengeList,                                                            
+                        );
+                      }
+                    },
+                  ),            
                 ],
               ),
             )
@@ -1100,7 +1043,7 @@ Future<void> addNewMemberToWeeklyChallenges() async {
 
   Firestore.instance.collection('groups').document(group.documentID).updateData(
       {'challenges' : challengeMap}
-  );
+  ).then((_) => setState);
 }
 
 
@@ -1151,10 +1094,7 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
           {'challenges' : challengeMap}
           );
       }
-    
-    //  Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
-    //   {'points' : newPoints}
-    // );
+
 
   }
 }
@@ -1229,7 +1169,7 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
             child: StreamBuilder(
               stream:  DatabaseHelper.getGroupStreamSnapshot(group.documentID),
                builder: (context, snapshotGroup){
-                if(snapshotGroup.data == null)
+                if(!snapshotGroup.hasData)
                 {
                   return Container();
                 }
@@ -1244,66 +1184,66 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
                   int i = 0;
                   int tmpPoints = 0;
 
-                // print("***************************************************************************************************");
-
 
                   //initialize list
                   for(int j = 0; j < members.length; j++)
                   {
-                    // print(members[j].firstName);
-                    // for(int k = 0; k < members.length; k++)
-                    // {
-                    //   if(members[k].documentID == group.members[j])
-                    //   {
-                    //     print(members[k].documentID + "  " + group.members[j]);
-                    //    memberPointsList[j] = {'userID' : group.members[j], 'points' : 0, 'name' : members[k].firstName + " " + members[k].lastName};
-                    //   }
-                    // }
-                    memberPointsList[j] = {'userID' : members[j].documentID, 'points' : 0, 'name' : members[j].firstName + " " + members[j].lastName};
+                    memberPointsList[j] = {'userID' : members[j].documentID, 'points' : 0, 'name' : members[j].firstName + " " + members[j].lastName, 'avatar' : members[j].photoURL};
                     print(memberPointsList[j]);
                   }
 
                  snapshotGroup.data.data['challenges'][_challengeKey].cast<String, dynamic>().forEach((title, subMap0){
                    subMap0['members'].cast<String, dynamic>().forEach((memberName, memberInfo) {
-                      // if(memberPointsList[i] == null && subMap0['members'][memberName] == null)
-                      // {
-                      //   tmpPoints = 0;
-                      // }
-                      // if(memberPointsList[i] == null)
-                      // {
-                      //   tmpPoints = memberInfo['points'];
-                      // }
-                      //else
+                    
+                      for(int j = 0; j < memberPointsList.length; j++)
                       {
-                        tmpPoints = memberInfo['points'] + memberPointsList[i]['points'];
+                        if(memberPointsList[j]['userID'] == memberName)
+                        {
+                          tmpPoints = memberInfo['points'] + memberPointsList[j]['points'];
+                          memberPointsList[j] = {'userID' : memberName, 'points' : tmpPoints, 'name' : memberPointsList[j]['name'], 'avatar' : memberPointsList[j]['avatar']};
+                        }
                       }
-                      memberPointsList[i] = {'userID' : memberName, 'points' : tmpPoints, 'name' : memberPointsList[i]['name']};
-                      
-                      i++;
-                      tmpPoints = 0;
                    });
-                    i = 0;
                  });
 
-
-                  // for(int i = 0; i < group.members.length; i++)
-                  // {
-                  //   memberPointsList[i] = {'name' :group.members[i], 'points' : 0};
-                  // }
+                  for(int i = 0; i < memberPointsList.length; i++)
+                  {
+                    print(memberPointsList[i]);
+                  }
                   
-                  //sort 
+                  //sort  based on points
                   memberPointsList.sort((a, b) => a['points'].compareTo(b['points']));
                   for(int j = memberPointsList.length - 1; j >= 0; j--)
                   {
 
                     leaderBoardList.add(
-                      Row(
+                      Container(
+                      margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
+                        
                         Container(
-                          margin: EdgeInsets.only(left: 4),
+                          decoration: ShapeDecoration(
+                            shape:  CircleBorder(
+                              side: BorderSide(
+                                color: Colors.white
+                              )
+                            )
+                          ),
+                          child: CircleAvatar(
+                            backgroundImage: CachedNetworkImageProvider(
+                              memberPointsList[j]['avatar'].isEmpty ? Defaults.userPhoto : memberPointsList[j]['avatar']
+                              ),
+                              radius: 20,
+                          ),
+                        ),
+
+                        Container(
+                          margin: EdgeInsets.only(left: 7),
                           child: Text(
                             memberPointsList[j]['name'],
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: GSColors.cloud,
                               fontSize: 18,
@@ -1334,6 +1274,7 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
                           )
                         )
                       ],)
+                      )
                     );
 
 

@@ -76,7 +76,7 @@ class _MePageState extends State<MePage> {
               child: Column(
                 children: <Widget>[
                   InkWell( // profile pic
-                    onLongPress: () => MediaTab(context).getMediaImage(),
+                    onLongPress: () => MediaTab(context).getProfileImage(),
                     child: Container(
                       decoration: ShapeDecoration(
                         shadows: [BoxShadow(color: Colors.black, blurRadius: 4, spreadRadius: 2)],
