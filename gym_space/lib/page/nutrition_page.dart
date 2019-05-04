@@ -508,7 +508,6 @@ class _NutritionPage extends State<NutritionPage> {
             Expanded(
               flex: 1,
               child: Container(
-                height: 180,
                 child: Container(
                   child: StreamBuilder(
                     stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
