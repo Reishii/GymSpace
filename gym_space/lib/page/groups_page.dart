@@ -162,6 +162,10 @@ class _GroupsPageState extends State<GroupsPage> {
   Widget _buildGroupItem(Group group) {
     return Container(
       child: InkWell(
+        onTap: () => Navigator.push(context, MaterialPageRoute(
+            builder: (context) => GroupProfilePage(group: group) 
+          )
+        ),
         child: Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)
@@ -205,86 +209,6 @@ class _GroupsPageState extends State<GroupsPage> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGroupItem1(Group group, context) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      decoration: ShapeDecoration(
-        color: GSColors.darkBlue,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(100),
-        )
-      ),
-      child: InkWell(
-        child: Container(
-          margin: EdgeInsets.symmetric(vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Text( // name
-                group.name,
-                style: TextStyle(
-                  color: Colors.white,
-                  letterSpacing: 1.4,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-              group.members.isNotEmpty ? _buildMembersList(group.members) :
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 10),
-                child: Text(
-                  'Be the first to join this group!',
-                  style: TextStyle(
-                    color: Colors.white
-                  ),
-                )
-              ),
-              Container(
-                child: FutureBuilder(
-                  future: DatabaseHelper.getUserSnapshot(group.admin),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return Container();
-                    }
-
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          'Instructed by ${snapshot.data['firstName']} ${snapshot.data['lastName']}  ',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12
-                          ),
-                        ),
-                        Container(
-                          child: MaterialButton(
-                            child: CircleAvatar(
-                              backgroundImage: snapshot.data['photoURL'].isNotEmpty ? CachedNetworkImageProvider(snapshot.data['photoURL']) 
-                              : AssetImage(Defaults.groupPhoto),
-                              radius: 10,
-                            ),
-                            onPressed: () => Navigator.push(context, MaterialPageRoute(
-                              builder: (context) => ProfilePage(forUserID: snapshot.data.documentID,))
-                            ),
-                          ),
-                        )
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        onTap: () => Navigator.push(context, MaterialPageRoute(
-            builder: (context) => GroupProfilePage(group: group) 
-          )
         ),
       ),
     );
