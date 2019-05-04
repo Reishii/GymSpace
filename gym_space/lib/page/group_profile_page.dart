@@ -293,7 +293,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                         ),
                       ),
                       child: CircleAvatar(
-                        backgroundImage: CachedNetworkImageProvider(group.photoURL.isNotEmpty ? group.photoURL : Defaults.photoURL),
+                        backgroundImage: CachedNetworkImageProvider(group.photoURL.isNotEmpty ? group.photoURL : Defaults.userPhoto),
                         radius: 80,
                         child: _isEditing ? Container(
                           decoration: ShapeDecoration(
@@ -576,7 +576,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           ),
           child: CircleAvatar(
             backgroundImage: CachedNetworkImageProvider(
-              member.photoURL.isEmpty ? Defaults.photoURL : member.photoURL
+              member.photoURL.isEmpty ? Defaults.userPhoto : member.photoURL
             ),
             radius: 20,
           ),

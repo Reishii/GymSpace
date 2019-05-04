@@ -308,7 +308,7 @@ class _ProfilePageState extends State<ProfilePage> {
             alignment: Alignment.center,
             child: CircleAvatar(
               radius: 70,
-              backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL),
+              backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.userPhoto : user.photoURL),
             ),
             decoration: ShapeDecoration(
               shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],

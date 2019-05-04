@@ -10,7 +10,9 @@ class AuthSettings {
 }
 
 class Defaults {
-  static String photoURL = 'https://firebasestorage.googleapis.com/v0/b/gymspace.appspot.com/o/default_icon.png?alt=media&token=af0d9f4b-cec3-4f05-87a5-5dd1bfc0eb5a';
+  static String userPhoto = 'lib/assets/userPhoto.png';
+  // static String userPhoto = 'https://firebasestorage.googleapis.com/v0/b/gymspace.appspot.com/o/default_icon.png?alt=media&token=af0d9f4b-cec3-4f05-87a5-5dd1bfc0eb5a';
+  static String groupPhoto = 'lib/assets/groupPhoto.png';
 }
 
 class Errors {

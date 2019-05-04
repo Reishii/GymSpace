@@ -125,7 +125,7 @@ class _GroupsMembersPageState extends State<GroupMembersPage> {
                   children: <Widget>[
                     CircleAvatar(
                       backgroundImage: CachedNetworkImageProvider(
-                        members[i].photoURL.isEmpty ? Defaults.photoURL : members[i].photoURL
+                        members[i].photoURL.isEmpty ? Defaults.userPhoto : members[i].photoURL
                       ),
                     ),
                     Divider(color: Colors.transparent,),

@@ -305,7 +305,7 @@ class ChatScreenState extends State<ChatScreen> {
                       height: 35.0,
                       padding: EdgeInsets.all(10.0),
                     ),
-                    imageUrl: peerAvatar.isEmpty ? Defaults.photoURL : peerAvatar,
+                    imageUrl: peerAvatar.isEmpty ? Defaults.userPhoto : peerAvatar,
                     width: 35.0,
                     height: 35.0,
                     fit: BoxFit.cover,

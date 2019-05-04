@@ -211,7 +211,7 @@ class _SearchPageState extends State<SearchPage> {
                 ),
               ),
               child: CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL, errorListener: () => print('Failed to download')),
+                backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.userPhoto : user.photoURL, errorListener: () => print('Failed to download')),
                 radius: 50,
               ),
             ),
@@ -337,7 +337,7 @@ class _SearchPageState extends State<SearchPage> {
             decoration: ShapeDecoration(
               image: DecorationImage(
                 image: CachedNetworkImageProvider(
-                  group.photoURL.isNotEmpty ? group.photoURL : Defaults.photoURL,
+                  group.photoURL.isNotEmpty ? group.photoURL : Defaults.userPhoto,
                 ),
                 fit: BoxFit.cover,
               ),
@@ -451,14 +451,14 @@ class _GroupInfoWidgetState extends State<GroupInfoWidget> {
               if (!snapshot.hasData) {
                 return CircleAvatar(
                   backgroundImage: CachedNetworkImageProvider(
-                    Defaults.photoURL,
+                    Defaults.userPhoto,
                   )
                 );
               }
               
               return CircleAvatar(
                 backgroundImage: CachedNetworkImageProvider(
-                  snapshot.data['photoURL'].isEmpty ? Defaults.photoURL : snapshot.data['photoURL'],
+                  snapshot.data['photoURL'].isEmpty ? Defaults.userPhoto : snapshot.data['photoURL'],
                 )
               );
             },

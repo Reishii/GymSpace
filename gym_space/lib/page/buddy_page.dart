@@ -11,6 +11,7 @@ import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:flutter/widgets.dart';
 import 'package:GymSpace/global.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class BuddyPage extends StatefulWidget {
   final Widget child;
@@ -159,76 +160,80 @@ class _BuddyPageState extends State<BuddyPage> {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: InkWell(
+        onTap: () => _buildBuddyProfile(user),
         child: Stack(
-          alignment: Alignment.centerLeft,
+          alignment: Alignment.center,
           children: <Widget>[
             Container(
-              margin: EdgeInsets.only(left: 20),
-              padding: EdgeInsets.symmetric(vertical: 16),
+              margin: EdgeInsets.symmetric(horizontal: 20),
               decoration: ShapeDecoration(
                 color: GSColors.darkBlue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(50)
                 )
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Container(
-                    child: Column(
-                      children: <Widget>[
-                        Text(
+              child: (
+                Center(
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.only(top: 10),
+                        child: Text(
                           '${user.firstName} ${user.lastName}',
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: 20
                           ),
                         ),
-                        Text(
-                          '${user.liftingType}',
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 20),
-                    child:IconButton(
-                      icon: Icon(
-                        Icons.remove_circle,
-                        color: Colors.red,
                       ),
-                      onPressed: () => _deletePressed(user.documentID),
-                    )
-                  )
-                ],
+                      Divider(height: 10,),
+                      Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        child: Text(
+                          '${user.liftingType}',
+                          style: TextStyle(
+                            color: Colors.white70
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               ),
             ),
-            Container(
-              margin: EdgeInsets.only(left: 4),
-              decoration: ShapeDecoration(
-                shadows: [BoxShadow(blurRadius: 2, color: GSColors.darkBlue)],
-                shape: CircleBorder(
-                  side: BorderSide(color: Colors.white, width: .5)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                decoration: ShapeDecoration(
+                  shadows: [BoxShadow(blurRadius: 2)],
+                  shape: CircleBorder(
+                    side: BorderSide(color: Colors.black, width: .25)
+                  )
+                ),
+                child: CircleAvatar(
+                  radius: 46,
+                  backgroundImage: CachedNetworkImageProvider(
+                    user.photoURL.isNotEmpty ? user.photoURL : Defaults.userPhoto
+                  ),
+                ),
+              )
+            ),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Container(
+                margin: EdgeInsets.only(right: 4),
+                child:IconButton(
+                  onPressed: () => _deletePressed(user.documentID),
+                  color: Colors.red,
+                  iconSize: 30,
+                  icon: Icon(Icons.cancel),
                 ),
               ),
-              child: CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL, errorListener: () => print('Failed to download')),
-                radius: 50,
-              ),
             ),
-          ]
+          ],
         ),
-        onTap: () => _buildBuddyProfile(user),
       ),
-    );  
+    );
   }
 
   void _buildBuddyProfile(User user) {
