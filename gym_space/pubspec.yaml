@@ -47,10 +47,11 @@ dev_dependencies:
     sdk: flutter
 
 flutter_icons:
-  android: "gymspace"
+  android: true
   ios: false
-  image_path: "lib/assets/logo2.png"
-  # image_path: "lib/assets/logo.png"
+  adaptive_icon_background: "lib/assets/background.png"
+  adaptive_icon_foreground: "lib/assets/logoclear.png"
+  image_path: "lib/assets/logo.png"
 
 
 # For information on the generic Dart part of this file, see the
@@ -69,6 +70,8 @@ flutter:
     - lib/assets/armshake.jpg
     - lib/assets/gymspacelogo.png
     - lib/assets/logo.png
+    - lib/assets/logoclear.png
+    - lib/assets/background.png
     - lib/assets/groupPhoto.png
     - lib/assets/userPhoto.png
   #  - images/a_dot_burr.jpeg
