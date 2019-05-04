@@ -49,7 +49,7 @@ class _SettingsState extends State<SettingsPage> {
   }
   Widget _buildAccount(){
     return Container(
-      height: 200,
+      padding: EdgeInsets.only(bottom: 10),
       margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       decoration: ShapeDecoration(
         color: Colors.white,

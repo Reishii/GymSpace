@@ -247,18 +247,25 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   group.startDate.isEmpty ? Container() :
-                  Text(
-                    'Start Date ${group.startDate}',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 10,
+                  Container(
+                    alignment: Alignment.bottomLeft,
+                    margin: EdgeInsets.only(bottom: 14),
+                    child: Text(
+                      'Start Date ${group.startDate}',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 10,
+                      ),
                     ),
                   ),
-                  FlatButton.icon(
-                    icon: Icon(Icons.thumb_up),
-                    textColor: Colors.white,
-                    label: Text('${group.likes.length} Likes', style: TextStyle(fontSize: 14)),
-                    onPressed: _likeGroup,
+                  Container(
+                    alignment: group.startDate.isEmpty ? Alignment.bottomCenter : Alignment.bottomCenter,
+                    child: FlatButton.icon(
+                      icon: Icon(Icons.thumb_up),
+                      textColor: Colors.white,
+                      label: Text('${group.likes.length} Likes', style: TextStyle(fontSize: 14)),
+                      onPressed: _likeGroup,
+                    )
                   ),
                   // Row(
                   //   children: <Widget>[
@@ -273,11 +280,15 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   //   ],
                   // ),
                   group.endDate.isEmpty ? Container() :
-                  Text(
-                    'End Date ${group.endDate}',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 10,
+                  Container(
+                    alignment: Alignment.bottomRight,
+                    margin: EdgeInsets.only(bottom: 14),
+                    child: Text(
+                      'End Date ${group.endDate}',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 10,
+                      ),
                     ),
                   ),
                 ],
