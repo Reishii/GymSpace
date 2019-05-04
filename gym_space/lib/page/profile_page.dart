@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/notification_page.dart';
 import 'package:GymSpace/page/message_thread_page.dart';
+import 'package:GymSpace/widgets/image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/logic/user.dart';
@@ -26,6 +27,8 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   bool _isFriend = false;
   User user;
+  Future<List<String>> _listFutureUser;
+  List<String> media = [];
 
   @override 
   void initState() {
@@ -34,6 +37,9 @@ class _ProfilePageState extends State<ProfilePage> {
     if (widget.user != null) {
       user = widget.user;
       user.buddies = user.buddies.toList();
+      user.media = user.media.toList();
+
+      _listFutureUser = DatabaseHelper.getUserMedia(user.documentID);
       _isFriend = user.buddies.contains(DatabaseHelper.currentUserID);
       return;
     }
@@ -72,7 +78,6 @@ class _ProfilePageState extends State<ProfilePage> {
         notify.sendNotifications('buddy', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}','buddy', '${currentUser.fcmToken}');
       });
     });
-
   
     setState(() {
       user.buddies.toList().add(DatabaseHelper.currentUserID);
@@ -523,7 +528,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   )
                 ),
                 Text(
-                  '200 shots',
+                  user.media.length.toString() + ' shots',
                   style: TextStyle(
                     letterSpacing: 1.2,
                     fontWeight: FontWeight.w300,
@@ -533,9 +538,53 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           Container( // photo gallery
+            margin: EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 10),
+            child: FutureBuilder(
+              future: _listFutureUser,
+              builder: (context, snapshot) {
+                if(!snapshot.hasData)
+                  return Container();
 
+                media = snapshot.data;
+                return GridView.builder(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  primary: false,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+                  itemCount: media.length,
+                  itemBuilder: (BuildContext context, int i) {
+
+                  return _buildMediaItem(media[i]);
+                  }
+                );
+              }
+            )
           ),
         ],
+      ),
+    );
+  }
+
+   Widget _buildMediaItem(String media) {
+    return InkWell(
+      onTap: () => Navigator.push(context, MaterialPageRoute<void> (
+          builder: (BuildContext context) {
+            ImageWidget(media, context, false);
+          },
+        )
+      ),
+      child: Container(
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: Image.network(media).image,
+            fit: BoxFit.cover
+          ),
+          border: Border.all(
+            color: GSColors.darkBlue,
+            width: 0.5,
+          )
+        ),
       ),
     );
   }

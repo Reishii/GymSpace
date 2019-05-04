@@ -1,12 +1,9 @@
 import 'dart:async';
 
-import 'package:GymSpace/logic/user.dart';
-import 'package:GymSpace/page/nutrition_page.dart';
 import 'package:GymSpace/widgets/image_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
-import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -14,13 +11,12 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 
 class MediaTab extends StatelessWidget {
   BuildContext context;
   String mediaUrl, profileImageUrl;
   List<String> media = [];
-  Future<List<String>> _listFutureUser = DatabaseHelper.getCurrentUserMedia();
+  Future<List<String>> _listFutureUser = DatabaseHelper.getUserMedia(DatabaseHelper.currentUserID);
 
   MediaTab(this.context, {Key key}) : super(key: key);
 
@@ -120,6 +116,7 @@ class MediaTab extends StatelessWidget {
 
           media = snapshot.data;
           return GridView.builder(
+            padding: EdgeInsets.all(15),
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
             primary: false,
@@ -137,22 +134,23 @@ class MediaTab extends StatelessWidget {
 
   Widget _buildMediaItem(String media) {
     return InkWell(
-      onTap: () => 
-        Navigator.push(context, MaterialPageRoute<void> (
+      onTap: () => Navigator.push(context, MaterialPageRoute<void> (
           builder: (BuildContext context) {
-            return ImageWidget(media, context);
-          }
-        )),
+            ImageWidget(media, context, true);
+          },
+        )
+      ),
       child: Container(
-        decoration: ShapeDecoration(
-          shape: CircleBorder(
-            side: BorderSide(color: GSColors.darkBlue, width: 1.2)
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: Image.network(media).image,
+            fit: BoxFit.cover
+          ),
+          border: Border.all(
+            color: GSColors.darkBlue,
+            width: 0.5,
           )
-        ),
-        child: CircleAvatar(
-          backgroundImage: CachedNetworkImageProvider(media, errorListener: () => print('Failed to download')),
-          backgroundColor: Colors.white,
-          radius: 80,
         ),
       ),
     );
@@ -165,9 +163,10 @@ class MediaTab extends StatelessWidget {
     
     if(tempImage != null) {
       uploadProfileFile(tempImage);   
+      return tempImage.uri.toString();
     }
 
-    return tempImage.uri.toString();
+    return tempImage.toString();
   }
 
   Future uploadProfileFile(File profileImage) async {
@@ -195,9 +194,10 @@ class MediaTab extends StatelessWidget {
     
     if(tempImage != null) {
       uploadMediaFile(tempImage);   
+      return tempImage.uri.toString();
     }
 
-    return tempImage.uri.toString();
+    return tempImage.toString();
   }
 
   Future uploadMediaFile(File mediaImage) async {
