@@ -85,8 +85,9 @@ class _MePageState extends State<MePage> {
                         )
                       ),
                       child: CircleAvatar(
-                        // backgroundImage: NetworkImage(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL),
-                        backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL, errorListener: () => print('Failed to download')),
+                        // backgroundImage: NetworkImage(user.photoURL.isEmpty ? Defaults.userPhoto : user.photoURL),
+                        backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL, errorListener: () => print('Failed to download')) 
+                        : AssetImage(Defaults.userPhoto),
                         backgroundColor: Colors.white,
                         radius: 70,
                       ),
@@ -608,8 +609,8 @@ class _MePageState extends State<MePage> {
   Widget _buildWeightInfo(BuildContext context) {
     // return InkWell(
       return Container(
-        height: 80,
         margin: EdgeInsets.only(top: 30),
+        // padding: EdgeInsets.symmetric(vertical: 20),
         decoration: ShapeDecoration(
           color: GSColors.darkBlue,
           shape: RoundedRectangleBorder(
@@ -622,7 +623,6 @@ class _MePageState extends State<MePage> {
         child: InkWell(
         onTap: () => _updateWeightInfo(context),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             _buildStartingWeight(),
             _buildCurrentWeight(),
@@ -639,6 +639,7 @@ class _MePageState extends State<MePage> {
           flex: 4,
           child: Container(
             margin: EdgeInsets.only(left: 20),
+            padding: EdgeInsets.symmetric(vertical: 10),
             alignment: Alignment.centerLeft,
             child: Text(
               "Current Weight",
@@ -729,6 +730,7 @@ class _MePageState extends State<MePage> {
           flex: 4,
           child: Container(
             margin: EdgeInsets.only(left: 20),
+            padding: EdgeInsets.only(top: 10),
             alignment: Alignment.centerLeft,
             child: Text(
               "Starting Weight",

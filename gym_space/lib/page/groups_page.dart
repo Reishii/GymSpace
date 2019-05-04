@@ -1,10 +1,10 @@
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/group.dart';
 import 'package:GymSpace/page/group_profile_page.dart';
-import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/search_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:GymSpace/widgets/page_header.dart';
@@ -124,7 +124,7 @@ class _GroupsPageState extends State<GroupsPage> {
 
   Widget _buildBody(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10),
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       // color: Colors.white
       child: FutureBuilder(
         future: DatabaseHelper.getCurrentUserGroups(),
@@ -133,8 +133,13 @@ class _GroupsPageState extends State<GroupsPage> {
             return Container();
           }
           
-          return ListView.builder(
+          return GridView.builder(
             itemCount: snapshot.data.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 4,
+              crossAxisSpacing: 4,
+            ),
             itemBuilder: (context, i) {
               return StreamBuilder(
                 stream: DatabaseHelper.getGroupStreamSnapshot(snapshot.data[i]),
@@ -144,7 +149,7 @@ class _GroupsPageState extends State<GroupsPage> {
                   }
                   Group joinedGroup = Group.jsonToGroup(groupSnap.data.data);
                   joinedGroup.documentID = groupSnap.data.documentID;
-                  return _buildGroupItem(joinedGroup, context);
+                  return _buildGroupItem(joinedGroup);
                 },
               );
             },
@@ -154,145 +159,71 @@ class _GroupsPageState extends State<GroupsPage> {
     );
   }
 
-  Widget _buildGroupItem(Group group, context) {
+  Widget _buildGroupItem(Group group) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      decoration: ShapeDecoration(
-        color: GSColors.darkBlue,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(100),
-        )
-      ),
       child: InkWell(
-        child: Container(
-          margin: EdgeInsets.symmetric(vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Text( // name
-                group.name,
-                style: TextStyle(
-                  color: Colors.white,
-                  letterSpacing: 1.4,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-              group.members.isNotEmpty ? _buildMembersList(group.members) :
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 10),
-                child: Text(
-                  'Be the first to join this group!',
-                  style: TextStyle(
-                    color: Colors.white
-                  ),
-                )
-              ),
-              Container(
-                child: FutureBuilder(
-                  future: DatabaseHelper.getUserSnapshot(group.admin),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return Container();
-                    }
-
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          'Instructed by ${snapshot.data['firstName']} ${snapshot.data['lastName']}  ',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12
-                          ),
-                        ),
-                        Container(
-                          child: MaterialButton(
-                            child: CircleAvatar(
-                              backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isNotEmpty ? snapshot.data['photoURL'] : Defaults.photoURL),
-                              radius: 10,
-                            ),
-                            onPressed: () => Navigator.push(context, MaterialPageRoute(
-                              builder: (context) => ProfilePage(forUserID: snapshot.data.documentID,))
-                            ),
-                          ),
-                        )
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
         onTap: () => Navigator.push(context, MaterialPageRoute(
             builder: (context) => GroupProfilePage(group: group) 
           )
         ),
-      ),
-    );
-  }
-
-  Widget _buildMembersList(List<String> members) {
-    List<Widget> memberIcons = List();
-    for(int i = 0; i < members.length; i++) {
-      memberIcons.add(
-        FutureBuilder(
-          future: DatabaseHelper.getUserSnapshot(members[i]),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return Container();
-            }
-            
-            return Positioned(
-                left: (30.0 * i),
-                child: Container(
-                  margin: EdgeInsets.only(left: 20),
-                  decoration: ShapeDecoration(
-                    shape: CircleBorder(
-                    side: BorderSide(color: Colors.white, width: 1.5),
-                  )
-                ),
-                child: CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(snapshot.data['photoURL'].isEmpty ? Defaults.photoURL : snapshot.data['photoURL']),
-                  radius: 20,
-                ),
-              ),
-            );
-          }
-        ),
-      );
-
-      if (i == 8) {
-        break;
-      }
-    }
-
-    if (members.length > 8) {
-      memberIcons.add(
-        Positioned(
-          right: 20,
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
           child: Container(
-            child: CircleAvatar(
-              backgroundColor: GSColors.purple,
-              radius: 20 + 1.5,
-              child: Text(
-                '+37',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+            decoration: ShapeDecoration(
+              image: DecorationImage(
+                image: group.photoURL.isNotEmpty ? CachedNetworkImageProvider(group.photoURL)
+                : AssetImage(Defaults.groupPhoto),
+                fit: BoxFit.cover,
               ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              )
+            ),
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: <Widget>[
+                Container(
+                  padding: EdgeInsets.all(10),
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  decoration: ShapeDecoration(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)
+                    )
+                  ),
+                  child: Text(
+                    group.name,
+                    softWrap: true,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.bold,
+                      // letterSpacing: 1.2
+                    ),
+                  ),
+                ),
+                // Container(
+                //   alignment: Alignment.topRight,
+                //   child: Container(
+                //     constraints: BoxConstraints.tight(Size.fromRadius(14)),
+                //     decoration: ShapeDecoration(
+                //       color: Colors.red,
+                //       shape: CircleBorder(),
+                //     ),
+                //     child: InkWell(
+                //       child: Icon(Icons.cancel, color: Colors.white,),
+                //       onTap: () {},
+                //     ),
+                //   )
+                // )
+              ],
             ),
           ),
-        )
-      );
-    }
-
-    return Container(
-      margin: EdgeInsets.only(left: 30, right: 30, top: 10),
-      height: 50,
-      child: Stack(
-        children: memberIcons,
+        ),
       ),
     );
   }

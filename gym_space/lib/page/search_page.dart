@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/global.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 enum SearchType {user, group, workoutplan}
 
@@ -211,7 +210,7 @@ class _SearchPageState extends State<SearchPage> {
                 ),
               ),
               child: CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL, errorListener: () => print('Failed to download')),
+                backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.userPhoto : user.photoURL, errorListener: () => print('Failed to download')),
                 radius: 50,
               ),
             ),
@@ -251,6 +250,7 @@ class _SearchPageState extends State<SearchPage> {
            Container(
             // color: Colors.red,
             child: GridView.count(
+              physics: ScrollPhysics(),
               shrinkWrap: true,
               crossAxisCount: 2,
               children: _buildAllGroups(),
@@ -336,9 +336,8 @@ class _SearchPageState extends State<SearchPage> {
           child: Container(
             decoration: ShapeDecoration(
               image: DecorationImage(
-                image: CachedNetworkImageProvider(
-                  group.photoURL.isNotEmpty ? group.photoURL : Defaults.photoURL,
-                ),
+                image: group.photoURL.isNotEmpty ? CachedNetworkImageProvider(group.photoURL)
+                : AssetImage(Defaults.groupPhoto),
                 fit: BoxFit.cover,
               ),
               shape: RoundedRectangleBorder(
@@ -450,16 +449,15 @@ class _GroupInfoWidgetState extends State<GroupInfoWidget> {
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(
-                    Defaults.photoURL,
+                  backgroundImage: AssetImage(
+                    Defaults.userPhoto,
                   )
                 );
               }
               
               return CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(
-                  snapshot.data['photoURL'].isEmpty ? Defaults.photoURL : snapshot.data['photoURL'],
-                )
+                backgroundImage: snapshot.data['photoURL'].isNotEmpty ? CachedNetworkImageProvider(snapshot.data['photoURL'])
+                : AssetImage(Defaults.userPhoto),
               );
             },
           ),
@@ -477,22 +475,20 @@ class _GroupInfoWidgetState extends State<GroupInfoWidget> {
               borderRadius: BorderRadius.circular(30),
             ),
             icon: Icon(
-              _joined ? FontAwesomeIcons.doorOpen: Icons.add,
+              Icons.subdirectory_arrow_right,
               size: _joined ? 16 : 22,
               color: Colors.white,
             ), 
             label: Text(
-              _joined ? 'Go' : 'Join',
+              'View',
               style: TextStyle(
                 color: Colors.white
               ),
             ),
             onPressed: () {
-              if (_joined) {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => GroupProfilePage(group: group)
-                ));
-              }
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => GroupProfilePage(group: group)
+              ));
             },
           )
         )

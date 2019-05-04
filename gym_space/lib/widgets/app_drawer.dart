@@ -54,14 +54,12 @@ class _AppDrawerState extends State<AppDrawer> {
                     if (!snapshot.hasData) {
                       return CircleAvatar(
                         radius: 40,
-                        backgroundImage: CachedNetworkImageProvider(Defaults.photoURL),
+                        backgroundImage: AssetImage(Defaults.userPhoto),
                       );
                     }
 
                     User user = User.jsonToUser(snapshot.data.data);
                     user.documentID = snapshot.data.documentID;
-
-                    String photoURL = user.photoURL.isNotEmpty ? user.photoURL : Defaults.photoURL;
 
                     return Container(
                       decoration: ShapeDecoration(
@@ -72,9 +70,10 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                       child: InkWell(
                         child: CircleAvatar(
-                          backgroundColor: Colors.transparent,
+                          backgroundColor: Colors.white,
                           radius: 70,
-                          backgroundImage: CachedNetworkImageProvider(photoURL),
+                          backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
+                            : AssetImage(Defaults.userPhoto),
                         ),
                         onTap: () => Navigator.push(context, MaterialPageRoute(
                           builder: (context) => ProfilePage.fromUser(user)
