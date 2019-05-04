@@ -201,12 +201,12 @@ class _BuddyPageState extends State<BuddyPage> {
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 20),
                     child:IconButton(
-                    icon: Icon(
-                      Icons.remove_circle,
-                      color: Colors.red,
-                    ),
-                    onPressed: () => _deletePressed(user.documentID),
-                  )
+                      icon: Icon(
+                        Icons.remove_circle,
+                        color: Colors.red,
+                      ),
+                      onPressed: () => _deletePressed(user.documentID),
+                    )
                   )
                 ],
               ),

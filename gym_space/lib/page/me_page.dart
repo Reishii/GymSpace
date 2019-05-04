@@ -85,6 +85,7 @@ class _MePageState extends State<MePage> {
                         )
                       ),
                       child: CircleAvatar(
+                        // backgroundImage: NetworkImage(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL),
                         backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.photoURL : user.photoURL, errorListener: () => print('Failed to download')),
                         backgroundColor: Colors.white,
                         radius: 70,
