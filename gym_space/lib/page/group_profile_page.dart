@@ -18,7 +18,7 @@ import 'package:image_picker/image_picker.dart';
 
 
 class GroupProfilePage extends StatefulWidget {
-  Group group;
+  final Group group;
 
   GroupProfilePage({
     this.group,
@@ -137,7 +137,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
             _isEditing = false;
           });
         } else {
-          Navigator.pop(context);
+          return Future.value(true);
         }
       },
       child: Scaffold(
