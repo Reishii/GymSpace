@@ -69,6 +69,8 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
     Firestore.instance.collection('users').document(currentUserID).updateData({'joinedGroups': FieldValue.arrayUnion([group.documentID])})
       .then((_) => setState(() {
         _joined = true;
+         group.members = group.members.toList();
+
       }));  
 
   }
@@ -77,8 +79,9 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
     Firestore.instance.collection('users').document(currentUserID).updateData({'joinedGroups': FieldValue.arrayRemove([group.documentID])})
       .then((_) => setState(() {
         // group.members.remove(currentUserID);
+         _currentTab = 0;
         group.members = group.members.toList();
-group.members.remove(currentUserID);
+        group.members.remove(currentUserID);
         _joined = false;
       }));
   }
@@ -1040,7 +1043,7 @@ Future<void> addNewMemberToWeeklyChallenges() async {
 
   Firestore.instance.collection('groups').document(group.documentID).updateData(
       {'challenges' : challengeMap}
-  );
+  ).then((_) => setState);
 }
 
 
@@ -1230,7 +1233,7 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
                           ),
                           child: CircleAvatar(
                             backgroundImage: CachedNetworkImageProvider(
-                              memberPointsList[j]['avatar'].isEmpty ? Defaults.photoURL : memberPointsList[j]['avatar']
+                              memberPointsList[j]['avatar'].isEmpty ? Defaults.userPhoto : memberPointsList[j]['avatar']
                               ),
                               radius: 20,
                           ),
