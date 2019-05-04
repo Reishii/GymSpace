@@ -1,7 +1,6 @@
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/group.dart';
 import 'package:GymSpace/page/group_profile_page.dart';
-import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/search_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -225,71 +224,6 @@ class _GroupsPageState extends State<GroupsPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildMembersList(List<String> members) {
-    List<Widget> memberIcons = List();
-    for(int i = 0; i < members.length; i++) {
-      memberIcons.add(
-        FutureBuilder(
-          future: DatabaseHelper.getUserSnapshot(members[i]),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return Container();
-            }
-            
-            return Positioned(
-                left: (30.0 * i),
-                child: Container(
-                  margin: EdgeInsets.only(left: 20),
-                  decoration: ShapeDecoration(
-                    shape: CircleBorder(
-                    side: BorderSide(color: Colors.white, width: 1.5),
-                  )
-                ),
-                child: CircleAvatar(
-                  backgroundImage: snapshot.data['photoURL'].isNotEmpty ? CachedNetworkImageProvider(snapshot.data['photoURL'])
-                  : AssetImage(Defaults.userPhoto),
-                  radius: 20,
-                ),
-              ),
-            );
-          }
-        ),
-      );
-
-      if (i == 8) {
-        break;
-      }
-    }
-
-    if (members.length > 8) {
-      memberIcons.add(
-        Positioned(
-          right: 20,
-          child: Container(
-            child: CircleAvatar(
-              backgroundColor: GSColors.purple,
-              radius: 20 + 1.5,
-              child: Text(
-                '+37',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        )
-      );
-    }
-
-    return Container(
-      margin: EdgeInsets.only(left: 30, right: 30, top: 10),
-      height: 50,
-      child: Stack(
-        children: memberIcons,
       ),
     );
   }

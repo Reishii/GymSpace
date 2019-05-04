@@ -63,23 +63,31 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
   void _joinGroup() {
 
-      addNewMemberToWeeklyChallenges();
+    addNewMemberToWeeklyChallenges();
     Firestore.instance.collection('groups').document(group.documentID).updateData({'members' : FieldValue.arrayUnion([DatabaseHelper.currentUserID])});
 
     Firestore.instance.collection('users').document(currentUserID).updateData({'joinedGroups': FieldValue.arrayUnion([group.documentID])})
-      .then((_) => setState(() {
-        _joined = true;
-         group.members = group.members.toList();
-
-      }));  
+      .then((ds) async {
+        DocumentSnapshot userSnapshot = await DatabaseHelper.getUserSnapshot(currentUserID);
+        setState(() {
+          User user = User.jsonToUser(userSnapshot.data);
+          user.documentID = userSnapshot.documentID;
+          members.add(user);
+          _joined = true;
+          group.members = group.members.toList();
+          group.members.add(currentUserID);
+        });
+      });  
 
   }
 
   void _leaveGroup() {
+    Firestore.instance.collection('groups').document(group.documentID).updateData({'members' : FieldValue.arrayRemove([DatabaseHelper.currentUserID])});
+
     Firestore.instance.collection('users').document(currentUserID).updateData({'joinedGroups': FieldValue.arrayRemove([group.documentID])})
       .then((_) => setState(() {
-        // group.members.remove(currentUserID);
-         _currentTab = 0;
+        _currentTab = 0;
+        members.removeWhere((user) => user.documentID == currentUserID);
         group.members = group.members.toList();
         group.members.remove(currentUserID);
         _joined = false;
@@ -184,7 +192,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         : _joined ? Container(
           margin: EdgeInsets.all(10),
           child: FlatButton.icon(
-            icon: Icon(Icons.add),
+            icon: Icon(Icons.subdirectory_arrow_left),
             label: Text('Leave'),
             textColor: Colors.white,
             color: GSColors.red,
@@ -476,7 +484,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         children: <Widget>[
           _buildAbout(),
           _buildMembersList(),
-          _buildWorkouts(),
+          _joined ? _buildWorkouts() : Container(),
         ],
       )
     );
@@ -491,33 +499,36 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         color: GSColors.darkBlue,
         // shadows: [BoxShadow(blurRadius: 1)]
       ),
-      child: Column(
-        children: <Widget>[
-          Container(
-            margin: EdgeInsets.only(top: 20),
-            child: Text(
-              'About',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 26,
-                letterSpacing: 1.2,
-                fontWeight: FontWeight.bold,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(top: 20),
+              child: Text(
+                'About',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 26,
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-            child: Text(
-              group.bio,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                height: 1.5,
+            Container(
+              margin: EdgeInsets.only(top: 10, bottom: 20),
+              child: Text(
+                group.bio,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  height: 1.5,
+                ),
               ),
-            ),
-          )
-        ],
-      ),
+            )
+          ],
+        ),
+      )
     );
   }
 
@@ -1035,6 +1046,8 @@ Future<void> addNewMemberToWeeklyChallenges() async {
   DocumentSnapshot groupChallenge = await Firestore.instance.collection('groups').document(group.documentID).get();
   String _challengeKey = getChallengeKey();
   Map challengeMap = groupChallenge.data['challenges'];
+  if (challengeMap[_challengeKey] == null) 
+    return;
 
   challengeMap[_challengeKey].cast<String, dynamic>().forEach((title, value)
   {
