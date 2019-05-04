@@ -107,7 +107,7 @@ class MediaTab extends StatelessWidget {
 
   Widget _buildMediaList(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 75, left: 10, right: 10, bottom: 10),
+      margin: EdgeInsets.only(top: 50, left: 10, right: 10, bottom: 10),
       child: StreamBuilder(
         stream: _listFutureUser.asStream(),
         builder: (context, snapshot) {
@@ -136,7 +136,7 @@ class MediaTab extends StatelessWidget {
     return InkWell(
       onTap: () => Navigator.push(context, MaterialPageRoute<void> (
           builder: (BuildContext context) {
-            ImageWidget(media, context, true);
+            return ImageWidget(media, context, true);
           },
         )
       ),

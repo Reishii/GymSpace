@@ -83,9 +83,8 @@ class _NutritionPage extends State<NutritionPage> {
   Widget _buildWeeklyLabel() {
     _setWeek();
     return Container(
-      margin: EdgeInsets.only(top: 5),
+      margin: EdgeInsets.only(top: 15),
       height: 40,
-      width: 40,
       child: Row(
         children: <Widget>[
           Expanded(
@@ -261,15 +260,14 @@ class _NutritionPage extends State<NutritionPage> {
             // Highlight current day
             header: _highlightDay == dayNum ? Container(
               margin: EdgeInsets.only(bottom: 3),
-              width: 20,
-              height: 20,
               decoration: ShapeDecoration(
                 color: GSColors.lightBlue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Center(
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 child: Text(
                 dayLetter,
                 style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
@@ -308,15 +306,14 @@ class _NutritionPage extends State<NutritionPage> {
 
             header: _highlightDay == dayNum ? Container(
               margin: EdgeInsets.only(bottom: 3),
-              width: 20,
-              height: 20,
               decoration: ShapeDecoration(
                 color: GSColors.lightBlue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Center(
+               child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 child: Text(
                 dayLetter,
                 style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
@@ -353,15 +350,14 @@ class _NutritionPage extends State<NutritionPage> {
             backgroundColor: GSColors.darkCloud,
             header: _highlightDay == dayNum ? Container(
               margin: EdgeInsets.only(bottom: 3),
-              width: 20,
-              height: 20,
               decoration: ShapeDecoration(
                 color: GSColors.lightBlue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Center(
+               child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 child: Text(
                 dayLetter,
                 style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
@@ -399,15 +395,14 @@ class _NutritionPage extends State<NutritionPage> {
             backgroundColor: GSColors.darkCloud,
             header: _highlightDay == dayNum ? Container(
               margin: EdgeInsets.only(bottom: 3),
-              width: 20,
-              height: 20,
               decoration: ShapeDecoration(
                 color: GSColors.lightBlue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Center(
+               child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 child: Text(
                 dayLetter,
                 style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
@@ -439,10 +434,10 @@ class _NutritionPage extends State<NutritionPage> {
       child: Row(
         children: <Widget>[ 
           Expanded(
-            flex: 2,
-            child: Container(
-              height: 40,
+            flex: 3,
               child: Container(
+                height: 40,
+                margin: EdgeInsets.symmetric(vertical: 6),
                 alignment: Alignment.center,
                 child: Text(
                   //day.weekday.toString(),
@@ -466,7 +461,6 @@ class _NutritionPage extends State<NutritionPage> {
                 ),
               ),
             ),
-          ),
           Expanded(
             flex: 1,
             child: Container(),
@@ -508,7 +502,6 @@ class _NutritionPage extends State<NutritionPage> {
             Expanded(
               flex: 1,
               child: Container(
-                height: 180,
                 child: Container(
                   child: StreamBuilder(
                     stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
