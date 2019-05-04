@@ -54,7 +54,10 @@ class ImageWidget extends StatelessWidget {
             textColor: GSColors.green,
           ),
           FlatButton(
-            onPressed: () => _deletePhoto(),
+            onPressed: () { 
+              _deletePhoto();
+              Navigator.pop(context);
+            },
             child: Text('Yes'),
             textColor: GSColors.green,
           ),

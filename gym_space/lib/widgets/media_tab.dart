@@ -97,6 +97,7 @@ class MediaTab extends StatelessWidget {
                 color: Colors.white,
                 onPressed: () {
                   getMediaImage();
+                  MediaTab(context);
                 },
               ),
             ),
