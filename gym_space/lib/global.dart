@@ -108,4 +108,8 @@ class DatabaseHelper {
   static Stream getGroupStreamSnapshot(String groupID) {
     return Firestore.instance.collection('groups').document(groupID).snapshots();
   }
+
+  static Future<void> updateGroup(String groupID, Map<String, dynamic> data) async {
+    return Firestore.instance.collection('groups').document(groupID).updateData(data);
+  }
 }

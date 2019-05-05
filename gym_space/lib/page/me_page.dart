@@ -356,13 +356,13 @@ class _MePageState extends State<MePage> {
                           radius: 130.0,
                           lineWidth: 17,
                           percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal'],
-                          progressColor: GSColors.lightBlue,
+                          progressColor: GSColors.green,
                           backgroundColor: GSColors.darkCloud,
                           circularStrokeCap: CircularStrokeCap.round,
                           footer:   
                             Text(
                               "Calories Consumed",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                              style: TextStyle(fontSize: 16.0),
                             ),
                           center: 
                             Text(
@@ -672,51 +672,41 @@ class _MePageState extends State<MePage> {
           flex: 1,
           child: Container(
             alignment: Alignment.center,
-            //child: Row(
-              //children: <Widget>[
+            child: FutureBuilder(
+              future: _futureUser,
+              builder: (context, snapshot) {
+                double weightLost = snapshot.hasData ? (snapshot.data['startingWeight'] - snapshot.data['currentWeight']) : 0;
                 
-                // Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
-                child: FutureBuilder(
-                  future: _futureUser,
-                  builder: (context, snapshot) {
-                    double weightLost = snapshot.hasData ? (snapshot.data['startingWeight'] - snapshot.data['currentWeight']) : 0;
-                    
-                  if(weightLost < 0)
-                    return Row(
-                      children: <Widget>[
-                        Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
-                        Text(
+                if(weightLost > 0)
+                  return Row(
+                    children: <Widget>[
+                      Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
+                      Text(
+                        weightLost.toStringAsFixed(2),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      )
+                    ],
+                  );
+                else if (weightLost < 0) {
+                  return Row(
+                    children: <Widget>[
+                      Icon(FontAwesomeIcons.caretUp, color: GSColors.green, size: 16),
+                      Text(
                           weightLost.toStringAsFixed(2),
                           style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                         ),
                       )
-                      ],
-                    );
-                  else if(weightLost > 0)
-                 {
-                    return Row(
-                      children: <Widget>[
-                        Icon(FontAwesomeIcons.caretUp, color: GSColors.green, size: 16),
-                        Text(
-                          weightLost.toStringAsFixed(2),
-                          style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
-                      )
-                      ],
-                    );
-                 }
-                 else
-                 {
-                   return Text(" ");
-                 }
-                  }
-                ),
-              //],
-            //)
+                    ],
+                  );
+                } else 
+                  return Container();
+              }
+            ),
           ),
         ),
       ],

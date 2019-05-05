@@ -60,13 +60,16 @@ class _GroupsPageState extends State<GroupsPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          contentPadding: EdgeInsets.only(left: 24, right: 24, top: 16, bottom: 10),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
           content: Container(
-            width: double.maxFinite,
-            child: ListView(
-              children: <Widget>[
-                _buildForm(newGroup),
-              ],
-            ),
+            // width: double.maxFinite,
+            height: 170,
+            child: Center(
+              child: _buildForm(newGroup),
+            )
           ),
           actions: <Widget>[
             FlatButton(
@@ -248,26 +251,6 @@ class _GroupsPageState extends State<GroupsPage> {
             ),
             onSaved: (bio) => group.bio = bio,
             validator: (text) => text.isEmpty ? 'Please enter a group description' : null,
-          ),
-          DateTimePickerFormField(
-            dateOnly: true,
-            format: DateFormat('yyyy-MM-dd'),
-            decoration: InputDecoration(
-              labelText: 'Start Date (optional)',
-            ),
-            // onChanged: (text) => print(text),
-            onSaved: (startDate) => group.startDate = startDate != null ? startDate.toString() : '',
-            // validator: ,
-          ),
-          DateTimePickerFormField(
-            dateOnly: true,
-            format: DateFormat('yyyy-MM-dd'),
-            decoration: InputDecoration(
-              labelText: 'End Date (optional)',
-            ),
-            // onChanged: (text) => print(text),
-            onSaved: (endDate) => group.endDate = endDate != null ? endDate.toString() : '',
-            // validator: ,
           ),
         ],
       ),
