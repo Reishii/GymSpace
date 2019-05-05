@@ -36,7 +36,8 @@ dependencies:
   percent_indicator: ^1.0.16
   datetime_picker_formfield: ^0.1.8
   flutter_launcher_icons: ^0.7.0
-
+  liquid_pull_to_refresh: ^1.1.0
+  image_form_field: ^0.0.2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

@@ -55,10 +55,12 @@ class DatabaseHelper {
     String searchName = lowerName.replaceRange(0, 1, name[0].toUpperCase());
 
     Query firstNameQuery = Firestore.instance.collection('users')
-      .where('firstName', isEqualTo: searchName);
+      .where('firstName', isGreaterThanOrEqualTo: searchName)
+      .where('firstName', isLessThan: searchName + ' ');
 
     Query lastNameQuery = Firestore.instance.collection('users')
-      .where('lastName', isEqualTo: searchName);
+      .where('lastName', isGreaterThanOrEqualTo: searchName)
+      .where('lastName', isLessThan: searchName + '');
     
     QuerySnapshot firstNameQuerySnap = await firstNameQuery.getDocuments();
     QuerySnapshot lastNameQuerySnap = await lastNameQuery.getDocuments();

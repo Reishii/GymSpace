@@ -191,9 +191,9 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
   }
 
   Widget _buildWorkoutPlansList() {
-    return FutureBuilder(
+    return StreamBuilder(
       // stream: _futureUser.asStream(),
-      future: DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID),
+      stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
       builder: (context, snapshot) {
          var userWorkoutPlansIDs = snapshot.hasData && snapshot.data['workoutPlans'] != null 
           ? snapshot.data['workoutPlans'] : List();
@@ -203,7 +203,6 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
           itemCount: userWorkoutPlansIDs.length,
           itemBuilder: (BuildContext context, int i) {
             return FutureBuilder(
-              // stream: DatabaseHelper.getWorkoutPlanSnapshot(userWorkoutPlansIDs[i]).asStream(),
               future: DatabaseHelper.getWorkoutPlanSnapshot(userWorkoutPlansIDs[i]),
               builder: (context, snapshot) {
                 return snapshot.hasData
@@ -280,7 +279,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
       onTap: () { _planTapped(context);},
       onLongPress: () { _planLongPressed(context);},
       child: Container(
-        height: 200,
+        padding: EdgeInsets.symmetric(vertical: 20),
         margin: EdgeInsets.symmetric(vertical: 16),
         decoration: ShapeDecoration(
           color: Colors.white,
@@ -292,7 +291,6 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
-              margin: EdgeInsets.only(top: 20),
               child: Center(
                 child: Text(
                   workoutPlan.name,
