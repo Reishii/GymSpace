@@ -66,7 +66,7 @@ class _MePageState extends State<MePage> {
                 gradient: LinearGradient(
                   begin: FractionalOffset.topCenter,
                   end: FractionalOffset.bottomCenter,
-                  stops: [.25, .25, .25],
+                  stops: [.25, .3, .25],
                   colors: [GSColors.darkBlue, Colors.white, GSColors.babyPowder],
                 ),
                 shape: RoundedRectangleBorder(

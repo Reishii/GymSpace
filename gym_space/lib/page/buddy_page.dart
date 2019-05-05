@@ -113,18 +113,84 @@ class _BuddyPageState extends State<BuddyPage> {
   }
 
   Widget _buildBody() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-      decoration: ShapeDecoration(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50),
+    return Stack(
+      children: <Widget> [
+        // Background
+        Container(
+          margin: EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 50),
+          decoration: ShapeDecoration(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+          ),
+          child: Container(
+            margin: EdgeInsets.all(16),
+            child: _buildBuddyList(),
+          )
         ),
-      ),
-      child: Container(
-        margin: EdgeInsets.all(20),
-        child: _buildBuddyList(),
-      )
+
+        // Number of buddies label
+        Container(
+          padding: EdgeInsets.only(bottom: 515, top: 10),
+          alignment: Alignment.topCenter,
+          child: Row(
+            children: <Widget>[ 
+              Expanded(
+                flex: 1,
+                child: Container(),
+              ),
+              Expanded(
+                flex: 2,
+                child: Container(
+                  child: Container(
+                    alignment: Alignment.center,
+                    decoration: ShapeDecoration(
+                      color: GSColors.purple,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          topRight: Radius.circular(20)
+                        )
+                      )
+                    ),
+
+                    // Get current number of buddies
+                    child: Row(
+                      children: <Widget> [
+                        Padding(padding: EdgeInsets.only(left: 35)),
+                        Icon(Icons.group, color: Colors.white),
+                        Padding(padding: EdgeInsets.only(left: 15)),
+                        StreamBuilder(
+                          stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                          builder: (context, snapshot) {
+                            if(!snapshot.hasData) 
+                              return Container();
+                                  
+                            buddies = snapshot.data.data['buddies'].cast<String>();
+                            return Text(
+                            buddies.length.toString() + " Buddies",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              letterSpacing: 1.2,
+                              fontWeight: FontWeight.w700,
+                            ));
+                          }
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Container(),
+              ),
+            ],
+          ),
+        ),
+      ]
     );
   }
 
@@ -156,39 +222,39 @@ class _BuddyPageState extends State<BuddyPage> {
     );
   }
 
+  // Buddy container
   Widget _buildBuddy(User user) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
+      margin: EdgeInsets.symmetric(vertical: 7.5),
       child: InkWell(
         onTap: () => _buildBuddyProfile(user),
         child: Stack(
           alignment: Alignment.center,
           children: <Widget>[
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 20),
               decoration: ShapeDecoration(
                 color: GSColors.darkBlue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(50)
                 )
               ),
-              child: (
+              child: 
                 Center(
                   child: Column(
                     children: <Widget>[
                       Container(
-                        margin: EdgeInsets.only(top: 10),
+                        margin: EdgeInsets.only(top: 14, left: 30),
                         child: Text(
                           '${user.firstName} ${user.lastName}',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20
+                            fontSize: 24
                           ),
                         ),
                       ),
-                      Divider(height: 10,),
+                      Divider(height: 5),
                       Container(
-                        margin: EdgeInsets.only(bottom: 10),
+                        margin: EdgeInsets.only(bottom: 14, left: 30),
                         child: Text(
                           '${user.liftingType}',
                           style: TextStyle(
@@ -199,7 +265,6 @@ class _BuddyPageState extends State<BuddyPage> {
                     ],
                   ),
                 )
-              ),
             ),
             Align(
               alignment: Alignment.centerLeft,
