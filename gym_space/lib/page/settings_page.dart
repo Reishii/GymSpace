@@ -97,20 +97,21 @@ class _SettingsState extends State<SettingsPage> {
 
   Future _updateInfoToDB(String updateKey) async {
     String lowercaseKey = updateKey.toLowerCase();
-    if(lowercaseKey == 'name') {
+    // UPDATING NAME
+    if(lowercaseKey == 'name') {  
       List<String> nameInfo = _newInfo.split(" ");
 
       Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
         .updateData({'firstName' : nameInfo[0]});
-      
       Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
         .updateData({'lastName' : nameInfo[1]});
     } else 
+    // UPDATING AGE SCENARIO
     if (lowercaseKey == 'age') {
       int newAge = int.parse(_newInfo);
       Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
         .updateData({lowercaseKey : newAge});
-    } else {
+    } else {  
       Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
         .updateData({lowercaseKey : _newInfo});
     }
@@ -120,6 +121,7 @@ class _SettingsState extends State<SettingsPage> {
     return Form(
       key: _formKey,
       child: TextFormField( // name
+            
             decoration: InputDecoration(
               icon: Icon(
                 FontAwesomeIcons.angleRight,
