@@ -18,7 +18,7 @@ class User {
   List<Group> joinedGroups = List();
   Map diet = Map();
   List<WorkoutPlan> workoutPlans = List();
-  List<int> challengeStatus = List();
+  Map challengeStatus = Map();
   int caloricGoal = 0;
   String fcmToken ="";
   bool private = true;
@@ -70,7 +70,7 @@ class User {
       'joinedGroups': joinedGroups == null ? [] : joinedGroups,
       'diet': diet == null ? Map() : diet,
       'workoutPlans': workoutPlans == null ? [] : workoutPlans,
-      'challengeStatus' : challengeStatus == null ? [0, 0, 0] : challengeStatus,
+      'challengeStatus' : challengeStatus == null ? Map() : challengeStatus,
       'caloricGoal' : caloricGoal,
       'fcmToken' : fcmToken,
       'private' : private,
@@ -100,7 +100,7 @@ class User {
       // joinedGroups: data['joinedGroups'],
       diet: data['diet'],
       // workoutPlans: {}}
-      challengeStatus: data['challengeStatus'].cast<int>(),
+      challengeStatus: data['challengeStatus'],
       caloricGoal: data['caloricGoal'].round(),
       fcmToken: data['fcmToken'],
       private: data['private'],
