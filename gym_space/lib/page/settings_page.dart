@@ -9,6 +9,7 @@ import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SettingsPage extends StatefulWidget {
   
@@ -17,8 +18,9 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsState extends State<SettingsPage> {
-  
-  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+  String _newInfo = "";
 
   @override
   Widget build(BuildContext context) {
@@ -48,15 +50,13 @@ class _SettingsState extends State<SettingsPage> {
                 margin: EdgeInsets.symmetric(horizontal: 20),
                 child: Divider(
                   color: GSColors.darkBlue,
-                  height: 1,
                 ),
               ),
               SafeArea(
                 child: Container(
                   margin: EdgeInsets.only(left: 16, right: 40),
                   width: double.maxFinite,
-                  child: Container(),
-                  //_buildForm(newWorkoutPlan),
+                  child: _buildForm(infoKey, update),
                 ),
               ),
               Row(
@@ -67,22 +67,22 @@ class _SettingsState extends State<SettingsPage> {
                       child: Text("Cancel"),
                       onPressed: () {
                         print("Resetting form");
-                        //_formKey.currentState.reset();
+                        _formKey.currentState.reset();
                         Navigator.pop(context);
                       },
                     ),
                   ),
                   SimpleDialogOption(
                     child: MaterialButton(
-                      child: Text("Add"),
+                      child: Text("Update"),
                       onPressed: () {
-                        // if (_formKey.currentState.validate()) {
-                        //   setState(() {
-                        //     _formKey.currentState.save();
-                        //     print("Adding Workout Plan to database");
-                        //     _addWorkoutPlanToDB(newWorkoutPlan);
-                        //     Navigator.pop(context);});
-                        // }
+                        if (_formKey.currentState.validate()) {
+                          setState(() {
+                            _formKey.currentState.save();
+                            print("Updating " + update.toLowerCase() + "...");
+                            _updateInfoToDB(update);
+                            Navigator.pop(context);});
+                        }
                       },
                     ),
                   )
@@ -92,6 +92,46 @@ class _SettingsState extends State<SettingsPage> {
           )
         );
       }
+    );
+  }
+
+  Future _updateInfoToDB(String updateKey) async {
+    String lowercaseKey = updateKey.toLowerCase();
+    if(lowercaseKey == 'name') {
+      List<String> nameInfo = _newInfo.split(" ");
+
+      Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
+        .updateData({'firstName' : nameInfo[0]});
+      
+      Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
+        .updateData({'lastName' : nameInfo[1]});
+    } else 
+    if (lowercaseKey == 'age') {
+      int newAge = int.parse(_newInfo);
+      Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
+        .updateData({lowercaseKey : newAge});
+    } else {
+      Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
+        .updateData({lowercaseKey : _newInfo});
+    }
+  }
+
+  Widget _buildForm(String infoKey, String update) {
+    return Form(
+      key: _formKey,
+      child: TextFormField( // name
+            decoration: InputDecoration(
+              icon: Icon(
+                FontAwesomeIcons.angleRight,
+                color: GSColors.darkBlue,
+                size: 30,
+              ),
+              hintText: infoKey,
+              labelText: update,
+            ),
+            onSaved: (name) => _newInfo = name,
+            validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
+          ),
     );
   }
 
@@ -131,8 +171,8 @@ class _SettingsState extends State<SettingsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          FutureBuilder(
-            future: _futureUser,
+          StreamBuilder(
+            stream: _futureUser.asStream(),
             builder: (context, snapshot){
               String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
               String email = snapshot.hasData ? snapshot.data['email'] : "";
@@ -406,7 +446,7 @@ class _SettingsState extends State<SettingsPage> {
                         margin: EdgeInsets.only(left: 40, right: 20),
                           child: IconButton(
                             icon: Icon(Icons.edit),
-                            onPressed: () => _updateInfo(context, bio, "bio"),
+                            onPressed: () => _updateInfo(context, bio, "Bio"),
                           ),
                         ),
                       ),
