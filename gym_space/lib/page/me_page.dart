@@ -863,8 +863,6 @@ Future<void> _checkWeeklyChallengeStatus() async {
               {'challengeStatus': statusFromDB});
 }
 
-
-
 void _updateChallengeInfo(BuildContext context) async{
       int challenge1, challenge2, challenge3;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
