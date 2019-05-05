@@ -66,7 +66,7 @@ class _MePageState extends State<MePage> {
                 gradient: LinearGradient(
                   begin: FractionalOffset.topCenter,
                   end: FractionalOffset.bottomCenter,
-                  stops: [.25, .3, .25],
+                  stops: [.25, .25, .25],
                   colors: [GSColors.darkBlue, Colors.white, GSColors.babyPowder],
                 ),
                 shape: RoundedRectangleBorder(
@@ -1108,7 +1108,8 @@ class _MePageState extends State<MePage> {
                         ]
                       );
                     }
-
+                    if (snapshotChallenge.data.data == null) 
+                      return Container();
                     List<Widget> challengeWidgets = List();
                     for (int challengeIndex = 0; challengeIndex < snapshotChallenge.data.data['title'].length; challengeIndex++) {
                       challengeWidgets.add(_buildChallenge(snapshotChallenge.data.data, challengeIndex, user));
@@ -1184,8 +1185,8 @@ class _MePageState extends State<MePage> {
                   ' Loading...'
                   );                        
               }
-           // if(user.challengeStatus[0] > 0 || )
-            //{
+              if (snapshotChallenge.data.data == null) 
+                return Container();
 
               int totalProgress = user.challengeStatus[0] + user.challengeStatus[1] + user.challengeStatus[2];
               int totalGoal = snapshotChallenge.data['goal'][0] + snapshotChallenge.data['goal'][1] + snapshotChallenge.data['goal'][2];

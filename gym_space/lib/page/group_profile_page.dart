@@ -47,17 +47,30 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
   Future<void> _likeGroup() async {
     if (group.likes.contains(DatabaseHelper.currentUserID)) {
-      Fluttertoast.showToast(
-        msg: 'Already Liked!', 
-        fontSize: 14, 
-        textColor: GSColors.darkBlue,
-      );
+      await _unlikeGroup().then((_) {
+        Fluttertoast.showToast(
+          msg: 'Unliked!', 
+          fontSize: 14, 
+          textColor: GSColors.darkBlue
+        );
+      });
       return;
     }
 
-    Firestore.instance.collection('groups').document(group.documentID).updateData({'likes': FieldValue.arrayUnion([DatabaseHelper.currentUserID])});
+    DatabaseHelper.updateGroup(group.documentID, {
+      'likes': FieldValue.arrayUnion([DatabaseHelper.currentUserID])
+    }).then((_) => setState(() => group.likes.add(currentUserID)));
+    Fluttertoast.showToast(
+      msg: 'Liked!', 
+      fontSize: 14, 
+      textColor: GSColors.darkBlue
+    );
+  }
 
-    setState(() => group.likes.add(currentUserID));
+  Future<void> _unlikeGroup() async {
+    DatabaseHelper.updateGroup(group.documentID, {
+      'likes': FieldValue.arrayRemove([DatabaseHelper.currentUserID])
+    }).then((_) => setState(() => group.likes.remove(currentUserID)));
   }
 
   void _joinGroup() {
@@ -129,6 +142,8 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         }
       });
     });
+
+    group.likes = group.likes.toList();
   }
 
   @override
