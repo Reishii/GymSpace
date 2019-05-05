@@ -180,11 +180,12 @@ class _SettingsState extends State<SettingsPage> {
               String email = snapshot.hasData ? snapshot.data['email'] : "";
               String bio = snapshot.hasData ? snapshot.data['bio'] : "";
               String profileURL = snapshot.hasData ? snapshot.data['photoURL'] : "";
+              bool setNotifs = true;
+              bool isPrivate = false;
               int age = snapshot.hasData ? snapshot.data['age'] : 0;
               return Container(
                 child: Column(
                 children: <Widget>[   
-
                   // SETTINGS TAB
                   Container(
                     alignment: Alignment.center,
@@ -243,12 +244,6 @@ class _SettingsState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-
-                  // Container(
-                  //   child: Divider(
-                  //     color: GSColors.darkBlue
-                  //   ),
-                  // ),
 
                   // NAME EDIT
                   Row(
@@ -456,13 +451,80 @@ class _SettingsState extends State<SettingsPage> {
                   ),
 
                   Container(
-                    margin: EdgeInsets.only(right: 30),
                     child: Divider(
-                      indent: 95,
                       color: GSColors.darkBlue
                     ),
                   ),
 
+                  // ACCOUNT SETTINGS TAB
+                  Container(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(10),
+                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 100),
+                    child: Text(
+                      'Account Settings',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20
+                      ),
+                    ),
+                    decoration: ShapeDecoration(
+                      color: GSColors.darkBlue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(60)
+                      ) 
+                    ),
+                  ), 
+
+                  // AGE EDIT
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: Container(),
+                      ),
+                      Expanded(
+                        flex: 5,
+                        child: Container(
+                          child: Text(
+                            'Notifications',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            )
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 6, 
+                        child: Container(),
+                      ),
+                      Flexible(
+                        flex: 3,
+                        child: Checkbox(
+                          value: setNotifs,
+                          onChanged: (value) {
+                            setState(() {
+                              setNotifs = value;
+                              String userID = DatabaseHelper.currentUserID;
+                              if(value == false){
+                                Firestore.instance.collection('users').document(userID).updateData({'private': false});
+                              }
+                              else{
+                                Firestore.instance.collection('users').document(userID).updateData({'private': true});
+                              }
+                            });
+                          },     
+                          activeColor: GSColors.darkBlue,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Container(),
+                      ),
+                    ],
+                  ),
                 ],
                 ),
               );
