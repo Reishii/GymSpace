@@ -66,17 +66,17 @@ class _AppDrawerState extends State<AppDrawer> {
                         shadows: [BoxShadow(blurRadius: 4,)],
                         shape: CircleBorder(
                           side: BorderSide(color: Colors.white, width: .5)
-                        )
+                        ),
                       ),
-                      child: InkWell(
+                      child: FlatButton(
                         child: CircleAvatar(
                           backgroundColor: Colors.white,
                           radius: 70,
                           backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
                             : AssetImage(Defaults.userPhoto),
                         ),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => ProfilePage.fromUser(user)
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => MePage.thisUser(user)
                         )),
                       )
                     );
