@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/nutrition_page.dart';
+import 'package:GymSpace/widgets/image_widget.dart';
 import 'package:GymSpace/widgets/media_tab.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +14,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class MePage extends StatefulWidget {
+  User user;
 
   MePage({Key key}) : super(key: key);
+
+  MePage.thisUser(this.user, {Key key});
   _MePageState createState() => _MePageState();
 }
 
@@ -75,8 +79,12 @@ class _MePageState extends State<MePage> {
               ),
               child: Column(
                 children: <Widget>[
-                  Container( // profile pic
-                    //onLongPress: () => MediaTab(context).getProfileImage(),
+                  FlatButton( // profile pic
+                    onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
+                      builder: (BuildContext context) {
+                        return ImageWidget(user.photoURL, context, false);
+                      })
+                    ),
                     child: Container(
                       decoration: ShapeDecoration(
                         shadows: [BoxShadow(color: Colors.black, blurRadius: 4, spreadRadius: 2)],
@@ -85,7 +93,6 @@ class _MePageState extends State<MePage> {
                         )
                       ),
                       child: CircleAvatar(
-                        // backgroundImage: NetworkImage(user.photoURL.isEmpty ? Defaults.userPhoto : user.photoURL),
                         backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL, errorListener: () => print('Failed to download')) 
                         : AssetImage(Defaults.userPhoto),
                         backgroundColor: Colors.white,
@@ -155,8 +162,6 @@ class _MePageState extends State<MePage> {
       ),
     );
   }
-
-  // Future<void> _updateMeInfo() async{
 
   Widget _buildBody(BuildContext context) {
     return Container(
