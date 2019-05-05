@@ -868,7 +868,7 @@ Future<void> _checkWeeklyChallengeStatus() async {
 void _updateChallengeInfo(BuildContext context) async{
       int challenge1, challenge2, challenge3;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
-      Map<String, dynamic> challengeMap = macroDoc.data['challengeStatus'].cast<String, int>();
+      Map<String, dynamic> challengeMap = macroDoc.data['challengeStatus'].cast<String, dynamic>();
       List<int> challengeFromUser = macroDoc.data['challengeStatus'][_challengeKey].cast<int>();
       
       int pointsFromUser = macroDoc.data['points'];
