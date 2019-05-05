@@ -85,7 +85,9 @@ class ImageWidget extends StatelessWidget {
               Icons.share,
               color: GSColors.babyPowder,
             ),
-            onPressed: () {},
+            onPressed: () {
+              // share as a post
+            },
           ),
           Padding(padding: EdgeInsets.only(left: 10)),
           IconButton(
@@ -138,7 +140,7 @@ class ImageWidget extends StatelessWidget {
             alignment: Alignment.center,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(GSColors.darkBlue), 
+              valueColor: AlwaysStoppedAnimation<Color>(GSColors.darkCloud), 
             ),
           ),
           Container(

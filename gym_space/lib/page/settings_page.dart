@@ -1,11 +1,15 @@
 import 'dart:async';
 
+import 'package:GymSpace/widgets/image_widget.dart';
+import 'package:GymSpace/widgets/media_tab.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SettingsPage extends StatefulWidget {
   
@@ -14,8 +18,10 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsState extends State<SettingsPage> {
-  
-  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+  String _newInfo = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,6 +29,111 @@ class _SettingsState extends State<SettingsPage> {
       drawer: AppDrawer(startPage: 8,),
       backgroundColor: GSColors.darkBlue,
       body: _buildBody(),
+    );
+  }
+
+  void _updateInfo(BuildContext context, String infoKey, String update) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+
+        return SafeArea(
+          child: SimpleDialog(
+            title: Text("Update " + update, textAlign: TextAlign.center),
+            titlePadding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            contentPadding: EdgeInsets.zero,
+            children: <Widget>[
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                child: Divider(
+                  color: GSColors.darkBlue,
+                ),
+              ),
+              SafeArea(
+                child: Container(
+                  margin: EdgeInsets.only(left: 16, right: 40),
+                  width: double.maxFinite,
+                  child: _buildForm(infoKey, update),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  SimpleDialogOption(
+                    child: MaterialButton(
+                      child: Text("Cancel"),
+                      onPressed: () {
+                        print("Resetting form");
+                        _formKey.currentState.reset();
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                  SimpleDialogOption(
+                    child: MaterialButton(
+                      child: Text("Update"),
+                      onPressed: () {
+                        if (_formKey.currentState.validate()) {
+                          setState(() {
+                            _formKey.currentState.save();
+                            print("Updating " + update.toLowerCase() + "...");
+                            _updateInfoToDB(update);
+                            Navigator.pop(context);});
+                        }
+                      },
+                    ),
+                  )
+                ],
+              )
+            ],
+          )
+        );
+      }
+    );
+  }
+
+  Future _updateInfoToDB(String updateKey) async {
+    String lowercaseKey = updateKey.toLowerCase();
+    // UPDATING NAME
+    if(lowercaseKey == 'name') {  
+      List<String> nameInfo = _newInfo.split(" ");
+
+      Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
+        .updateData({'firstName' : nameInfo[0]});
+      Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
+        .updateData({'lastName' : nameInfo[1]});
+    } else 
+    // UPDATING AGE SCENARIO
+    if (lowercaseKey == 'age') {
+      int newAge = int.parse(_newInfo);
+      Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
+        .updateData({lowercaseKey : newAge});
+    } else {  
+      Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
+        .updateData({lowercaseKey : _newInfo});
+    }
+  }
+
+  Widget _buildForm(String infoKey, String update) {
+    return Form(
+      key: _formKey,
+      child: TextFormField( // name
+            
+            decoration: InputDecoration(
+              icon: Icon(
+                FontAwesomeIcons.angleRight,
+                color: GSColors.darkBlue,
+                size: 30,
+              ),
+              hintText: infoKey,
+              labelText: update,
+            ),
+            onSaved: (name) => _newInfo = name,
+            validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
+          ),
     );
   }
 
@@ -37,6 +148,7 @@ class _SettingsState extends State<SettingsPage> {
       ),
     );
   }
+
   Widget _buildBody() {
     return Container(
       child: ListView(
@@ -47,6 +159,7 @@ class _SettingsState extends State<SettingsPage> {
       )
     );
   }
+
   Widget _buildAccount(){
     return Container(
       padding: EdgeInsets.only(bottom: 10),
@@ -60,19 +173,23 @@ class _SettingsState extends State<SettingsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          FutureBuilder(
-            future: _futureUser,
+          StreamBuilder(
+            stream: _futureUser.asStream(),
             builder: (context, snapshot){
               String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
               String email = snapshot.hasData ? snapshot.data['email'] : "";
-              String age = snapshot.hasData ? snapshot.data['age'].toString() : "";
+              String bio = snapshot.hasData ? snapshot.data['bio'] : "";
+              String profileURL = snapshot.hasData ? snapshot.data['photoURL'] : "";
+              int age = snapshot.hasData ? snapshot.data['age'] : 0;
               return Container(
                 child: Column(
                 children: <Widget>[   
+
+                  // SETTINGS TAB
                   Container(
                     alignment: Alignment.center,
                     padding: EdgeInsets.all(10),
-                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 105),
+                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 100),
                     child: Text(
                       'Profile Settings',
                       style:TextStyle(
@@ -87,71 +204,267 @@ class _SettingsState extends State<SettingsPage> {
                       ) 
                     ),
                   ),  
+
+                  // PROFILE PIC
                   Container(
-                    margin: EdgeInsets.only(top: 2, right: 260),
-                    child: Text(
-                      'Name',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16
+                    margin: EdgeInsets.only(top: 5),
+                    decoration: ShapeDecoration(
+                      shadows: [BoxShadow(color: Colors.black, blurRadius: 2, spreadRadius: 2)],
+                      shape: CircleBorder(
+                        side: BorderSide(color: Colors.white, width: .5)
                       )
                     ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(top: 2, right: 200),
-                    child: Text(
-                      name,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14
-                      )
-                    )
-                  ),
-                   Container(
-                    margin: EdgeInsets.only(top: 10, right: 260),
-                    child: Text(
-                      'Email',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16
-                      )
+                    child: FlatButton(
+                      onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
+                        builder: (BuildContext context) {
+                          return ImageWidget(profileURL, context, false);
+                        })
+                      ),
+                      child: CircleAvatar(
+                        backgroundImage: profileURL != "" ? CachedNetworkImageProvider(profileURL, errorListener: () => print('Failed to download')) 
+                            : AssetImage(Defaults.userPhoto),
+                        backgroundColor: Colors.white,
+                        radius: 40,
+                      ),
                     ),
                   ),
+
+                  // PROFILE PIC EDIT
                   Container(
-                    margin: EdgeInsets.only(top: 2, right: 150),
-                    child: Text(
-                      email,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14
-                      )
-                    )
-                  ),
-                    Container(
-                    margin: EdgeInsets.only(top: 5, right: 270),
-                    child: Text(
-                      'Age',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16
-                      )
+                    child: FlatButton(
+                      onPressed: () => MediaTab(context).getProfileImage(),
+                      child: Text(
+                        "Change Profile Photo",
+                        style: TextStyle(
+                          color: GSColors.lightBlue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        )
+                      ),
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.only(top: 2, right: 250),
-                    child: Text(
-                      age,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14
-                      )
-                    )
+
+                  // Container(
+                  //   child: Divider(
+                  //     color: GSColors.darkBlue
+                  //   ),
+                  // ),
+
+                  // NAME EDIT
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: Container(),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          child: Text(
+                            'Name',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            )
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 6,
+                        child: Container(
+                          child: Text(
+                            name,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                            )
+                          )
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          margin: EdgeInsets.only(left: 40, right: 20),
+                          child: IconButton(
+                            alignment: Alignment.centerRight,
+                            icon: Icon(Icons.edit),
+                            onPressed: () => _updateInfo(context, name, "Name"),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
+
+                  Container(
+                    margin: EdgeInsets.only(right: 30),
+                    child: Divider(
+                      indent: 95,
+                      color: GSColors.darkBlue
+                    ),
+                  ),
+
+                  // EMAIL EDIT
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: Container(),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          child: Text(
+                            'Email',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            )
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 6,
+                        child: Container(
+                          child: Text(
+                            email,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                            )
+                          )
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                        margin: EdgeInsets.only(left: 40, right: 20),
+                          child: IconButton(
+                            icon: Icon(Icons.edit),
+                            onPressed: () => _updateInfo(context, email, "Email"),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Container(
+                    margin: EdgeInsets.only(right: 30),
+                    child: Divider(
+                      indent: 95,
+                      color: GSColors.darkBlue
+                    ),
+                  ),
+
+                  // AGE EDIT
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: Container(),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          child: Text(
+                            'Age',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            )
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 6,
+                        child: Container(
+                          child: Text(
+                            age.toString(),
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                            )
+                          )
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                        margin: EdgeInsets.only(left: 40, right: 20),
+                          child: IconButton(
+                            icon: Icon(Icons.edit),
+                            onPressed: () => _updateInfo(context, age.toString(), "Age"),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Container(
+                    margin: EdgeInsets.only(right: 30),
+                    child: Divider(
+                      indent: 95,
+                      color: GSColors.darkBlue
+                    ),
+                  ),
+
+                  // BIO EDIT
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: Container(),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          child: Text(
+                            'Bio',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            )
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 6,
+                        child: Container(
+                          child: Text(
+                            bio,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14,
+                            )
+                          )
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                        margin: EdgeInsets.only(left: 40, right: 20),
+                          child: IconButton(
+                            icon: Icon(Icons.edit),
+                            onPressed: () => _updateInfo(context, bio, "Bio"),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Container(
+                    margin: EdgeInsets.only(right: 30),
+                    child: Divider(
+                      indent: 95,
+                      color: GSColors.darkBlue
+                    ),
+                  ),
+
                 ],
-                )
+                ),
               );
             },
           ),
