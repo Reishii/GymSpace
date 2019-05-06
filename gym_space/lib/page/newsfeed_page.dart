@@ -23,20 +23,20 @@ class NewsfeedPage extends StatefulWidget {
 }
 
 class _NewsfeedPageState extends State<NewsfeedPage> {
-  String get currentUserID => DatabaseHelper.currentUserID;
-  bool _isCreatingPost = false;
   bool _addedPhoto = false;
+  List<Widget> _fetchedPosts = List();
   bool _fetchingPosts = false;
-  File _uploadImage;
+  bool _isCreatingPost = false;
   String _uploadBody = '';
-  
-  List<Post> _fetchedPosts = List();
+  File _uploadImage;
 
   @override
   void initState() {
     super.initState();
     _fetchPosts();
   }
+
+  String get currentUserID => DatabaseHelper.currentUserID;
 
   Widget _buildAppBar() {
     return PreferredSize(
@@ -61,7 +61,7 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
       child: _fetchingPosts ? ListView(
         children: <Widget>[
           Container (
-            color: Colors.red,
+            // color: Colors.red,
             alignment: Alignment.topCenter,
             child: Text(
               'Updating...',
@@ -76,7 +76,7 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
       : ListView.builder(
         itemCount: _fetchedPosts.length,
         itemBuilder: (context, i) {
-
+          return _fetchedPosts[i];
         },
       ),
     );
@@ -91,7 +91,12 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
     DatabaseHelper.fetchPosts().then((posts) {
       setState(() {
         print('Fetched ${posts.length} posts');
-        _fetchedPosts = posts;
+        // build each post
+        for (String postID in posts) { // build the post 
+
+        }
+        // _fetchedPosts = posts;
+        // _fetchedPosts.sort()
         _fetchingPosts = false;
       });
     });
@@ -104,22 +109,23 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      drawer: AppDrawer(startPage: 0,),
-      body: _buildBody(),
-      floatingActionButton: FlatButton.icon(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        color: GSColors.green,
-        label: Text('Add Post'),
-        textColor: Colors.white,
-        icon: Icon(Icons.add_circle,),
-        onPressed: _addPressed,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
+  Widget _buildPost(String postID) {
+    return Container(
+      child: StreamBuilder(
+        stream: DatabaseHelper.getPostStream(postID),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } 
+          
+          if (!snapshot.hasData) 
+            return Container();
+
+          
+          return Container(
+
+          );
+        },
       ),
     );
   }
@@ -188,16 +194,14 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
     }
 
     // now upload post to db
-    await Firestore.instance.collection('posts').add(newPost.toJSON()).then((ds) {
+    await Firestore.instance.collection('posts').document(DateTime.now().millisecondsSinceEpoch.toString()).setData(newPost.toJSON()).then((_) {
       setState(() {
-        newPost.documentID = ds.documentID;
         _uploadBody = '';
         _uploadImage = null;
         Navigator.pop(context);
       });
     });
   }
-  
 
   Future<void> _addPhoto() async {
     _uploadImage = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -263,14 +267,34 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
       Navigator.pop(context);
     });
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: _buildAppBar(),
+      drawer: AppDrawer(startPage: 0,),
+      body: _buildBody(),
+      floatingActionButton: FlatButton.icon(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        color: GSColors.green,
+        label: Text('Add Post'),
+        textColor: Colors.white,
+        icon: Icon(Icons.add_circle,),
+        onPressed: _addPressed,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+      ),
+    );
+  }
 }
 
 class HeroPhotoView extends StatelessWidget {
-  final ImageProvider imageProvider;
-
   const HeroPhotoView({
     @required this.imageProvider,
     Key key}) : super(key: key);
+
+  final ImageProvider imageProvider;
 
   @override
   Widget build(BuildContext context) {

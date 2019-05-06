@@ -120,16 +120,18 @@ class DatabaseHelper {
   static Future<List<String>> fetchPosts() async {
     List<String> postIDS = List();
     DocumentSnapshot user = await getUserSnapshot(currentUserID);
-    List<String> buddies = user.data['buddies'];
+    List<String> buddies = user.data['buddies'].cast<String>().toList();
 
-    buddies.forEach((buddyID) {
-      Firestore.instance.collection('posts').where('fromUser', isEqualTo: buddyID).getDocuments().then(
-        (querySnap) {
-          postIDS.addAll(querySnap.documents.map((ds) => ds.documentID).toList());
-        }
-      );
-    });
-    
+    for (String buddyID in buddies) {
+      await Firestore.instance.collection('posts').where('fromUser', isEqualTo: buddyID).getDocuments().then((queryResults) {
+        postIDS.addAll(queryResults.documents.map((e) => e.documentID).toList());
+      });
+    };
+
     return postIDS;
+  }
+
+  static Stream getPostStream(String postID) {
+    return Firestore.instance.collection('posts').document(postID).snapshots();
   }
 }
