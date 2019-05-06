@@ -145,7 +145,7 @@ class _PostWidgetState extends State<PostWidget> {
               label: Text('${post.comments.length} Comments'),
               icon: Icon(Icons.comment, color: post.comments.isNotEmpty ? GSColors.green : GSColors.darkBlue),
               onPressed: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => PostCommentsPage(postID: post.documentID))
+                builder: (context) => PostCommentsPage(postID: post.documentID, postAuthor: post.fromUser))
               )
             ),
           ),
