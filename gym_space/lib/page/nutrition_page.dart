@@ -286,9 +286,9 @@ class _NutritionPage extends State<NutritionPage> {
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
             )
           ),
-          onTap: () {
+          onTap: () => setState(() {
             _weeklyNavigator(thisDay, dayNum);
-          },
+          }),
         )
       );
     }
@@ -331,9 +331,9 @@ class _NutritionPage extends State<NutritionPage> {
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11.0),
             ),
           ),
-          onTap: () {
+          onTap: () => setState(() {
             _weeklyNavigator(thisDay, dayNum);
-          },
+          }),
         ), 
       );
     }
@@ -375,9 +375,9 @@ class _NutritionPage extends State<NutritionPage> {
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.0),
             ),
           ),
-          onTap: () {
+          onTap: () => setState(() {
             _weeklyNavigator(thisDay, dayNum);
-          },
+          }),
         ),
       );
     }
@@ -420,9 +420,9 @@ class _NutritionPage extends State<NutritionPage> {
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0),
               ),
           ),
-          onTap: () {
+          onTap: () => setState(() {
             _weeklyNavigator(thisDay, dayNum);
-          },
+          }),
         ), 
       );
     }
@@ -612,13 +612,13 @@ class _NutritionPage extends State<NutritionPage> {
 
   Widget _buildNutritionStats() {
     return Container(
-      height: 320,
-      margin: EdgeInsets.symmetric(vertical: 30, horizontal: 40),
+      //height: 320,
+      margin: EdgeInsets.symmetric(vertical: 30, horizontal: 30),
       decoration: ShapeDecoration(
         color: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20)
-        )
+        ),
       ),
       child: Container(
         margin:EdgeInsets.all(20),
@@ -723,7 +723,6 @@ class _NutritionPage extends State<NutritionPage> {
                             style: TextStyle(fontSize: 18.0, color: GSColors.green, fontWeight: FontWeight.w500)
                         );
                       }
-                    
                     }
                   )
                 ],

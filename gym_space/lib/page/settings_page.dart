@@ -19,7 +19,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsState extends State<SettingsPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+  Stream<DocumentSnapshot> _streamUser =  DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID);
   String _newInfo = "";
 
   @override
@@ -171,7 +171,7 @@ class _SettingsState extends State<SettingsPage> {
 
   Widget _buildAccount(){
     return StreamBuilder(
-      stream: _futureUser.asStream(),
+      stream: _streamUser,
       builder: (context, snapshot){
         String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
         String email = snapshot.hasData ? snapshot.data['email'] : "";
@@ -187,7 +187,7 @@ class _SettingsState extends State<SettingsPage> {
             Container(
               alignment: Alignment.center,
               padding: EdgeInsets.all(10),
-              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 90),
+              margin: EdgeInsets.symmetric(vertical: 10, horizontal: 90),
               child: Text(
                 'Profile Settings',
                 style:TextStyle(
@@ -281,7 +281,7 @@ class _SettingsState extends State<SettingsPage> {
                     child: IconButton(
                       alignment: Alignment.centerRight,
                       icon: Icon(Icons.edit),
-                      onPressed: () => _updateInfo(context, name, "Name"),
+                      onPressed: () => setState(() {_updateInfo(context, name, "Name");}),
                     ),
                   ),
                 ),
@@ -334,7 +334,7 @@ class _SettingsState extends State<SettingsPage> {
                   margin: EdgeInsets.only(left: 40, right: 20),
                     child: IconButton(
                       icon: Icon(Icons.edit),
-                      onPressed: () => _updateInfo(context, email, "Email"),
+                      onPressed: () => setState(() {_updateInfo(context, email, "Email");}),
                     ),
                   ),
                 ),
@@ -387,7 +387,7 @@ class _SettingsState extends State<SettingsPage> {
                   margin: EdgeInsets.only(left: 40, right: 20),
                     child: IconButton(
                       icon: Icon(Icons.edit),
-                      onPressed: () => _updateInfo(context, age.toString(), "Age"),
+                      onPressed: () => setState(() {_updateInfo(context, age.toString(), "Age");}),
                     ),
                   ),
                 ),
@@ -440,7 +440,7 @@ class _SettingsState extends State<SettingsPage> {
                   margin: EdgeInsets.only(left: 40, right: 20),
                     child: IconButton(
                       icon: Icon(Icons.edit),
-                      onPressed: () => _updateInfo(context, bio, "Bio"),
+                      onPressed: () => setState(() {_updateInfo(context, bio, "Bio");}),
                     ),
                   ),
                 ),
@@ -449,7 +449,7 @@ class _SettingsState extends State<SettingsPage> {
 
             Container(
               child: Divider(
-                color: GSColors.darkBlue
+                height: 15,
               ),
             ),
 
@@ -502,15 +502,12 @@ class _SettingsState extends State<SettingsPage> {
                   child: Checkbox(
                     value: setNotifs,
                     onChanged: (value) {
-                      setState(() {
-                        setNotifs = value;
-                        String userID = DatabaseHelper.currentUserID;
-                        if(value == false){
-                          Firestore.instance.collection('users').document(userID).updateData({'notification': false});
-                        }
-                        else{
-                          Firestore.instance.collection('users').document(userID).updateData({'notification': true});
-                        }
+                      String userID = DatabaseHelper.currentUserID;
+                      Firestore.instance.collection('users').document(userID).updateData({'notification': value})
+                        .then((_){
+                          setState(() {
+                          setNotifs = value;
+                        });
                       });
                     },     
                     activeColor: GSColors.darkBlue,
@@ -548,22 +545,18 @@ class _SettingsState extends State<SettingsPage> {
                   child: Container(),
                 ),
                 Flexible(
-                  flex: 2,
-                  child: Switch(
+                  flex: 1,
+                  child: Checkbox(
                     value: isPrivate,
                     onChanged: (value) {
-                      setState(() {
-                        isPrivate = value;
-                        String userID = DatabaseHelper.currentUserID;
-                        if(value == false){
-                          Firestore.instance.collection('users').document(userID).updateData({'private': false});
-                        }
-                        else{
-                          Firestore.instance.collection('users').document(userID).updateData({'private': true});
-                        }
-                        _buildAccount();
+                      String userID = DatabaseHelper.currentUserID;
+                      Firestore.instance.collection('users').document(userID).updateData({'private': value})
+                        .then((_){
+                          setState(() {
+                          setNotifs = value;
+                        });
                       });
-                    },     
+                    },          
                     activeColor: GSColors.darkBlue,
                   ),
                 ),
