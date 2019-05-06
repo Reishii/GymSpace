@@ -11,15 +11,13 @@ import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/global.dart';
 import 'dart:async';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/messages_page.dart';
 import 'package:flutter/widgets.dart';
 
 class NotificationPage extends StatefulWidget {
- 
   @override 
-  _NotificationState createState() => _NotificationState();
+  _NotificationState createState() => new _NotificationState();
   void sendNotifications(String title, String body, String fcmToken, String route, String sender) async {
     final response = await Messaging.sendTo(
       title: title,
@@ -35,8 +33,7 @@ class NotificationPage extends StatefulWidget {
     print('sender: $sender');
     if(response.statusCode != 200){}
   }
-   void sendTokenToServer(String fcmToken){
-    print('Token: $fcmToken');
+  void sendTokenToServer(String fcmToken){
     // Update user's fcmToken just in case
     String userID = DatabaseHelper.currentUserID;
     Firestore.instance.collection('users').document(userID).updateData({'fcmToken': fcmToken});
@@ -45,13 +42,54 @@ class NotificationPage extends StatefulWidget {
 
 class _NotificationState extends State<NotificationPage> {
   Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
-  final FirebaseMessaging _messaging = FirebaseMessaging();
+  final FirebaseMessaging _messaging = new FirebaseMessaging();
   final localNotify = FlutterLocalNotificationsPlugin();
 
+  @override
+  void initState() {
+    super.initState();
+    _messaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+        final notification = message['notification'];
+        final data = message ['data'];
+        _sendNotificationToDB(notification['title'], notification['body'], data['route'],data['fcmToken'],data['sender']);
+        showOngoingNotification(localNotify, id: 0, title: notification['title'], body: notification['body']);
+      },
+      onLaunch:  (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+         final notification = message['data'];
+        //_sendNotificationToDB(notification['title'], notification['body'], notification['route'], notification['fcmToken'],notification['sender']);
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+        final notification = message['data'];
+        //showOngoingNotification(localNotify, id: 0, title: notification['title'], body: notification['body']);
+        _sendNotificationToDB(notification['title'], notification['body'], notification['route'], notification['fcmToken'],notification['sender']);
+        handleResumeRouting('notification');
+      }
+    );
+    _messaging.onTokenRefresh.listen(sendTokenToServer);
+    _messaging.getToken();
+    _messaging.subscribeToTopic('all');
+    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final settingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: (id, title, body, payload) =>
+        onSelectNotification(payload));
+    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
+      onSelectNotification: onSelectNotification);
+  }
+  void sendTokenToServer(String fcmToken){
+    print(fcmToken);
+    // Update user's fcmToken just in case
+    String userID = DatabaseHelper.currentUserID;
+    Firestore.instance.collection('users').document(userID).updateData({'fcmToken': fcmToken});
+  } 
 
   Future<void> handleRouting(dynamic notify) async{
     DocumentSnapshot itemCount = await Firestore.instance.collection('users').document(notify.sender).get();
     User userInfo = User.jsonToUser(itemCount.data);
+    Navigator.pop(context);
     print(notify.route);
     switch (notify.route){
       case 'buddy':
@@ -64,19 +102,14 @@ class _NotificationState extends State<NotificationPage> {
           new MaterialPageRoute(builder: (BuildContext context) => MessagesPage())
         );
         break;
-      // case 'notifications':
-      //    Navigator.of(context).push(
-      //     new MaterialPageRoute(builder: (BuildContext context) => NotificationPage())
-      //   );
-      //   break;
     }
   }
-  void sendTokenToServer(String fcmToken){
-    print('Token: $fcmToken');
-    // Update user's fcmToken just in case
-    String userID = DatabaseHelper.currentUserID;
-    Firestore.instance.collection('users').document(userID).updateData({'fcmToken': fcmToken});
-  } 
+  void handleResumeRouting(String notify){
+    Navigator.pop(context);
+    Navigator.of(context).push(
+      new MaterialPageRoute(builder: (BuildContext context) => NotificationPage()));
+  }
+  
   Future<void> _sendNotificationToDB(String title, String body, String route, String fcmToken, String sender) async{
     Map<String, String> notification =
      {
@@ -209,46 +242,12 @@ class _NotificationState extends State<NotificationPage> {
       ), 
     );
   }
-  @override
-  void initState() {
-    _messaging.onTokenRefresh.listen(sendTokenToServer);
-    _messaging.getToken();
-    _messaging.subscribeToTopic('all');
-    super.initState();
-    _messaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        print("onMessage: $message");
-        final notification = message['notification'];
-        final data = message ['data'];
-        _sendNotificationToDB(notification['title'], notification['body'], data['route'],data['fcmToken'],data['sender']);
-        showOngoingNotification(localNotify, id: 0, title: notification['title'], body: notification['body']);
-      },
-      onLaunch:  (Map<String, dynamic> message) async {
-        print("onLaunch: ${message.toString()}");
-         final notification = message['data'];
-        _sendNotificationToDB(notification['title'], notification['body'], notification['route'], notification['fcmToken'],notification['sender']);
-        //handleRouting('notification');
-        //showOngoingNotification(localNotify, id: 0, title: notification['title'], body: notification['body']);
-      },
-      onResume: (Map<String, dynamic> message) async {
-        print("onResume: $message");
-        final notification = message['data'];
-        showOngoingNotification(localNotify, id: 0, title: notification['title'], body: notification['body']);
-        //_sendNotificationToDB(notification['title'], notification['body'], notification['route'], notification['fcmToken'],notification['sender']);
-      }
-    );
-    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
-    final settingsIOS = IOSInitializationSettings(
-      onDidReceiveLocalNotification: (id, title, body, payload) =>
-        onSelectNotification(payload));
-    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
-      onSelectNotification: onSelectNotification);
-  }
+  
 
   // Local Notifications Plugin Functions
   Future onSelectNotification(String payload) async  {
     Navigator.pop(context);
     print("==============OnSelect WAS CALLED===========");
-    await Navigator.push( context, new MaterialPageRoute(builder: (context) => NotificationPage()));
+    await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
   }
 }

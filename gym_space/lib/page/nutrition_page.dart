@@ -9,7 +9,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:intl/intl.dart';
-
+import 'package:GymSpace/notification_page.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'dart:async';
 class NutritionPage extends StatefulWidget {
   NutritionPage(
     {Key key}) : super(key: key);
@@ -33,6 +35,23 @@ class _NutritionPage extends State<NutritionPage> {
   bool _selectDay = true;
   int _highlightDay;
   external int get weekday;
+  final localNotify = FlutterLocalNotificationsPlugin();
+  // Local Notification Plugin 
+  @override
+  void initState() {
+    super.initState();
+    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final settingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: (id, title, body, payload) =>
+        onSelectNotification(payload));
+    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
+      onSelectNotification: onSelectNotification);
+  }
+  Future onSelectNotification(String payload) async  {
+    Navigator.pop(context);
+    print("==============OnSelect WAS CALLED===========");
+    await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
+  } 
 
   @override
   Widget build(BuildContext context) {

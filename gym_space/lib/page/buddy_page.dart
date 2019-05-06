@@ -12,6 +12,8 @@ import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:flutter/widgets.dart';
 import 'package:GymSpace/global.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:GymSpace/notification_page.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class BuddyPage extends StatefulWidget {
   final Widget child;
@@ -26,7 +28,7 @@ class _BuddyPageState extends State<BuddyPage> {
   List<String> buddies =  [];
   User user;
   bool _fromUser = false;
-  
+  final localNotify = FlutterLocalNotificationsPlugin();
   //Algolia get algolia => DatabaseConnections.algolia;
 
   @override
@@ -38,7 +40,18 @@ class _BuddyPageState extends State<BuddyPage> {
       user.buddies = user.buddies.toList();
       _fromUser = true;
     }
+    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final settingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: (id, title, body, payload) =>
+        onSelectNotification(payload));
+    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
+      onSelectNotification: onSelectNotification);
   }
+  Future onSelectNotification(String payload) async  {
+    Navigator.pop(context);
+    print("==============OnSelect WAS CALLED===========");
+    await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
+  } 
 
   Future<void> searchPressed() async {
     User _currentUser;

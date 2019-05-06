@@ -8,6 +8,8 @@ import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/logic/workout_plan.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
+import 'package:GymSpace/notification_page.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class WorkoutPlanHomePage extends StatefulWidget {
   final Widget child;
@@ -20,7 +22,23 @@ class WorkoutPlanHomePage extends StatefulWidget {
 class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
-
+  final localNotify = FlutterLocalNotificationsPlugin();
+  // Local Notification Plugin
+  @override
+  void initState() {
+    super.initState();
+    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final settingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: (id, title, body, payload) =>
+        onSelectNotification(payload));
+    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
+      onSelectNotification: onSelectNotification);
+  }
+  Future onSelectNotification(String payload) async  {
+    Navigator.pop(context);
+    print("==============OnSelect WAS CALLED===========");
+    await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
+  } 
 
   void _addPressed(BuildContext currentContext) {
     showDialog(
