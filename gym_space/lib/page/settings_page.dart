@@ -180,8 +180,8 @@ class _SettingsState extends State<SettingsPage> {
               String email = snapshot.hasData ? snapshot.data['email'] : "";
               String bio = snapshot.hasData ? snapshot.data['bio'] : "";
               String profileURL = snapshot.hasData ? snapshot.data['photoURL'] : "";
-              bool setNotifs = false;
-              bool isPrivate = false;
+              bool setNotifs = snapshot.hasData ? snapshot.data['notification'] : false;
+              bool isPrivate = snapshot.hasData ? snapshot.data['private'] : true;
               int age = snapshot.hasData ? snapshot.data['age'] : 0;
               return Container(
                 child: Column(
@@ -501,7 +501,7 @@ class _SettingsState extends State<SettingsPage> {
                         child: Container(),
                       ),
                       Flexible(
-                        flex: 3,
+                        flex: 1,
                         child: Checkbox(
                           value: setNotifs,
                           onChanged: (value) {
@@ -550,11 +550,12 @@ class _SettingsState extends State<SettingsPage> {
                         child: Container(),
                       ),
                       Flexible(
-                        flex: 3,
+                        flex: 1,
                         child: Checkbox(
                           value: isPrivate,
-                          onChanged: (bool value) {
-                            setState(() {
+                          
+                          onChanged: (value) {
+                            setState(() async {
                               isPrivate = value;
                               String userID = DatabaseHelper.currentUserID;
                               if(value == false){
