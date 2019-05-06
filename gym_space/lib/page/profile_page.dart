@@ -132,7 +132,6 @@ class _ProfilePageState extends State<ProfilePage> {
         Navigator.pop(context);
       });
     });
-
   }
 
   void _openMessages() {
@@ -197,7 +196,7 @@ class _ProfilePageState extends State<ProfilePage> {
         gradient: LinearGradient(
           begin: FractionalOffset.topCenter,
           end: FractionalOffset.bottomCenter,
-          stops: [.3, .3,],
+          stops: [.3, .35,],
           colors: [GSColors.darkBlue, Colors.white],
         ),
         shape: RoundedRectangleBorder(
@@ -227,7 +226,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Icon(
                   Icons.stars,
                   size: 14,
-                  color: Colors.yellow,
+                  color: GSColors.green,
                 ),
               ),
               Container( // points
@@ -235,7 +234,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Text(
                   user.points.toString(),
                   style: TextStyle(
-                    color: Colors.yellow,
+                    color: GSColors.green,
                     fontSize: 14
                   ),
                 )
@@ -304,8 +303,8 @@ class _ProfilePageState extends State<ProfilePage> {
             left: 40,
             child: Row( // likes
               children: <Widget> [
-                Icon(Icons.thumb_up, color: GSColors.green,),
-                Text(' 100 Likes', style: TextStyle(color: GSColors.green),),
+                Icon(Icons.thumb_up, color: GSColors.lightBlue,),
+                Text(' 100 Likes', style: TextStyle(color: GSColors.lightBlue),),
               ],
             ),
           ),
@@ -570,7 +569,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return InkWell(
       onTap: () => Navigator.push(context, MaterialPageRoute<void> (
           builder: (BuildContext context) {
-            ImageWidget(media, context, false);
+            return ImageWidget(media, context, false);
           },
         )
       ),

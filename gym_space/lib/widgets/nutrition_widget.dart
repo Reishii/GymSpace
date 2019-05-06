@@ -31,12 +31,12 @@ class NutritionWidget extends StatelessWidget {
         content:  
           Container(
           //Row(
-          height: 350,
-          width: 350,
+          // height: 350,
+          // width: 350,
           child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-             Flexible(
+            Flexible(
               child:  TextField(
                 keyboardType: TextInputType.number,
                 maxLines: 1,

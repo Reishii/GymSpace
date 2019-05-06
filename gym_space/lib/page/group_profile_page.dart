@@ -15,8 +15,6 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
-
-
 class GroupProfilePage extends StatefulWidget {
   final Group group;
 
@@ -43,22 +41,36 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
   String newPhotoURL = '';
   String newStatus = '';
   String newAbout = '';
+  String newBio = '';
 
   List<User> members = List();
 
   Future<void> _likeGroup() async {
     if (group.likes.contains(DatabaseHelper.currentUserID)) {
-      Fluttertoast.showToast(
-        msg: 'Already Liked!', 
-        fontSize: 14, 
-        textColor: GSColors.darkBlue,
-      );
+      await _unlikeGroup().then((_) {
+        Fluttertoast.showToast(
+          msg: 'Unliked!', 
+          fontSize: 14, 
+          textColor: GSColors.darkBlue
+        );
+      });
       return;
     }
 
-    Firestore.instance.collection('groups').document(group.documentID).updateData({'likes': FieldValue.arrayUnion([DatabaseHelper.currentUserID])});
+    DatabaseHelper.updateGroup(group.documentID, {
+      'likes': FieldValue.arrayUnion([DatabaseHelper.currentUserID])
+    }).then((_) => setState(() => group.likes.add(currentUserID)));
+    Fluttertoast.showToast(
+      msg: 'Liked!', 
+      fontSize: 14, 
+      textColor: GSColors.darkBlue
+    );
+  }
 
-    setState(() => group.likes.add(currentUserID));
+  Future<void> _unlikeGroup() async {
+    DatabaseHelper.updateGroup(group.documentID, {
+      'likes': FieldValue.arrayRemove([DatabaseHelper.currentUserID])
+    }).then((_) => setState(() => group.likes.remove(currentUserID)));
   }
 
   void _joinGroup() {
@@ -99,16 +111,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       print('Editing');
       _isEditing = true;
     });
-    // Navigator.push(context, MaterialPageRoute(
-    //   builder: (context) => GroupEditPage(group: group,)
-    // ));
   }
-
-  // void _savePressed() {
-  //   setState(() {
-  //     _isEditing = false;
-  //   });
-  // }
 
   @override
   void initState() {
@@ -139,6 +142,8 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         }
       });
     });
+
+    group.likes = group.likes.toList();
   }
 
   @override
@@ -233,7 +238,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
       child: Stack(
         children: <Widget>[
           Container(
-            height: _isEditing ? 340 : 320,
+            height: 320,
             decoration: ShapeDecoration(
               color: GSColors.lightBlue,
               shadows: [BoxShadow(blurRadius: 1)],
@@ -302,7 +307,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(60), bottomRight: Radius.circular(60))
               )
             ),
-            height: _isEditing ? 300 : 280,
+            height: 280,
             child: Column(
               // crossAxisAlignment: CrossAxisAlignment,
               children: <Widget>[
@@ -329,7 +334,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                           ),
                           child: IconButton(
                             icon: Icon(
-                              Icons.edit,
+                              Icons.cloud_upload,
                               color: GSColors.darkBlue,
                             ),
                             onPressed: _editGroupPic,
@@ -341,24 +346,23 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                 ),
                 Divider(color: Colors.transparent, height: 4,),
                 Container( // name
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        group.name,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 26,
-                        ),
-                      ),
-                      _isEditing ? IconButton(
-                        color: Colors.white,
-                        icon: Icon(Icons.edit),
-                        onPressed: _editName,
-                      ): Container(),
-                    ],
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: _isEditing ? Colors.white : Colors.transparent,
+                      width: 1
+                    )
                   ),
+                  child: InkWell(
+                    onTap: _isEditing ? _editName : () {},
+                    child: Text(
+                      group.name,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 26,
+                      ),
+                    ),
+                  )
                 ),
                 Divider(color: Colors.transparent, height: 4,),
                 Container( // instructor
@@ -398,16 +402,25 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                 ),
                 Divider(color: Colors.transparent, height: 2),
                 Container( // status
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: _isEditing ? Colors.white : Colors.transparent,
+                      width: 1
+                    )
+                  ),
                   margin: EdgeInsets.symmetric(horizontal: 80),
-                  child: Text(
-                    group.status,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  )
+                  child: InkWell(
+                    onTap: _isEditing ? _editStatus : () {},
+                    child: Text(
+                      group.status,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    )
+                  ),
                 ),
               ],
             ),
@@ -528,12 +541,21 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
             ),
             Container(
               margin: EdgeInsets.only(top: 10, bottom: 20),
-              child: Text(
-                group.bio,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  height: 1.5,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: _isEditing ? Colors.white : Colors.transparent,
+                  // width: 1,
+                )
+              ),
+              child: InkWell(
+                onTap: _isEditing ? _editBio : () {},
+                child: Text(
+                  group.bio,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    height: 1.5,
+                  ),
                 ),
               ),
             )
@@ -603,9 +625,9 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
             )
           ),
           child: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(
-              member.photoURL.isEmpty ? Defaults.userPhoto : member.photoURL
-            ),
+            backgroundColor: Colors.white,
+            backgroundImage: member.photoURL.isNotEmpty ? CachedNetworkImageProvider(member.photoURL)
+            : AssetImage(Defaults.userPhoto),
             radius: 20,
           ),
         )
@@ -1333,13 +1355,23 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
     if (newName.isEmpty) 
       newName = group.name;
 
-    await Firestore.instance.collection('groups').document(group.documentID).updateData({
+    if (newStatus.isEmpty)
+      newStatus = group.status;   
+    
+    if (newBio.isEmpty)
+      newBio = group.bio;
+
+    await DatabaseHelper.updateGroup(group.documentID, {
       'photoURL': newPhotoURL,
       'name': newName,
+      'status': newStatus,
+      'bio': newBio,
     }).then((_) {
       setState(() {
         group.photoURL = newPhotoURL;
         group.name = newName;
+        group.status = newStatus;
+        group.bio = newBio;
         _isEditing = false;
       });
     }).catchError((e) {
@@ -1381,7 +1413,8 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
             child: TextField(
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
-                hintText: 'Enter new name for the group',
+                labelText: 'Group Name',
+                hintText: group.name,
               ),
               onChanged: (value) => newName = value,
             ),
@@ -1390,8 +1423,82 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
             FlatButton(
               child: Text('Cancel'),
               onPressed: () {
-                Navigator.pop(context);
                 newName = '';
+                Navigator.pop(context);
+              }
+            ),
+            FlatButton(
+              child: Text('Okay'),
+              onPressed: () => Navigator.pop(context),
+            )
+          ],
+        );
+      }
+    );
+  }
+
+  Future<void> _editStatus() async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          contentPadding: EdgeInsets.fromLTRB(24, 24, 24, 10),
+          content: Container(
+            child: TextField(
+              textCapitalization: TextCapitalization.sentences,
+              decoration: InputDecoration(
+                labelText: 'Update Status',
+                hintText: group.status,
+              ),
+              onChanged: (value) => newStatus = value,
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.pop(context);
+                newStatus = '';
+              }
+            ),
+            FlatButton(
+              child: Text('Okay'),
+              onPressed: () => Navigator.pop(context),
+            )
+          ],
+        );
+      }
+    );
+  }
+
+Future<void> _editBio() async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          contentPadding: EdgeInsets.fromLTRB(24, 24, 24, 10),
+          content: Container(
+            child: TextField(
+              textCapitalization: TextCapitalization.sentences,
+              decoration: InputDecoration(
+                labelText: 'Update Description',
+                hintText: group.bio,
+              ),
+              onChanged: (value) => newBio = value,
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.pop(context);
+                newBio = '';
               }
             ),
             FlatButton(

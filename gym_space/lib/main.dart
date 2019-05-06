@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
+
 import 'misc/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -37,6 +39,7 @@ class GymSpace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     return MaterialApp(
       title: 'GymSpace',
       debugShowCheckedModeBanner: false,

@@ -83,9 +83,8 @@ class _NutritionPage extends State<NutritionPage> {
   Widget _buildWeeklyLabel() {
     _setWeek();
     return Container(
-      margin: EdgeInsets.only(top: 5),
+      margin: EdgeInsets.only(top: 15),
       height: 40,
-      width: 40,
       child: Row(
         children: <Widget>[
           Expanded(
@@ -261,15 +260,14 @@ class _NutritionPage extends State<NutritionPage> {
             // Highlight current day
             header: _highlightDay == dayNum ? Container(
               margin: EdgeInsets.only(bottom: 3),
-              width: 20,
-              height: 20,
               decoration: ShapeDecoration(
                 color: GSColors.lightBlue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Center(
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 child: Text(
                 dayLetter,
                 style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
@@ -303,20 +301,19 @@ class _NutritionPage extends State<NutritionPage> {
             radius: 45.0,
             lineWidth: 4.5,  
             percent: 1.0,
-            progressColor: Colors.green,
+            progressColor: GSColors.green,
             backgroundColor: GSColors.darkCloud,
 
             header: _highlightDay == dayNum ? Container(
               margin: EdgeInsets.only(bottom: 3),
-              width: 20,
-              height: 20,
               decoration: ShapeDecoration(
                 color: GSColors.lightBlue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Center(
+               child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 child: Text(
                 dayLetter,
                 style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
@@ -353,15 +350,14 @@ class _NutritionPage extends State<NutritionPage> {
             backgroundColor: GSColors.darkCloud,
             header: _highlightDay == dayNum ? Container(
               margin: EdgeInsets.only(bottom: 3),
-              width: 20,
-              height: 20,
               decoration: ShapeDecoration(
                 color: GSColors.lightBlue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Center(
+               child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 child: Text(
                 dayLetter,
                 style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
@@ -399,15 +395,14 @@ class _NutritionPage extends State<NutritionPage> {
             backgroundColor: GSColors.darkCloud,
             header: _highlightDay == dayNum ? Container(
               margin: EdgeInsets.only(bottom: 3),
-              width: 20,
-              height: 20,
               decoration: ShapeDecoration(
                 color: GSColors.lightBlue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Center(
+               child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 child: Text(
                 dayLetter,
                 style: TextStyle(color: GSColors.darkBlue, fontWeight: FontWeight.bold, fontSize: 14.0),
@@ -439,10 +434,10 @@ class _NutritionPage extends State<NutritionPage> {
       child: Row(
         children: <Widget>[ 
           Expanded(
-            flex: 2,
-            child: Container(
-              height: 40,
+            flex: 3,
               child: Container(
+                height: 40,
+                margin: EdgeInsets.symmetric(vertical: 6),
                 alignment: Alignment.center,
                 child: Text(
                   //day.weekday.toString(),
@@ -466,7 +461,6 @@ class _NutritionPage extends State<NutritionPage> {
                 ),
               ),
             ),
-          ),
           Expanded(
             flex: 1,
             child: Container(),
@@ -501,295 +495,273 @@ class _NutritionPage extends State<NutritionPage> {
   _checkDailyMacrosExist();
     return Container(
       //onTap: () => print("Open nutrition info"),
+      margin: EdgeInsets.only(top: 15),
+      padding: EdgeInsets.only(bottom: 5),
       child: Container(
-        margin: EdgeInsets.only(top: 15),
-        child: Row(
+        child: Column(
           children: <Widget>[
-            Expanded(
-              flex: 1,
+            Container(
               child: Container(
-                child: Container(
-                  child: StreamBuilder(
-                    stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                    builder: (context, snapshot){ 
-                      if(!snapshot.hasData)
-                        return Container();
-                    
-                      User user = User.jsonToUser(snapshot.data.data);
+                child: StreamBuilder(
+                  stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                  builder: (context, snapshot){ 
+                    if(!snapshot.hasData)
+                      return Container();
+                  
+                    User user = User.jsonToUser(snapshot.data.data);
 
-                      // Set _dietKey to the circle user pressed
-                      _dietKey = now.toString().substring(0,10);       
+                    // Set _dietKey to the circle user pressed
+                    _dietKey = now.toString().substring(0,10);       
 
-                      //if(user.diet[_dietKey] != null && snapshot.data['diet'][_dietKey][4] > 0)
-                      if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] <= snapshot.data['caloricGoal'])
-                      {
-                        return CircularPercentIndicator(
-                          animation: true,
-                          radius: 140.0,
-                          lineWidth: 15,
-                          percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal'],
-                          progressColor: GSColors.lightBlue,
-                          backgroundColor: GSColors.darkCloud,
-                          circularStrokeCap: CircularStrokeCap.round,
-                          footer:   
-                            Text(
+                    //if(user.diet[_dietKey] != null && snapshot.data['diet'][_dietKey][4] > 0)
+                    if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] <= snapshot.data['caloricGoal'])
+                    {
+                      return CircularPercentIndicator(
+                        animation: true,
+                        radius: 140.0,
+                        lineWidth: 15,
+                        percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal'],
+                        progressColor: GSColors.lightBlue,
+                        backgroundColor: GSColors.darkCloud,
+                        circularStrokeCap: CircularStrokeCap.round,
+                        footer:   
+                          Container(
+                            margin: EdgeInsets.only(top: 20),
+                            child: Text(
                               "Calories Consumed",
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 20.0),
+                              style: TextStyle(color: Colors.white, fontSize: 20.0),
                             ),
-                          center: 
-                            Text(
-                              '${user.diet[_dietKey][3].toString()}',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 32.0),
-
                           ),
-                        );
-                      }
-                      
-                      else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] > snapshot.data['caloricGoal'])
-                      {
-                        return CircularPercentIndicator(
-                          radius: 140.0,
-                          lineWidth: 15, 
-                          percent: 1.0,
-                          progressColor: Colors.green,
-                          backgroundColor: GSColors.darkCloud,
-                          center: Text ( 
+                        center: 
+                          Text(
                             '${user.diet[_dietKey][3].toString()}',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 32.0),
-                          ),
-                          footer:   
-                            Text(
-                              "Calories Consumed",
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 20.0),
-                            ),
-                          
-                        );
-                      }
-                      else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] == 0)
-                      {
-                        return CircularPercentIndicator(
-                          radius: 140.0,
-                          lineWidth: 15,
-                          percent: 0.0,
-                          progressColor: GSColors.darkCloud,
-                          backgroundColor: GSColors.darkCloud,
-                          center: Text ( 
-                            '${user.diet[_dietKey][3].toString()}',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 32.0),
-                          ),
-                          footer:   
-                            Text(
-                              "Calories Consumed",
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 20.0),
-                            ),
-                        );
-                      }
+                            style: TextStyle(color: Colors.white, fontSize: 30.0),
 
-                      else
-                      {
-                        return CircularPercentIndicator(
-                          radius: 140.0,
-                          lineWidth: 15,
-                          percent: 0,
-                          progressColor: GSColors.darkCloud,
-                          backgroundColor: GSColors.darkCloud,
-                          footer:   
-                            Text(
-                              "Calories Consumed",
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.0),
-                            ),
-                        );
-                      }
-    
+                        ),
+                      );
                     }
-                  )
+                    
+                    else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] > snapshot.data['caloricGoal'])
+                    {
+                      return CircularPercentIndicator(
+                        radius: 140.0,
+                        lineWidth: 15, 
+                        percent: 1.0,
+                        progressColor: Colors.green,
+                        backgroundColor: GSColors.darkCloud,
+                        center: Text ( 
+                          '${user.diet[_dietKey][3].toString()}',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 32.0),
+                        ),
+                        footer:   
+                          Text(
+                            "Calories Consumed",
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 20.0),
+                          ),
+                        
+                      );
+                    }
+                    else if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] == 0)
+                    {
+                      return CircularPercentIndicator(
+                        radius: 140.0,
+                        lineWidth: 15,
+                        percent: 0.0,
+                        progressColor: GSColors.darkCloud,
+                        backgroundColor: GSColors.darkCloud,
+                        center: Text ( 
+                          '${user.diet[_dietKey][3].toString()}',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 32.0),
+                        ),
+                        footer:   
+                          Text(
+                            "Calories Consumed",
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 20.0),
+                          ),
+                      );
+                    }
+
+                    else
+                    {
+                      return CircularPercentIndicator(
+                        radius: 140.0,
+                        lineWidth: 15,
+                        percent: 0,
+                        progressColor: GSColors.darkCloud,
+                        backgroundColor: GSColors.darkCloud,
+                        footer:   
+                          Text(
+                            "Calories Consumed",
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.0),
+                          ),
+                      );
+                    }
+  
+                  }
                 )
               ),
             ),
-            Expanded(
-              flex: 1,
-              child: Container(
-                // margin: EdgeInsets.only(right: 100),
-                child: Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Container(
-                        margin:EdgeInsets.only(top: 10, bottom: 10, right: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Protein: ",
-                              style: TextStyle(fontSize: 18.0, color: Colors.white, fontWeight: FontWeight.w500)),
-                            StreamBuilder(
-                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData) {
-                                  return Container();
-                                }
-                                User user = User.jsonToUser(snapshot.data.data);
-
-                                if(user.diet[_dietKey] == null)
-                                {
-                                  return Text(
-                                    '0 g ',
-                                      style: TextStyle(fontSize: 18.0, color: Colors.lightGreen, fontWeight: FontWeight.w500)
-                                  );                        
-                                }
-                                else
-                                {
-                                  return Text(
-                                    '${user.diet[_dietKey][0].toString()} g ',
-                                      style: TextStyle(fontSize: 18.0, color: Colors.lightGreen, fontWeight: FontWeight.w500)
-                                  );
-                                }
-                              
-                              }
-                            )
-                          ],
-                        )
-                      ),
-                      Container(
-                        margin:EdgeInsets.only(bottom: 10, right: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Carbs: ",
-                                      style: TextStyle(fontSize: 18.0, color: Colors.white, fontWeight: FontWeight.w500)),
-                            StreamBuilder(
-                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData) {
-                                  return Container();
-                                }
-                                User user = User.jsonToUser(snapshot.data.data);
-                               
-                               if(user.diet[_dietKey] == null)
-                                {
-                                  return Text(  
-                                    '0 g ',
-                                      style: TextStyle(fontSize: 18.0, color: Colors.lightGreen, fontWeight: FontWeight.w500)
-                                  );                        
-                                }
-                                else
-                                {
-                                  return Text(
-                                    '${user.diet[_dietKey][1].toString()} g ',
-                                      style: TextStyle(fontSize: 18.0, color: Colors.lightGreen, fontWeight: FontWeight.w500)
-                                  );
-                                } 
-                              }
-                            )
-                          ],
-                        )
-                      ),
-                      Container(
-                        margin:EdgeInsets.only(bottom: 10, right: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Fats: ",
-                                      style: TextStyle(fontSize: 18.0, color: Colors.white, fontWeight: FontWeight.w500)),
-                            StreamBuilder(
-                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData) {
-                                  return Container();
-                                }
-                                User user = User.jsonToUser(snapshot.data.data);
-                                
-                                if(user.diet[_dietKey] == null)
-                                {
-                                  return Text(
-                                    '0 g ',
-                                      style: TextStyle(fontSize: 18.0, color: Colors.lightGreen, fontWeight: FontWeight.w500)
-                                  );                        
-                                }
-                                else
-                                {
-                                  return Text(
-                                    '${user.diet[_dietKey][2].toString()} g ',
-                                      style: TextStyle(fontSize: 18.0, color: Colors.lightGreen, fontWeight: FontWeight.w500)
-                                  );
-                                }
-                              
-                              }
-                            )
-                          ],
-                        )
-                      ),
-                      // Container(
-                      //   margin:EdgeInsets.only(bottom: 10, right: 10),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //     children: <Widget>[
-                      //       Text("Daily Calories: ",
-                      //                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-                      //       StreamBuilder(
-                      //         stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                      //         builder: (context, snapshot) {
-                      //           if (!snapshot.hasData) {
-                      //             return Container();
-                      //           }
-                      //           User user = User.jsonToUser(snapshot.data.data);
-
-                      //           if(user.diet[_dietKey] == null)
-                      //           {
-                      //             return Text(
-                      //               '0 ',
-                      //                 style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
-                      //             );                        
-                      //           }
-                      //           else
-                      //           {
-                      //             return Text(
-                      //               '${user.diet[_dietKey][3].toString()} ',
-                      //                 style: TextStyle(color: Colors.lightGreen, fontWeight: FontWeight.w500)
-                      //             );
-                      //           }
-                      //         }
-                      //       )
-                      //     ],
-                      //   )
-                      // ),
-                      Container(
-                        margin:EdgeInsets.only(right: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Caloric Goal: ",
-                                  style: TextStyle(fontSize: 18.0, color: Colors.white, fontWeight: FontWeight.w500)),
-                            StreamBuilder(
-                              stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData) {
-                                  return Container();
-                                }
-                                User user = User.jsonToUser(snapshot.data.data);
-
-                                  if(user.caloricGoal == null)
-                                  {
-                                    return Text('0 ',
-                                      style: TextStyle(fontSize: 18.0, color: Colors.lightGreen, fontWeight: FontWeight.w500));
-                                  }
-                                  else
-                                  {
-                                    return Text('${user.caloricGoal.toString()}',
-                                      style: TextStyle(fontSize: 18.0, color: Colors.yellow, fontWeight: FontWeight.w500));
-                                  }
-                              }
-                            )
-                          ],
-                        )
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            Container(
+              child: _buildNutritionStats()
+            )
           ],
         )
       ),
     ); 
+  }
+
+  Widget _buildNutritionStats() {
+    return Container(
+      height: 320,
+      margin: EdgeInsets.symmetric(vertical: 30, horizontal: 40),
+      decoration: ShapeDecoration(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20)
+        )
+      ),
+      child: Container(
+        margin:EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              margin:EdgeInsets.only(bottom: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Protein: ",
+                    style: TextStyle(fontSize: 18.0, color: GSColors.darkBlue, fontWeight: FontWeight.w500)),
+                  StreamBuilder(
+                    stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Container();
+                      }
+                      User user = User.jsonToUser(snapshot.data.data);
+
+                      if(user.diet[_dietKey] == null)
+                      {
+                        return Text(
+                          '0 g ',
+                            style: TextStyle(fontSize: 18.0, color: GSColors.green, fontWeight: FontWeight.w500)
+                        );                        
+                      }
+                      else
+                      {
+                        return Text(
+                          '${user.diet[_dietKey][0].toString()} g ',
+                            style: TextStyle(fontSize: 18.0, color: GSColors.green, fontWeight: FontWeight.w500)
+                        );
+                      }
+                    
+                    }
+                  )
+                ],
+              )
+            ),
+            Container(
+              margin:EdgeInsets.only(bottom: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Carbs: ",
+                    style: TextStyle(fontSize: 18.0, color: GSColors.darkBlue, fontWeight: FontWeight.w500)),
+                  StreamBuilder(
+                    stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Container();
+                      }
+                      User user = User.jsonToUser(snapshot.data.data);
+                      
+                      if(user.diet[_dietKey] == null)
+                      {
+                        return Text(  
+                          '0 g ',
+                            style: TextStyle(fontSize: 18.0, color: GSColors.green, fontWeight: FontWeight.w500)
+                        );                        
+                      }
+                      else
+                      {
+                        return Text(
+                          '${user.diet[_dietKey][1].toString()} g ',
+                            style: TextStyle(fontSize: 18.0, color: GSColors.green, fontWeight: FontWeight.w500)
+                        );
+                      } 
+                    }
+                  )
+                ],
+              )
+            ),
+            Container(
+              margin:EdgeInsets.only(bottom: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Fats: ",
+                    style: TextStyle(fontSize: 18.0, color: GSColors.darkBlue, fontWeight: FontWeight.w500)),
+                  StreamBuilder(
+                    stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Container();
+                      }
+                      User user = User.jsonToUser(snapshot.data.data);
+                      
+                      if(user.diet[_dietKey] == null)
+                      {
+                        return Text(
+                          '0 g ',
+                            style: TextStyle(fontSize: 18.0, color: GSColors.green, fontWeight: FontWeight.w500)
+                        );                        
+                      }
+                      else
+                      {
+                        return Text(
+                          '${user.diet[_dietKey][2].toString()} g ',
+                            style: TextStyle(fontSize: 18.0, color: GSColors.green, fontWeight: FontWeight.w500)
+                        );
+                      }
+                    
+                    }
+                  )
+                ],
+              )
+            ),
+            Container(
+              margin:EdgeInsets.only(bottom: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Caloric Goal: ",
+                        style: TextStyle(fontSize: 18.0, color: GSColors.darkBlue, fontWeight: FontWeight.w500)),
+                  StreamBuilder(
+                    stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Container();
+                      }
+                      User user = User.jsonToUser(snapshot.data.data);
+
+                        if(user.caloricGoal == null)
+                        {
+                          return Text('0 ',
+                            style: TextStyle(fontSize: 18.0, color: GSColors.green, fontWeight: FontWeight.w500));
+                        }
+                        else
+                        {
+                          return Text('${user.caloricGoal.toString()}',
+                            style: TextStyle(fontSize: 18.0, color: Colors.yellow, fontWeight: FontWeight.w500));
+                        }
+                    }
+                  )
+                ],
+              )
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

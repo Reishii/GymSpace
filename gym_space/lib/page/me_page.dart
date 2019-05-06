@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/nutrition_page.dart';
+import 'package:GymSpace/widgets/image_widget.dart';
 import 'package:GymSpace/widgets/media_tab.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +14,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class MePage extends StatefulWidget {
+  User user;
 
   MePage({Key key}) : super(key: key);
+
+  MePage.thisUser(this.user, {Key key});
   _MePageState createState() => _MePageState();
 }
 
@@ -75,8 +79,12 @@ class _MePageState extends State<MePage> {
               ),
               child: Column(
                 children: <Widget>[
-                  InkWell( // profile pic
-                    onLongPress: () => MediaTab(context).getProfileImage(),
+                  FlatButton( // profile pic
+                    onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
+                      builder: (BuildContext context) {
+                        return ImageWidget(user.photoURL, context, false);
+                      })
+                    ),
                     child: Container(
                       decoration: ShapeDecoration(
                         shadows: [BoxShadow(color: Colors.black, blurRadius: 4, spreadRadius: 2)],
@@ -85,7 +93,6 @@ class _MePageState extends State<MePage> {
                         )
                       ),
                       child: CircleAvatar(
-                        // backgroundImage: NetworkImage(user.photoURL.isEmpty ? Defaults.userPhoto : user.photoURL),
                         backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL, errorListener: () => print('Failed to download')) 
                         : AssetImage(Defaults.userPhoto),
                         backgroundColor: Colors.white,
@@ -155,8 +162,6 @@ class _MePageState extends State<MePage> {
       ),
     );
   }
-
-  // Future<void> _updateMeInfo() async{
 
   Widget _buildBody(BuildContext context) {
     return Container(
@@ -318,7 +323,6 @@ class _MePageState extends State<MePage> {
     newMacros[1] = 0;   //carbs
     newMacros[2] = 0;   //fats
     newMacros[3] = 0;   //current calories
-    //newMacros[4] = 0;   //caloric goal
     macroFromDB[_dietKey] = newMacros;
 
     Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
@@ -329,7 +333,6 @@ class _MePageState extends State<MePage> {
   Widget _buildNutritionInfo(BuildContext context) {
   _checkDailyMacrosExist();
     return InkWell(
-      //onTap: () => print("Open nutrition info"),
       child: Container(
         margin: EdgeInsets.only(top: 30),
         child: Row(
@@ -348,7 +351,6 @@ class _MePageState extends State<MePage> {
                       }
                       User user = User.jsonToUser(snapshot.data.data);
                       
-                      //if(user.diet[_dietKey] != null && snapshot.data['diet'][_dietKey][4] > 0)
                       if(user.diet[_dietKey] != null && snapshot.data['caloricGoal'] > 0 && user.diet[_dietKey][3] <= snapshot.data['caloricGoal'])
                       {
                         return CircularPercentIndicator(
@@ -356,13 +358,13 @@ class _MePageState extends State<MePage> {
                           radius: 130.0,
                           lineWidth: 17,
                           percent: snapshot.data['diet'][_dietKey][3] / snapshot.data['caloricGoal'],
-                          progressColor: GSColors.lightBlue,
+                          progressColor: GSColors.green,
                           backgroundColor: GSColors.darkCloud,
                           circularStrokeCap: CircularStrokeCap.round,
                           footer:   
                             Text(
                               "Calories Consumed",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                              style: TextStyle(fontSize: 16.0),
                             ),
                           center: 
                             Text(
@@ -672,51 +674,41 @@ class _MePageState extends State<MePage> {
           flex: 1,
           child: Container(
             alignment: Alignment.center,
-            //child: Row(
-              //children: <Widget>[
+            child: FutureBuilder(
+              future: _futureUser,
+              builder: (context, snapshot) {
+                double weightLost = snapshot.hasData ? (snapshot.data['startingWeight'] - snapshot.data['currentWeight']) : 0;
                 
-                // Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
-                child: FutureBuilder(
-                  future: _futureUser,
-                  builder: (context, snapshot) {
-                    double weightLost = snapshot.hasData ? (snapshot.data['startingWeight'] - snapshot.data['currentWeight']) : 0;
-                    
-                  if(weightLost < 0)
-                    return Row(
-                      children: <Widget>[
-                        Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
-                        Text(
+                if(weightLost > 0)
+                  return Row(
+                    children: <Widget>[
+                      Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
+                      Text(
+                        weightLost.toStringAsFixed(2),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      )
+                    ],
+                  );
+                else if (weightLost < 0) {
+                  return Row(
+                    children: <Widget>[
+                      Icon(FontAwesomeIcons.caretUp, color: GSColors.green, size: 16),
+                      Text(
                           weightLost.toStringAsFixed(2),
                           style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                         ),
                       )
-                      ],
-                    );
-                  else if(weightLost > 0)
-                 {
-                    return Row(
-                      children: <Widget>[
-                        Icon(FontAwesomeIcons.caretUp, color: GSColors.green, size: 16),
-                        Text(
-                          weightLost.toStringAsFixed(2),
-                          style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
-                      )
-                      ],
-                    );
-                 }
-                 else
-                 {
-                   return Text(" ");
-                 }
-                  }
-                ),
-              //],
-            //)
+                    ],
+                  );
+                } else 
+                  return Container();
+              }
+            ),
           ),
         ),
       ],
@@ -853,14 +845,39 @@ class _MePageState extends State<MePage> {
     );
   }
 
-  void _updateChallengeInfo(BuildContext context) async{
- int challenge1, challenge2, challenge3;
+
+Future<void> _checkWeeklyChallengeStatus() async {
+  List<int> statusList = List(3);
+  DocumentSnapshot challengeDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
+  Map<String, dynamic> statusFromDB = challengeDoc.data['challengeStatus'].cast<String, dynamic>();
+
+  if(statusFromDB[_challengeKey] == null)
+  {
+    statusList[0] = 0;
+    statusList[1] = 0;
+    statusList[2] = 0;
+    statusFromDB[_challengeKey] = statusList;
+  }
+
+  Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+              {'challengeStatus': statusFromDB});
+}
+
+
+
+void _updateChallengeInfo(BuildContext context) async{
+      int challenge1, challenge2, challenge3;
       DocumentSnapshot macroDoc = await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).get();//await Firestore.instance.collection('user').document(DatabaseHelper.currentUserID);
-      List<int> challengeFromUser = macroDoc.data['challengeStatus'].cast<int>();
+      Map<String, dynamic> challengeMap = macroDoc.data['challengeStatus'].cast<String, dynamic>();
+      List<int> challengeFromUser = macroDoc.data['challengeStatus'][_challengeKey].cast<int>();
+      
       int pointsFromUser = macroDoc.data['points'];
       DocumentSnapshot challengeDoc = await Firestore.instance.collection('challenges').document(_challengeKey).get();
       List<int> challengeInfoDB = challengeDoc.data['goal'].cast<int>();
       List<int> pointsFromChallenge = challengeDoc.data['points'].cast<int>();
+      
+      //_checkWeeklyChallengeStatus();
+
       showDialog<String>(
          context: context,
       //child: SingleChildScrollView(
@@ -905,7 +922,7 @@ class _MePageState extends State<MePage> {
                         color: GSColors.darkBlue,
                       ),
                       contentPadding: EdgeInsets.all(10.0),
-                      hintText: '${user.challengeStatus[0]}/${snapshotChallenge.data['goal'][0]} ${snapshotChallenge.data['units'][0]} Completed',
+                      hintText: '${user.challengeStatus[_challengeKey][0]}/${snapshotChallenge.data['goal'][0]} ${snapshotChallenge.data['units'][0]} Completed',
                       hintStyle: TextStyle(
                         color: GSColors.lightBlue,
                         fontWeight: FontWeight.bold,
@@ -949,7 +966,7 @@ class _MePageState extends State<MePage> {
                         color: GSColors.darkBlue,
                       ),
                       contentPadding: EdgeInsets.all(10.0),
-                      hintText: '${user.challengeStatus[1]}/${snapshotChallenge.data['goal'][1]} ${snapshotChallenge.data['units'][1]} Completed',
+                      hintText: '${user.challengeStatus[_challengeKey][1]}/${snapshotChallenge.data['goal'][1]} ${snapshotChallenge.data['units'][1]} Completed',
                       hintStyle: TextStyle(
                         color: GSColors.lightBlue,
                         fontWeight: FontWeight.bold,
@@ -994,7 +1011,7 @@ class _MePageState extends State<MePage> {
                         color: GSColors.darkBlue,
                       ),
                       contentPadding: EdgeInsets.all(10.0),
-                      hintText: '${user.challengeStatus[2]}/${snapshotChallenge.data['goal'][2]} ${snapshotChallenge.data['units'][2]} Completed',
+                      hintText: '${user.challengeStatus[_challengeKey][2]}/${snapshotChallenge.data['goal'][2]} ${snapshotChallenge.data['units'][2]} Completed',
                       hintStyle: TextStyle(
                         color: GSColors.lightBlue,
                         fontWeight: FontWeight.bold,
@@ -1067,8 +1084,9 @@ class _MePageState extends State<MePage> {
                   challengeFromUser[2] += challenge3;
                 }
           
+                  challengeMap[_challengeKey] = challengeFromUser;
                   Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
-                    {'challengeStatus': challengeFromUser});
+                    {'challengeStatus': challengeMap});
                   Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
                     {'points': pointsFromUser});
                   // _buildNutritionInfo(context);
@@ -1118,12 +1136,12 @@ class _MePageState extends State<MePage> {
                         ]
                       );
                     }
-
+                    if (snapshotChallenge.data.data == null) 
+                      return Container();
                     List<Widget> challengeWidgets = List();
                     for (int challengeIndex = 0; challengeIndex < snapshotChallenge.data.data['title'].length; challengeIndex++) {
                       challengeWidgets.add(_buildChallenge(snapshotChallenge.data.data, challengeIndex, user));
                     }
-
                     return Column(children: challengeWidgets);
                   },
                 ),
@@ -1160,11 +1178,11 @@ class _MePageState extends State<MePage> {
           Container(
             child: LinearPercentIndicator(
               lineHeight: 14.0,
-              percent: user.challengeStatus[i] / challenge['goal'][i],
+              percent: user.challengeStatus[_challengeKey][i] / challenge['goal'][i],
               backgroundColor: GSColors.darkCloud,
               progressColor: user.challengeStatus[i] == challenge['goal'][i] ? GSColors.green : GSColors.lightBlue,
               center: Text(
-                (user.challengeStatus[i] / challenge['goal'][i] * 100).toStringAsFixed(0) + ' %'
+                (user.challengeStatus[_challengeKey][i] / challenge['goal'][i] * 100).toStringAsFixed(0) + ' %'
               )
             )
           )
@@ -1174,6 +1192,7 @@ class _MePageState extends State<MePage> {
   }
 
   Widget _buildChallengeProgess(BuildContext context){
+    _checkWeeklyChallengeStatus();
     return Container(
       height: 260,
       child: StreamBuilder(
@@ -1194,10 +1213,10 @@ class _MePageState extends State<MePage> {
                   ' Loading...'
                   );                        
               }
-           // if(user.challengeStatus[0] > 0 || )
-            //{
+              if (snapshotChallenge.data.data == null) 
+                return Container();
 
-              int totalProgress = user.challengeStatus[0] + user.challengeStatus[1] + user.challengeStatus[2];
+              int totalProgress = user.challengeStatus[_challengeKey][0] + user.challengeStatus[_challengeKey][1] + user.challengeStatus[_challengeKey][2];
               int totalGoal = snapshotChallenge.data['goal'][0] + snapshotChallenge.data['goal'][1] + snapshotChallenge.data['goal'][2];
               
               if(totalProgress == totalGoal)
