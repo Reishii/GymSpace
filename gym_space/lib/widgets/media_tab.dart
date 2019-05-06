@@ -78,32 +78,40 @@ class _MediaTabState extends State<MediaTab> {
   }
 
   Widget _buildButton() {
-    return Column(
-      children: <Widget>[
-        //DIY floating action button!
-        Container(
-          alignment: Alignment.bottomRight,
-            child: Container(
-              margin: EdgeInsets.only(top: 15, right: 50),
-              height: 40,
-              width: 40,
-              decoration: ShapeDecoration(
-                color: GSColors.purple,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(50)),
+    return StreamBuilder(
+      stream: _listFutureUser.asStream(),
+      builder: (context, snapshot) {
+        if(!snapshot.hasData)
+          return Container();
+
+        return Column(
+        children: <Widget>[
+          //DIY floating action button!
+          Container(
+            alignment: Alignment.bottomRight,
+              child: Container(
+                margin: EdgeInsets.only(top: 15, right: 50),
+                height: 40,
+                width: 40,
+                decoration: ShapeDecoration(
+                  color: GSColors.purple,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(50)),
+                  ),
+                ),
+                child: IconButton(
+                  icon: Icon(FontAwesomeIcons.plus),
+                  iconSize: 12,
+                  color: Colors.white,
+                  onPressed: () => setState(() {
+                    getMediaImage();
+                  }),
                 ),
               ),
-              child: IconButton(
-                icon: Icon(FontAwesomeIcons.plus),
-                iconSize: 12,
-                color: Colors.white,
-                onPressed: () => setState(() {
-                  getMediaImage();
-                }),
-              ),
             ),
-          ),
-        ],
+          ],
+        );
+      },
     );
   }
 
@@ -155,39 +163,6 @@ class _MediaTabState extends State<MediaTab> {
           )
         ),
       ),
-    );
-  }
-
-  // *****************************************************************************
-  // **************************** UPLOAD A PROFILE PHOTO *************************
-  Future<String> getProfileImage() async {
-    var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
-    
-    if(tempImage != null) {
-      uploadProfileFile(tempImage);   
-      return tempImage.uri.toString();
-    }
-
-    return tempImage.toString();
-  }
-
-  Future uploadProfileFile(File profileImage) async {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
-
-    StorageUploadTask uploadTask = reference.putFile(profileImage);
-    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
-
-    await storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
-      profileImageUrl = downloadUrl;
-    }, 
-
-    onError: (err) {
-      Fluttertoast.showToast(msg: 'This file is not an image');
-    });
-        
-    await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
-      (ds) => ds.reference.updateData({'photoURL': profileImageUrl})
     );
   }
 

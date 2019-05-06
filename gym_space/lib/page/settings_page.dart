@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:GymSpace/widgets/image_widget.dart';
 import 'package:GymSpace/widgets/media_tab.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
@@ -10,7 +12,9 @@ import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -24,6 +28,7 @@ class _SettingsState extends State<SettingsPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Stream<DocumentSnapshot> _streamUser =  DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID);
   String _newInfo = "";
+  String profileImageUrl = "";
   DateTime _selectedDate = DateTime.now();
   int _myAge = 0;
 
@@ -138,6 +143,43 @@ class _SettingsState extends State<SettingsPage> {
           Firestore.instance.collection('users').document(userID).updateData({'age': _myAge});
       });
     });
+  }
+
+   // *****************************************************************************
+  // **************************** UPLOAD A PROFILE PHOTO *************************
+  Future<String> getProfileImage() async {
+    var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
+    
+    if(tempImage != null) {
+      setState(() {
+        uploadProfileFile(tempImage);   
+        return tempImage.uri.toString();
+      });
+    }
+
+    setState(() {
+      return tempImage.toString();
+    });
+  }
+
+  Future uploadProfileFile(File profileImage) async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
+
+    StorageUploadTask uploadTask = reference.putFile(profileImage);
+    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
+
+    await storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
+      profileImageUrl = downloadUrl;
+    }, 
+
+    onError: (err) {
+      Fluttertoast.showToast(msg: 'This file is not an image');
+    });
+        
+    await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
+      (ds) => ds.reference.updateData({'photoURL': profileImageUrl})
+    );
   }
 
   Widget _buildForm(String infoKey, String update, int maxLength) {
@@ -255,7 +297,9 @@ class _SettingsState extends State<SettingsPage> {
             // PROFILE PIC EDIT
             Container(
               child: FlatButton(
-                onPressed: () {}, //mediaTab.getProfileImage(),
+                onPressed: () => setState(() {
+                    getProfileImage();
+                  }),
                 child: Text(
                   "Change Profile Photo",
                   style: TextStyle(
