@@ -26,6 +26,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool _isFriend = false;
+  bool _isPrivate = true;
   User user;
   Future<List<String>> _listFutureUser;
   List<String> media = [];
@@ -41,6 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
       _listFutureUser = DatabaseHelper.getUserMedia(user.documentID);
       _isFriend = user.buddies.contains(DatabaseHelper.currentUserID);
+      _isPrivate = user.private;
       return;
     }
 
@@ -75,7 +77,7 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         currentUser = User.jsonToUser(ds.data);
         NotificationPage notify = new NotificationPage();
-        notify.sendNotifications('Buddy Request', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}','buddy', userID);
+        user.notification == true ?? notify.sendNotifications('Buddy Request', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}','buddy', userID);
       });
     });
   

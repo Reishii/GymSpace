@@ -9,7 +9,9 @@ import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 
 class SettingsPage extends StatefulWidget {
   
@@ -21,6 +23,8 @@ class _SettingsState extends State<SettingsPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Stream<DocumentSnapshot> _streamUser =  DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID);
   String _newInfo = "";
+  DateTime _selectedDate = DateTime.now();
+  int _myAge = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +36,7 @@ class _SettingsState extends State<SettingsPage> {
     );
   }
 
-  void _updateInfo(BuildContext context, String infoKey, String update) async {
+  void _updateInfo(BuildContext context, String infoKey, String update, int maxLength) async {
     showDialog(
       context: context,
       builder: (context) {
@@ -56,7 +60,7 @@ class _SettingsState extends State<SettingsPage> {
                 child: Container(
                   margin: EdgeInsets.only(left: 16, right: 40),
                   width: double.maxFinite,
-                  child: _buildForm(infoKey, update),
+                  child: _buildForm(infoKey, update, maxLength),
                 ),
               ),
               Row(
@@ -117,11 +121,31 @@ class _SettingsState extends State<SettingsPage> {
     }
   }
 
-  Widget _buildForm(String infoKey, String update) {
+  Future<DateTime> _selectDate(BuildContext context, String userID, DateTime birthdayDateTime) async {
+    final DateTime picked = await showDatePicker(
+      context: context,
+      initialDate: birthdayDateTime,
+      firstDate: DateTime(1940, 1, 1),
+      lastDate: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day + 1),
+    );
+    if (picked != null && picked != _selectedDate)
+    _myAge = (DateTime.now().difference(_selectedDate).inDays / 365).round();
+    Firestore.instance.collection('users').document(userID).updateData({'birthday': picked})
+      .then((_){
+        setState(() {
+          _selectedDate = picked;
+          Firestore.instance.collection('users').document(userID).updateData({'age': _myAge});
+      });
+    });
+  }
+
+  Widget _buildForm(String infoKey, String update, int maxLength) {
     return Form(
       key: _formKey,
       child: TextFormField( // name
-            
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(maxLength),
+            ],
             decoration: InputDecoration(
               icon: Icon(
                 FontAwesomeIcons.angleRight,
@@ -177,9 +201,9 @@ class _SettingsState extends State<SettingsPage> {
         String email = snapshot.hasData ? snapshot.data['email'] : "";
         String bio = snapshot.hasData ? snapshot.data['bio'] : "";
         String profileURL = snapshot.hasData ? snapshot.data['photoURL'] : "";
+        DateTime birthdayDateTime = snapshot.hasData ? snapshot.data['birthday'] : DateTime.now();
         bool setNotifs = snapshot.hasData ? snapshot.data['notification'] : false;
         bool isPrivate = snapshot.hasData ? snapshot.data['private'] : true;
-        int age = snapshot.hasData ? snapshot.data['age'] : 0;
         return Container(
           child: ListView(
           children: <Widget>[   
@@ -250,7 +274,7 @@ class _SettingsState extends State<SettingsPage> {
                   child: Container(),
                 ),
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Container(
                     child: Text(
                       'Name',
@@ -281,7 +305,7 @@ class _SettingsState extends State<SettingsPage> {
                     child: IconButton(
                       alignment: Alignment.centerRight,
                       icon: Icon(Icons.edit),
-                      onPressed: () => setState(() {_updateInfo(context, name, "Name");}),
+                      onPressed: () => setState(() {_updateInfo(context, name, "Name", 30);}),
                     ),
                   ),
                 ),
@@ -291,7 +315,7 @@ class _SettingsState extends State<SettingsPage> {
             Container(
               margin: EdgeInsets.only(right: 30),
               child: Divider(
-                indent: 95,
+                indent: 108,
                 color: GSColors.darkBlue
               ),
             ),
@@ -304,7 +328,7 @@ class _SettingsState extends State<SettingsPage> {
                   child: Container(),
                 ),
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Container(
                     child: Text(
                       'Email',
@@ -334,7 +358,7 @@ class _SettingsState extends State<SettingsPage> {
                   margin: EdgeInsets.only(left: 40, right: 20),
                     child: IconButton(
                       icon: Icon(Icons.edit),
-                      onPressed: () => setState(() {_updateInfo(context, email, "Email");}),
+                      onPressed: () => setState(() {_updateInfo(context, email, "Email", 30);}),
                     ),
                   ),
                 ),
@@ -344,7 +368,7 @@ class _SettingsState extends State<SettingsPage> {
             Container(
               margin: EdgeInsets.only(right: 30),
               child: Divider(
-                indent: 95,
+                indent: 108,
                 color: GSColors.darkBlue
               ),
             ),
@@ -357,10 +381,10 @@ class _SettingsState extends State<SettingsPage> {
                   child: Container(),
                 ),
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Container(
                     child: Text(
-                      'Age',
+                      'Birthday',
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -373,7 +397,7 @@ class _SettingsState extends State<SettingsPage> {
                   flex: 6,
                   child: Container(
                     child: Text(
-                      age.toString(),
+                      DateFormat('MMMM dd,  yyyy').format(birthdayDateTime),
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 16,
@@ -387,7 +411,10 @@ class _SettingsState extends State<SettingsPage> {
                   margin: EdgeInsets.only(left: 40, right: 20),
                     child: IconButton(
                       icon: Icon(Icons.edit),
-                      onPressed: () => setState(() {_updateInfo(context, age.toString(), "Age");}),
+                      onPressed: () => setState(() {
+                        String userID = DatabaseHelper.currentUserID; 
+                        _selectDate(context, userID, birthdayDateTime);
+                        }),
                     ),
                   ),
                 ),
@@ -397,7 +424,7 @@ class _SettingsState extends State<SettingsPage> {
             Container(
               margin: EdgeInsets.only(right: 30),
               child: Divider(
-                indent: 95,
+                indent: 108,
                 color: GSColors.darkBlue
               ),
             ),
@@ -410,7 +437,7 @@ class _SettingsState extends State<SettingsPage> {
                   child: Container(),
                 ),
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Container(
                     child: Text(
                       'Bio',
@@ -429,7 +456,7 @@ class _SettingsState extends State<SettingsPage> {
                       bio,
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14,
+                        fontSize: 16,
                       )
                     )
                   ),
@@ -440,7 +467,7 @@ class _SettingsState extends State<SettingsPage> {
                   margin: EdgeInsets.only(left: 40, right: 20),
                     child: IconButton(
                       icon: Icon(Icons.edit),
-                      onPressed: () => setState(() {_updateInfo(context, bio, "Bio");}),
+                      onPressed: () => setState(() {_updateInfo(context, bio, "Bio", 140);}),
                     ),
                   ),
                 ),

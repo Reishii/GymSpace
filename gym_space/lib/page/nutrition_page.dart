@@ -233,7 +233,7 @@ class _NutritionPage extends State<NutritionPage> {
   }
 
   void _checkDay(DateTime _chosenDay) {
-    if(_chosenDay.weekday > _currentDay.weekday && _chosenDay.weekday != 7) 
+    if(_chosenDay.isAfter(_currentDay)) 
       setState(() => _selectDay = false);
     else
       setState(() => _selectDay = true);

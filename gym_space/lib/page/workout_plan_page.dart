@@ -259,7 +259,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
                 child: Text(workout.name),
               ),
               Container(
-                margin: EdgeInsets.only(left: 140),
+                //margin: EdgeInsets.only(left: 140),
                 child: Text(
                   workout.author,
                   style: TextStyle(
