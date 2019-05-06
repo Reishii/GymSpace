@@ -134,4 +134,8 @@ class DatabaseHelper {
   static Stream getPostStream(String postID) {
     return Firestore.instance.collection('posts').document(postID).snapshots();
   }
+
+  static Future<void> updatePost(String postID, Map<String, dynamic> data) async {
+    return Firestore.instance.collection('posts').document(postID).updateData(data);
+  }
 }

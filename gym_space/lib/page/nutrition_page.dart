@@ -612,7 +612,6 @@ class _NutritionPage extends State<NutritionPage> {
 
   Widget _buildNutritionStats() {
     return Container(
-      height: 320,
       margin: EdgeInsets.symmetric(vertical: 30, horizontal: 40),
       decoration: ShapeDecoration(
         color: Colors.white,

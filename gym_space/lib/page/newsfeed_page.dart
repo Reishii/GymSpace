@@ -60,25 +60,15 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
       color: GSColors.darkBlue,
       backgroundColor: Colors.white,
       child: _fetchingPosts ? ListView(
-        children: <Widget>[
-          Container (
-            alignment: Alignment.topCenter,
-            child: Text(
-              'Updating...',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 30
-              ),
-            ),
-          )
-        ],
+        children: <Widget>[],
       )
-      : ListView.builder(
-        itemCount: _fetchedPosts.length,
-        itemBuilder: (context, i) {
-          return _fetchedPosts[i];
-        },
-      ),
+      : ListView(
+          cacheExtent: 99999,
+          padding: EdgeInsets.only(top: 20),
+          // shrinkWrap: true,
+          children: _fetchedPosts,
+          // itemExtent: 400,
+        )
     );
   }
 
