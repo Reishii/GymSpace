@@ -150,438 +150,433 @@ class _SettingsState extends State<SettingsPage> {
   }
 
   Widget _buildBody() {
-    return Container(
-      child: ListView(
-        children: <Widget>[
-          _buildAccount(),
-          // _buildGeneral()
-        ],
-      )
+    return Stack(
+      children: <Widget>[
+      Container(
+          margin: EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 20),
+          decoration: ShapeDecoration(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+          ),
+          child: Container(
+            margin: EdgeInsets.all(15),
+            child: _buildAccount(),
+          )
+        ),
+      ],
     );
   }
 
   Widget _buildAccount(){
-    return Container(
-      padding: EdgeInsets.only(bottom: 10),
-      margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      decoration: ShapeDecoration(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20)
-        )
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          StreamBuilder(
-            stream: _futureUser.asStream(),
-            builder: (context, snapshot){
-              String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
-              String email = snapshot.hasData ? snapshot.data['email'] : "";
-              String bio = snapshot.hasData ? snapshot.data['bio'] : "";
-              String profileURL = snapshot.hasData ? snapshot.data['photoURL'] : "";
-              bool setNotifs = snapshot.hasData ? snapshot.data['notification'] : false;
-              bool isPrivate = snapshot.hasData ? snapshot.data['private'] : true;
-              int age = snapshot.hasData ? snapshot.data['age'] : 0;
-              return Container(
-                child: Column(
-                children: <Widget>[   
-                  // SETTINGS TAB
-                  Container(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.all(10),
-                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 100),
-                    child: Text(
-                      'Profile Settings',
-                      style:TextStyle(
-                        color: Colors.white,
-                        fontSize: 20
-                      ),
-                    ),
-                    decoration: ShapeDecoration(
-                      color: GSColors.darkBlue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(60)
-                      ) 
-                    ),
-                  ),  
+    return StreamBuilder(
+      stream: _futureUser.asStream(),
+      builder: (context, snapshot){
+        String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
+        String email = snapshot.hasData ? snapshot.data['email'] : "";
+        String bio = snapshot.hasData ? snapshot.data['bio'] : "";
+        String profileURL = snapshot.hasData ? snapshot.data['photoURL'] : "";
+        bool setNotifs = snapshot.hasData ? snapshot.data['notification'] : false;
+        bool isPrivate = snapshot.hasData ? snapshot.data['private'] : true;
+        int age = snapshot.hasData ? snapshot.data['age'] : 0;
+        return Container(
+          child: ListView(
+          children: <Widget>[   
+            // SETTINGS TAB
+            Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.all(10),
+              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 90),
+              child: Text(
+                'Profile Settings',
+                style:TextStyle(
+                  color: Colors.white,
+                  fontSize: 20
+                ),
+              ),
+              decoration: ShapeDecoration(
+                color: GSColors.darkBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(60)
+                ) 
+              ),
+            ),  
 
-                  // PROFILE PIC
-                  Container(
-                    margin: EdgeInsets.only(top: 5),
-                    decoration: ShapeDecoration(
-                      shadows: [BoxShadow(color: Colors.black, blurRadius: 2, spreadRadius: 2)],
-                      shape: CircleBorder(
-                        side: BorderSide(color: Colors.white, width: .5)
+            // PROFILE PIC
+            Container(
+              margin: EdgeInsets.only(top: 5),
+              decoration: ShapeDecoration(
+                shadows: [BoxShadow(color: Colors.black, blurRadius: 2, spreadRadius: 2)],
+                shape: CircleBorder(
+                  side: BorderSide(color: Colors.white, width: .5)
+                )
+              ),
+              child: FlatButton(
+                onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
+                  builder: (BuildContext context) {
+                    return ImageWidget(profileURL, context, false);
+                  })
+                ),
+                child: CircleAvatar(
+                  backgroundImage: profileURL != "" ? CachedNetworkImageProvider(profileURL, errorListener: () => print('Failed to download')) 
+                      : AssetImage(Defaults.userPhoto),
+                  backgroundColor: Colors.white,
+                  radius: 40,
+                ),
+              ),
+            ),
+
+            // PROFILE PIC EDIT
+            Container(
+              child: FlatButton(
+                onPressed: () => MediaTab(context).getProfileImage(),
+                child: Text(
+                  "Change Profile Photo",
+                  style: TextStyle(
+                    color: GSColors.lightBlue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  )
+                ),
+              ),
+            ),
+
+            // NAME EDIT
+            Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 1,
+                  child: Container(),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    child: Text(
+                      'Name',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       )
                     ),
-                    child: FlatButton(
-                      onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
-                        builder: (BuildContext context) {
-                          return ImageWidget(profileURL, context, false);
-                        })
-                      ),
-                      child: CircleAvatar(
-                        backgroundImage: profileURL != "" ? CachedNetworkImageProvider(profileURL, errorListener: () => print('Failed to download')) 
-                            : AssetImage(Defaults.userPhoto),
-                        backgroundColor: Colors.white,
-                        radius: 40,
-                      ),
-                    ),
                   ),
-
-                  // PROFILE PIC EDIT
-                  Container(
-                    child: FlatButton(
-                      onPressed: () => MediaTab(context).getProfileImage(),
-                      child: Text(
-                        "Change Profile Photo",
-                        style: TextStyle(
-                          color: GSColors.lightBlue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        )
-                      ),
-                    ),
-                  ),
-
-                  // NAME EDIT
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        flex: 1,
-                        child: Container(),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Container(
-                          child: Text(
-                            'Name',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            )
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 6,
-                        child: Container(
-                          child: Text(
-                            name,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                            )
-                          )
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Container(
-                          margin: EdgeInsets.only(left: 40, right: 20),
-                          child: IconButton(
-                            alignment: Alignment.centerRight,
-                            icon: Icon(Icons.edit),
-                            onPressed: () => _updateInfo(context, name, "Name"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  Container(
-                    margin: EdgeInsets.only(right: 30),
-                    child: Divider(
-                      indent: 95,
-                      color: GSColors.darkBlue
-                    ),
-                  ),
-
-                  // EMAIL EDIT
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        flex: 1,
-                        child: Container(),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Container(
-                          child: Text(
-                            'Email',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            )
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 6,
-                        child: Container(
-                          child: Text(
-                            email,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                            )
-                          )
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Container(
-                        margin: EdgeInsets.only(left: 40, right: 20),
-                          child: IconButton(
-                            icon: Icon(Icons.edit),
-                            onPressed: () => _updateInfo(context, email, "Email"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  Container(
-                    margin: EdgeInsets.only(right: 30),
-                    child: Divider(
-                      indent: 95,
-                      color: GSColors.darkBlue
-                    ),
-                  ),
-
-                  // AGE EDIT
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        flex: 1,
-                        child: Container(),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Container(
-                          child: Text(
-                            'Age',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            )
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 6,
-                        child: Container(
-                          child: Text(
-                            age.toString(),
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                            )
-                          )
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Container(
-                        margin: EdgeInsets.only(left: 40, right: 20),
-                          child: IconButton(
-                            icon: Icon(Icons.edit),
-                            onPressed: () => _updateInfo(context, age.toString(), "Age"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  Container(
-                    margin: EdgeInsets.only(right: 30),
-                    child: Divider(
-                      indent: 95,
-                      color: GSColors.darkBlue
-                    ),
-                  ),
-
-                  // BIO EDIT
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        flex: 1,
-                        child: Container(),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Container(
-                          child: Text(
-                            'Bio',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            )
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 6,
-                        child: Container(
-                          child: Text(
-                            bio,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 14,
-                            )
-                          )
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Container(
-                        margin: EdgeInsets.only(left: 40, right: 20),
-                          child: IconButton(
-                            icon: Icon(Icons.edit),
-                            onPressed: () => _updateInfo(context, bio, "Bio"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  Container(
-                    child: Divider(
-                      color: GSColors.darkBlue
-                    ),
-                  ),
-
-                  // ACCOUNT SETTINGS TAB
-                  Container(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.all(10),
-                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 100),
-                    child: Text(
-                      'Account Settings',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20
-                      ),
-                    ),
-                    decoration: ShapeDecoration(
-                      color: GSColors.darkBlue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(60)
-                      ) 
-                    ),
-                  ), 
-
-                  // NOTIFICATIONS EDIT
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        flex: 1,
-                        child: Container(),
-                      ),
-                      Expanded(
-                        flex: 5,
-                        child: Container(
-                          child: Text(
-                            'Notifications',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            )
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 6, 
-                        child: Container(),
-                      ),
-                      Flexible(
-                        flex: 1,
-                        child: Checkbox(
-                          value: setNotifs,
-                          onChanged: (value) {
-                            setState(() {
-                              setNotifs = value;
-                              String userID = DatabaseHelper.currentUserID;
-                              if(value == false){
-                                Firestore.instance.collection('users').document(userID).updateData({'notification': false});
-                              }
-                              else{
-                                Firestore.instance.collection('users').document(userID).updateData({'notification': true});
-                              }
-                            });
-                          },     
-                          activeColor: GSColors.darkBlue,
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Container(),
-                      ), 
-                    ],
-                  ),
-
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        flex: 1,
-                        child: Container(),
-                      ),
-                      Expanded(
-                        flex: 5,
-                        child: Container(
-                          child: Text(
-                            'Private',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            )
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 6, 
-                        child: Container(),
-                      ),
-                      Flexible(
-                        flex: 1,
-                        child: Checkbox(
-                          value: isPrivate,
-                          
-                          onChanged: (value) {
-                            setState(() async {
-                              isPrivate = value;
-                              String userID = DatabaseHelper.currentUserID;
-                              if(value == false){
-                                Firestore.instance.collection('users').document(userID).updateData({'private': false});
-                              }
-                              else{
-                                Firestore.instance.collection('users').document(userID).updateData({'private': true});
-                              }
-                            });
-                          },     
-                          activeColor: GSColors.darkBlue,
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Container(),
-                      ),
-                    ],
-                  ),
-                ],
                 ),
-              );
-            },
+                Expanded(
+                  flex: 6,
+                  child: Container(
+                    child: Text(
+                      name,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      )
+                    )
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    margin: EdgeInsets.only(left: 40, right: 20),
+                    child: IconButton(
+                      alignment: Alignment.centerRight,
+                      icon: Icon(Icons.edit),
+                      onPressed: () => _updateInfo(context, name, "Name"),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            Container(
+              margin: EdgeInsets.only(right: 30),
+              child: Divider(
+                indent: 95,
+                color: GSColors.darkBlue
+              ),
+            ),
+
+            // EMAIL EDIT
+            Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 1,
+                  child: Container(),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    child: Text(
+                      'Email',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      )
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 6,
+                  child: Container(
+                    child: Text(
+                      email,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      )
+                    )
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                  margin: EdgeInsets.only(left: 40, right: 20),
+                    child: IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () => _updateInfo(context, email, "Email"),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            Container(
+              margin: EdgeInsets.only(right: 30),
+              child: Divider(
+                indent: 95,
+                color: GSColors.darkBlue
+              ),
+            ),
+
+            // AGE EDIT
+            Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 1,
+                  child: Container(),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    child: Text(
+                      'Age',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      )
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 6,
+                  child: Container(
+                    child: Text(
+                      age.toString(),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      )
+                    )
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                  margin: EdgeInsets.only(left: 40, right: 20),
+                    child: IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () => _updateInfo(context, age.toString(), "Age"),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            Container(
+              margin: EdgeInsets.only(right: 30),
+              child: Divider(
+                indent: 95,
+                color: GSColors.darkBlue
+              ),
+            ),
+
+            // BIO EDIT
+            Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 1,
+                  child: Container(),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    child: Text(
+                      'Bio',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      )
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 6,
+                  child: Container(
+                    child: Text(
+                      bio,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                      )
+                    )
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                  margin: EdgeInsets.only(left: 40, right: 20),
+                    child: IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () => _updateInfo(context, bio, "Bio"),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            Container(
+              child: Divider(
+                color: GSColors.darkBlue
+              ),
+            ),
+
+            // ACCOUNT SETTINGS TAB
+            Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.all(10),
+              margin: EdgeInsets.symmetric(vertical: 10, horizontal: 90),
+              child: Text(
+                'Account Settings',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20
+                ),
+              ),
+              decoration: ShapeDecoration(
+                color: GSColors.darkBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(60)
+                ) 
+              ),
+            ), 
+
+            // NOTIFICATIONS EDIT
+            Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 1,
+                  child: Container(),
+                ),
+                Expanded(
+                  flex: 7,
+                  child: Container(
+                    child: Text(
+                      'Enable Notifications',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      )
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 3, 
+                  child: Container(),
+                ),
+                Flexible(
+                  flex: 1,
+                  child: Checkbox(
+                    value: setNotifs,
+                    onChanged: (value) {
+                      setState(() {
+                        setNotifs = value;
+                        String userID = DatabaseHelper.currentUserID;
+                        if(value == false){
+                          Firestore.instance.collection('users').document(userID).updateData({'notification': false});
+                        }
+                        else{
+                          Firestore.instance.collection('users').document(userID).updateData({'notification': true});
+                        }
+                      });
+                    },     
+                    activeColor: GSColors.darkBlue,
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Container(),
+                ), 
+              ],
+            ),
+
+            // PRIVATE EDIT
+            Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 1,
+                  child: Container(),
+                ),
+                Expanded(
+                  flex: 7,
+                  child: Container(
+                    child: Text(
+                      'Set Account to Private',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      )
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 3, 
+                  child: Container(),
+                ),
+                Flexible(
+                  flex: 2,
+                  child: Switch(
+                    value: isPrivate,
+                    onChanged: (value) {
+                      setState(() {
+                        isPrivate = value;
+                        String userID = DatabaseHelper.currentUserID;
+                        if(value == false){
+                          Firestore.instance.collection('users').document(userID).updateData({'private': false});
+                        }
+                        else{
+                          Firestore.instance.collection('users').document(userID).updateData({'private': true});
+                        }
+                        _buildAccount();
+                      });
+                    },     
+                    activeColor: GSColors.darkBlue,
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Container(),
+                ),
+              ],
+            ),
+          ],
           ),
-        ],
-      )
+        );
+      },
     );
   }
   

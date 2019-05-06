@@ -747,12 +747,12 @@ class _NutritionPage extends State<NutritionPage> {
                         if(user.caloricGoal == null)
                         {
                           return Text('0 ',
-                            style: TextStyle(fontSize: 18.0, color: GSColors.green, fontWeight: FontWeight.w500));
+                            style: TextStyle(fontSize: 18.0, color: GSColors.lightBlue, fontWeight: FontWeight.w500));
                         }
                         else
                         {
                           return Text('${user.caloricGoal.toString()}',
-                            style: TextStyle(fontSize: 18.0, color: Colors.yellow, fontWeight: FontWeight.w500));
+                            style: TextStyle(fontSize: 18.0, color: GSColors.lightBlue, fontWeight: FontWeight.w500));
                         }
                     }
                   )
