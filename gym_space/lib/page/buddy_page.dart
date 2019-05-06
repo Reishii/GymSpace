@@ -85,7 +85,6 @@ class _BuddyPageState extends State<BuddyPage> {
         Navigator.pop(context);
       });
     });
-
   }
 
   @override
@@ -125,7 +124,7 @@ class _BuddyPageState extends State<BuddyPage> {
             ),
           ),
           child: Container(
-            margin: EdgeInsets.all(16),
+            margin: EdgeInsets.all(15),
             child: _buildBuddyList(),
           )
         ),
@@ -164,7 +163,7 @@ class _BuddyPageState extends State<BuddyPage> {
   // Buddy container
   Widget _buildBuddy(User user) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 7.5),
+      margin: EdgeInsets.symmetric(vertical: 5),
       child: InkWell(
         onTap: () => _buildBuddyProfile(user),
         child: Stack(
@@ -182,7 +181,7 @@ class _BuddyPageState extends State<BuddyPage> {
                   child: Column(
                     children: <Widget>[
                       Container(
-                        margin: EdgeInsets.only(top: 14, left: 30),
+                        margin: EdgeInsets.only(top: 12, left: 30),
                         child: Text(
                           '${user.firstName} ${user.lastName}',
                           style: TextStyle(
@@ -193,7 +192,7 @@ class _BuddyPageState extends State<BuddyPage> {
                       ),
                       Divider(height: 5),
                       Container(
-                        margin: EdgeInsets.only(bottom: 14, left: 30),
+                        margin: EdgeInsets.only(bottom: 12, left: 30),
                         child: Text(
                           '${user.liftingType}',
                           style: TextStyle(
