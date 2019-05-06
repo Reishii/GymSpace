@@ -46,9 +46,9 @@ class User {
     this.challengeStatus,
     this.caloricGoal = 0,
     this.fcmToken = "",
-    this.private,
+    this.private = true,
     this.location,
-    this.notification,
+    this.notification = false,
     this.notifications
   });
 
