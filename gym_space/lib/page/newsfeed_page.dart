@@ -271,7 +271,6 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
       drawer: AppDrawer(startPage: 0,),
       backgroundColor: GSColors.darkBlue,
       body: _buildBody(),
-      backgroundColor: GSColors.darkBlue,
       floatingActionButton: FlatButton.icon(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         color: GSColors.green,

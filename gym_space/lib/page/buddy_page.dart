@@ -101,29 +101,30 @@ class _BuddyPageState extends State<BuddyPage> {
     });
   }
 
-  // Widget build(BuildContext context) {
-  //   return SafeArea(
-  //     child: _fromUser == true ? Scaffold(
-  //     //drawer: AppDrawer(startPage: 5,),
-  //     backgroundColor: GSColors.darkBlue,
-  //     appBar: _buildAppBar(),
-  //     body: _buildBody(),
-  //   ) : Scaffold(
-  //     backgroundColor: GSColors.darkBlue,
-  //     appBar: _buildAppBar(),
-  //     body: _buildBody(),
-  //     ),
-  //   );
-  // }
-
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: AppDrawer(startPage: 5,),
+    return SafeArea(
+      child: _fromUser == true ? Scaffold(
+      //drawer: AppDrawer(startPage: 5,),
       backgroundColor: GSColors.darkBlue,
       appBar: _buildAppBar(),
       body: _buildBody(),
+    ) : Scaffold(
+      drawer: AppDrawer(startPage: 5),
+      backgroundColor: GSColors.darkBlue,
+      appBar: _buildAppBar(),
+      body: _buildBody(),
+      ),
     );
   }
+
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     drawer: AppDrawer(startPage: 5,),
+  //     backgroundColor: GSColors.darkBlue,
+  //     appBar: _buildAppBar(),
+  //     body: _buildBody(),
+  //   );
+  // }
 
   Widget _buildAppBar() {
     return PreferredSize(
