@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:GymSpace/logic/post.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -113,5 +114,22 @@ class DatabaseHelper {
 
   static Future<void> updateGroup(String groupID, Map<String, dynamic> data) async {
     return Firestore.instance.collection('groups').document(groupID).updateData(data);
+  }
+
+  // posts
+  static Future<List<String>> fetchPosts() async {
+    List<String> postIDS = List();
+    DocumentSnapshot user = await getUserSnapshot(currentUserID);
+    List<String> buddies = user.data['buddies'];
+
+    buddies.forEach((buddyID) {
+      Firestore.instance.collection('posts').where('fromUser', isEqualTo: buddyID).getDocuments().then(
+        (querySnap) {
+          postIDS.addAll(querySnap.documents.map((ds) => ds.documentID).toList());
+        }
+      );
+    });
+    
+    return postIDS;
   }
 }
