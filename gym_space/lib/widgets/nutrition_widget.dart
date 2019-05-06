@@ -51,7 +51,7 @@ class NutritionWidget extends StatelessWidget {
                 ),
                 onChanged: (text) {
                   (text != null) ? protein = int.parse(text): protein = 0;
-                  (text != null) ? currentCalories += protein * 4: currentCalories += 0;
+                  //(text != null) ? currentCalories += protein * 4: currentCalories += 0;
                 }
               ),
             ),
@@ -75,7 +75,7 @@ class NutritionWidget extends StatelessWidget {
                 ),
                 onChanged: (text) { 
                   text != null ? carbs = int.parse(text) : carbs = 0;
-                  text != null ? currentCalories += carbs * 4 : currentCalories += 0;
+                 // text != null ? currentCalories += carbs * 4 : currentCalories += 0;
                 }
               ),
             ),
@@ -99,7 +99,7 @@ class NutritionWidget extends StatelessWidget {
                 ),
                 onChanged: (text) {
                     text != null ? fats = int.parse(text) : fats = 0;
-                    text != null ? currentCalories += fats * 9 : currentCalories += 0;
+                   // text != null ? currentCalories += fats * 9 : currentCalories += 0;
                 }
               ),
             ),
@@ -152,10 +152,10 @@ class NutritionWidget extends StatelessWidget {
             if(caloricGoal == null)
               caloricGoal = -1;
 
-            macroFromDB[_dietKey][0] += protein;
-            macroFromDB[_dietKey][1] += carbs;
-            macroFromDB[_dietKey][2] += fats;
-            macroFromDB[_dietKey][3] += currentCalories;
+            macroFromDB[_dietKey][0] = protein;
+            macroFromDB[_dietKey][1] = carbs;
+            macroFromDB[_dietKey][2] = fats;
+            macroFromDB[_dietKey][3] = protein * 4 + carbs * 4 + fats * 9;
             if(caloricGoal != -1)
                Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
               {'caloricGoal': caloricGoal});
