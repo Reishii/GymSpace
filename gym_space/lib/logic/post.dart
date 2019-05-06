@@ -8,7 +8,7 @@ class Post {
   String body;
   Timestamp uploadTime;
 
-  Map<String, String> comments = Map();
+  Map<dynamic, dynamic> comments = Map();
   List<String> likes = List();
 
   Post({
@@ -40,9 +40,9 @@ class Post {
       fromGroup: data['fromGroup'],
       mediaURL: data['mediaURL'],
       body: data['body'],
-      comments: data['comments'].cast<Map<String,String>>(),
+      comments: data['comments'],
       likes: data['likes'].cast<String>().toList(),
-      uploadTime: data['uploadTime'],
+      uploadTime: Timestamp.fromDate(data['uploadTime']),
     );
   }
 }

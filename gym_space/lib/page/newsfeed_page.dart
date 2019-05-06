@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:GymSpace/logic/image_input_adapter.dart';
 import 'package:GymSpace/logic/post.dart';
+import 'package:GymSpace/widgets/post_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -61,7 +62,6 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
       child: _fetchingPosts ? ListView(
         children: <Widget>[
           Container (
-            // color: Colors.red,
             alignment: Alignment.topCenter,
             child: Text(
               'Updating...',
@@ -91,9 +91,12 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
     DatabaseHelper.fetchPosts().then((posts) {
       setState(() {
         print('Fetched ${posts.length} posts');
+        if (posts.isNotEmpty) 
+          _fetchedPosts.clear();
         // build each post
-        for (String postID in posts) { // build the post 
-
+        posts.sort((String a, String b) => int.parse(a).compareTo(int.parse(b)));
+        for (String postID in posts.reversed) { // build the post 
+          _fetchedPosts.add(_buildPost(postID));
         }
         // _fetchedPosts = posts;
         // _fetchedPosts.sort()
@@ -121,9 +124,12 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
           if (!snapshot.hasData) 
             return Container();
 
+          Post post = Post.jsonToPost(snapshot.data.data);
+          post.documentID = snapshot.data.documentID;
           
           return Container(
-
+            margin: EdgeInsets.symmetric(horizontal: 20),
+            child: PostWidget(post: post,),
           );
         },
       ),
