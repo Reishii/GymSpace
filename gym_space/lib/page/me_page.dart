@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/page/nutrition_page.dart';
+import 'package:GymSpace/page/settings_page.dart';
 import 'package:GymSpace/widgets/image_widget.dart';
 import 'package:GymSpace/widgets/media_tab.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -68,20 +69,22 @@ class _MePageState extends State<MePage> {
                 gradient: LinearGradient(
                   begin: FractionalOffset.topCenter,
                   end: FractionalOffset.bottomCenter,
-                  stops: [.3, .3,],
+                  stops: [.28, .3,],
                   colors: [GSColors.darkBlue, Colors.white],
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(36),
-                    bottomRight: Radius.circular(36),
+                    bottomLeft: Radius.circular(40),
+                    bottomRight: Radius.circular(40),
                   ),
                 )
               ),
               child: Column(
                 children: <Widget>[
                   _buildAvatarStack(user),
-                  Divider(color: Colors.transparent,),
+
+                  Divider(color: Colors.transparent),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -144,7 +147,39 @@ class _MePageState extends State<MePage> {
                     ),
                   ),
 
-                  Divider(color: Colors.transparent),
+                  MaterialButton(
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(
+                      builder: (context) => SettingsPage()
+                    )),
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 30),
+                      decoration: ShapeDecoration(
+                        shape: Border.all(
+                          color: GSColors.darkCloud,
+                          width: 1.0,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(
+                            Icons.edit,
+                            size: 15,
+                            color: Colors.blueGrey,
+                          ),
+                          Text(
+                            " Edit Profile",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: .5,
+                              fontSize: 14,
+                              color: Colors.blueGrey
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
             
             // return Container(

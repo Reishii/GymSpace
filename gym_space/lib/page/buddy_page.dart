@@ -29,6 +29,17 @@ class _BuddyPageState extends State<BuddyPage> {
   
   //Algolia get algolia => DatabaseConnections.algolia;
 
+  @override
+  void initState() {
+    super.initState();
+
+    if(widget.user != null) {
+      user = widget.user;
+      user.buddies = user.buddies.toList();
+      _fromUser = true;
+    }
+  }
+
   Future<void> searchPressed() async {
     User _currentUser;
     await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
@@ -90,16 +101,20 @@ class _BuddyPageState extends State<BuddyPage> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    if(widget.user != null) {
-      user = widget.user;
-      user.buddies = user.buddies.toList();
-      _fromUser = true;
-    }
-  }
+  // Widget build(BuildContext context) {
+  //   return SafeArea(
+  //     child: _fromUser == true ? Scaffold(
+  //     //drawer: AppDrawer(startPage: 5,),
+  //     backgroundColor: GSColors.darkBlue,
+  //     appBar: _buildAppBar(),
+  //     body: _buildBody(),
+  //   ) : Scaffold(
+  //     backgroundColor: GSColors.darkBlue,
+  //     appBar: _buildAppBar(),
+  //     body: _buildBody(),
+  //     ),
+  //   );
+  // }
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -138,7 +153,8 @@ class _BuddyPageState extends State<BuddyPage> {
           ),
           child: Container(
             margin: EdgeInsets.all(15),
-            child: _buildBuddyList(),
+            child: Container(),
+            //_buildBuddyList(),
           )
         ),
       ]
@@ -146,109 +162,211 @@ class _BuddyPageState extends State<BuddyPage> {
   }
 
   Widget _buildBuddyList() {
-    return StreamBuilder(
-      stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-      builder: (context, snapshot) {
-        if(!snapshot.hasData) 
-          return Container();
-               
-        buddies = snapshot.data.data['buddies'].cast<String>();
-        return ListView.builder(
-          itemCount: buddies.length,
-          itemBuilder: (BuildContext context, int i) {            
-            return StreamBuilder(
-              stream: DatabaseHelper.getUserStreamSnapshot(buddies[i]),
-              builder: (context, snapshot) {
-                if(!snapshot.hasData)
-                  return Container();
+    if(!_fromUser) {
+      return StreamBuilder(
+        stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+        builder: (context, snapshot) {
+          if(!snapshot.hasData) 
+            return Container();
+                
+          buddies = snapshot.data.data['buddies'].cast<String>();
+          return ListView.builder(
+            itemCount: buddies.length,
+            itemBuilder: (BuildContext context, int i) {            
+              return StreamBuilder(
+                stream: DatabaseHelper.getUserStreamSnapshot(buddies[i]),
+                builder: (context, snapshot) {
+                  if(!snapshot.hasData)
+                    return Container();
 
-                user = User.jsonToUser(snapshot.data.data);
-                user.documentID = snapshot.data.documentID;
-                return _buildBuddy(user);
-              },
+    
+                  user = User.jsonToUser(snapshot.data.data);
+                  user.documentID = snapshot.data.documentID;
+                  return _buildBuddy(user);
+                },
+              );
+            }, 
+          );
+        },
+      );
+    } else {
+        return StreamBuilder(
+          stream: DatabaseHelper.getUserStreamSnapshot(user.documentID),
+          builder: (context, snapshot) {
+            if(!snapshot.hasData) 
+              return Container();
+                  
+            buddies = snapshot.data.data['buddies'].cast<String>();
+            return ListView.builder(
+              itemCount: buddies.length,
+              itemBuilder: (BuildContext context, int i) {            
+                return StreamBuilder(
+                  stream: DatabaseHelper.getUserStreamSnapshot(buddies[i]),
+                  builder: (context, snapshot) {
+                    if(!snapshot.hasData)
+                      return Container();
+
+      
+                    user = User.jsonToUser(snapshot.data.data);
+                    user.documentID = snapshot.data.documentID;
+                    return _buildBuddy(user);
+                  },
+                );
+              }, 
             );
-          }, 
+          },
         );
-      },
-    );
+    }
   }
 
   // Buddy container
   Widget _buildBuddy(User user) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 5),
-      child: InkWell(
-        onTap: () => _buildBuddyProfile(user),
-        child: Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            Container(
-              decoration: ShapeDecoration(
-                color: GSColors.darkBlue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(50)
-                )
-              ),
-              child: 
-                Center(
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.only(top: 12, left: 30),
-                        child: Text(
-                          '${user.firstName} ${user.lastName}',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24
-                          ),
-                        ),
-                      ),
-                      Divider(height: 5),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 12, left: 30),
-                        child: Text(
-                          '${user.liftingType}',
-                          style: TextStyle(
-                            color: Colors.white70
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-            ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
+    if(!_fromUser) {
+      return Container(
+        margin: EdgeInsets.symmetric(vertical: 5),
+        child: InkWell(
+          onTap: () => _buildBuddyProfile(user),
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              Container(
                 decoration: ShapeDecoration(
-                  shadows: [BoxShadow(blurRadius: 2)],
-                  shape: CircleBorder(
-                    side: BorderSide(color: Colors.black, width: .25)
+                  color: GSColors.darkBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50)
                   )
                 ),
-                child: CircleAvatar(
-                  radius: 46,
-                  backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
-                   : AssetImage(Defaults.userPhoto),
-                ),
-              )
-            ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Container(
-                margin: EdgeInsets.only(right: 4),
-                child:IconButton(
-                  onPressed: () => _deletePressed(user.documentID),
-                  color: Colors.red,
-                  iconSize: 30,
-                  icon: Icon(Icons.cancel),
+                child: 
+                  Center(
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(top: 12, left: 30),
+                          child: Text(
+                            '${user.firstName} ${user.lastName}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24
+                            ),
+                          ),
+                        ),
+                        Divider(height: 5),
+                        Container(
+                          margin: EdgeInsets.only(bottom: 12, left: 30),
+                          child: Text(
+                            '${user.liftingType}',
+                            style: TextStyle(
+                              color: Colors.white70
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  decoration: ShapeDecoration(
+                    shadows: [BoxShadow(blurRadius: 2)],
+                    shape: CircleBorder(
+                      side: BorderSide(color: Colors.black, width: .25)
+                    )
+                  ),
+                  child: CircleAvatar(
+                    radius: 46,
+                    backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
+                    : AssetImage(Defaults.userPhoto),
+                  ),
+                )
+              ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Container(
+                  margin: EdgeInsets.only(right: 4),
+                  child:IconButton(
+                    onPressed: () => _deletePressed(user.documentID),
+                    color: Colors.red,
+                    iconSize: 30,
+                    icon: Icon(Icons.cancel),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      return Container(
+        margin: EdgeInsets.symmetric(vertical: 5),
+        child: InkWell(
+          onTap: () => _buildBuddyProfile(user),
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              Container(
+                decoration: ShapeDecoration(
+                  color: GSColors.darkBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50)
+                  )
+                ),
+                child: 
+                  Center(
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(top: 12, left: 30),
+                          child: Text(
+                            '${user.firstName} ${user.lastName}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24
+                            ),
+                          ),
+                        ),
+                        Divider(height: 5),
+                        Container(
+                          margin: EdgeInsets.only(bottom: 12, left: 30),
+                          child: Text(
+                            '${user.liftingType}',
+                            style: TextStyle(
+                              color: Colors.white70
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  decoration: ShapeDecoration(
+                    shadows: [BoxShadow(blurRadius: 2)],
+                    shape: CircleBorder(
+                      side: BorderSide(color: Colors.black, width: .25)
+                    )
+                  ),
+                  child: CircleAvatar(
+                    radius: 46,
+                    backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
+                    : AssetImage(Defaults.userPhoto),
+                  ),
+                )
+              ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Container(
+                  margin: EdgeInsets.only(right: 4),
+                  child: Icon(Icons.group, color: GSColors.purple),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
   }
 
   void _buildBuddyProfile(User user) {
