@@ -180,7 +180,7 @@ class _SettingsState extends State<SettingsPage> {
               String email = snapshot.hasData ? snapshot.data['email'] : "";
               String bio = snapshot.hasData ? snapshot.data['bio'] : "";
               String profileURL = snapshot.hasData ? snapshot.data['photoURL'] : "";
-              bool setNotifs = true;
+              bool setNotifs = false;
               bool isPrivate = false;
               int age = snapshot.hasData ? snapshot.data['age'] : 0;
               return Container(
@@ -476,7 +476,7 @@ class _SettingsState extends State<SettingsPage> {
                     ),
                   ), 
 
-                  // AGE EDIT
+                  // NOTIFICATIONS EDIT
                   Row(
                     children: <Widget>[
                       Expanded(
@@ -507,6 +507,55 @@ class _SettingsState extends State<SettingsPage> {
                           onChanged: (value) {
                             setState(() {
                               setNotifs = value;
+                              String userID = DatabaseHelper.currentUserID;
+                              if(value == false){
+                                Firestore.instance.collection('users').document(userID).updateData({'notification': false});
+                              }
+                              else{
+                                Firestore.instance.collection('users').document(userID).updateData({'notification': true});
+                              }
+                            });
+                          },     
+                          activeColor: GSColors.darkBlue,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Container(),
+                      ), 
+                    ],
+                  ),
+
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: Container(),
+                      ),
+                      Expanded(
+                        flex: 5,
+                        child: Container(
+                          child: Text(
+                            'Private',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            )
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 6, 
+                        child: Container(),
+                      ),
+                      Flexible(
+                        flex: 3,
+                        child: Checkbox(
+                          value: isPrivate,
+                          onChanged: (bool value) {
+                            setState(() {
+                              isPrivate = value;
                               String userID = DatabaseHelper.currentUserID;
                               if(value == false){
                                 Firestore.instance.collection('users').document(userID).updateData({'private': false});
