@@ -15,14 +15,17 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class BuddyPage extends StatefulWidget {
   final Widget child;
+  User user;
 
   BuddyPage({Key key, this.child}) : super(key: key);
+  BuddyPage.fromUser(this.user, {Key key, this.child}) : super(key: key);
   _BuddyPageState createState() => _BuddyPageState();
 }
 
 class _BuddyPageState extends State<BuddyPage> {
   List<String> buddies =  [];
   User user;
+  bool _fromUser = false;
   
   //Algolia get algolia => DatabaseConnections.algolia;
 
@@ -88,6 +91,16 @@ class _BuddyPageState extends State<BuddyPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    if(widget.user != null) {
+      user = widget.user;
+      user.buddies = user.buddies.toList();
+      _fromUser = true;
+    }
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(startPage: 5,),

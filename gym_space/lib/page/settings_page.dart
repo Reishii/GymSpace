@@ -20,6 +20,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsState extends State<SettingsPage> {
+  MediaTab mediaTab = MediaTab();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Stream<DocumentSnapshot> _streamUser =  DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID);
   String _newInfo = "";
@@ -254,7 +255,7 @@ class _SettingsState extends State<SettingsPage> {
             // PROFILE PIC EDIT
             Container(
               child: FlatButton(
-                onPressed: () => MediaTab(context).getProfileImage(),
+                onPressed: () {}, //mediaTab.getProfileImage(),
                 child: Text(
                   "Change Profile Photo",
                   style: TextStyle(
@@ -508,7 +509,7 @@ class _SettingsState extends State<SettingsPage> {
                   child: Container(),
                 ),
                 Expanded(
-                  flex: 7,
+                  flex: 8,
                   child: Container(
                     child: Text(
                       'Enable Notifications',
@@ -555,7 +556,7 @@ class _SettingsState extends State<SettingsPage> {
                   child: Container(),
                 ),
                 Expanded(
-                  flex: 7,
+                  flex: 8,
                   child: Container(
                     child: Text(
                       'Set Account to Private',

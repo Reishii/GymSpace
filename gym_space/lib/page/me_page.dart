@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:GymSpace/logic/user.dart';
+import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/page/nutrition_page.dart';
 import 'package:GymSpace/widgets/image_widget.dart';
 import 'package:GymSpace/widgets/media_tab.dart';
@@ -23,7 +24,7 @@ class MePage extends StatefulWidget {
 }
 
 class _MePageState extends State<MePage> {
-
+  MediaTab mediaTab = MediaTab();
   final Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
   final myController = TextEditingController();
   String filePath;
@@ -62,57 +63,39 @@ class _MePageState extends State<MePage> {
             }
 
             User user = User.jsonToUser(snapshot.data.data);
-            
             return Container(
-              margin: EdgeInsets.only(top: 10),
               decoration: ShapeDecoration(
-                // color: Colors.red,
                 gradient: LinearGradient(
                   begin: FractionalOffset.topCenter,
                   end: FractionalOffset.bottomCenter,
-                  stops: [.25, .25, .25],
-                  colors: [GSColors.darkBlue, Colors.white, GSColors.babyPowder],
+                  stops: [.3, .3,],
+                  colors: [GSColors.darkBlue, Colors.white],
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(0), bottomRight: Radius.circular(0))
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(36),
+                    bottomRight: Radius.circular(36),
+                  ),
                 )
               ),
               child: Column(
                 children: <Widget>[
-                  FlatButton( // profile pic
-                    onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
-                      builder: (BuildContext context) {
-                        return ImageWidget(user.photoURL, context, false);
-                      })
-                    ),
-                    child: Container(
-                      decoration: ShapeDecoration(
-                        shadows: [BoxShadow(color: Colors.black, blurRadius: 4, spreadRadius: 2)],
-                        shape: CircleBorder(
-                          side: BorderSide(color: Colors.white, width: .5)
-                        )
-                      ),
-                      child: CircleAvatar(
-                        backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL, errorListener: () => print('Failed to download')) 
-                        : AssetImage(Defaults.userPhoto),
-                        backgroundColor: Colors.white,
-                        radius: 70,
-                      ),
-                    ),
-                  ),
-                  Divider(color: Colors.transparent),
-                  Row( // name, points
+                  _buildAvatarStack(user),
+                  Divider(color: Colors.transparent,),
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text(
-                        '${user.firstName} ${user.lastName}',
-                        style: TextStyle(
-                          // color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20
+                      user.firstName.isEmpty && user.lastName.isEmpty ? Container() : Container(
+                        child: Text( // name
+                          '${user.firstName} ${user.lastName}',
+                          style: TextStyle(
+                            // color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
                         ),
                       ),
-                      Container(
+                      Container( // points icon
                         margin: EdgeInsets.only(left: 10),
                         child: Icon(
                           Icons.stars,
@@ -120,7 +103,7 @@ class _MePageState extends State<MePage> {
                           color: GSColors.green,
                         ),
                       ),
-                      Container(
+                      Container( // points
                         margin: EdgeInsets.only(left: 4),
                         child: Text(
                           user.points.toString(),
@@ -129,19 +112,26 @@ class _MePageState extends State<MePage> {
                             fontSize: 14
                           ),
                         )
-                      )
+                      ),
                     ],
                   ),
-                  Divider(color: Colors.transparent),
-                  user.liftingType.isEmpty ? Container() : Text( // lifting type
-                    user.liftingType,
-                    style: TextStyle(
-                      // color: Colors.white,
-                      fontWeight: FontWeight.w300
+
+                  //Divider(color: Colors.transparent),
+
+                  user.liftingType.isEmpty ? Container() : Container(
+                    margin: EdgeInsets.only(top: 3),
+                    child: Text(
+                      user.liftingType,
+                      style: TextStyle(
+                        // color: Colors.white,
+                        fontWeight: FontWeight.w300
+                      ),
                     ),
                   ),
+
                   Divider(color: Colors.transparent),
-                  user.liftingType.isEmpty ? Container() : Container(
+
+                  user.bio.isEmpty ? Container() : Container(
                     margin: EdgeInsets.symmetric(horizontal: 30),
                     child: Text( // bio
                       user.bio,
@@ -153,12 +143,169 @@ class _MePageState extends State<MePage> {
                       ),
                     ),
                   ),
+
                   Divider(color: Colors.transparent),
                 ],
+            
+            // return Container(
+            //   margin: EdgeInsets.only(top: 10),
+            //   decoration: ShapeDecoration(
+            //     // color: Colors.red,
+            //     gradient: LinearGradient(
+            //       begin: FractionalOffset.topCenter,
+            //       end: FractionalOffset.bottomCenter,
+            //       stops: [.25, .25, .25],
+            //       colors: [GSColors.darkBlue, Colors.white, GSColors.babyPowder],
+            //     ),
+            //     shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.only(bottomLeft: Radius.circular(0), bottomRight: Radius.circular(0))
+            //     )
+            //   ),
+            //   child: Column(
+            //     children: <Widget>[
+            //       FlatButton( // profile pic
+            //         onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
+            //           builder: (BuildContext context) {
+            //             return ImageWidget(user.photoURL, context, false);
+            //           })
+            //         ),
+            //         child: Container(
+            //           decoration: ShapeDecoration(
+            //             shadows: [BoxShadow(color: Colors.black, blurRadius: 4, spreadRadius: 2)],
+            //             shape: CircleBorder(
+            //               side: BorderSide(color: Colors.white, width: .5)
+            //             )
+            //           ),
+            //           child: CircleAvatar(
+            //             backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL, errorListener: () => print('Failed to download')) 
+            //             : AssetImage(Defaults.userPhoto),
+            //             backgroundColor: Colors.white,
+            //             radius: 70,
+            //           ),
+            //         ),
+            //       ),
+            //       Divider(color: Colors.transparent),
+            //       Row( // name, points
+            //         mainAxisAlignment: MainAxisAlignment.center,
+            //         children: <Widget>[
+            //           Text(
+            //             '${user.firstName} ${user.lastName}',
+            //             style: TextStyle(
+            //               // color: Colors.white,
+            //               fontWeight: FontWeight.bold,
+            //               fontSize: 20
+            //             ),
+            //           ),
+            //           Container(
+            //             margin: EdgeInsets.only(left: 10),
+            //             child: Icon(
+            //               Icons.stars,
+            //               size: 14,
+            //               color: GSColors.green,
+            //             ),
+            //           ),
+            //           Container(
+            //             margin: EdgeInsets.only(left: 4),
+            //             child: Text(
+            //               user.points.toString(),
+            //               style: TextStyle(
+            //                 color: GSColors.green,
+            //                 fontSize: 14
+            //               ),
+            //             )
+            //           )
+            //         ],
+            //       ),
+            //       Divider(color: Colors.transparent),
+            //       user.liftingType.isEmpty ? Container() : Text( // lifting type
+            //         user.liftingType,
+            //         style: TextStyle(
+            //           // color: Colors.white,
+            //           fontWeight: FontWeight.w300
+            //         ),
+            //       ),
+            //       Divider(color: Colors.transparent),
+            //       user.bio.isEmpty ? Container() : Container(
+            //         margin: EdgeInsets.symmetric(horizontal: 30),
+            //         child: Text( // bio
+            //           user.bio,
+            //           textAlign: TextAlign.center,
+            //           style: TextStyle(
+            //             // color: Colors.white,
+            //             fontStyle: FontStyle.italic,
+            //             fontWeight: FontWeight.w300
+            //           ),
+            //         ),
+            //       ),
+            //       Divider(color: Colors.transparent),
+            //     ],
+            //   ),
+            // );
               ),
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildAvatarStack(User user) {
+    return Container(
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: <Widget>[
+          Positioned(
+            left: 40,
+            child: Row( // likes
+              children: <Widget> [
+                Icon(Icons.thumb_up, color: GSColors.lightBlue,),
+                Text(' 100 Likes', style: TextStyle(color: GSColors.lightBlue),),
+              ],
+            ),
+          ),
+          FlatButton(
+            onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
+                  builder: (BuildContext context) {
+                    return ImageWidget(user.photoURL, context, false);
+                  })
+                ),
+            child: Container(
+              alignment: Alignment.center,
+              child: CircleAvatar(
+                radius: 70,
+                backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
+                : AssetImage(Defaults.userPhoto),
+              ),
+              decoration: ShapeDecoration(
+                shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
+                shape: CircleBorder(
+                  side: BorderSide(
+                    color: Colors.white,
+                    width: 1,
+                  )
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 40,
+            child: InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute(
+                builder: (context) => BuddyPage())
+              ),
+              child: Row( // likes
+                children: <Widget> [
+                  Icon(Icons.group, color: GSColors.purple),
+                  Text(
+                    ' ${user.buddies.length} buddies', 
+                    style: TextStyle(
+                    color: GSColors.purple
+                  )),
+                ],
+              ),
+            ),
+          ),
+        ]
       ),
     );
   }
@@ -170,7 +317,7 @@ class _MePageState extends State<MePage> {
           _buildProfileHeading(),
           _buildPillNavigator(),
           _currentTab == 0 ? _buildInfoTab(context) 
-            : _currentTab == 1 ? MediaTab(context)
+            : _currentTab == 1 ? mediaTab
             : _buildPostsTab(context)
         ],
       ),

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/page/message_thread_page.dart';
 import 'package:GymSpace/widgets/image_widget.dart';
 import 'package:flutter/material.dart';
@@ -310,51 +311,63 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
-          Container(
-            alignment: Alignment.center,
-            child: CircleAvatar(
-              radius: 70,
-              backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
-              : AssetImage(Defaults.userPhoto),
-            ),
-            decoration: ShapeDecoration(
-              shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
-              shape: CircleBorder(
-                side: BorderSide(
-                  color: Colors.white,
-                  width: 1,
-                )
+          FlatButton(
+            onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
+                  builder: (BuildContext context) {
+                    return ImageWidget(user.photoURL, context, false);
+                  })
+                ),
+            child: Container(
+              alignment: Alignment.center,
+              child: CircleAvatar(
+                radius: 70,
+                backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
+                : AssetImage(Defaults.userPhoto),
+              ),
+              decoration: ShapeDecoration(
+                shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
+                shape: CircleBorder(
+                  side: BorderSide(
+                    color: Colors.white,
+                    width: 1,
+                  )
+                ),
               ),
             ),
           ),
           Positioned(
             right: 40,
-            child: Row( // likes
-              children: <Widget> [
-                Icon(Icons.group, color: GSColors.purple,),
-                StreamBuilder(
-                  stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
-                    }
+            child: InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute(
+                builder: (context) => BuddyPage.fromUser(user))
+              ),
+              child: Row( // likes
+                children: <Widget> [
+                  Icon(Icons.group, color: GSColors.purple,),
+                  StreamBuilder(
+                    stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
+                      }
 
-                    int mutualFriends = 0;
-                    for(String buddyID in user.buddies) {
-                      if (snapshot.data['buddies'].contains(buddyID)) 
-                        mutualFriends++;
-                    }
+                      int mutualFriends = 0;
+                      for(String buddyID in user.buddies) {
+                        if (snapshot.data['buddies'].contains(buddyID)) 
+                          mutualFriends++;
+                      }
 
-                    if (mutualFriends == 0) {
-                      return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
-                    }
+                      if (mutualFriends == 0) {
+                        return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
+                      }
 
-                    return Text(' $mutualFriends mutual', style: TextStyle(color: GSColors.purple),);
-                  },
-                )
-              ],
-            ),
-          )
+                      return Text(' $mutualFriends mutual', style: TextStyle(color: GSColors.purple),);
+                    },
+                  )
+                ],
+              ),
+            )
+          ),
         ]
       ),
     );

@@ -12,13 +12,15 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-class MediaTab extends StatelessWidget {
-  BuildContext context;
+class MediaTab extends StatefulWidget {
+  MediaTab({Key key}) : super(key: key);
+  _MediaTabState createState() => _MediaTabState();
+}
+
+class _MediaTabState extends State<MediaTab> {
   String mediaUrl, profileImageUrl;
   List<String> media = [];
   Future<List<String>> _listFutureUser = DatabaseHelper.getUserMedia(DatabaseHelper.currentUserID);
-
-  MediaTab(this.context, {Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -95,10 +97,9 @@ class MediaTab extends StatelessWidget {
                 icon: Icon(FontAwesomeIcons.plus),
                 iconSize: 12,
                 color: Colors.white,
-                onPressed: () {
+                onPressed: () => setState(() {
                   getMediaImage();
-                  MediaTab(context);
-                },
+                }),
               ),
             ),
           ),
@@ -185,7 +186,9 @@ class MediaTab extends StatelessWidget {
       Fluttertoast.showToast(msg: 'This file is not an image');
     });
         
-    Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'photoURL' : profileImageUrl });
+    await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
+      (ds) => ds.reference.updateData({'photoURL': profileImageUrl})
+    );
   }
 
   // *****************************************************************************
@@ -193,12 +196,17 @@ class MediaTab extends StatelessWidget {
   Future<String> getMediaImage() async {
     var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
     
-    if(tempImage != null) {
-      uploadMediaFile(tempImage);   
-      return tempImage.uri.toString();
+    if(tempImage != null) {   
+      setState(() {
+        uploadMediaFile(tempImage);
+        return tempImage.uri.toString();
+      }); 
     }
 
-    return tempImage.toString();
+    setState(() {
+      return tempImage.uri.toString();
+    });
+
   }
 
   Future uploadMediaFile(File mediaImage) async {

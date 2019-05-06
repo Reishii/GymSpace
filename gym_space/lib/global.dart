@@ -34,12 +34,11 @@ class DatabaseHelper {
     return buddies;
   }
 
-    static Future<List<String>> getUserMedia(String userID) async {
+  static Future<List<String>> getUserMedia(String userID) async {
     DocumentSnapshot ds = await getUserSnapshot(userID);
     List<String> media = ds.data['media'].cast<String>().toList();
     return media;
   }
-
 
   static Future<List<String>> getCurrentUserGroups() async {
     DocumentSnapshot ds = await getUserSnapshot(currentUserID);
