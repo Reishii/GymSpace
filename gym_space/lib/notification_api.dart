@@ -22,12 +22,13 @@ class Messaging  {
         'priority': 'high',
         'data': {
           'title': '$title',
+          'body': '$body',
           'route': '$route',
           'click_action': 'FLUTTER_NOTIFICATION_CLICK',
           'id': '1',
           'status': 'done',
           'fcmToken': '$fcmToken',
-          'sender': '$sender'
+          'sender': '$sender',
         },
         'to': '$fcmToken', 
       }),
