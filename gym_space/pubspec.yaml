@@ -36,6 +36,8 @@ dependencies:
   percent_indicator: ^1.0.16
   datetime_picker_formfield: ^0.1.8
   flutter_launcher_icons: ^0.7.0
+  flutter_local_notifications: 0.4.5
+  path_provider: ^0.5.0+1
   liquid_pull_to_refresh: ^1.1.0
   image_form_field: ^0.0.2
 
@@ -71,6 +73,7 @@ flutter:
     - lib/assets/armshake.jpg
     - lib/assets/gymspacelogo.png
     - lib/assets/logo.png
+    - lib/assets/logo2.png
     - lib/assets/logoclear.png
     - lib/assets/background.png
     - lib/assets/groupPhoto.png

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -9,9 +10,11 @@ import 'package:GymSpace/notification_api.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/global.dart';
 import 'dart:async';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:GymSpace/page/buddy_page.dart';
+import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/messages_page.dart';
+import 'package:flutter/widgets.dart';
 
 class NotificationPage extends StatefulWidget {
  
@@ -25,8 +28,8 @@ class NotificationPage extends StatefulWidget {
       route: route,
       sender: sender,
     );
-    print('title $title');
-    print('body $body');
+    print('title: $title');
+    print('body: $body');
     print('fcmToken: $fcmToken');
     print('route: $route');
     print('sender: $sender');
@@ -41,21 +44,31 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationState extends State<NotificationPage> {
+  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
   final FirebaseMessaging _messaging = FirebaseMessaging();
-  final String fcmToken = "";
-  final String route = "";
-   
-  void handleRouting(dynamic notification){
-    switch (notification['title']){
+  final localNotify = FlutterLocalNotificationsPlugin();
+
+
+  Future<void> handleRouting(dynamic notify) async{
+    DocumentSnapshot itemCount = await Firestore.instance.collection('users').document(notify.sender).get();
+    User userInfo = User.jsonToUser(itemCount.data);
+    print(notify.route);
+    switch (notify.route){
       case 'buddy':
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (BuildContext context) => BuddyPage())
+          new MaterialPageRoute(builder: (BuildContext context) => ProfilePage.fromUser(userInfo))
         );
         break;
       case 'message':
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (BuildContext context) => MessagesPage())
+          new MaterialPageRoute(builder: (BuildContext context) => MessagesPage())
         );
+        break;
+      // case 'notifications':
+      //    Navigator.of(context).push(
+      //     new MaterialPageRoute(builder: (BuildContext context) => NotificationPage())
+      //   );
+      //   break;
     }
   }
   void sendTokenToServer(String fcmToken){
@@ -104,8 +117,8 @@ class _NotificationState extends State<NotificationPage> {
       appBar: _buildAppBar(),
       drawer: AppDrawer(startPage: 6),
       backgroundColor: GSColors.darkBlue,
-      body: _buildBody(context),
-    );
+      body: _buildBody(context)
+      );
   }
 
   Widget _buildAppBar() {
@@ -136,22 +149,63 @@ class _NotificationState extends State<NotificationPage> {
   }
   Widget _buildListItem(BuildContext context, Map<dynamic, dynamic> data){
     final notify = Notifications.fromJSON(data);
+    Future<DocumentSnapshot> _otherUser =  DatabaseHelper.getUserSnapshot(notify.sender);
     return Padding(
       key: ValueKey(notify.title),
-      padding: const EdgeInsets.symmetric( horizontal: 10, vertical: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(5.0),
+      padding: const EdgeInsets.symmetric( horizontal: 20, vertical: 8.0),
+      child: GestureDetector(
+        onTap: () {
+          handleRouting(notify);
+        },
+        child: Container(
+          padding: EdgeInsets.all(5.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(3.0),
+          ),
+          child: Row(
+           mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+             FutureBuilder(
+                  future: _otherUser,
+                  builder: (context, snapshot){
+                    return CircleAvatar(radius: 25,
+                      backgroundImage: snapshot.hasData ? CachedNetworkImageProvider(snapshot.data['photoURL']) : AssetImage(Defaults.userPhoto),
+                    );
+                  }
+              ),
+              Expanded(
+                flex: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    FittedBox(
+                     child: Text(notify.title, style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.5),
+                     ),
+                     fit: BoxFit.scaleDown
+                    ),
+                    FittedBox(
+                      child: Text(notify.body, style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.0)),
+                      fit: BoxFit.scaleDown
+                    )
+                  ],
+                ),
+              ),
+              RawMaterialButton(
+                onPressed: () => _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver),
+                child: new Icon(
+                  Icons.delete,
+                  color: GSColors.darkCloud,
+                  size: 20.0,
+                ),
+                shape: new CircleBorder(),
+                elevation: 2.0,
+                fillColor: GSColors.darkBlue,
+              )
+            ],
+          )
         ),
-        child: ListTile(
-          title: Text(notify.title),
-          subtitle: Text(notify.body),
-          onTap: (){
-            _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver);
-          } 
-        )
       ), 
     );
   }
@@ -167,20 +221,34 @@ class _NotificationState extends State<NotificationPage> {
         final notification = message['notification'];
         final data = message ['data'];
         _sendNotificationToDB(notification['title'], notification['body'], data['route'],data['fcmToken'],data['sender']);
+        showOngoingNotification(localNotify, id: 0, title: notification['title'], body: notification['body']);
       },
       onLaunch:  (Map<String, dynamic> message) async {
         print("onLaunch: ${message.toString()}");
          final notification = message['data'];
-        //handleRouting(notification);
         _sendNotificationToDB(notification['title'], notification['body'], notification['route'], notification['fcmToken'],notification['sender']);
+        //handleRouting('notification');
+        //showOngoingNotification(localNotify, id: 0, title: notification['title'], body: notification['body']);
       },
       onResume: (Map<String, dynamic> message) async {
         print("onResume: $message");
-         final notification = message['data'];
-        print('this is notification $notification');
-        //handleRouting(notification);
-        _sendNotificationToDB(notification['title'], notification['body'], notification['route'], notification['fcmToken'],notification['sender']);
+        final notification = message['data'];
+        showOngoingNotification(localNotify, id: 0, title: notification['title'], body: notification['body']);
+        //_sendNotificationToDB(notification['title'], notification['body'], notification['route'], notification['fcmToken'],notification['sender']);
       }
     );
+    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final settingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: (id, title, body, payload) =>
+        onSelectNotification(payload));
+    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
+      onSelectNotification: onSelectNotification);
+  }
+
+  // Local Notifications Plugin Functions
+  Future onSelectNotification(String payload) async  {
+    Navigator.pop(context);
+    print("==============OnSelect WAS CALLED===========");
+    await Navigator.push( context, new MaterialPageRoute(builder: (context) => NotificationPage()));
   }
 }
