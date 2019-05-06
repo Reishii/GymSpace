@@ -127,6 +127,9 @@ class DatabaseHelper {
       });
     };
 
+    await Firestore.instance.collection('posts').where('fromUser', isEqualTo: currentUserID).getDocuments().then((queryResults) {
+      postIDS.addAll(queryResults.documents.map((e) => e.documentID).toList());
+    });
     return postIDS;
   }
 

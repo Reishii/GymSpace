@@ -118,7 +118,7 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
           post.documentID = snapshot.data.documentID;
           
           return Container(
-            margin: EdgeInsets.symmetric(horizontal: 20),
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: PostWidget(post: post,),
           );
         },
@@ -269,6 +269,7 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
     return Scaffold(
       appBar: _buildAppBar(),
       drawer: AppDrawer(startPage: 0,),
+      backgroundColor: GSColors.darkBlue,
       body: _buildBody(),
       backgroundColor: GSColors.darkBlue,
       floatingActionButton: FlatButton.icon(
