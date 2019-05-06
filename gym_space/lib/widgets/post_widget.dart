@@ -1,6 +1,10 @@
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/post.dart';
+import 'package:GymSpace/misc/colors.dart';
+import 'package:GymSpace/page/post_comments_page.dart';
+import 'package:GymSpace/page/profile_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -16,7 +20,25 @@ class PostWidget extends StatefulWidget {
 
 class _PostWidgetState extends State<PostWidget> {
   Post get post => widget.post;
-  
+  String get currentUserID => DatabaseHelper.currentUserID;
+
+  void _likePressed() {
+    if (post.likes.contains(currentUserID)) {
+      DatabaseHelper.updatePost(post.documentID, {'likes': FieldValue.arrayRemove([currentUserID])})
+        .then((_) {
+          setState(() {
+            post.likes.remove(currentUserID);
+          });
+        });
+    } else {
+      DatabaseHelper.updatePost(post.documentID, {'likes': FieldValue.arrayUnion([currentUserID])})
+        .then((_) {
+          setState(() {
+            // post.likes.add(currentUserID);
+          });
+        });
+    }
+  }
 
   Widget _buildPostHeading() {
     return Container(
@@ -32,17 +54,26 @@ class _PostWidgetState extends State<PostWidget> {
 
           return Container(
             child: ListTile(
-              // contentPadding: EdgeInsets.only(left: 120),
-              leading: CircleAvatar(
+              leading: InkWell(
+                onTap: () => Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => ProfilePage(forUserID: post.fromUser,)
+                )),
+                child: CircleAvatar(
                 backgroundColor: Colors.transparent,
                 backgroundImage: user['photoURL'].isNotEmpty ? CachedNetworkImageProvider(user['photoURL'])
                 : AssetImage(Defaults.userPhoto),
+                ),
               ),
               title: Container(
                 margin: EdgeInsets.only(left: 10),
-                child: Text(
-                  '${user['firstName']} ${user['lastName']}',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                child: InkWell(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => ProfilePage(forUserID: post.fromUser,)
+                  )),
+                  child: Text(
+                    '${user['firstName']} ${user['lastName']}',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
               subtitle: Container(
@@ -82,8 +113,9 @@ class _PostWidgetState extends State<PostWidget> {
                   ),
                 ),
                 child: CachedNetworkImage(
+                  useOldImageOnUrlChange: true,
                   imageUrl: post.mediaURL,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                 ),    
               ),
             )
@@ -93,18 +125,49 @@ class _PostWidgetState extends State<PostWidget> {
     );
   }
 
+  Widget _buildPostFooter() {
+    return Container(
+      // padding: EdgeInsets.only(bottom: 40),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Container( // likes
+            child:  FlatButton.icon(
+              textColor: post.likes.contains(currentUserID) ? GSColors.lightBlue : GSColors.darkBlue,
+              label: Text('${post.likes.length} Likes'),
+              icon: Icon(Icons.thumb_up, color: post.likes.contains(DatabaseHelper.currentUserID) ? GSColors.lightBlue : GSColors.darkBlue),
+              onPressed: _likePressed,
+            ),
+          ),
+          Container(
+            child:  FlatButton.icon(
+              textColor: post.comments.isNotEmpty ? GSColors.green : GSColors.darkBlue,
+              label: Text('${post.comments.length} Comments'),
+              icon: Icon(Icons.comment, color: post.comments.isNotEmpty ? GSColors.green : GSColors.darkBlue),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(
+                builder: (context) => PostCommentsPage(postID: post.documentID))
+              )
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20)
       ),
       child: Container(
-        // margin: EdgeInsets.all(10),
         child: Column(
           children: <Widget>[
             _buildPostHeading(),
             _buildPostContent(),
+            Divider(),
+            _buildPostFooter(),
           ],
         )
       ),
