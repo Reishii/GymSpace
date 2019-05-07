@@ -25,6 +25,7 @@ class WorkoutPlanPage extends StatefulWidget {
 class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
   WorkoutPlan get workoutPlan => widget.workoutPlan;
   final GlobalKey<FormState> _workoutFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _exerciseFormKey = GlobalKey<FormState>();
   String get currentUserID => DatabaseHelper.currentUserID;
   
   void _addPressed() {
@@ -111,6 +112,41 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
     );
   }
 
+  Widget _buildExerciseForm(List<dynamic> exercise) {
+    return Form(
+      key: _exerciseFormKey,
+      child: Column(
+        children: <Widget>[
+          TextFormField( // name
+            textCapitalization: TextCapitalization.words,
+            decoration: InputDecoration(
+              hintText: "e.g. Lat Pulldowns",
+              labelText: "Exercise Name",
+            ),
+            onSaved: (name) => exercise[0] = name,
+            validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
+          ),
+          TextFormField( // muscleGroup
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              hintText: "e.g. 3",
+              labelText: "Sets",
+            ),
+            onSaved: (sets) => exercise[1] = sets,
+          ),
+          TextFormField( // muscleGroup
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              hintText: "e.g. 10",
+              labelText: "reps",
+            ),
+            onSaved: (reps) => exercise[2] = reps,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -155,7 +191,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
                   }
 
                   Workout workout = Workout.jsonToWorkout(workoutSnap.data.data);
-                  workout.documentID = snapshot.data.documentID;
+                  workout.documentID = workoutSnap.data.documentID;
                   return _buildWorkoutItem(workout);
                 }
               );
@@ -177,7 +213,110 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
   }
 
   void _workoutTapped(Workout workout) {
-    // show
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          margin: MediaQuery.of(context).viewInsets,
+          child: Container(
+            margin: EdgeInsets.only(top: 20),
+            child: Stack(
+              children: <Widget>[
+                ListView.separated(
+                  itemCount: (workout.exercises.length / 3).floor(),
+                  itemBuilder: (context, i) {
+                    int index = i * 3;
+                    String name = workout.exercises[index];
+                    int sets = workout.exercises[index + 1];
+                    int reps = workout.exercises[index + 2];
+
+                    return Container(
+                      margin: EdgeInsets.only(left: 4,),
+                      child: ListTile(
+                        title: Text(name),
+                        subtitle: Container(
+                          margin: EdgeInsets.only(left: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text('$sets sets'),
+                              Text('$reps reps')
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  separatorBuilder: (context, i) {
+                    return Divider();
+                  },
+                ),
+                Container(
+                  margin: EdgeInsets.only(right: 20),
+                  alignment: Alignment.topRight,
+                  child: FlatButton.icon(
+                    textColor: GSColors.lightBlue,
+                    icon: Icon(Icons.add),
+                    label: Text('Add'),
+                    onPressed: () => _addExerciseTapped(workout),
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      }
+    );
+  }
+
+  void _addExerciseTapped(Workout workout) {
+    List<dynamic> exercise = ['', 0, 0];
+    
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          margin: MediaQuery.of(context).viewInsets,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                child: _buildExerciseForm(exercise),
+              ),
+              Flexible(
+                child: FlatButton.icon(
+                  textColor: GSColors.green,
+                  label: Text('Add Exercise'),
+                  icon: Icon(Icons.add),
+                  onPressed: () async {
+                    if (_exerciseFormKey.currentState.validate()) {
+                      _exerciseFormKey.currentState.save();
+                      String _name = exercise[0];
+                      int _sets = int.parse(exercise[1]);
+                      int _reps = int.parse(exercise[2]);
+
+                      DatabaseHelper.updateWorkout(workout.documentID, {'exercises': FieldValue.arrayUnion([_name])})
+                        .then((_) {
+                          DatabaseHelper.updateWorkout(workout.documentID, {'exercises': FieldValue.arrayUnion([_sets])})
+                            .then((_) {
+                              DatabaseHelper.updateWorkout(workout.documentID, {'exercises': FieldValue.arrayUnion([_reps])})
+                                .then((_) {
+                                  Fluttertoast.showToast(msg: 'Added exercise to workout');
+                                });
+                            });
+                        });
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    }
+                  },
+                )
+              )
+            ],
+          )
+        );
+      }
+    );
   }
 
   Future<void> _removeWorkoutFromDB(Workout workout) async {
