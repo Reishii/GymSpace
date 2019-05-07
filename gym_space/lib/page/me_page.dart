@@ -779,14 +779,10 @@ class _MePageState extends State<MePage> {
           ],
         )
       ),
-      onTap: () {
-        Navigator.pushReplacement(context, MaterialPageRoute<void>(
-          builder: (BuildContext context){
-          return NutritionPage(); 
-          }   
-        ));
-      },
-      onLongPress:() {_updateNutritionInfo(context);},
+      onTap: () => Navigator.push(context, MaterialPageRoute(
+        builder: (context) => NutritionPage.fromMe(true))
+      ),
+      //onLongPress:() {_updateNutritionInfo(context);},
     );
   }
 

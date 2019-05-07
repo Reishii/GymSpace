@@ -11,8 +11,11 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:intl/intl.dart';
 
 class NutritionPage extends StatefulWidget {
+  bool popIt;
   NutritionPage(
     {Key key}) : super(key: key);
+
+  NutritionPage.fromMe(this.popIt, {Key key}) : super(key: key);
 
   _NutritionPage createState() => _NutritionPage();
 }
@@ -31,13 +34,22 @@ class _NutritionPage extends State<NutritionPage> {
   DateTime _sun = DateTime.now();
   String _monKey, _tueKey, _wedKey, _thurKey, _friKey, _satKey, _sunKey;
   bool _selectDay = true;
+  bool popIt = false;
   int _highlightDay;
   external int get weekday;
 
   @override
+  void initState() {
+    super.initState();
+
+    if(widget.popIt == true) 
+      popIt = true;
+  }
+
   Widget build(BuildContext context) {
     _highlightDay = now.weekday;
-    return Scaffold(
+    return SafeArea(
+      child: popIt == false ? Scaffold(
       drawer: AppDrawer(startPage: 3,),
       backgroundColor: GSColors.darkBlue,
       floatingActionButton: FloatingActionButton(
@@ -52,6 +64,23 @@ class _NutritionPage extends State<NutritionPage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: _buildAppBar(),
       body: _buildBody(context),
+      ) 
+      : Scaffold(
+        //drawer: AppDrawer(startPage: 3,),
+        backgroundColor: GSColors.darkBlue,
+        floatingActionButton: FloatingActionButton(
+          child: Icon(
+            FontAwesomeIcons.plus,
+            size: 14,
+            color: Colors.white
+          ),
+          backgroundColor: GSColors.purple,
+          onPressed: () => NutritionWidget().updateNutritionInfo(context, _dietKey), 
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        appBar: _buildAppBar(),
+        body: _buildBody(context),
+      ),
     );
   }
 
