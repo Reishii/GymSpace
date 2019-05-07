@@ -222,7 +222,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
       // padding: EdgeInsets.symmetric(vertical: 10),
       child: Form(
         key: _formKey,
-        child: ListView(
+        child: Column(
           children: <Widget>[
             TextFormField( // name
               initialValue: workoutPlan.name,

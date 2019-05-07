@@ -98,44 +98,24 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
       print('Fetching posts...');
       _fetchingPosts = true;
     });
-    
-    // if (group != null) { // group mode
-    //   DatabaseHelper.fetchGroupPosts(group.documentID).then((posts) {
-    //     print('Fetched ${posts.length} posts');
-    //   });
-    //   return null;
-    // }
 
     List<String> collectedPosts = group == null ? await DatabaseHelper.fetchPosts() : await DatabaseHelper.fetchGroupPosts(group.documentID);
+    
+    print('Fetched ${collectedPosts.length} posts');
+    if (collectedPosts.isNotEmpty) 
+      _fetchedPosts.clear();
+
+    DocumentSnapshot userDS = await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+    List<String> joinedGroups = userDS.data['joinedGroups'].cast<String>();
+    // build each post
+    collectedPosts.sort((String a, String b) => int.parse(a).compareTo(int.parse(b)));
+    for (String postID in collectedPosts.reversed) { // build the post 
+      _fetchedPosts.add(_buildPost(postID, joinedGroups));
+    }
+    
     setState(() {
-        print('Fetched ${collectedPosts.length} posts');
-        if (collectedPosts.isNotEmpty) 
-          _fetchedPosts.clear();
-        // build each post
-        collectedPosts.sort((String a, String b) => int.parse(a).compareTo(int.parse(b)));
-        for (String postID in collectedPosts.reversed) { // build the post 
-          _fetchedPosts.add(_buildPost(postID));
-        }
-        // _fetchedPosts = posts;
-        // _fetchedPosts.sort()
         _fetchingPosts = false;
       });
-
-    // DatabaseHelper.fetchPosts().then((posts) {
-    //   setState(() {
-    //     print('Fetched ${posts.length} posts');
-    //     if (posts.isNotEmpty) 
-    //       _fetchedPosts.clear();
-    //     // build each post
-    //     posts.sort((String a, String b) => int.parse(a).compareTo(int.parse(b)));
-    //     for (String postID in posts.reversed) { // build the post 
-    //       _fetchedPosts.add(_buildPost(postID));
-    //     }
-    //     // _fetchedPosts = posts;
-    //     // _fetchedPosts.sort()
-    //     _fetchingPosts = false;
-    //   });
-    // });
   }
 
   void _addPressed() {
@@ -145,7 +125,7 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
     );
   }
 
-  Widget _buildPost(String postID) {
+  Widget _buildPost(String postID, List<String> joinedGroups) {
     return Container(
       child: StreamBuilder(
         stream: DatabaseHelper.getPostStream(postID),
@@ -159,6 +139,10 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
 
           Post post = Post.jsonToPost(snapshot.data.data);
           post.documentID = snapshot.data.documentID;
+
+          if (post.fromGroup.isNotEmpty && !joinedGroups.contains(post.fromGroup)) {
+            return Container();
+          }
           
           return Container(
             margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -217,6 +201,7 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
     Post newPost = Post(
       body: _uploadBody,
       fromUser: currentUserID,
+      fromGroup: group == null ? '' : group.documentID,
     );
 
     // upload image to db

@@ -91,7 +91,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
   Widget _buildForm(Workout workout) {
     return Form(
       key: _workoutFormKey,
-      child: ListView(
+      child: Column(
         children: <Widget>[
           TextFormField( // name
             textCapitalization: TextCapitalization.words,
@@ -119,7 +119,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
   Widget _buildExerciseForm(Map<String, String> exercise) {
     return Form(
       key: _exerciseFormKey,
-      child: ListView(
+      child: Column(
         children: <Widget>[
           TextFormField( // name
             textCapitalization: TextCapitalization.words,
