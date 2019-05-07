@@ -44,6 +44,10 @@ class _NutritionPage extends State<NutritionPage> {
   @override
   void initState() {
     super.initState();
+
+    if(widget.popIt == true) 
+      popIt = true;
+      
     final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
     final settingsIOS = IOSInitializationSettings(
       onDidReceiveLocalNotification: (id, title, body, payload) =>
@@ -56,14 +60,6 @@ class _NutritionPage extends State<NutritionPage> {
     print("==============OnSelect WAS CALLED===========");
     await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
   } 
-
-  @override
-  void initState() {
-    super.initState();
-
-    if(widget.popIt == true) 
-      popIt = true;
-  }
 
   Widget build(BuildContext context) {
     _highlightDay = now.weekday;
