@@ -710,39 +710,60 @@ class _MePageState extends State<MePage> {
   Widget _buildWeightInfo(BuildContext context) {
       return Container(
         margin: EdgeInsets.only(top: 30),
-        // padding: EdgeInsets.symmetric(vertical: 20),
         decoration: ShapeDecoration(
           color: GSColors.darkBlue,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(20),
-              topLeft: Radius.circular(20)
+              topLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+              topRight: Radius.circular(20),
             )
           )
         ),
         child: InkWell(
         onTap: () => _updateWeightInfo(context),
-        child: Column(
-          children: <Widget>[
+        child: Stack(
+          children: <Widget>[ 
             _buildStartingWeight(),
+            _buildEditButton(),
             _buildCurrentWeight(),
           ],
         ),
-    ),
-      );
+      ),
+    );
+  }
+
+  Widget _buildEditButton() {
+    return Row(
+      children: <Widget> [
+        Expanded(
+          flex: 4,
+          child: Container(
+            margin: EdgeInsets.only(right: 20, top: 12),
+            alignment: Alignment.centerRight,
+            child: Icon(
+              Icons.edit,
+              size: 25,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildCurrentWeight() {
     return Row(
       children: <Widget>[
         Expanded(
-          flex: 4,
+          flex: 6,
           child: Container(
             margin: EdgeInsets.only(left: 20),
-            padding: EdgeInsets.symmetric(vertical: 10),
+            padding: EdgeInsets.only(top: 30, bottom: 5),
             alignment: Alignment.centerLeft,
             child: Text(
-              "Current Weight",
+              "Current Weight -",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 14,
@@ -752,8 +773,9 @@ class _MePageState extends State<MePage> {
           ),
         ),
         Expanded(
-          flex: 1,
+          flex: 3,
           child: Container(
+            padding: EdgeInsets.only(top: 30, bottom: 5),
             alignment: Alignment.center,
             child: StreamBuilder(
               stream: _streamUser,
@@ -769,9 +791,10 @@ class _MePageState extends State<MePage> {
             ),
           ),
         Expanded(
-          flex: 1,
+          flex: 4,
           child: Container(
-            alignment: Alignment.center,
+            padding: EdgeInsets.only(top: 30, bottom: 5),
+            alignment: Alignment.centerLeft,
             child: StreamBuilder(
               stream: _streamUser,
               builder: (context, snapshot) {
@@ -782,7 +805,7 @@ class _MePageState extends State<MePage> {
                     children: <Widget>[
                       Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
                       Text(
-                        weightLost.toStringAsFixed(2),
+                        weightLost.toStringAsFixed(1),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -795,7 +818,7 @@ class _MePageState extends State<MePage> {
                     children: <Widget>[
                       Icon(FontAwesomeIcons.caretUp, color: GSColors.green, size: 16),
                       Text(
-                          weightLost.toStringAsFixed(2),
+                          weightLost.toStringAsFixed(1),
                           style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -817,13 +840,13 @@ class _MePageState extends State<MePage> {
     return Row(
       children: <Widget>[
         Expanded(
-          flex: 4,
+          flex: 6,
           child: Container(
             margin: EdgeInsets.only(left: 20),
-            padding: EdgeInsets.only(top: 10),
+            padding: EdgeInsets.symmetric(vertical: 5),
             alignment: Alignment.centerLeft,
             child: Text(
-              "Starting Weight",
+              "Starting Weight -",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 14,
@@ -833,9 +856,9 @@ class _MePageState extends State<MePage> {
           ),
         ),
         Expanded(
-          flex: 1,
+          flex: 3,
           child: Container(
-            alignment: Alignment.center,
+            margin: EdgeInsets.only(left: 20),
             child: StreamBuilder(
               stream: _streamUser,
               builder: (context, snapshot) =>
@@ -850,7 +873,7 @@ class _MePageState extends State<MePage> {
           ),
         ),
         Expanded(
-          flex: 1,
+          flex: 4,
           child: Container(),
         ),
       ],
