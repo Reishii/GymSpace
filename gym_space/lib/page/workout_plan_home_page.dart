@@ -193,6 +193,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
           children: <Widget>[
             TextFormField( // name
               initialValue: workoutPlan.name,
+              textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
                 hintText: "e.g. Best workout plan!",
                 labelText: "Plan Name",
@@ -200,8 +201,9 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
               onSaved: (name) => workoutPlan.name = name,
               validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
             ),
-            TextFormField( // muscleGroup
+            TextFormField( // description
               initialValue: workoutPlan.description,
+              textCapitalization: TextCapitalization.sentences,
               maxLines: 3,
               decoration: InputDecoration(
                 hintText: "e.g. This is a workout for intense body building",

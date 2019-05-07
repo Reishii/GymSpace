@@ -197,6 +197,22 @@ class DatabaseHelper {
     return fixed;
   }
 
+  static Future<int> fixWorkouts() async {
+    int fixed = 0;
+    await Firestore.instance.collection('workouts').getDocuments()
+      .then((qs) async {
+        for (DocumentSnapshot ds in qs.documents) {
+            DocumentReference workoutRef = Firestore.instance.collection('workouts').document(ds.documentID);
+          if (ds.data['author'].isEmpty) {
+            await workoutRef.delete();
+          }
+            fixed++;
+        }
+      });
+
+    return fixed;
+  }
+
   static Future<int> fixUsers() async {
     int fixed = 0;
     await Firestore.instance.collection('users').getDocuments()

@@ -31,6 +31,7 @@ Future<void> main() async{
 
   await DatabaseHelper.fixWorkoutPlans().then((count) => print('Fixed $count workout plans'));
   await DatabaseHelper.fixUsers().then((count) => print('Fixed $count users'));
+  await DatabaseHelper.fixWorkouts().then((count) => print('Fixed $count workouts'));
   runApp(GymSpace(_defaultHome));
 }
 

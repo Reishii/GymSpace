@@ -27,6 +27,8 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
   final GlobalKey<FormState> _workoutFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _exerciseFormKey = GlobalKey<FormState>();
   String get currentUserID => DatabaseHelper.currentUserID;
+  List<String> deadWorkoutIds = List();
+
   
   void _addPressed() {
     Workout newWorkout = Workout();
@@ -92,6 +94,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
       child: Column(
         children: <Widget>[
           TextFormField( // name
+            textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
               hintText: "e.g. Back Day",
               labelText: "Workout Name",
@@ -99,8 +102,9 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
             onSaved: (name) => workout.name = name,
             validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
           ),
-          TextFormField( // muscleGroup
+          TextFormField( // description
             maxLines: 3,
+            textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
               hintText: "e.g. This workout consists of exercises for back and biceps. The main motion is pulling.",
               labelText: "Description",
@@ -179,14 +183,24 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
           }
 
           List<String> workoutIDs = snapshot.data.data['workouts'].cast<String>().toList();
-
+          deadWorkoutIds = List();
           return ListView.builder(
             itemCount: workoutIDs.length,
             itemBuilder: (context, i) {
               return StreamBuilder(
                 stream: DatabaseHelper.getWorkoutStreamSnapshot(workoutIDs[i]),
                 builder: (context, workoutSnap) {
+                  if (deadWorkoutIds.isNotEmpty) {
+                    deadWorkoutIds.forEach((id) => print('$id not found in the DB. Must have been recently deleted. Removing from list.'));
+                    DatabaseHelper.updateWorkoutPlan(workoutPlan.documentID, {'workouts': FieldValue.arrayRemove(deadWorkoutIds)});
+                  }
+
                   if (!workoutSnap.hasData) {
+                    return Container();
+                  }
+
+                  if (!workoutSnap.data.exists) {
+                    deadWorkoutIds.add(workoutSnap.data.documentID);
                     return Container();
                   }
 
