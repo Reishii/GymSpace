@@ -10,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -211,38 +212,48 @@ class _MePageState extends State<MePage> {
         alignment: Alignment.bottomCenter,
         children: <Widget>[
           Positioned(
-            left: 40,
-            child: Row( // likes
-              children: <Widget> [
-                Icon(Icons.thumb_up, color: GSColors.lightBlue,),
-                Text(' 100 Likes', style: TextStyle(color: GSColors.lightBlue),),
-              ],
+            left: 60,
+            child: InkWell(
+              onTap: () => Container(),
+              child: Row( // likes
+                children: <Widget> [
+                  Icon(Icons.thumb_up, color: GSColors.lightBlue),
+                  Text(
+                    ' ${user.likes.length}', 
+                    style: TextStyle( 
+                    color: GSColors.lightBlue,
+                  )),
+                ],
+              ),
             ),
           ),
-          FlatButton(
-            onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
-                  builder: (BuildContext context) {
-                    return ImageWidget(user.photoURL, context, false);
-                  })
-                ),
-            child: Container(
-              alignment: Alignment.center,
+
+          Container(
+            margin: EdgeInsets.only(top: 10),
+            alignment: Alignment.center,
+            child: InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute<void> (
+                builder: (BuildContext context) {
+                  return ImageWidget(user.photoURL, context, false);
+                }),
+              ),
               child: CircleAvatar(
                 radius: 70,
                 backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
                 : AssetImage(Defaults.userPhoto),
               ),
-              decoration: ShapeDecoration(
-                shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
-                shape: CircleBorder(
-                  side: BorderSide(
-                    color: Colors.white,
-                    width: 1,
-                  )
+            ),
+            decoration: ShapeDecoration(
+              shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
+              shape: CircleBorder(
+                side: BorderSide(
+                  color: Colors.white,
+                  width: 1,
                 ),
               ),
             ),
           ),
+
           Positioned(
             right: 40,
             child: InkWell(

@@ -43,6 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
     if (widget.user != null) {
       user = widget.user;
       user.buddies = user.buddies.toList();
+      user.likes = user.likes.toList();
       user.media = user.media.toList();
 
       _listFutureUser = DatabaseHelper.getUserMedia(user.documentID);
@@ -320,7 +321,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _likePressed() {
     if (user.likes.contains(DatabaseHelper.currentUserID)) {
-      Fluttertoast.showToast(msg: 'Already Liked');
+      DatabaseHelper.updateUser(user.documentID, {'likes': FieldValue.arrayRemove([DatabaseHelper.currentUserID])})
+      .then((_) {
+        setState(() {
+          Fluttertoast.showToast(msg: 'Unliked!');
+        });
+      });
       return;
     }
 
@@ -338,15 +344,29 @@ class _ProfilePageState extends State<ProfilePage> {
         alignment: Alignment.bottomCenter,
         children: <Widget>[
           Positioned(
-            left: 40,
-            child: FlatButton.icon(
-              textColor: GSColors.lightBlue,
-              label: Text('${user.likes.length}'),
-              icon: Icon(Icons.thumb_up),
-              onPressed: _likePressed,
+            left: 60,
+            child: InkWell(
+              onTap: _likePressed,
+              child: Row( // likes
+                children: <Widget> [
+                  Icon(Icons.thumb_up, color: GSColors.lightBlue,),
+                  StreamBuilder(
+                    stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Text(' ${user.likes.length}', style: TextStyle(color: GSColors.lightBlue),);
+                      }
+
+                      return Text(' ${user.likes.length}', style: TextStyle(color: GSColors.lightBlue),);
+                  },
+                ),
+              ],
+              ),
             ),
           ),
+
           Container(
+            margin: EdgeInsets.only(top: 10),
             alignment: Alignment.center,
             child: InkWell(
               onTap: () => Navigator.push(context, MaterialPageRoute<void> (
@@ -370,6 +390,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           ),
+          
           Positioned(
             right: 40,
             child: InkWell(
@@ -436,16 +457,6 @@ class _ProfilePageState extends State<ProfilePage> {
           )
         ),
       ],
-    );
-  }
-
-  Widget _buildPrivateLock() {
-    return Container(
-      margin: EdgeInsets.only(top: 50),
-      alignment: Alignment.center,
-      child: Icon(
-        Icons.lock_outline,
-        size: 80,)
     );
   }
 
@@ -641,9 +652,9 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         Expanded(
-          flex: 4,
+          flex: 3,
           child: Container(
-            margin: EdgeInsets.only(left: 15),
+            margin: EdgeInsets.only(left: 20),
             child: StreamBuilder(
               stream: _streamUser,
               builder: (context, snapshot) =>
@@ -658,7 +669,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         Expanded(
-          flex: 3,
+          flex: 4,
           child: Container(),
         ),
       ],
@@ -695,7 +706,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           Container( // photo gallery
-            margin: EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 10),
+            margin: EdgeInsets.only(top: 10, left: 15, right: 15, bottom: 10),
             child: FutureBuilder(
               future: _listFutureUser,
               builder: (context, snapshot) {
