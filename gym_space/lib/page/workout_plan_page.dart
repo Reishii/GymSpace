@@ -112,7 +112,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
     );
   }
 
-  Widget _buildExerciseForm(List<dynamic> exercise) {
+  Widget _buildExerciseForm(Map<String, String> exercise) {
     return Form(
       key: _exerciseFormKey,
       child: Column(
@@ -123,7 +123,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
               hintText: "e.g. Lat Pulldowns",
               labelText: "Exercise Name",
             ),
-            onSaved: (name) => exercise[0] = name,
+            onSaved: (name) => exercise['name'] = name,
             validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
           ),
           TextFormField( // muscleGroup
@@ -132,7 +132,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
               hintText: "e.g. 3",
               labelText: "Sets",
             ),
-            onSaved: (sets) => exercise[1] = sets,
+            onSaved: (sets) => exercise['sets'] = sets,
           ),
           TextFormField( // muscleGroup
             keyboardType: TextInputType.number,
@@ -140,7 +140,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
               hintText: "e.g. 10",
               labelText: "reps",
             ),
-            onSaved: (reps) => exercise[2] = reps,
+            onSaved: (reps) => exercise['reps'] = reps,
           ),
         ],
       ),
@@ -207,9 +207,129 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
       // margin: EdgeInsets.all(6),
       child: InkWell(
         onTap: () => _workoutTapped(workout),
+        onLongPress: () => _workoutLongPressed(workout),
         child: WorkoutWidget(workout: workout,),
       ),
     );
+  }
+
+  void _workoutLongPressed(Workout workout) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              FlatButton.icon(
+                textColor: GSColors.red,
+                icon: Icon(Icons.delete, color: GSColors.red,),
+                label: Text('Delete'),
+                onPressed: () => _deletePressed(workout),
+                // onPressed: () => _deletePressed(workoutPlan),
+              ),
+              FlatButton.icon(
+                textColor: GSColors.purple,
+                icon: Icon(Icons.edit,),
+                label: Text('Edit'),
+                onPressed: () => _editPressed(workout),
+                // onPressed: () => _editPressed(workoutPlan),
+              ),
+            ],
+          )
+        );
+      },
+    );
+  }
+
+  void _deletePressed(Workout workout) {
+    Navigator.pop(context);
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Text('Are you sure?'),
+              FlatButton.icon(
+                textColor: GSColors.red,
+                icon: Icon(Icons.cancel),
+                label: Text('No'),
+                onPressed: () {Navigator.pop(context);},
+              ),
+              FlatButton.icon(
+                textColor: GSColors.green,
+                icon: Icon(Icons.check),
+                label: Text('Yes'),
+                onPressed: () => _deleteWorkout(workout),
+              ),
+            ],
+          ),
+        );
+      }
+    );
+  }
+
+  void _editPressed(Workout workout) {
+    Navigator.pop(context);
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          margin: MediaQuery.of(context).viewInsets,
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 10),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  child: _buildForm(workout),
+                ),
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      FlatButton(
+                        onPressed: () {
+                          if (_workoutFormKey.currentState.validate()) {
+                            setState(() {
+                              _workoutFormKey.currentState.save();
+                              DatabaseHelper.updateWorkout(workout.documentID, {'name': workout.name, 'description': workout.description})
+                                .then((_) => Fluttertoast.showToast(msg: 'Workout updated'));
+                              Navigator.pop(context);});
+                          }
+                        },
+                        child: Text(
+                          'Update',
+                          style: TextStyle(
+                            color: GSColors.lightBlue,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    );
+  }
+
+  Future<void> _deleteWorkout(Workout workout) async {
+    Navigator.pop(context);
+    await DatabaseHelper.updateWorkoutPlan(workoutPlan.documentID, {'workouts': FieldValue.arrayRemove([workout.documentID])});
+    await Firestore.instance.collection('workouts').document(workout.documentID).delete();
+    Fluttertoast.showToast(msg: 'Deleted Workout');
   }
 
   void _workoutTapped(Workout workout) {
@@ -223,24 +343,23 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
             child: Stack(
               children: <Widget>[
                 ListView.separated(
-                  itemCount: (workout.exercises.length / 3).floor(),
+                  itemCount: workout.exercises.length,
                   itemBuilder: (context, i) {
-                    int index = i * 3;
-                    String name = workout.exercises[index];
-                    int sets = workout.exercises[index + 1];
-                    int reps = workout.exercises[index + 2];
-
+                    Map<String, String> exercise = workout.exercises[i].cast<String, String>();
+                    
                     return Container(
                       margin: EdgeInsets.only(left: 4,),
                       child: ListTile(
-                        title: Text(name),
+                        // onTap: () => _exerciseTapped(workout, exercise),
+                        onLongPress: () => _exerciseLongPressed(workout.documentID, exercise),
+                        title: Text(exercise['name'], style: TextStyle(fontSize: 16)),
                         subtitle: Container(
                           margin: EdgeInsets.only(left: 20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Text('$sets sets'),
-                              Text('$reps reps')
+                              Text('${exercise['sets']} sets', style: TextStyle(fontSize: 14)),
+                              Text('${exercise['reps']} reps', style: TextStyle(fontSize: 14))
                             ],
                           ),
                         ),
@@ -269,9 +388,41 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
     );
   }
 
+  void _exerciseLongPressed(String workoutID, Map exercise) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Text('Remove exercise?'),
+              FlatButton.icon(
+                textColor: GSColors.red,
+                label: Text('Remove'),
+                icon: Icon(Icons.remove),
+                onPressed: () => _removeExercise(workoutID, exercise),
+              )
+            ],
+          ),
+        );
+      }
+    );
+  }
+
+  void _removeExercise(String workoutID, Map<String, String> exercise) {
+    DatabaseHelper.updateWorkout(workoutID, {'exercises': FieldValue.arrayRemove([exercise])})
+      .then((_) {
+        Fluttertoast.showToast(msg: 'Removed exercise');
+        Navigator.pop(context);
+        Navigator.pop(context);
+      });
+  }
+
   void _addExerciseTapped(Workout workout) {
-    List<dynamic> exercise = ['', 0, 0];
-    
+    Map<String, String> exercise = Map();
+
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -289,25 +440,15 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
                   textColor: GSColors.green,
                   label: Text('Add Exercise'),
                   icon: Icon(Icons.add),
-                  onPressed: () async {
+                  onPressed: () {
                     if (_exerciseFormKey.currentState.validate()) {
                       _exerciseFormKey.currentState.save();
-                      String _name = exercise[0];
-                      int _sets = int.parse(exercise[1]);
-                      int _reps = int.parse(exercise[2]);
-
-                      DatabaseHelper.updateWorkout(workout.documentID, {'exercises': FieldValue.arrayUnion([_name])})
+                      DatabaseHelper.updateWorkout(workout.documentID, {'exercises': FieldValue.arrayUnion([exercise])})
                         .then((_) {
-                          DatabaseHelper.updateWorkout(workout.documentID, {'exercises': FieldValue.arrayUnion([_sets])})
-                            .then((_) {
-                              DatabaseHelper.updateWorkout(workout.documentID, {'exercises': FieldValue.arrayUnion([_reps])})
-                                .then((_) {
-                                  Fluttertoast.showToast(msg: 'Added exercise to workout');
-                                });
-                            });
+                          Fluttertoast.showToast(msg: 'Added exercise to workout');
+                          Navigator.pop(context);
+                          Navigator.pop(context);
                         });
-                      Navigator.pop(context);
-                      Navigator.pop(context);
                     }
                   },
                 )

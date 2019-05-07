@@ -15,7 +15,7 @@ class WorkoutPlanWidget extends StatelessWidget {
     return Container(
       child: Card(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10)
+          borderRadius: BorderRadius.circular(14)
         ),
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 10),

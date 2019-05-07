@@ -23,7 +23,7 @@ class Workout {
       'author': author,
       'muscleGroup': muscleGroup,
       'description': description,
-      'exercises' : exercises ?? []
+      'exercises' : exercises ?? [],
     };
   }
 
