@@ -123,7 +123,7 @@ class _NotificationState extends State<NotificationPage> {
       case 'post':
         print('this is postID: ${notify.postID}');
         Navigator.of(context).push(new MaterialPageRoute(
-          builder: (BuildContext context) => PostCommentsPage(postID: '1557196013357', postAuthor: DatabaseHelper.currentUserID)
+          builder: (BuildContext context) => PostCommentsPage(postID: notify.postID, postAuthor: DatabaseHelper.currentUserID)
         ));
         break;
     }
