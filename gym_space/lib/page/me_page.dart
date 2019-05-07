@@ -138,14 +138,11 @@ class _MePageState extends State<MePage> {
                     ],
                   ),
 
-                  //Divider(color: Colors.transparent),
-
                   user.liftingType.isEmpty ? Container() : Container(
                     margin: EdgeInsets.only(top: 3),
                     child: Text(
                       user.liftingType,
                       style: TextStyle(
-                        // color: Colors.white,
                         fontWeight: FontWeight.w300
                       ),
                     ),
@@ -200,101 +197,6 @@ class _MePageState extends State<MePage> {
                     ),
                   ),
                 ],
-            
-            // return Container(
-            //   margin: EdgeInsets.only(top: 10),
-            //   decoration: ShapeDecoration(
-            //     // color: Colors.red,
-            //     gradient: LinearGradient(
-            //       begin: FractionalOffset.topCenter,
-            //       end: FractionalOffset.bottomCenter,
-            //       stops: [.25, .25, .25],
-            //       colors: [GSColors.darkBlue, Colors.white, GSColors.babyPowder],
-            //     ),
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.only(bottomLeft: Radius.circular(0), bottomRight: Radius.circular(0))
-            //     )
-            //   ),
-            //   child: Column(
-            //     children: <Widget>[
-            //       FlatButton( // profile pic
-            //         onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
-            //           builder: (BuildContext context) {
-            //             return ImageWidget(user.photoURL, context, false);
-            //           })
-            //         ),
-            //         child: Container(
-            //           decoration: ShapeDecoration(
-            //             shadows: [BoxShadow(color: Colors.black, blurRadius: 4, spreadRadius: 2)],
-            //             shape: CircleBorder(
-            //               side: BorderSide(color: Colors.white, width: .5)
-            //             )
-            //           ),
-            //           child: CircleAvatar(
-            //             backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL, errorListener: () => print('Failed to download')) 
-            //             : AssetImage(Defaults.userPhoto),
-            //             backgroundColor: Colors.white,
-            //             radius: 70,
-            //           ),
-            //         ),
-            //       ),
-            //       Divider(color: Colors.transparent),
-            //       Row( // name, points
-            //         mainAxisAlignment: MainAxisAlignment.center,
-            //         children: <Widget>[
-            //           Text(
-            //             '${user.firstName} ${user.lastName}',
-            //             style: TextStyle(
-            //               // color: Colors.white,
-            //               fontWeight: FontWeight.bold,
-            //               fontSize: 20
-            //             ),
-            //           ),
-            //           Container(
-            //             margin: EdgeInsets.only(left: 10),
-            //             child: Icon(
-            //               Icons.stars,
-            //               size: 14,
-            //               color: GSColors.green,
-            //             ),
-            //           ),
-            //           Container(
-            //             margin: EdgeInsets.only(left: 4),
-            //             child: Text(
-            //               user.points.toString(),
-            //               style: TextStyle(
-            //                 color: GSColors.green,
-            //                 fontSize: 14
-            //               ),
-            //             )
-            //           )
-            //         ],
-            //       ),
-            //       Divider(color: Colors.transparent),
-            //       user.liftingType.isEmpty ? Container() : Text( // lifting type
-            //         user.liftingType,
-            //         style: TextStyle(
-            //           // color: Colors.white,
-            //           fontWeight: FontWeight.w300
-            //         ),
-            //       ),
-            //       Divider(color: Colors.transparent),
-            //       user.bio.isEmpty ? Container() : Container(
-            //         margin: EdgeInsets.symmetric(horizontal: 30),
-            //         child: Text( // bio
-            //           user.bio,
-            //           textAlign: TextAlign.center,
-            //           style: TextStyle(
-            //             // color: Colors.white,
-            //             fontStyle: FontStyle.italic,
-            //             fontWeight: FontWeight.w300
-            //           ),
-            //         ),
-            //       ),
-            //       Divider(color: Colors.transparent),
-            //     ],
-            //   ),
-            // );
               ),
             );
           },

@@ -265,16 +265,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           ),
-          // Container(
-          //   margin: EdgeInsets.only(top: 5),
-          //   child: Text(
-          //     user.bio,
-          //     style: TextStyle(
-          //       color: Colors.white,
-          //       fontStyle: FontStyle.italic,
-          //     ),
-          //   ),
-          // ),
           Container(
             margin: EdgeInsets.symmetric(vertical: 10),
             child: Row(
@@ -362,17 +352,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
                       }
 
-                      int mutualFriends = 0;
-                      for(String buddyID in user.buddies) {
-                        if (snapshot.data['buddies'].contains(buddyID)) 
-                          mutualFriends++;
-                      }
-
-                      if (mutualFriends == 0) {
-                        return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
-                      }
-
-                      //return Text(' $mutualFriends mutual', style: TextStyle(color: GSColors.purple),);
                       return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
                     },
                   )
@@ -389,11 +368,37 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       child: ListView(
         children: <Widget>[
-          _buildBio(),
-          _buildWeightInfo(),
-          _buildMedia(),
+          _isPrivate == true ? _buildPrivate()
+            : _buildPublic(),
         ],
       ),
+    );
+  }
+
+  Widget _buildPrivate() {
+    return Column(
+      children: <Widget>[
+        _buildBio(),
+        _buildPrivateLabel(),
+      ],
+    );
+  }
+
+  Widget _buildPrivateLabel() {
+    return Column(
+      children: <Widget>[
+        
+      ],
+    );
+  }
+
+  Widget _buildPublic() {
+    return Column(
+      children: <Widget>[
+        _buildBio(),
+        _buildWeightInfo(),
+        _buildMedia(),
+      ],
     );
   }
 

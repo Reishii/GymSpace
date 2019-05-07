@@ -35,17 +35,20 @@ class _BuddyPageState extends State<BuddyPage> {
   void initState() {
     super.initState();
 
-    if(widget.user != null && widget.fromUser == true) {
+    if(widget.fromUser == true && widget.user != null) {
       user = widget.user;
       user.buddies = user.buddies.toList();
 
       _fromUser = true;
-    } else if(widget.user == null && widget.fromUser == true) { 
+    } else if(widget.fromUser == true && widget.fromUser == null) { 
       _fromUser = true; 
     }
-    else if(widget.user == null && widget.fromUser == false) {
+    else if(widget.fromUser == false && widget.user != null) {
+      user = widget.user;
+      user.buddies = user.buddies.toList();
       _fromUser = false;
     }
+
     final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
     final settingsIOS = IOSInitializationSettings(
       onDidReceiveLocalNotification: (id, title, body, payload) =>
@@ -149,13 +152,25 @@ class _BuddyPageState extends State<BuddyPage> {
           searchFunction: searchPressed,
         )
       );  
-    } else if(_fromUser == false) {
+    } else if(_fromUser == false && user == null) {
       return PreferredSize(
         preferredSize: Size.fromHeight(100),
         child: PageHeader(
           title: "Your Buddies", 
           backgroundColor: Colors.white,
           showDrawer: true,
+          titleColor: GSColors.darkBlue,
+          showSearch: true,
+          searchFunction: searchPressed,
+        )
+      );  
+    } else if (_fromUser == false && user != null) {
+      return PreferredSize(
+        preferredSize: Size.fromHeight(100),
+        child: PageHeader(
+          title: "Your Buddies", 
+          backgroundColor: Colors.white,
+          //showDrawer: true,
           titleColor: GSColors.darkBlue,
           showSearch: true,
           searchFunction: searchPressed,
@@ -217,7 +232,7 @@ class _BuddyPageState extends State<BuddyPage> {
           );
         },
       );
-    } else if(_fromUser == false || (_fromUser == true && user == null)) {
+    } else if(_fromUser == false || (_fromUser == false && user != null)) {
         return StreamBuilder(
           stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
           builder: (context, snapshot) {
