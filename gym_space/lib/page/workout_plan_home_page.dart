@@ -44,7 +44,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
     localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
       onSelectNotification: onSelectNotification);
   }
-  
+
   Future onSelectNotification(String payload) async  {
     Navigator.pop(context);
     print("==============OnSelect WAS CALLED===========");
@@ -192,6 +192,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
         child: Column(
           children: <Widget>[
             TextFormField( // name
+              initialValue: workoutPlan.name,
               decoration: InputDecoration(
                 hintText: "e.g. Best workout plan!",
                 labelText: "Plan Name",
@@ -200,11 +201,13 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
               validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
             ),
             TextFormField( // muscleGroup
+              initialValue: workoutPlan.description,
+              maxLines: 3,
               decoration: InputDecoration(
-                hintText: "e.g. Chest",
-                labelText: "Muscle Group",
+                hintText: "e.g. This is a workout for intense body building",
+                labelText: "Description",
               ),
-              onSaved: (muscleGroup) => workoutPlan.muscleGroup = muscleGroup,
+              onSaved: (desc) => workoutPlan.description = desc,
             ),
           ],
         ),
@@ -243,8 +246,8 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
               DatabaseHelper.updateUser(currentUserID, {'workoutPlans': FieldValue.arrayRemove(deadWorkoutPlansIDs)});
             }
 
-            return FutureBuilder(
-              future: DatabaseHelper.getWorkoutPlanSnapshot(userWorkoutPlansIDs[i]),
+            return StreamBuilder(
+              stream: DatabaseHelper.getWorkoutPlanStreamSnapshot(userWorkoutPlansIDs[i]),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return Container();
@@ -268,7 +271,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
 
   void _planTapped(WorkoutPlan workoutPlan) {
     Navigator.push(context, MaterialPageRoute(
-      builder: (context) => WorkoutPlanPage(workoutPlan: workoutPlan,)
+      builder: (context) => WorkoutPlanPage(workoutPlan: workoutPlan)
     ));
   }
 
@@ -288,17 +291,65 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
                 // onPressed: () => _deletePressed(workoutPlan),
                 onPressed: () => _deletePressed(workoutPlan),
               ),
-              // FlatButton.icon(
-              //   textColor: GSColors.green,
-              //   icon: Icon(Icons.share, color: GSColors.green,),
-              //   label: Text('Remove'),
-              //   onPressed: () {},
-              // ),
+              FlatButton.icon(
+                textColor: GSColors.purple,
+                icon: Icon(Icons.edit,),
+                label: Text('Edit'),
+                onPressed: () => _editPressed(workoutPlan),
+              ),
               FlatButton.icon(
                 textColor: GSColors.green,
                 icon: Icon(Icons.share,),
                 label: Text('Share',),
                 onPressed: () => _sharePressed(workoutPlan),
+              ),
+            ],
+          ),
+        );
+      }
+    );
+  }
+
+  void _editPressed(WorkoutPlan workoutPlan) {
+    Navigator.pop(context);
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          margin: MediaQuery.of(context).viewInsets,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                child: _buildForm(workoutPlan),
+              ),
+              Flexible(
+                fit: FlexFit.loose,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    FlatButton(
+                      onPressed: () {
+                        if (_formKey.currentState.validate()) {
+                          setState(() {
+                            _formKey.currentState.save();
+                            DatabaseHelper.updateWorkoutPlan(workoutPlan.documentID, {'name': workoutPlan.name, 'description': workoutPlan.description})
+                              .then((_) => Fluttertoast.showToast(msg: 'Workout Plan updated'));
+                            Navigator.pop(context);});
+                        }
+                      },
+                      child: Text(
+                        'Update',
+                        style: TextStyle(
+                          color: GSColors.lightBlue,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
               ),
             ],
           ),

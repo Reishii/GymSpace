@@ -7,6 +7,7 @@ import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/widgets/workout_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class WorkoutPlanPage extends StatefulWidget {
@@ -22,139 +23,88 @@ class WorkoutPlanPage extends StatefulWidget {
 }
 
 class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
-
   WorkoutPlan get workoutPlan => widget.workoutPlan;
   final GlobalKey<FormState> _workoutFormKey = GlobalKey<FormState>();
-  Future<DocumentSnapshot>_futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+  String get currentUserID => DatabaseHelper.currentUserID;
   
-  void _addPressed(BuildContext currentContext) {
-    showDialog(
-      context: currentContext,
+  void _addPressed() {
+    Workout newWorkout = Workout();
+
+    showModalBottomSheet(
+      context: context,
       builder: (context) {
-        Workout newWorkout = Workout();
-        newWorkout.exercises = Map();
-        return SafeArea(
-          child: SimpleDialog(
-            title: Text("Add Workout", textAlign: TextAlign.center),
-            titlePadding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            contentPadding: EdgeInsets.zero,
+        return Container(
+          margin: MediaQuery.of(context).viewInsets,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                child: Divider(
-                  color: GSColors.darkBlue,
-                  height: 1,
-                ),
+                margin: EdgeInsets.symmetric(horizontal: 10),
+                child: _buildForm(newWorkout),
               ),
-              SafeArea(
-                child: Container(
-                  margin: EdgeInsets.only(left: 16, right: 40),
-                  height: 260,
-                  width: double.maxFinite,
-                  child: _buildForm(newWorkout),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  SimpleDialogOption(
-                    child: MaterialButton(
-                      child: Text("Cancel"),
+              Flexible(
+                fit: FlexFit.loose,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    FlatButton(
                       onPressed: () {
-                        print("Resetting form");
-                        _workoutFormKey.currentState.reset();
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                  SimpleDialogOption(
-                    child: MaterialButton(
-                      child: Text("Add"),
-                      onPressed: () async {
                         if (_workoutFormKey.currentState.validate()) {
-                          print("Adding Workout to database");
-                          _workoutFormKey.currentState.save();
-                          await _addWorkoutToDB(newWorkout);
                           setState(() {
-                            Navigator.pop(context);
-                          });
-                        }
+                            _workoutFormKey.currentState.save();
+                            print("Adding Workout to database");
+                            _addWorkoutToDB(newWorkout);
+                            Navigator.pop(context);});
+                          }
                       },
+                      child: Text(
+                        'Create',
+                        style: TextStyle(
+                          color: GSColors.lightBlue,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
-                  )
-                ],
-              )
+                  ],
+                )
+              ),
             ],
-          )
+          ),
         );
-      },
+      }
     );
   }
 
   Future<void> _addWorkoutToDB(Workout workout) async {
-    // add to collection
-    DocumentReference workoutDocument = await Firestore.instance.collection('workouts')
-      .add(workout.toJSON()).then((ds) {
+    workout.author = currentUserID;
+    await Firestore.instance.collection('workouts').add(workout.toJSON()).then((ds) async {
         print('-> Added ' + workout.name + ' to the database with id: ' + ds.documentID);
-        return ds;
-      }).catchError((e) => print('Error: $e'));
-
-    // add to workout plan
-    _futureUser.then((ds) {
-      Firestore.instance.collection('workoutPlans').document(workoutPlan.documentID)
-        .updateData({'workouts': FieldValue.arrayUnion([workoutDocument.documentID])});
-        // workoutPlan.workouts.add(workout);
-    });
-
-    _futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+        await DatabaseHelper.updateWorkoutPlan(workoutPlan.documentID, {'workouts': FieldValue.arrayUnion([ds.documentID])})
+          .then((_) => Fluttertoast.showToast(msg: 'Added workout to workout plan'));
+      });
   }
 
   Widget _buildForm(Workout workout) {
     return Form(
       key: _workoutFormKey,
-      child: ListView(
+      child: Column(
         children: <Widget>[
           TextFormField( // name
             decoration: InputDecoration(
-              icon: Icon(
-                FontAwesomeIcons.angleRight,
-                color: GSColors.darkBlue,
-                size: 30,
-              ),
-              hintText: "e.g. Best workout!",
-              labelText: "Name",
+              hintText: "e.g. Back Day",
+              labelText: "Workout Name",
             ),
             onSaved: (name) => workout.name = name,
             validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
           ),
           TextFormField( // muscleGroup
+            maxLines: 3,
             decoration: InputDecoration(
-              icon: Icon(
-                FontAwesomeIcons.angleRight,
-                color: GSColors.darkBlue,
-                size: 30,
-              ),
-              hintText: "e.g. Chest",
-              labelText: "Muscle Group",
-            ),
-            onSaved: (muscleGroup) => workout.muscleGroup = muscleGroup,
-            validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
-          ),
-          TextFormField( // description
-            decoration: InputDecoration(
-              icon: Icon(
-                FontAwesomeIcons.angleRight,
-                color: GSColors.darkBlue,
-                size: 30,
-              ),
-              hintText: "e.g. This workout is for chest day.",
+              hintText: "e.g. This workout consists of exercises for back and biceps. The main motion is pulling.",
               labelText: "Description",
             ),
-            onSaved: (desc) => workout.description = desc,
-            validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
+            onSaved: (muscleGroup) => workout.muscleGroup = muscleGroup,
           ),
         ],
       ),
@@ -175,7 +125,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
       ),
       body: _buildWorkoutsList(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _addPressed(context),
+        onPressed: _addPressed,
         backgroundColor: GSColors.purple,
         child: Icon(Icons.add),
       ),
@@ -183,20 +133,51 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
   }
 
   Widget _buildWorkoutsList() {
-    return ListView.builder(
-      padding: EdgeInsets.all(10),
-      itemCount: workoutPlan.workouts.length,
-      itemBuilder: (BuildContext context, int i) {
-        // print("Currently there are $count workouts in this plan.");
-        // Workout workout = workoutPlan.workouts[i];
-        return InkWell(
-          onLongPress: () {
-            // _showWorkoutDialog(context, workout);
-          },
-          // child: WorkoutWidget(workout: workout),
-        );
-      },
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+      child: StreamBuilder(
+        stream: DatabaseHelper.getWorkoutPlanStreamSnapshot(workoutPlan.documentID),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Container();
+          }
+
+          List<String> workoutIDs = snapshot.data.data['workouts'].cast<String>().toList();
+
+          return ListView.builder(
+            itemCount: workoutIDs.length,
+            itemBuilder: (context, i) {
+              return StreamBuilder(
+                stream: DatabaseHelper.getWorkoutStreamSnapshot(workoutIDs[i]),
+                builder: (context, workoutSnap) {
+                  if (!workoutSnap.hasData) {
+                    return Container();
+                  }
+
+                  Workout workout = Workout.jsonToWorkout(workoutSnap.data.data);
+                  workout.documentID = snapshot.data.documentID;
+                  return _buildWorkoutItem(workout);
+                }
+              );
+            },
+          );
+        },
+      ),
     );
+  }
+
+  Widget _buildWorkoutItem(Workout workout) {
+    return Container(
+      // margin: EdgeInsets.all(6),
+      child: InkWell(
+        onTap: () => _workoutTapped(workout),
+        child: WorkoutWidget(workout: workout,),
+      ),
+    );
+  }
+
+  void _workoutTapped(Workout workout) {
+    // show
   }
 
   Future<void> _removeWorkoutFromDB(Workout workout) async {
@@ -214,96 +195,5 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
     // }
 
     workoutPlan.workouts.remove(workout);
-  }
-
-  void _showWorkoutDialog(BuildContext context, Workout workout) {
-    void _deletePressed() {
-      Navigator.pop(context);
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Are you sure you want to delete ' + workout.name + '?'),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20)
-            ),
-            actions: <Widget>[
-              MaterialButton(
-                child: Text('Cancel'),
-                onPressed: () => Navigator.pop(context),
-              ),
-              MaterialButton(
-                child: Text('Delete'),
-                onPressed: () async  {
-                  await _removeWorkoutFromDB(workout).then((_) {
-                  // now pop the dialog and refresh the list of workouts
-                    setState(() {
-                      Navigator.pop(context);
-                    });
-                  });
-                },
-              ),
-            ],
-          );
-        }
-      );
-    }
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: <Widget>[
-              Container(
-                child: Text(workout.name),
-              ),
-              Container(
-                //margin: EdgeInsets.only(left: 140),
-                child: Text(
-                  workout.author,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-              )
-            ],
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10)
-          ),
-          // contentPadding: EdgeInsets.all(30),
-          content: Text(
-            workout.description,
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              fontWeight: FontWeight.w300,
-            ),
-          ),
-          actions: <Widget>[
-            MaterialButton(
-              child: Text("Close"),
-              onPressed: () => Navigator.pop(context),
-            ),
-            MaterialButton(
-              child: Text("Delete"),
-              onPressed: () {
-                _deletePressed();
-              },
-            )
-          ],
-          // children: <Widget>[
-          //   Text(
-          //     workout.description,
-          //     textAlign: TextAlign.left,
-          //     style: TextStyle(
-          //       fontWeight: FontWeight.w300,
-          //     ),
-          //   )
-          // ],
-        );
-      }
-    );
   }
 }

@@ -89,22 +89,33 @@ class DatabaseHelper {
     return Firestore.instance.collection('users').document(userID).updateData(data);
   }
 
+  static Stream<DocumentSnapshot> getUserStreamSnapshot(String userID) {
+    return Firestore.instance.collection('users').document(userID).snapshots();
+  }
+
   // workouts
   static Future<DocumentSnapshot> getWorkoutPlanSnapshot(String workoutPlanID) async {
     return Firestore.instance.collection('workoutPlans').document(workoutPlanID).get();
+  }
+
+  static Stream getWorkoutPlanStreamSnapshot(String workoutPlanID) {
+    return Firestore.instance.collection('workoutPlans').document(workoutPlanID).snapshots();
   }
 
   static Future<void> updateWorkoutPlan(String workoutPlanID, Map<String, dynamic> data) {
     return Firestore.instance.collection('workoutPlans').document(workoutPlanID).updateData(data);
   }
 
-  // media
-  static Stream<DocumentSnapshot> getUserStreamSnapshot(String userID) {
-    return Firestore.instance.collection('users').document(userID).snapshots();
-  }
-
   static Future<DocumentSnapshot> getWorkoutSnapshot(String workoutID) async {
     return Firestore.instance.collection('workouts').document(workoutID).get();
+  }
+
+  static Stream getWorkoutStreamSnapshot(String workoutID) {
+    return Firestore.instance.collection('workouts').document(workoutID).snapshots();
+  }
+
+  static Future<void> updateWorkout(String workoutID, Map<String, dynamic> data) {
+    return Firestore.instance.collection('workouts').document(workoutID).updateData(data);
   }
 
   // challenges
@@ -151,6 +162,19 @@ class DatabaseHelper {
     return Firestore.instance.collection('posts').document(postID).updateData(data);
   }
 
+  static Future<DocumentSnapshot> findWorkoutPlanByKey(String shareKey) async {
+    return await Firestore.instance.collection('workoutPlans').where('shareKey', isEqualTo: shareKey).getDocuments()
+      .then((qs) {
+        if(qs.documents.isEmpty) {
+          print('Could not find workout with shareKey: $shareKey');
+          return null;
+        }
+        
+        return qs.documents[0];
+      });
+  }
+
+  // FIX OUTDATED WORKOUTPLANS
   static Future<int> fixWorkoutPlans() async {
     int fixed = 0;
     await Firestore.instance.collection('workoutPlans').getDocuments()
@@ -167,21 +191,10 @@ class DatabaseHelper {
               'private': false
             }).then((_) => fixed++);
           }
-        };
+        }
       });
 
     return fixed;
   }
 
-  static Future<DocumentSnapshot> findWorkoutPlanByKey(String shareKey) async {
-    return await Firestore.instance.collection('workoutPlans').where('shareKey', isEqualTo: shareKey).getDocuments()
-      .then((qs) {
-        if(qs.documents.isEmpty) {
-          print('Could not find workout with shareKey: $shareKey');
-          return null;
-        }
-        
-        return qs.documents[0];
-      });
-  }
 }
