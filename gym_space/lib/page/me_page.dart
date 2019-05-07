@@ -28,7 +28,7 @@ class MePage extends StatefulWidget {
 
 class _MePageState extends State<MePage> {
   MediaTab mediaTab = MediaTab();
-  final Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+  final Stream<DocumentSnapshot> _streamUser =  DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID);
   final myController = TextEditingController();
   String filePath;
   String mediaUrl, profileImageUrl;
@@ -708,7 +708,6 @@ class _MePageState extends State<MePage> {
   }
 
   Widget _buildWeightInfo(BuildContext context) {
-    // return InkWell(
       return Container(
         margin: EdgeInsets.only(top: 30),
         // padding: EdgeInsets.symmetric(vertical: 20),
@@ -756,8 +755,8 @@ class _MePageState extends State<MePage> {
           flex: 1,
           child: Container(
             alignment: Alignment.center,
-            child: FutureBuilder(
-              future: _futureUser,
+            child: StreamBuilder(
+              stream: _streamUser,
               builder: (context, snapshot) =>
                 Text(
                   snapshot.hasData ? snapshot.data['currentWeight'].toString() + ' lbs' : '',
@@ -773,8 +772,8 @@ class _MePageState extends State<MePage> {
           flex: 1,
           child: Container(
             alignment: Alignment.center,
-            child: FutureBuilder(
-              future: _futureUser,
+            child: StreamBuilder(
+              stream: _streamUser,
               builder: (context, snapshot) {
                 double weightLost = snapshot.hasData ? (snapshot.data['startingWeight'] - snapshot.data['currentWeight']) : 0;
                 
@@ -837,8 +836,8 @@ class _MePageState extends State<MePage> {
           flex: 1,
           child: Container(
             alignment: Alignment.center,
-            child: FutureBuilder(
-              future: _futureUser,
+            child: StreamBuilder(
+              stream: _streamUser,
               builder: (context, snapshot) =>
               Text(
                 snapshot.hasData ? snapshot.data['startingWeight'].toString() + " lbs" : "",
@@ -1203,7 +1202,7 @@ void _updateChallengeInfo(BuildContext context) async{
     return Container(
       margin: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
       child: InkWell(
-        onLongPress: () => _updateChallengeInfo(context),
+        onTap: () => _updateChallengeInfo(context),
         child: Container(
           margin: EdgeInsets.only(top: 10),
           child: StreamBuilder(
@@ -1565,61 +1564,64 @@ void _updateChallengeInfo(BuildContext context) async{
   }
 
   void  _updateWeightInfo(BuildContext context) async{
-      String currentWeight, startingWeight;
-     // currentWeight = Firestore.instance.collection('users').document('${DatabaseHelper.currentUserID}').;
+    String currentWeight, startingWeight;
 
     showDialog<String>(
       context: context,
-      //child: SingleChildScrollView(
-        //padding: EdgeInsets.all(20),
         child: AlertDialog(
         title: Text("Change your current weight"),
         contentPadding: const EdgeInsets.all(16.0),
         content:  
-          //Row(
           Container(
-          height: 200,
           child: Column(
             children: <Widget>[
-             
-             
-            Flexible(
-              child:  TextField(
-                keyboardType: TextInputType.number,
-                maxLines: 1,
-                //maxLength: 3,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: 'Starting',
-                  labelStyle: TextStyle(
-                    fontSize: 18.0,
-                    color: GSColors.darkBlue,
+              Flexible(
+                child:  TextField(
+                  keyboardType: TextInputType.number,
+                  maxLines: 1,
+                  //maxLength: 3,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: 'Current',
+                    hintText: '125',
+                    labelStyle: TextStyle(
+                      fontSize: 18.0,
+                      color: GSColors.darkBlue,
+                    ),
+                    icon: Icon(
+                      FontAwesomeIcons.angleRight,
+                      color: GSColors.darkBlue,
+                      size: 30,
+                    ),
                   ),
+                  onChanged: (text) => currentWeight = text,
                 ),
-                onChanged: (text) => startingWeight = text,
               ),
-            ),
-            
-             SizedBox(height: 50.0,),
-             
-             Flexible(
-              child:  TextField(
-                keyboardType: TextInputType.number,
-                maxLines: 1,
-                //maxLength: 3,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: 'Current',
-                  labelStyle: TextStyle(
-                    fontSize: 18.0,
-                    color: GSColors.darkBlue,
+
+              SizedBox(height: 60.0),
+
+              Flexible(
+                child:  TextField(
+                  keyboardType: TextInputType.number,
+                  maxLines: 1,
+                  //maxLength: 3,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: 'Starting',
+                    hintText: "100",
+                    labelStyle: TextStyle(
+                      fontSize: 18.0,
+                      color: GSColors.darkBlue,
+                    ),
+                    icon: Icon(
+                      FontAwesomeIcons.angleRight,
+                      color: GSColors.darkBlue,
+                      size: 30,
+                    ),
                   ),
+                  onChanged: (text) => startingWeight = text,
                 ),
-                onChanged: (text) => currentWeight = text,
               ),
-            ),
-
-
             ]
           ),       
         ),
@@ -1635,22 +1637,20 @@ void _updateChallengeInfo(BuildContext context) async{
           FlatButton(
             child: const Text('Save'),
             onPressed: (){
+              print(startingWeight);
+              print(currentWeight);
+              if (startingWeight != null)
+                Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
+                  .updateData({'startingWeight' : double.parse(startingWeight) });
+                
 
-
-            print(startingWeight);
-            print(currentWeight);
-            if (startingWeight != null)
-              {
-                Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'startingWeight' : double.parse(startingWeight) });
-              }
-
-            if (currentWeight != null)
-            {
-              Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData({'currentWeight' : double.parse(currentWeight) });
-            }
-            _buildStartingWeight();
-            _buildCurrentWeight();
-            Navigator.pop(context);
+              if (currentWeight != null)
+                Firestore.instance.collection('users').document(DatabaseHelper.currentUserID)
+                  .updateData({'currentWeight' : double.parse(currentWeight) });
+              
+              _buildStartingWeight();
+              _buildCurrentWeight();
+              Navigator.pop(context);
             }
           )
         ],
