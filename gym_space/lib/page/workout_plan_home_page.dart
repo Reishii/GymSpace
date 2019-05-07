@@ -237,7 +237,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
             TextFormField( // description
               initialValue: workoutPlan.description,
               textCapitalization: TextCapitalization.sentences,
-              maxLines: 3,
+              maxLines: 1,
               decoration: InputDecoration(
                 hintText: "e.g. This is a workout for intense body building",
                 labelText: "Description",

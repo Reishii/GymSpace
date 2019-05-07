@@ -225,6 +225,8 @@ class DatabaseHelper {
     return fixed;
   }
 
+
+
   static Future<int> fixUsers() async {
     int fixed = 0;
     await Firestore.instance.collection('users').getDocuments()
@@ -233,6 +235,11 @@ class DatabaseHelper {
           if (!ds.data.containsKey('likes')) {
             await Firestore.instance.collection('users').document(ds.documentID).updateData({
               'likes': <String>[]
+            }).then((_) => fixed++);
+          }
+          if (!ds.data.containsKey('birthday')) {
+            await Firestore.instance.collection('users').document(ds.documentID).updateData({
+              'birthday': Timestamp.now()
             }).then((_) => fixed++);
           }
         }
