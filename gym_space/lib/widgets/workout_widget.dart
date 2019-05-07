@@ -172,20 +172,67 @@ class _WorkoutWidgetState extends State<WorkoutWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-       height: height,
-       margin: EdgeInsets.symmetric(vertical: 16),
-       decoration: ShapeDecoration(
-         color: Colors.white,
-         shape: RoundedRectangleBorder(
-           borderRadius: BorderRadius.circular(20),
-         )
-       ),
-       child: InkWell( // button to expand
-         onTap: () {
-           setState(() {
-              _isExpanded = !_isExpanded;
-              height = _isExpanded ? 60.0 * 1.5 + workout.exercises.length * 70 : 60;
-           });
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10)
+        ),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          child: Column(
+            children: <Widget>[
+              Text(
+                workout.name,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold
+                )
+              ),
+              workout.description.isNotEmpty 
+              ? Container(
+                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Text(
+                  workout.description,
+                  style: TextStyle(
+                    height: 1.2
+                    // fontSize: ,
+                  ),
+                ),
+              )
+              : Container(margin: EdgeInsets.only(bottom: 6),),
+              Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Text(
+                      '${workout.exercises.length} exercises',
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget build1(BuildContext context) {
+    return Container(
+      height: height,
+      margin: EdgeInsets.symmetric(vertical: 16),
+      decoration: ShapeDecoration(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        )
+      ),
+      child: InkWell( // button to expand
+        onTap: () {
+          showModalBottomSheet(context: context, builder: (context) => Container());
+          //  setState(() {
+          //     _isExpanded = !_isExpanded;
+          //     height = _isExpanded ? 60.0 * 1.5 + workout.exercises.length * 70 : 60;
+          //  });
          },
         //  onLongPress: _showWorkoutDialog,
          child: Column(

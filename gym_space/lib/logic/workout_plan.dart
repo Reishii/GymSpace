@@ -1,8 +1,3 @@
-import 'package:GymSpace/global.dart';
-import 'package:GymSpace/logic/workout.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:async';
-
 class WorkoutPlan {
   String name = ""; 
   String author = "";
@@ -38,19 +33,6 @@ class WorkoutPlan {
       'workouts': workouts ?? [],
     };
   }
-
-  // static Future<List<Workout>> getWorkouts(List<String> workoutIDS) async {
-  //   List<Workout> workouts = [];
-    
-  //   for (String id in workoutIDS) {
-  //     DocumentSnapshot ds = await DatabaseHelper.getWorkoutSnapshot(id);
-  //     Workout workout = Workout.jsonToWorkout(ds.data);
-  //     workout.documentID = id;
-  //     workouts.add(workout);
-  //   }
-
-  //   return workouts;
-  // }
 
   static WorkoutPlan jsonToWorkoutPlan(Map<String, dynamic> data) {
     return WorkoutPlan(

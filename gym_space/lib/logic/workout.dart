@@ -4,7 +4,7 @@ class Workout {
   String muscleGroup;
   String description;
   String documentID;
-  var exercises = Map();
+  Map exercises = Map();
   
   Workout({
     this.name = "",
