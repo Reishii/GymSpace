@@ -48,10 +48,8 @@ class _ProfilePageState extends State<ProfilePage> {
       _streamUser = DatabaseHelper.getUserStreamSnapshot(user.documentID);
       _isFriend = user.buddies.contains(DatabaseHelper.currentUserID);
       _isPrivate = user.private;
-      return;
-    }
 
-    DatabaseHelper.getUserSnapshot(widget.forUserID).then((ds) {
+      DatabaseHelper.getUserSnapshot(user.documentID).then((ds) {
       setState(() {
         user = User.jsonToUser(ds.data);
         user.documentID = ds.documentID;
@@ -60,9 +58,11 @@ class _ProfilePageState extends State<ProfilePage> {
         }
       });
     });
+    }
+
     final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
     final settingsIOS = IOSInitializationSettings(
-      onDidReceiveLocalNotification: (id, title, body, payload) =>
+    onDidReceiveLocalNotification: (id, title, body, payload) =>
         onSelectNotification(payload));
     localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
       onSelectNotification: onSelectNotification);
@@ -93,7 +93,8 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         currentUser = User.jsonToUser(ds.data);
         NotificationPage notify = new NotificationPage();
-        user.notification == true ?? notify.sendNotifications('Buddy Request', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}','buddy', userID);
+        if(user.notification == true) 
+          notify.sendNotifications('Buddy Request', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}','buddy', userID);
       });
     });
   
@@ -395,17 +396,41 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildPrivate() {
     return Column(
-      children: <Widget>[
-        _buildPrivateLabel(),
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget> [
+        Container(
+          margin: EdgeInsets.only(top: 50),
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.lock_outline,
+            size: 80,)
+        ),
+        Container(
+          alignment: Alignment.center,
+          child: Text(
+            "This Account is Private",
+            style: TextStyle(
+              fontSize: 24,
+            ),
+          ),
+        ),
+        Container(
+          alignment: Alignment.center,
+          child: Text(
+            "Try becoming buddies to see their activity!",
+          )
+        ),
       ],
     );
   }
 
-  Widget _buildPrivateLabel() {
-    return Column(
-      children: <Widget>[
-
-      ],
+  Widget _buildPrivateLock() {
+    return Container(
+      margin: EdgeInsets.only(top: 50),
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.lock_outline,
+        size: 80,)
     );
   }
 
@@ -476,9 +501,7 @@ class _ProfilePageState extends State<ProfilePage> {
   // }
 
   Widget _buildWeightInfo() {
-    double weightLost = double.parse((user.startingWeight - user.currentWeight).toStringAsFixed(2));
-
-    return Container(
+  return Container(
         margin: EdgeInsets.only(top: 30, left: 10, right: 10),
         decoration: ShapeDecoration(
           color: GSColors.darkBlue,
@@ -520,7 +543,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         Expanded(
-          flex: 3,
+          flex: 4,
           child: Container(
             padding: EdgeInsets.only(top: 30, bottom: 5),
             alignment: Alignment.center,
@@ -603,9 +626,9 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         Expanded(
-          flex: 3,
+          flex: 4,
           child: Container(
-            margin: EdgeInsets.only(left: 18),
+            margin: EdgeInsets.only(left: 15),
             child: StreamBuilder(
               stream: _streamUser,
               builder: (context, snapshot) =>
@@ -620,7 +643,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         Expanded(
-          flex: 4,
+          flex: 3,
           child: Container(),
         ),
       ],

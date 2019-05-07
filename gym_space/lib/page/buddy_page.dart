@@ -35,15 +35,18 @@ class _BuddyPageState extends State<BuddyPage> {
   void initState() {
     super.initState();
 
-    if(widget.fromUser == true && widget.user != null) {
+    if(widget.fromUser == true) {
+      print("a");
       user = widget.user;
       user.buddies = user.buddies.toList();
-
       _fromUser = true;
-    } else if(widget.fromUser == true && widget.fromUser == null) { 
-      _fromUser = true; 
-    }
-    else if(widget.fromUser == false && widget.user != null) {
+
+    // } else if(widget.fromUser == true && widget.fromUser == null) { 
+    //   print("b");
+    //   _fromUser = true; 
+
+    } else {
+      print("c");
       user = widget.user;
       user.buddies = user.buddies.toList();
       _fromUser = false;
@@ -127,7 +130,7 @@ class _BuddyPageState extends State<BuddyPage> {
     return SafeArea(
     // case where user calls buddies themselves
     child: _fromUser == false ? Scaffold(
-      drawer: AppDrawer(startPage: 5),
+      // drawer: AppDrawer(startPage: 5),
       backgroundColor: GSColors.darkBlue,
       appBar: _buildAppBar(),
       body: _buildBody(),
@@ -142,6 +145,7 @@ class _BuddyPageState extends State<BuddyPage> {
 
   Widget _buildAppBar() {
     if(_fromUser == true) {
+      print("First");
       return PreferredSize(
         preferredSize: Size.fromHeight(100),
         child: PageHeader(
@@ -152,19 +156,21 @@ class _BuddyPageState extends State<BuddyPage> {
           searchFunction: searchPressed,
         )
       );  
-    } else if(_fromUser == false && user == null) {
-      return PreferredSize(
-        preferredSize: Size.fromHeight(100),
-        child: PageHeader(
-          title: "Your Buddies", 
-          backgroundColor: Colors.white,
-          showDrawer: true,
-          titleColor: GSColors.darkBlue,
-          showSearch: true,
-          searchFunction: searchPressed,
-        )
-      );  
-    } else if (_fromUser == false && user != null) {
+    // } else if(_fromUser == false && user == null) {
+    //   print("Second");
+    //   return PreferredSize(
+    //     preferredSize: Size.fromHeight(100),
+    //     child: PageHeader(
+    //       title: "Your Buddies", 
+    //       backgroundColor: Colors.white,
+    //       showDrawer: true,
+    //       titleColor: GSColors.darkBlue,
+    //       showSearch: true,
+    //       searchFunction: searchPressed,
+    //     )
+    //   );  
+    } else {
+      print("Third");
       return PreferredSize(
         preferredSize: Size.fromHeight(100),
         child: PageHeader(
@@ -232,7 +238,7 @@ class _BuddyPageState extends State<BuddyPage> {
           );
         },
       );
-    } else if(_fromUser == false || (_fromUser == false && user != null)) {
+    } else {
         return StreamBuilder(
           stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
           builder: (context, snapshot) {
@@ -345,7 +351,7 @@ class _BuddyPageState extends State<BuddyPage> {
           ),
         ),
       );
-    } else if (_fromUser == true) {
+    } else {
       return Container(
         margin: EdgeInsets.symmetric(vertical: 5),
         child: InkWell(
