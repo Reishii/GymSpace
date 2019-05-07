@@ -913,7 +913,8 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                       hintStyle: TextStyle(
                                         color: GSColors.lightBlue,
                                         fontWeight: FontWeight.bold,
-                                        ) 
+                                        ),
+                                      counterText: ""
                                       ),
                                       maxLength: 5,
                                       onChanged: (text){
