@@ -1,3 +1,4 @@
+import 'package:GymSpace/page/post_comments_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,23 @@ class NotificationPage extends StatefulWidget {
     print('fcmToken: $fcmToken');
     print('route: $route');
     print('sender: $sender');
+    if(response.statusCode != 200){}
+  }
+  void sendPostNotification(String title, String body, String fcmToken, String route, String sender, String postID) async{
+    final response = await Messaging.sendTo(
+      title: title,
+      body: body,
+      fcmToken: fcmToken,
+      route: route,
+      sender: sender,
+      postID: postID
+    );
+    print('title: $title');
+    print('body: $body');
+    print('fcmToken: $fcmToken');
+    print('route: $route');
+    print('sender: $sender');
+    print('postID: $postID');
     if(response.statusCode != 200){}
   }
   void sendTokenToServer(String fcmToken){
@@ -102,6 +120,10 @@ class _NotificationState extends State<NotificationPage> {
           new MaterialPageRoute(builder: (BuildContext context) => MessagesPage())
         );
         break;
+      case 'post':
+        Navigator.of(context).push(new MaterialPageRoute(
+          builder: (BuildContext context) => PostCommentsPage(postID: notify.postID, postAuthor: DatabaseHelper.currentUserID)
+        ));
     }
   }
   void handleResumeRouting(String notify){
