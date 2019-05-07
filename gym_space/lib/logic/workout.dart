@@ -4,7 +4,9 @@ class Workout {
   String muscleGroup;
   String description;
   String documentID;
-  Map exercises = Map();
+  List exercises = List(); 
+  // exercises are an array [exercise name, sets, reps, exercise name 2, sets 2, reps 2]
+  // order counts
   
   Workout({
     this.name = "",
@@ -21,7 +23,7 @@ class Workout {
       'author': author,
       'muscleGroup': muscleGroup,
       'description': description,
-      'exercises' : exercises == null ? Map() : exercises
+      'exercises' : exercises ?? [],
     };
   }
 

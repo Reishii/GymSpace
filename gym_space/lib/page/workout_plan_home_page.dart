@@ -318,40 +318,43 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
       builder: (context) {
         return Container(
           margin: MediaQuery.of(context).viewInsets,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Container(
-                child: _buildForm(workoutPlan),
-              ),
-              Flexible(
-                fit: FlexFit.loose,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    FlatButton(
-                      onPressed: () {
-                        if (_formKey.currentState.validate()) {
-                          setState(() {
-                            _formKey.currentState.save();
-                            DatabaseHelper.updateWorkoutPlan(workoutPlan.documentID, {'name': workoutPlan.name, 'description': workoutPlan.description})
-                              .then((_) => Fluttertoast.showToast(msg: 'Workout Plan updated'));
-                            Navigator.pop(context);});
-                        }
-                      },
-                      child: Text(
-                        'Update',
-                        style: TextStyle(
-                          color: GSColors.lightBlue,
-                          fontSize: 16,
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 10),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  child: _buildForm(workoutPlan),
+                ),
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      FlatButton(
+                        onPressed: () {
+                          if (_formKey.currentState.validate()) {
+                            setState(() {
+                              _formKey.currentState.save();
+                              DatabaseHelper.updateWorkoutPlan(workoutPlan.documentID, {'name': workoutPlan.name, 'description': workoutPlan.description})
+                                .then((_) => Fluttertoast.showToast(msg: 'Workout Plan updated'));
+                              Navigator.pop(context);});
+                          }
+                        },
+                        child: Text(
+                          'Update',
+                          style: TextStyle(
+                            color: GSColors.lightBlue,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                )
-              ),
-            ],
+                    ],
+                  )
+                ),
+              ],
+            ),
           ),
         );
       }
