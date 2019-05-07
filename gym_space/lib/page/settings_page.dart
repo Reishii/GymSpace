@@ -36,7 +36,7 @@ class _SettingsState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      drawer: AppDrawer(startPage: 8,),
+      //drawer: AppDrawer(startPage: 8,),
       backgroundColor: GSColors.darkBlue,
       body: _buildBody(),
     );

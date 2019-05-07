@@ -113,7 +113,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     _buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 5),
                     _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 6),
                     _buildDrawerItem("Messages", FontAwesomeIcons.comments, 7),
-                    _buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 8),
+                    //_buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 8),
                   ],
                 ),
               ),
@@ -236,13 +236,13 @@ class _AppDrawerState extends State<AppDrawer> {
           ));
 
           break;
-        case 8: // settings
-          Navigator.pushReplacement(context, MaterialPageRoute<void>(
-            builder: (BuildContext context){
-              return SettingsPage();
-            }
-          ));
-          break;
+        // case 8: // settings
+        //   Navigator.pushReplacement(context, MaterialPageRoute<void>(
+        //     builder: (BuildContext context){
+        //       return SettingsPage();
+        //     }
+        //   ));
+        //   break;
         default:
       }
     });

@@ -326,7 +326,7 @@ class _MePageState extends State<MePage> {
             right: 40,
             child: InkWell(
               onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => BuddyPage())
+                builder: (context) => BuddyPage.fromUser(null))
               ),
               child: Row( // likes
                 children: <Widget> [
