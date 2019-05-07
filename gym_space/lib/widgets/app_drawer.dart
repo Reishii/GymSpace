@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'package:GymSpace/logic/user.dart';
+import 'package:GymSpace/page/nutrition_page.dart';
+import 'package:GymSpace/page/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/misc/colors.dart';
@@ -7,13 +11,14 @@ import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/auth.dart';
 import 'package:GymSpace/page/login_page.dart';
-import 'package:GymSpace/page/chat_page.dart';
-import 'package:GymSpace/page/group_page.dart';
+import 'package:GymSpace/page/messages_page.dart';
+import 'package:GymSpace/page/groups_page.dart';
 import 'package:GymSpace/page/newsfeed_page.dart';
 import 'package:GymSpace/page/settings_page.dart';
+import 'package:GymSpace/notification_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 class AppDrawer extends StatefulWidget {
   final Widget child;
   final int startPage;
@@ -26,101 +31,113 @@ class AppDrawer extends StatefulWidget {
 class _AppDrawerState extends State<AppDrawer> {
   int _currentPage = 2; // 0-7 drawer items are assigned pages when they are built
   Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
-
+  
+  final localNotify = FlutterLocalNotificationsPlugin();
   @override
   void initState() {
     super.initState();
     _currentPage = widget.startPage;
+    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final settingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: (id, title, body, payload) =>
+        onSelectNotification(payload));
+    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
+      onSelectNotification: onSelectNotification);
   }
-
+  Future onSelectNotification(String payload) async  {
+    Navigator.pop(context);
+    print("==============OnSelect WAS CALLED===========");
+    await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
+  }
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: Container(
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: ListView(
-                children: <Widget>[
-                  Container(
-                    child: Align(
-                      alignment: FractionalOffset.centerLeft,
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.menu,
-                          color: GSColors.darkBlue,
+      child: SafeArea(
+        child: Container(
+          child: Column(
+            children: <Widget>[
+              Container(
+                margin: EdgeInsets.only(top: 20),
+                child: FutureBuilder(
+                  future: _futureUser,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage(Defaults.userPhoto),
+                      );
+                    }
+
+                    User user = User.jsonToUser(snapshot.data.data);
+                    user.documentID = snapshot.data.documentID;
+
+                    return Container(
+                      decoration: ShapeDecoration(
+                        shadows: [BoxShadow(blurRadius: 4,)],
+                        shape: CircleBorder(
+                          side: BorderSide(color: Colors.white, width: .5)
                         ),
-                        onPressed: () {Navigator.pop(context);},
+                      ),
+                      child: FlatButton(
+                        child: CircleAvatar(
+                          backgroundColor: Colors.white,
+                          radius: 70,
+                          backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
+                            : AssetImage(Defaults.userPhoto),
+                        ),
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => MePage.thisUser(user)
+                        )),
                       )
-                    )
-                  ),
-                  Container(height: 20),
-                  Container(
-                    height: 100, // height and margin should == to make circle
-                    margin: EdgeInsets.symmetric(horizontal: 100),
-                    child: FutureBuilder(
-                      future: _futureUser,
-                      builder: (context, snapshot) {
-                        String photoURL = snapshot.hasData && !snapshot.data['photoURL'].isEmpty? snapshot.data['photoURL'] : Defaults.photoURL;
-                        return CircleAvatar(
-                        // child: ClipOval(
-                        //   child: Image.network(
-                        //     "https://cdn.pixabay.com/photo/2015/03/03/08/55/portrait-photography-657116_960_720.jpg",
-                        //     fit: BoxFit.fill,
-                        //     width: 140,
-                        //     height: 140,
-                        //   ),
-                        // ),
-                          backgroundColor: Colors.transparent,
-                          radius: 40,
-                          backgroundImage: CachedNetworkImageProvider(photoURL),
-                        );
-                      },
-                    ),
-                  ),
-                  Container(height: 10),
-                  Center(
-                    child: FutureBuilder(
-                      future: _futureUser,
-                      builder: (contex, snapshot) {
-                        String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
-                        return Text(
-                          name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        );
-                      }
-                    )
-                  ),
-                  Container(height: 20),
-                  _buildDrawerItem("Newsfeed", FontAwesomeIcons.newspaper, 0),
-                  _buildDrawerItem("Workout Plans", FontAwesomeIcons.dumbbell, 1),
-                  _buildDrawerItem("Profile", FontAwesomeIcons.userCircle, 2),
-                  _buildDrawerItem("Groups", FontAwesomeIcons.users, 3),
-                  _buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 4),
-                  _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 5),
-                  _buildDrawerItem("Messages", FontAwesomeIcons.comments, 6),
-                  _buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 7),
-                ],
+                    );
+                  },
+                ),
               ),
-            ),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  Divider(),
-                  ListTile(
-                    onTap: _loggedOut,
-                    title: Text(
-                      "Logout", style:TextStyle(color: Colors.red),
-                    ),
-                    leading: Icon(FontAwesomeIcons.signOutAlt, color: Colors.red,),
-                  )
-                ],
-              )
-            ),
-          ],
+              Center(
+                child: FutureBuilder(
+                  future: _futureUser,
+                  builder: (contex, snapshot) {
+                    String name = snapshot.hasData ? snapshot.data['firstName'] + ' ' + snapshot.data['lastName'] : "";
+                    
+                    return Container(
+                      margin: EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    );
+                  }
+                )
+              ),
+              Expanded(
+                child: ListView(
+                  children: <Widget>[
+                    _buildDrawerItem("Newsfeed", FontAwesomeIcons.newspaper, 0),
+                    _buildDrawerItem("Workout Plans", FontAwesomeIcons.dumbbell, 1),
+                    _buildDrawerItem("Profile", FontAwesomeIcons.userCircle, 2),
+                    _buildDrawerItem("Nutrition", FontAwesomeIcons.utensils, 3),
+                    _buildDrawerItem("Groups", FontAwesomeIcons.users, 4),
+                    //_buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 5),
+                    _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 5),
+                    _buildDrawerItem("Messages", FontAwesomeIcons.comments, 6),
+                    //_buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 8),
+                  ],
+                ),
+              ),
+              Container(
+                child: ListTile(
+                  onTap: _loggedOut,
+                  title: Text(
+                    "Logout", style:TextStyle(color: Colors.red),
+                  ),
+                  leading: Icon(FontAwesomeIcons.signOutAlt, color: Colors.red,),
+                )
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -187,43 +204,55 @@ class _AppDrawerState extends State<AppDrawer> {
             },
           ));
           break;
-        case 3: // groups
+        case 3: // nutrition
+          Navigator.pushReplacement(context, MaterialPageRoute<void>(
+            builder: (BuildContext context){
+              return NutritionPage(); 
+            }
+          ));
+          break;
+        case 4: // groups
         Navigator.pushReplacement(context, MaterialPageRoute<void> (
           builder: (BuildContext context) {
-            return GroupPage(); // Switch to groups when created
+            return GroupsPage(); // Switch to groups when created
           }
         ));
           break;
-        case 4: // friends
-        Navigator.pushReplacement(context, MaterialPageRoute<void> (
-          builder: (BuildContext context) {
-            return BuddyPage(); // Switch to groups when created
-          }
-        ));
-          break;
-        case 5: // notifications
+        // case 5: // buddies
+        // Navigator.pushReplacement(context, MaterialPageRoute(
+        //   builder: (BuildContext context) {
+        //     return BuddyPage(); // Switch to buddies when created
+        //   }
+        // ));
+        //   break;
+        case 5: // Notification
+         Navigator.push(context, new MaterialPageRoute<void>(
+            builder: (BuildContext context){
+              return NotificationPage();
+            }
+          )); 
           break;
         case 6: // messages
           Navigator.pushReplacement(context, MaterialPageRoute<void>(
             builder: (BuildContext context){
-              return ChatPage();
+              return MessagesPage();
               //return new Scaffold(
                 //appBar: new AppBar(
                   //title: new Text("Messenger")
                 //),
-                //body: new ChatPage();
+                //body: new MessagesPage();
               //);
             }
           ));
 
           break;
-        case 7: // settings
-          Navigator.pushReplacement(context, MaterialPageRoute<void>(
-            builder: (BuildContext context){
-              return SettingsPage();
-            }
-          ));
-          break;
+        // case 8: // settings
+        //   Navigator.pushReplacement(context, MaterialPageRoute<void>(
+        //     builder: (BuildContext context){
+        //       return SettingsPage();
+        //     }
+        //   ));
+        //   break;
         default:
       }
     });

@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/auth.dart';
 import 'package:GymSpace/misc/colors.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:GymSpace/page/me_page.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/global.dart';
+
 
 class LoginPage extends StatefulWidget {
   LoginPage({@required this.auth, @required this.authStatus});
@@ -26,6 +28,8 @@ class LoginPageState extends State<LoginPage>{
   final FocusNode myFocusNodeEmail = FocusNode();
   final formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final FirebaseMessaging _messaging = FirebaseMessaging();
+
   // User info
   String _email;
   String _password;
@@ -38,6 +42,9 @@ class LoginPageState extends State<LoginPage>{
 
   Color left = Colors.black;
   Color right = Colors.white;
+
+  
+ 
 
   bool validateAndSave() {
     final form = formKey.currentState;
@@ -76,6 +83,7 @@ class LoginPageState extends State<LoginPage>{
   }
 
 void _addUserToDB(String userID) {  
+  
   Firestore.instance.collection('users').document(userID).setData(
     User(
       firstName: _firstName,
@@ -157,7 +165,7 @@ void moveToRegister() {
                     width: 250.0,
                     height: 191.0,
                     fit:BoxFit.fill, 
-                    image: new AssetImage("lib/assets/gymspace_logo.png")
+                    image: new AssetImage("lib/assets/gymspacelogo.png")
                   ),
                 ),
                 Padding (

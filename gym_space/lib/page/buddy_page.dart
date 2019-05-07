@@ -1,143 +1,461 @@
+import 'dart:async';
+
 import 'package:GymSpace/logic/user.dart';
+import 'package:GymSpace/page/profile_page.dart';
+import 'package:GymSpace/page/search_page.dart';
 import 'package:GymSpace/widgets/page_header.dart';
-import 'package:algolia/algolia.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
-import 'package:GymSpace/widgets/buddy_widget.dart';
-import 'package:GymSpace/logic/buddy_preview.dart';
-import 'package:GymSpace/page/buddy_profile_page.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter/widgets.dart';
 import 'package:GymSpace/global.dart';
-import 'package:GymSpace/database.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:GymSpace/notification_page.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class BuddyPage extends StatefulWidget {
-  final Widget child;
+  User user;
+  bool fromUser;
 
-  BuddyPage({Key key, this.child}) : super(key: key);
+  BuddyPage({Key key}) : super(key: key);
+  BuddyPage.fromUser(this.user, this.fromUser, {Key key}) : super(key: key);
   _BuddyPageState createState() => _BuddyPageState();
 }
 
 class _BuddyPageState extends State<BuddyPage> {
   List<String> buddies =  [];
-  final TextEditingController _searchController = TextEditingController();
-  final GlobalKey<FormState> _buddyKey = GlobalKey<FormState>();
-
-  Future<DocumentSnapshot> _futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
-  BuildContext _currentContext;
-  
+  User user;
+  bool _fromUser = false;
+  final localNotify = FlutterLocalNotificationsPlugin();
   //Algolia get algolia => DatabaseConnections.algolia;
 
-  String searchPressed() {
-    showDialog(
-      context: _currentContext,
+  @override
+  void initState() {
+    super.initState();
+
+    if(widget.fromUser == true) {
+      print("a");
+      user = widget.user;
+      user.buddies = user.buddies.toList();
+      _fromUser = true;
+
+    // } else if(widget.fromUser == true && widget.fromUser == null) { 
+    //   print("b");
+    //   _fromUser = true; 
+
+    } else {
+      print("c");
+      user = widget.user;
+      user.buddies = user.buddies.toList();
+      _fromUser = false;
+    }
+
+    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final settingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: (id, title, body, payload) =>
+        onSelectNotification(payload));
+    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
+      onSelectNotification: onSelectNotification);
+  }
+  Future onSelectNotification(String payload) async  {
+    Navigator.pop(context);
+    print("==============OnSelect WAS CALLED===========");
+    await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
+  } 
+
+  Future<void> searchPressed() async {
+    User _currentUser;
+    await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
+      (ds) => _currentUser = User.jsonToUser(ds.data)
+    );
+
+    Navigator.push(context, MaterialPageRoute(
       builder: (context) {
-        return SimpleDialog(
-          children: <Widget>[
-            Container( // search
-              child: TextField(
-                controller: _searchController,
-                onEditingComplete: () async {
-                  print('...Searching for: ${_searchController.text}');
-                  await _searchDBForUser(_searchController.text);
-                },
-              ),
-            )
-          ],
-        );
-      }
+        return SearchPage(searchType: SearchType.user, currentUser: _currentUser,);
+      } 
+    ));
+  }
+
+  void _deletePressed(String buddyID) async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20)
+        ),
+        title: Text('Remove Friend?'),
+        contentPadding: EdgeInsets.fromLTRB(24, 24, 24, 0),
+        content: Container(
+          child: Text(
+            'Are you sure you want unfriend this person?',
+            style: TextStyle(
+              color: Colors.black54,
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+            textColor: GSColors.green,
+          ),
+          FlatButton(
+            onPressed: () => _deleteBuddy(buddyID),
+            child: Text('Yes'),
+            textColor: GSColors.green,
+          ),
+        ],
+      )
     );
   }
 
-  Future<List<User>> _searchDBForUser(String name) async {
-    Query firstNameQuery = Firestore.instance.collection('users')
-      .where('firstName', isEqualTo: name);
-    
-    QuerySnapshot querySnapshot = await firstNameQuery.getDocuments();
-    List<User> foundUsers = List();
-    querySnapshot.documents.forEach((ds) {
-      User user = User.jsonToUser(ds.data);
-      user.documentID = ds.documentID;
-      foundUsers.add(user);
+  Future<void> _deleteBuddy(String buddyID) async {
+    await Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+      {'buddies': FieldValue.arrayRemove([buddyID])}
+    ).then((_) => print('Successfully deleted buddy from current user'));
+
+    await Firestore.instance.collection('users').document(buddyID).updateData(
+      {'buddies': FieldValue.arrayRemove([DatabaseHelper.currentUserID])}
+    ).then((_) {
+      print('Successfully deleted current user from buddy.');
+      setState(() {
+        Navigator.pop(context);
+      });
     });
-    foundUsers.forEach((user) => print('HI'));
-    return foundUsers;
   }
 
-  // Future<void> testSearch(String name) async {
-  //   AlgoliaQuery searchQuery = algolia.instance.index('users').search('Jane');
-  //   var snap = await searchQuery.getObjects();
-  //   print('# of hits: ${snap.hits}');
-  //   List<AlgoliaObjectSnapshot> s = snap.hits;
-  //   s.forEach((object) {
-  //     print(object.data);
-  //   });
-  // }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: AppDrawer(startPage: 4,),
-      backgroundColor: Colors.white,
+    return SafeArea(
+    // case where user calls buddies themselves
+    child: _fromUser == false ? Scaffold(
+      // drawer: AppDrawer(startPage: 5),
+      backgroundColor: GSColors.darkBlue,
       appBar: _buildAppBar(),
-      body: _buildBuddyBackground(),
+      body: _buildBody(),
+    ) 
+      : Scaffold(
+        backgroundColor: GSColors.darkBlue,
+        appBar: _buildAppBar(),
+        body: _buildBody(),
+      )
     );
   }
 
   Widget _buildAppBar() {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(100),
-      child: PageHeader(
-        title: 'Buddies', 
-        backgroundColor: GSColors.darkBlue, 
-        showDrawer: true,
-        titleColor: Colors.white,
-        showSearch: true,
-        searchFunction: searchPressed,
-      )
-    );  
+    if(_fromUser == true) {
+      print("First");
+      return PreferredSize(
+        preferredSize: Size.fromHeight(100),
+        child: PageHeader(
+          title: "${user.firstName}'s Buddies", 
+          backgroundColor: Colors.white,
+          titleColor: GSColors.darkBlue,
+          showSearch: true,
+          searchFunction: searchPressed,
+        )
+      );  
+    // } else if(_fromUser == false && user == null) {
+    //   print("Second");
+    //   return PreferredSize(
+    //     preferredSize: Size.fromHeight(100),
+    //     child: PageHeader(
+    //       title: "Your Buddies", 
+    //       backgroundColor: Colors.white,
+    //       showDrawer: true,
+    //       titleColor: GSColors.darkBlue,
+    //       showSearch: true,
+    //       searchFunction: searchPressed,
+    //     )
+    //   );  
+    } else {
+      print("Third");
+      return PreferredSize(
+        preferredSize: Size.fromHeight(100),
+        child: PageHeader(
+          title: "Your Buddies", 
+          backgroundColor: Colors.white,
+          //showDrawer: true,
+          titleColor: GSColors.darkBlue,
+          showSearch: true,
+          searchFunction: searchPressed,
+        )
+      );  
+    }
   }
 
-Widget _theBackground() {
-  return Container(
-    height: (150 * 50.0),
-    margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-    decoration: ShapeDecoration(
-      color: GSColors.darkBlue,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(50),
-      ),
-    ),
-  );
-}
-
-  Widget _buildBuddyBackground() {
+  Widget _buildBody() {
     return Stack(
-      children: <Widget>[
-        _theBackground(),
+      children: <Widget> [
+        // Background
         Container(
-          child: _buildBuddyList(),
+          margin: EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 20),
+          decoration: ShapeDecoration(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+          ),
+          child: Container(
+            margin: EdgeInsets.all(15),
+            child: _buildBuddyList(),
+          )
         ),
       ]
     );
   }
 
   Widget _buildBuddyList() {
-    return FutureBuilder(
-      future: _futureUser,
-      builder: (context, snapshot) {
-        var userBuddyIDs = snapshot.hasData && snapshot.data['buddies'] != null 
-          ? snapshot.data['buddies'] : List();
-          buddies = userBuddyIDs.cast<String>();      
-    
+    if(_fromUser == true) {
+      return StreamBuilder(
+        stream: DatabaseHelper.getUserStreamSnapshot(user.documentID),
+        builder: (context, snapshot) {
+          if(!snapshot.hasData) 
+            return Container();
+                
+          buddies = snapshot.data.data['buddies'].cast<String>();
           return ListView.builder(
-            itemCount: userBuddyIDs.length,
-            itemBuilder: (BuildContext context, int i) {
-              return BuddyWidget(buddies);
-            } 
+            itemCount: buddies.length,
+            itemBuilder: (BuildContext context, int i) {            
+              return StreamBuilder(
+                stream: DatabaseHelper.getUserStreamSnapshot(buddies[i]),
+                builder: (context, snapshot) {
+                  if(!snapshot.hasData)
+                    return Container();
+
+                  user = User.jsonToUser(snapshot.data.data);
+                  user.documentID = snapshot.data.documentID;
+                  int mutualFriends = 0;
+                  for(String buddyID in user.buddies) {
+                    if (snapshot.data['buddies'].contains(buddyID)) 
+                      mutualFriends++;
+                  }
+                  return _buildBuddy(user, mutualFriends);
+                },
+              );
+            }, 
           );
-      },
-    );
+        },
+      );
+    } else {
+        return StreamBuilder(
+          stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+          builder: (context, snapshot) {
+            if(!snapshot.hasData) 
+              return Container(); 
+            
+            buddies = snapshot.data.data['buddies'].cast<String>();
+            return ListView.builder(
+              itemCount: buddies.length,
+              itemBuilder: (BuildContext context, int i) {           
+                return StreamBuilder(
+                  stream: DatabaseHelper.getUserStreamSnapshot(buddies[i]),
+                  builder: (context, snapshot) {
+                    if(!snapshot.hasData)
+                      return Container();
+
+                    user = User.jsonToUser(snapshot.data.data);
+                    user.documentID = snapshot.data.documentID;
+                    int mutualFriends = 0;
+                    for(String buddyID in user.buddies) {
+                      if (snapshot.data['buddies'].contains(buddyID)) 
+                        mutualFriends++;
+                    }
+                    return _buildBuddy(user, mutualFriends);
+                  },
+                );
+              }, 
+            );
+          },
+        );
+    }
+  }
+
+  // Buddy container
+  Widget _buildBuddy(User user, int mutualFriends) {
+    bool _isFriend;
+
+    if(_fromUser == false) {
+      return Container(
+        margin: EdgeInsets.symmetric(vertical: 5),
+        child: InkWell(
+          onTap: () => _buildBuddyProfile(user),
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              Container(
+                decoration: ShapeDecoration(
+                  color: GSColors.darkBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50)
+                  )
+                ),
+                child: 
+                  Center(
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(top: 12, left: 30),
+                          child: Text(
+                            '${user.firstName} ${user.lastName}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24
+                            ),
+                          ),
+                        ),
+                        Divider(height: 5),
+                        Container(
+                          margin: EdgeInsets.only(bottom: 12, left: 30),
+                          child: Text(
+                            '${user.liftingType}',
+                            style: TextStyle(
+                              color: Colors.white70
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  decoration: ShapeDecoration(
+                    shadows: [BoxShadow(blurRadius: 2)],
+                    shape: CircleBorder(
+                      side: BorderSide(color: Colors.black, width: .25)
+                    )
+                  ),
+                  child: CircleAvatar(
+                    radius: 46,
+                    backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
+                    : AssetImage(Defaults.userPhoto),
+                  ),
+                )
+              ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Container(
+                  margin: EdgeInsets.only(right: 4),
+                  child:IconButton(
+                    onPressed: () => _deletePressed(user.documentID),
+                    color: Colors.red,
+                    iconSize: 30,
+                    icon: Icon(Icons.cancel),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      return Container(
+        margin: EdgeInsets.symmetric(vertical: 5),
+        child: InkWell(
+          onTap: () => _buildBuddyProfile(user),
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              Container(
+                decoration: ShapeDecoration(
+                  color: GSColors.darkBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50)
+                  )
+                ),
+                child: 
+                  Center(
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(top: 12, left: 30),
+                          child: Text(
+                            '${user.firstName} ${user.lastName}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24
+                            ),
+                          ),
+                        ),
+                        Divider(height: 5),
+                        Container(
+                          margin: EdgeInsets.only(bottom: 12, left: 30),
+                          child: Text(
+                            '${user.liftingType}',
+                            style: TextStyle(
+                              color: Colors.white70
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  decoration: ShapeDecoration(
+                    shadows: [BoxShadow(blurRadius: 2)],
+                    shape: CircleBorder(
+                      side: BorderSide(color: Colors.black, width: .25)
+                    )
+                  ),
+                  child: CircleAvatar(
+                    radius: 46,
+                    backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
+                    : AssetImage(Defaults.userPhoto),
+                  ),
+                )
+              ),
+              Positioned(
+                right: 8, top: 25,
+                child: Container(
+                  margin: EdgeInsets.only(right: 4),
+                  child: Column( // likes
+                  children: <Widget> [
+                    Icon(Icons.group, color: GSColors.purple, size: 18,),
+
+                    mutualFriends > 1 
+                      ? Text(
+                      mutualFriends.toString() + ' mutuals', 
+                      style: TextStyle(
+                      color: GSColors.purple,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
+                    )) 
+                    : mutualFriends == 0 
+                      ? Text(
+                      '${user.buddies.length} buddies', 
+                      style: TextStyle(
+                      color: GSColors.purple,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
+                    )) 
+                    : Text(
+                        mutualFriends.toString() + ' mutual', 
+                        style: TextStyle(
+                        color: GSColors.purple,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.2,
+                      )),
+
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+  }
+
+  void _buildBuddyProfile(User user) {
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) => ProfilePage.fromUser(user)
+    ));
   }
 }

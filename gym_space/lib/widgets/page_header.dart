@@ -9,7 +9,7 @@ class PageHeader extends StatelessWidget {
   final Color titleColor;
   final bool showDrawer;
   final bool showSearch;
-  Function searchFunction;
+  final Function searchFunction;
 
   PageHeader({
     this.title, 
@@ -35,7 +35,7 @@ class PageHeader extends StatelessWidget {
           icon: Icon(
             Icons.keyboard_arrow_left, 
             color: titleColor, 
-            size: 30
+            size: 24,
           ),
           onPressed: () {Navigator.pop(context);},
         ),
@@ -56,7 +56,6 @@ class PageHeader extends StatelessWidget {
               title,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontFamily: 'Roboto',
                 fontSize: 26,
                 letterSpacing: 4,
                 color: titleColor,

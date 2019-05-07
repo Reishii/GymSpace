@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,10 +8,9 @@ import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:GymSpace/global.dart';
 
-class ChatPage extends StatelessWidget {
-  // Change to ChatPage() - Must be StatelessWidget that returns a Scaffold - move to page folder
+class MessagesPage extends StatelessWidget {
+  // Change to MessagesPage() - Must be StatelessWidget that returns a Scaffold - move to page folder
 
-  @override
   Widget buildItem(BuildContext context, DocumentSnapshot document) {
     if (document['userID'] == FirebaseAuth.instance.currentUser()) {
       return Container();
@@ -34,7 +31,7 @@ class ChatPage extends StatelessWidget {
                     height: 50.0,
                     padding: EdgeInsets.all(15.0),
                   ),
-                  imageUrl: document['photoURL'].isEmpty ? Defaults.photoURL : document['photoURL'],
+                  imageUrl: document['photoURL'].isEmpty ? Defaults.userPhotoDB : document['photoURL'],
                   width: 50.0,
                   height: 50.0,
                   fit: BoxFit.cover,
@@ -57,6 +54,7 @@ class ChatPage extends StatelessWidget {
                       new Container(
                         child: Text(
                           ' ${document['bio'] ?? 'Not available'}',
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: GSColors.cloud,
                             fontWeight: FontWeight.w300,
@@ -79,7 +77,7 @@ class ChatPage extends StatelessWidget {
                 new MaterialPageRoute(
                     builder: (context) => new MessageThreadPage(
                           peerId: document.documentID,
-                          peerAvatar: document['photoURL'] ?? Defaults.photoURL,
+                          peerAvatar: document['photoURL'] ?? Defaults.userPhotoDB,
                           peerFirstName: document['firstName'],
                           peerLastName: document['lastName'],
                         )));

@@ -1,7 +1,5 @@
-import 'meal.dart';
 import 'group.dart';
 import 'workout_plan.dart';
-
 class User {
   String firstName = "";
   String lastName = "";
@@ -11,6 +9,8 @@ class User {
   String bio = "";
   String documentID = "";
   List<String> buddies = List();
+  List<String> likes = List();
+  List<String> media = List();
   int points = 0;
   int age = 0;
   double startingWeight = 0;
@@ -19,7 +19,14 @@ class User {
   List<Group> joinedGroups = List();
   Map diet = Map();
   List<WorkoutPlan> workoutPlans = List();
-  
+  Map challengeStatus = Map();
+  int caloricGoal = 0;
+  String fcmToken ="";
+  bool private = true;
+  bool location = true;
+  bool notification = true;
+  List<Map<dynamic, dynamic>> notifications = List();
+
   User({
     this.firstName = "",
     this.lastName = "",
@@ -28,6 +35,7 @@ class User {
     this.liftingType = "",
     this.photoURL = "",
     this.buddies,
+    this.media,
     this.points = 0,
     this.age = 0,
     this.startingWeight = 0,
@@ -36,6 +44,14 @@ class User {
     this.joinedGroups,
     this.diet,
     this.workoutPlans,
+    this.challengeStatus,
+    this.caloricGoal = 0,
+    this.fcmToken = "",
+    this.private = true,
+    this.location,
+    this.notification = false,
+    this.notifications,
+    this.likes,
   });
 
   Map<String, dynamic> toJSON() {
@@ -47,6 +63,7 @@ class User {
       'photoURL': photoURL,
       'bio': bio,
       'buddies': buddies == null ? [] : buddies,
+      'media': media == null ? [] : media,
       'points': points,
       'age': age,
       'startingWeight': startingWeight,
@@ -55,6 +72,14 @@ class User {
       'joinedGroups': joinedGroups == null ? [] : joinedGroups,
       'diet': diet == null ? Map() : diet,
       'workoutPlans': workoutPlans == null ? [] : workoutPlans,
+      'challengeStatus' : challengeStatus == null ? Map() : challengeStatus,
+      'caloricGoal' : caloricGoal,
+      'fcmToken' : fcmToken,
+      'private' : private,
+      'location' : location,
+      'notification': notification,
+      'notifications': notifications ?? [],
+      'likes': likes ?? []
     };
   }
 
@@ -67,14 +92,24 @@ class User {
       photoURL: data['photoURL'],
       bio: data['bio'],
       buddies: data['buddies'].cast<String>(),
+      media: data['media'].cast<String>(),
       points: data['points'].round(),
       age: data['age'].round(),
       startingWeight: data['startingWeight'].toDouble(),
       currentWeight: data['currentWeight'].toDouble(),
       height: data['height'].toDouble(),
       // joinedGroups: data['joinedGroups'],
-      // diet: data['diet'],
+      diet: data['diet'],
       // workoutPlans: {}}
+      challengeStatus: data['challengeStatus'],
+      caloricGoal: data['caloricGoal'].round(),
+      fcmToken: data['fcmToken'],
+      private: data['private'],
+      location: data['location'],
+      notification: data['notification'],
+      notifications: data['notifications'].cast<Map<dynamic,dynamic>>(),
+      likes: data['likes'].cast<String>(),
     );
   }
 }
+
