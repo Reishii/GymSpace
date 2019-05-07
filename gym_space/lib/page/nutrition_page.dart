@@ -47,7 +47,7 @@ class _NutritionPage extends State<NutritionPage> {
 
     if(widget.popIt == true) 
       popIt = true;
-      
+
     final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
     final settingsIOS = IOSInitializationSettings(
       onDidReceiveLocalNotification: (id, title, body, payload) =>
@@ -79,7 +79,7 @@ class _NutritionPage extends State<NutritionPage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: _buildAppBar(),
       body: _buildBody(context),
-      ) 
+      ) // User calling themself not thru app drawer, create a back arrow
       : Scaffold(
         //drawer: AppDrawer(startPage: 3,),
         backgroundColor: GSColors.darkBlue,

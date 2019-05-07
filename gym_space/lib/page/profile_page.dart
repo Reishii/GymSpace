@@ -372,7 +372,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
                       }
 
-                      return Text(' $mutualFriends mutual', style: TextStyle(color: GSColors.purple),);
+                      //return Text(' $mutualFriends mutual', style: TextStyle(color: GSColors.purple),);
+                      return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
                     },
                   )
                 ],
