@@ -5,6 +5,7 @@ import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/page/group_members_page.dart';
 import 'package:GymSpace/page/group_workouts_plans_page.dart';
+import 'package:GymSpace/page/newsfeed_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/workout_plan_home_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -246,7 +247,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           _buildPillNavigator(),
           _currentTab == 0 ? _buildOverviewTab() 
             : _currentTab == 1 ? _buildChallengesTab() 
-            : _buildDiscussionTab(),
+            : Container),
         ],
       ),
     );
@@ -503,7 +504,10 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
             child: MaterialButton( // Discussion
               onPressed: () { 
                 if (_currentTab != 2) {
-                  setState(() => _currentTab = 2);
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => NewsfeedPage(forGroup: group,)
+                  ));
+                  // setState(() => _currentTab = 2);
                 }
               },
               child: Text(
@@ -686,7 +690,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         icon: Icon(Icons.keyboard_arrow_right),
         label: Text('Workouts', style: TextStyle(fontSize: 24, letterSpacing: 1.2, fontWeight: FontWeight.bold)),
         onPressed: () => Navigator.push(context, MaterialPageRoute(
-            builder: (context) => WorkoutPlanHomePage(forGroup: group.documentID)
+            builder: (context) => WorkoutPlanHomePage(forGroup: group.documentID, isGroupAdmin: group.admin == currentUserID)
           )
         ),
       ),
@@ -1354,7 +1358,8 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
 
   Widget _buildDiscussionTab() {
     return Container(
-      child: Text('this is disccusion')
+      margin: EdgeInsets.symmetric(horizontal: 20),
+      child: NewsfeedPage(forGroup: group,),
     );
   }
 

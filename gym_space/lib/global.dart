@@ -154,6 +154,18 @@ class DatabaseHelper {
     return postIDS;
   }
 
+  static Future<List<String>> fetchGroupPosts(String groupID) async {
+    List<String> postIDs = List();
+    DocumentSnapshot group = await getGroupSnapshot(groupID);
+    
+    await Firestore.instance.collection('posts').where('fromGroup', isEqualTo: groupID).getDocuments()
+      .then((queryResults) {
+        postIDs.addAll(queryResults.documents.map((e) => e.documentID).toList());
+      });
+
+    return postIDs;
+  }
+
   static Stream getPostStream(String postID) {
     return Firestore.instance.collection('posts').document(postID).snapshots();
   }

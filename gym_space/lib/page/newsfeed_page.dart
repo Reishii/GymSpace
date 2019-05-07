@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:GymSpace/logic/group.dart';
 import 'package:GymSpace/logic/image_input_adapter.dart';
 import 'package:GymSpace/logic/post.dart';
 import 'package:GymSpace/widgets/post_widget.dart';
@@ -21,6 +22,10 @@ import 'package:GymSpace/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NewsfeedPage extends StatefulWidget {
+  final Group forGroup;
+
+  NewsfeedPage({this.forGroup});
+
   @override
   _NewsfeedPageState createState() => _NewsfeedPageState();
 }
@@ -33,18 +38,21 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
   String _uploadBody = '';
   File _uploadImage;
   final localNotify = FlutterLocalNotificationsPlugin();
+  Group get group => widget.forGroup;
+
   @override
   void initState() {
     super.initState();
-    _fetchPosts();
     final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
     final settingsIOS = IOSInitializationSettings(
       onDidReceiveLocalNotification: (id, title, body, payload) =>
         onSelectNotification(payload));
     localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
       onSelectNotification: onSelectNotification);
+    _fetchPosts();
   }
-   Future onSelectNotification(String payload) async  {
+
+  Future onSelectNotification(String payload) async  {
     Navigator.pop(context);
     print("==============OnSelect WAS CALLED===========");
     await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
@@ -91,6 +99,13 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
       _fetchingPosts = true;
     });
     
+    if (group != null) { // group mode
+      DatabaseHelper.fetchGroupPosts(group.documentID).then((posts) {
+        print('Fetched ${posts.length} posts');
+      });
+      return null;
+    }
+
     DatabaseHelper.fetchPosts().then((posts) {
       setState(() {
         print('Fetched ${posts.length} posts');
