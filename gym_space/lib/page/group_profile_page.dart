@@ -247,7 +247,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           _buildPillNavigator(),
           _currentTab == 0 ? _buildOverviewTab() 
             : _currentTab == 1 ? _buildChallengesTab() 
-            : Container),
+            : Container(),
         ],
       ),
     );

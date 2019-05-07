@@ -66,9 +66,9 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
       child: Container(
         color: GSColors.darkBlue,
         child: PageHeader(
-          title: "Newsfeed",
+          title: group == null ? "Newsfeed" : 'Group Newsfeed',
           backgroundColor: GSColors.darkBlue,
-          showDrawer: true,
+          showDrawer: group == null,
           titleColor: Colors.white,
         ),
       ),
@@ -294,6 +294,25 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (group != null) {
+      return Scaffold(
+        appBar: _buildAppBar(),
+        backgroundColor: GSColors.darkBlue,
+        body: _buildBody(),
+        floatingActionButton: FlatButton.icon(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          color: GSColors.green,
+          label: Text('Add Post'),
+          textColor: Colors.white,
+          icon: Icon(Icons.add_circle,),
+          onPressed: _addPressed,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: _buildAppBar(),
       drawer: AppDrawer(startPage: 0,),
