@@ -16,11 +16,11 @@ import 'package:GymSpace/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class BuddyPage extends StatefulWidget {
-  final Widget child;
   User user;
+  bool fromUser;
 
-  BuddyPage({Key key, this.child}) : super(key: key);
-  BuddyPage.fromUser(this.user, {Key key, this.child}) : super(key: key);
+  BuddyPage({Key key}) : super(key: key);
+  BuddyPage.fromUser(this.user, this.fromUser, {Key key}) : super(key: key);
   _BuddyPageState createState() => _BuddyPageState();
 }
 
@@ -35,10 +35,14 @@ class _BuddyPageState extends State<BuddyPage> {
   void initState() {
     super.initState();
 
-    if(widget.user != null) {
+    if(widget.user != null && widget.fromUser == true) {
       user = widget.user;
       user.buddies = user.buddies.toList();
+      print("Setting fromUser to true");
       _fromUser = true;
+    } else if(widget.user == null && widget.fromUser == false) {
+      print("Keeping fromUser false");
+      _fromUser = false;
     }
     final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
     final settingsIOS = IOSInitializationSettings(
@@ -116,41 +120,46 @@ class _BuddyPageState extends State<BuddyPage> {
 
   Widget build(BuildContext context) {
     return SafeArea(
-      child: _fromUser == true ? Scaffold(
-      //drawer: AppDrawer(startPage: 5,),
-      backgroundColor: GSColors.darkBlue,
-      appBar: _buildAppBar(),
-      body: _buildBody(),
-    ) : Scaffold(
+    // case where user calls buddies themselves
+    child: _fromUser == false ? Scaffold(
       drawer: AppDrawer(startPage: 5),
       backgroundColor: GSColors.darkBlue,
       appBar: _buildAppBar(),
       body: _buildBody(),
-      ),
+    ) 
+      : Scaffold(
+        backgroundColor: GSColors.darkBlue,
+        appBar: _buildAppBar(),
+        body: _buildBody(),
+      )
     );
   }
 
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     drawer: AppDrawer(startPage: 5,),
-  //     backgroundColor: GSColors.darkBlue,
-  //     appBar: _buildAppBar(),
-  //     body: _buildBody(),
-  //   );
-  // }
-
   Widget _buildAppBar() {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(100),
-      child: PageHeader(
-        title: 'Buddies', 
-        backgroundColor: Colors.white,
-        showDrawer: true,
-        titleColor: GSColors.darkBlue,
-        showSearch: true,
-        searchFunction: searchPressed,
-      )
-    );  
+    if(_fromUser == true) {
+      return PreferredSize(
+        preferredSize: Size.fromHeight(100),
+        child: PageHeader(
+          title: "${user.firstName}'s Buddies", 
+          backgroundColor: Colors.white,
+          titleColor: GSColors.darkBlue,
+          showSearch: true,
+          searchFunction: searchPressed,
+        )
+      );  
+    } else if(_fromUser == false) {
+      return PreferredSize(
+        preferredSize: Size.fromHeight(100),
+        child: PageHeader(
+          title: "Your Buddies", 
+          backgroundColor: Colors.white,
+          showDrawer: true,
+          titleColor: GSColors.darkBlue,
+          showSearch: true,
+          searchFunction: searchPressed,
+        )
+      );  
+    }
   }
 
   Widget _buildBody() {
@@ -167,8 +176,7 @@ class _BuddyPageState extends State<BuddyPage> {
           ),
           child: Container(
             margin: EdgeInsets.all(15),
-            child: Container(),
-            //_buildBuddyList(),
+            child: _buildBuddyList(),
           )
         ),
       ]
@@ -176,9 +184,9 @@ class _BuddyPageState extends State<BuddyPage> {
   }
 
   Widget _buildBuddyList() {
-    if(!_fromUser) {
+    if(_fromUser == true) {
       return StreamBuilder(
-        stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+        stream: DatabaseHelper.getUserStreamSnapshot(user.documentID),
         builder: (context, snapshot) {
           if(!snapshot.hasData) 
             return Container();
@@ -193,7 +201,7 @@ class _BuddyPageState extends State<BuddyPage> {
                   if(!snapshot.hasData)
                     return Container();
 
-    
+                  print("This true" + i.toString());
                   user = User.jsonToUser(snapshot.data.data);
                   user.documentID = snapshot.data.documentID;
                   return _buildBuddy(user);
@@ -203,13 +211,14 @@ class _BuddyPageState extends State<BuddyPage> {
           );
         },
       );
-    } else {
+    } else if(_fromUser == false) {
         return StreamBuilder(
-          stream: DatabaseHelper.getUserStreamSnapshot(user.documentID),
+          stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
           builder: (context, snapshot) {
             if(!snapshot.hasData) 
               return Container();
                   
+            
             buddies = snapshot.data.data['buddies'].cast<String>();
             return ListView.builder(
               itemCount: buddies.length,
@@ -220,7 +229,7 @@ class _BuddyPageState extends State<BuddyPage> {
                     if(!snapshot.hasData)
                       return Container();
 
-      
+                    print("This false" + i.toString());
                     user = User.jsonToUser(snapshot.data.data);
                     user.documentID = snapshot.data.documentID;
                     return _buildBuddy(user);
@@ -235,7 +244,7 @@ class _BuddyPageState extends State<BuddyPage> {
 
   // Buddy container
   Widget _buildBuddy(User user) {
-    if(!_fromUser) {
+    if(_fromUser == false) {
       return Container(
         margin: EdgeInsets.symmetric(vertical: 5),
         child: InkWell(
@@ -310,7 +319,7 @@ class _BuddyPageState extends State<BuddyPage> {
           ),
         ),
       );
-    } else {
+    } else if (_fromUser == true) {
       return Container(
         margin: EdgeInsets.symmetric(vertical: 5),
         child: InkWell(

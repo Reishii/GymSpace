@@ -71,7 +71,7 @@ class _NotificationState extends State<NotificationPage> {
         print("onMessage: $message");
         final notification = message['notification'];
         final data = message ['data'];
-        _sendNotificationToDB(notification['title'], notification['body'], data['route'],data['fcmToken'],data['sender']);
+        _sendNotificationToDB(notification['title'], notification['body'], data['route'],data['fcmToken'],data['sender'], data['postID']);
         showOngoingNotification(localNotify, id: 0, title: notification['title'], body: notification['body']);
       },
       onLaunch:  (Map<String, dynamic> message) async {
@@ -83,7 +83,7 @@ class _NotificationState extends State<NotificationPage> {
         print("onResume: $message");
         final notification = message['data'];
         //showOngoingNotification(localNotify, id: 0, title: notification['title'], body: notification['body']);
-        _sendNotificationToDB(notification['title'], notification['body'], notification['route'], notification['fcmToken'],notification['sender']);
+        _sendNotificationToDB(notification['title'], notification['body'], notification['route'], notification['fcmToken'],notification['sender'], notification['postID']);
         handleResumeRouting('notification');
       }
     );
@@ -121,9 +121,11 @@ class _NotificationState extends State<NotificationPage> {
         );
         break;
       case 'post':
+        print('this is postID: ${notify.postID}');
         Navigator.of(context).push(new MaterialPageRoute(
           builder: (BuildContext context) => PostCommentsPage(postID: notify.postID, postAuthor: DatabaseHelper.currentUserID)
         ));
+        break;
     }
   }
   void handleResumeRouting(String notify){
@@ -132,7 +134,7 @@ class _NotificationState extends State<NotificationPage> {
       new MaterialPageRoute(builder: (BuildContext context) => NotificationPage()));
   }
   
-  Future<void> _sendNotificationToDB(String title, String body, String route, String fcmToken, String sender) async{
+  Future<void> _sendNotificationToDB(String title, String body, String route, String fcmToken, String sender, String postID) async{
     Map<String, String> notification =
      {
       'title': title,
@@ -140,6 +142,7 @@ class _NotificationState extends State<NotificationPage> {
       'route': route,
       'fcmToken': fcmToken,
       'sender': sender,
+      'postID': postID,
     };
     
     Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(

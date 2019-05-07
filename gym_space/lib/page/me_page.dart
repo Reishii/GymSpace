@@ -345,7 +345,7 @@ class _MePageState extends State<MePage> {
             right: 40,
             child: InkWell(
               onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => BuddyPage())
+                builder: (context) => BuddyPage.fromUser(user, false))
               ),
               child: Row( // likes
                 children: <Widget> [
@@ -798,14 +798,10 @@ class _MePageState extends State<MePage> {
           ],
         )
       ),
-      onTap: () {
-        Navigator.pushReplacement(context, MaterialPageRoute<void>(
-          builder: (BuildContext context){
-          return NutritionPage(); 
-          }   
-        ));
-      },
-      onLongPress:() {_updateNutritionInfo(context);},
+      onTap: () => Navigator.push(context, MaterialPageRoute(
+        builder: (context) => NutritionPage.fromMe(true))
+      ),
+      //onLongPress:() {_updateNutritionInfo(context);},
     );
   }
 
@@ -1620,24 +1616,32 @@ void _updateChallengeInfo(BuildContext context) async{
             child: const Text('Save'),
             onPressed: (){
 
-            if(protein == null)
+            if(protein != null)
+              macroFromDB[_dietKey][0] = protein;
+            else
               protein = 0;
-            if(carbs == null)
+            if(carbs != null)
+              macroFromDB[_dietKey][1] = carbs;
+            else
               carbs = 0;
-            if(fats == null)
+            if(fats != null)
+              macroFromDB[_dietKey][2] = fats;
+            else
               fats = 0;
-            if(currentCalories == null)
-              currentCalories = 0;
-            if(caloricGoal == null)
-              caloricGoal = -1;
-
-            macroFromDB[_dietKey][0] = protein;
-            macroFromDB[_dietKey][1] = carbs;
-            macroFromDB[_dietKey][2] = fats;
-            macroFromDB[_dietKey][3] = protein * 4 + carbs * 4 + fats * 9;
-            if(caloricGoal != -1)
+            if(caloricGoal != null)
                Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
-              {'caloricGoal': caloricGoal});
+                {'caloricGoal': caloricGoal});
+              //caloricGoal = -1;
+
+            macroFromDB[_dietKey][3] = macroFromDB[_dietKey][0] * 4 + macroFromDB[_dietKey][1] * 4 + macroFromDB[_dietKey][2] * 9;
+
+            // macroFromDB[_dietKey][0] = protein;
+            // macroFromDB[_dietKey][1] = carbs;
+            // macroFromDB[_dietKey][2] = fats;
+            // macroFromDB[_dietKey][3] = protein * 4 + carbs * 4 + fats * 9;
+            // if(caloricGoal != -1)
+            //    Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+            //   {'caloricGoal': caloricGoal});
               // caloriesGoal = caloricGoal;
               //macroFromDB[_dietKey][4] = caloricGoal;
             
