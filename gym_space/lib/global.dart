@@ -124,7 +124,7 @@ class DatabaseHelper {
   }
 
   // groups
-  static getGroupSnapshot(String groupID) async {
+  static Future<DocumentSnapshot> getGroupSnapshot(String groupID) async {
     return Firestore.instance.collection('groups').document(groupID).get();
   }
 

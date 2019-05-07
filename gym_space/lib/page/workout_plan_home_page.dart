@@ -19,7 +19,10 @@ import 'package:GymSpace/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class WorkoutPlanHomePage extends StatefulWidget {
-  WorkoutPlanHomePage({Key key, this.child}) : super(key: key);
+  final String forGroup;
+  WorkoutPlanHomePage({
+    this.forGroup = '',
+    Key key, this.child}) : super(key: key);
 
   final Widget child;
 
@@ -31,6 +34,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
   final TextEditingController _shareKeyController = TextEditingController();
   List<String> deadWorkoutPlansIDs = List();
   String get currentUserID => DatabaseHelper.currentUserID;
+  String get forGroup => widget.forGroup;
 
   final localNotify = FlutterLocalNotificationsPlugin();
   // Local Notification Plugin
@@ -64,6 +68,11 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
       Fluttertoast.showToast(msg: 'Invalid Key: Keys are case sensitive');
       return;
     } else if (ds.data['private']) {
+      // only if it is your own
+      if (forGroup.isNotEmpty) {
+        await DatabaseHelper.getGroupSnapshot(forGroup);
+      }
+      
       Fluttertoast.showToast(msg: 'This workout plan is private (not shareable)');
       return;
     } 
@@ -75,7 +84,11 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
     }
     
     Fluttertoast.showToast(msg: 'Adding workout plan: ${ds.data['name']}');
-    await DatabaseHelper.updateUser(currentUserID, {'workoutPlans': FieldValue.arrayUnion([ds.documentID])});
+    if (forGroup.isEmpty) 
+      await DatabaseHelper.updateUser(currentUserID, {'workoutPlans': FieldValue.arrayUnion([ds.documentID])});
+    else 
+      await DatabaseHelper.updateGroup(forGroup, {'workoutPlans': FieldValue.arrayUnion([ds.documentID])});
+      
     FocusScope.of(context).requestFocus(FocusNode());
     Navigator.pop(context);
   }
@@ -175,12 +188,19 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
   void _addWorkoutPlanToDB(WorkoutPlan workoutPlan) async {
     workoutPlan.shareKey = randomAlphaNumeric(Defaults.SHARE_KEY_LENGTH);
     workoutPlan.author = currentUserID;
+    if (forGroup.isNotEmpty) 
+      workoutPlan.groupID = forGroup;
+
     while (await DatabaseHelper.findWorkoutPlanByKey(workoutPlan.shareKey) != null) {
       workoutPlan.shareKey = randomAlphaNumeric(Defaults.SHARE_KEY_LENGTH);
     }
     
     DocumentReference workoutPlanDocument = await Firestore.instance.collection('workoutPlans').add(workoutPlan.toJSON());
     DatabaseHelper.updateUser(currentUserID, {'workoutPlans': FieldValue.arrayUnion([workoutPlanDocument.documentID])});
+
+    if (forGroup.isNotEmpty) {
+      DatabaseHelper.updateGroup(forGroup, {'workoutPlans': FieldValue.arrayUnion([workoutPlanDocument.documentID])});
+    }
   }
 
   Widget _buildForm(WorkoutPlan workoutPlan) {
@@ -221,9 +241,9 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
     return PreferredSize(
       preferredSize: Size.fromHeight(100),
       child: PageHeader(
-        title: 'Workout Plans', 
+        title: forGroup.isEmpty ? 'Workout Plans' : 'Group Workout Plans', 
         backgroundColor: Colors.white,
-        showDrawer: true,
+        showDrawer: forGroup.isEmpty ? true : false,
         titleColor: GSColors.darkBlue,
       ),
     );
@@ -231,7 +251,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
 
   Widget _buildWorkoutPlansList() {
     return StreamBuilder(
-      stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+      stream: forGroup.isEmpty ? DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID) : DatabaseHelper.getGroupStreamSnapshot(forGroup),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Container();

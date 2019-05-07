@@ -4,7 +4,9 @@ import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/page/group_members_page.dart';
+import 'package:GymSpace/page/group_workouts_plans_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
+import 'package:GymSpace/page/workout_plan_home_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +18,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:GymSpace/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 
 class GroupProfilePage extends StatefulWidget {
   final Group group;
@@ -682,7 +685,10 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         textColor: GSColors.darkBlue,
         icon: Icon(Icons.keyboard_arrow_right),
         label: Text('Workouts', style: TextStyle(fontSize: 24, letterSpacing: 1.2, fontWeight: FontWeight.bold)),
-        onPressed: () {},
+        onPressed: () => Navigator.push(context, MaterialPageRoute(
+            builder: (context) => WorkoutPlanHomePage(forGroup: group.documentID)
+          )
+        ),
       ),
     );
   }
@@ -825,9 +831,9 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                     Map<String, dynamic> membersMap = Map();
 
                                     for(int i = 0; i < group.members.length; i++)
-                                      {
-                                        membersMap[group.members[i]] = {'points': 0, 'progress' : 0};
-                                      }
+                                    {
+                                      membersMap[group.members[i]] = {'points': 0, 'progress' : 0};
+                                    }
 
                                     newGroupChallenge =  
                                         {'points' : challengePoints, 
