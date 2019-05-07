@@ -268,6 +268,8 @@ class _BuddyPageState extends State<BuddyPage> {
 
   // Buddy container
   Widget _buildBuddy(User user, int mutualFriends) {
+    bool _isFriend;
+
     if(_fromUser == false) {
       return Container(
         margin: EdgeInsets.symmetric(vertical: 5),
@@ -409,14 +411,17 @@ class _BuddyPageState extends State<BuddyPage> {
                   child: Column( // likes
                   children: <Widget> [
                     Icon(Icons.group, color: GSColors.purple, size: 18,),
-                    mutualFriends > 1 ? Text(
+
+                    mutualFriends > 1 
+                      ? Text(
                       mutualFriends.toString() + ' mutuals', 
                       style: TextStyle(
                       color: GSColors.purple,
                       fontWeight: FontWeight.w600,
                       letterSpacing: -0.2,
                     )) 
-                    : mutualFriends == 0 ? Text(
+                    : mutualFriends == 0 
+                      ? Text(
                       '${user.buddies.length} buddies', 
                       style: TextStyle(
                       color: GSColors.purple,
@@ -429,7 +434,8 @@ class _BuddyPageState extends State<BuddyPage> {
                         color: GSColors.purple,
                         fontWeight: FontWeight.w600,
                         letterSpacing: -0.2,
-                      )) 
+                      )),
+
                     ],
                   ),
                 ),
