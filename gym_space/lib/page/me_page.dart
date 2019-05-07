@@ -722,13 +722,13 @@ class _MePageState extends State<MePage> {
           )
         ),
         child: InkWell(
-        onTap: () => _updateWeightInfo(context),
-        child: Stack(
-          children: <Widget>[ 
-            _buildStartingWeight(),
-            _buildEditButton(),
-            _buildCurrentWeight(),
-          ],
+          onTap: () => _updateWeightInfo(context),
+          child: Stack(
+            children: <Widget>[ 
+              _buildStartingWeight(),
+              _buildEditButton(),
+              _buildCurrentWeight(),
+            ],
         ),
       ),
     );
