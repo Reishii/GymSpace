@@ -135,7 +135,7 @@ class _SettingsState extends State<SettingsPage> {
       lastDate: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day + 1),
     );
     if (picked != null && picked != _selectedDate)
-    _myAge = (DateTime.now().difference(_selectedDate).inDays / 365).round();
+    _myAge = (DateTime.now().difference(picked).inDays / 365).round();
     Firestore.instance.collection('users').document(userID).updateData({'birthday': picked})
       .then((_){
         setState(() {
