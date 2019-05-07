@@ -153,12 +153,12 @@ class _MePageState extends State<MePage> {
                     )),
                     child: Container(
                       margin: EdgeInsets.symmetric(horizontal: 30),
-                      decoration: ShapeDecoration(
-                        shape: Border.all(
-                          color: GSColors.darkCloud,
-                          width: 1.0,
-                        ),
-                      ),
+                      // decoration: ShapeDecoration(
+                      //   shape: Border.all(
+                      //     color: GSColors.darkCloud,
+                      //     width: 1.0,
+                      //   ),
+                      // ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
