@@ -218,10 +218,10 @@ class _AppDrawerState extends State<AppDrawer> {
           }
         ));
           break;
-        case 5: // friends
+        case 5: // buddies
         Navigator.pushReplacement(context, MaterialPageRoute(
           builder: (BuildContext context) {
-            return BuddyPage.fromUser(null, false); // Switch to groups when created
+            return BuddyPage(); // Switch to buddies when created
           }
         ));
           break;

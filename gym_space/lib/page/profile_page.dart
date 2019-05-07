@@ -10,6 +10,7 @@ import 'package:GymSpace/logic/user.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ProfilePage extends StatefulWidget {
   final String forUserID;
@@ -265,16 +266,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           ),
-          // Container(
-          //   margin: EdgeInsets.only(top: 5),
-          //   child: Text(
-          //     user.bio,
-          //     style: TextStyle(
-          //       color: Colors.white,
-          //       fontStyle: FontStyle.italic,
-          //     ),
-          //   ),
-          // ),
           Container(
             margin: EdgeInsets.symmetric(vertical: 10),
             child: Row(
@@ -308,6 +299,20 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  void _likePressed() {
+    if (user.likes.contains(DatabaseHelper.currentUserID)) {
+      Fluttertoast.showToast(msg: 'Already Liked');
+      return;
+    }
+
+    DatabaseHelper.updateUser(user.documentID, {'likes': FieldValue.arrayUnion([DatabaseHelper.currentUserID])})
+      .then((_) {
+        setState(() {
+          Fluttertoast.showToast(msg: 'Liked!');
+        });
+      });
+  }
+
   Widget _buildAvatarStack() {
     return Container(
       child: Stack(
@@ -315,34 +320,34 @@ class _ProfilePageState extends State<ProfilePage> {
         children: <Widget>[
           Positioned(
             left: 40,
-            child: Row( // likes
-              children: <Widget> [
-                Icon(Icons.thumb_up, color: GSColors.lightBlue,),
-                Text(' 100 Likes', style: TextStyle(color: GSColors.lightBlue),),
-              ],
+            child: FlatButton.icon(
+              textColor: GSColors.lightBlue,
+              label: Text('${user.likes.length}'),
+              icon: Icon(Icons.thumb_up),
+              onPressed: _likePressed,
             ),
           ),
-          FlatButton(
-            onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
-                  builder: (BuildContext context) {
-                    return ImageWidget(user.photoURL, context, false);
-                  })
-                ),
-            child: Container(
-              alignment: Alignment.center,
+          Container(
+            alignment: Alignment.center,
+            child: InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute<void> (
+                builder: (BuildContext context) {
+                  return ImageWidget(user.photoURL, context, false);
+                }),
+              ),
               child: CircleAvatar(
                 radius: 70,
                 backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
                 : AssetImage(Defaults.userPhoto),
               ),
-              decoration: ShapeDecoration(
-                shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
-                shape: CircleBorder(
-                  side: BorderSide(
-                    color: Colors.white,
-                    width: 1,
-                  )
-                ),
+            ),
+            decoration: ShapeDecoration(
+              shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
+              shape: CircleBorder(
+                side: BorderSide(
+                  color: Colors.white,
+                  width: 1,
+                )
               ),
             ),
           ),
@@ -362,17 +367,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
                       }
 
-                      int mutualFriends = 0;
-                      for(String buddyID in user.buddies) {
-                        if (snapshot.data['buddies'].contains(buddyID)) 
-                          mutualFriends++;
-                      }
-
-                      if (mutualFriends == 0) {
-                        return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
-                      }
-
-                      //return Text(' $mutualFriends mutual', style: TextStyle(color: GSColors.purple),);
                       return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
                     },
                   )
@@ -389,11 +383,37 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       child: ListView(
         children: <Widget>[
-          _buildBio(),
-          _buildWeightInfo(),
-          _buildMedia(),
+          _isPrivate == true ? _buildPrivate()
+            : _buildPublic(),
         ],
       ),
+    );
+  }
+
+  Widget _buildPrivate() {
+    return Column(
+      children: <Widget>[
+        _buildBio(),
+        _buildPrivateLabel(),
+      ],
+    );
+  }
+
+  Widget _buildPrivateLabel() {
+    return Column(
+      children: <Widget>[
+        
+      ],
+    );
+  }
+
+  Widget _buildPublic() {
+    return Column(
+      children: <Widget>[
+        _buildBio(),
+        _buildWeightInfo(),
+        _buildMedia(),
+      ],
     );
   }
 

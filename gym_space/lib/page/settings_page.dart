@@ -153,15 +153,18 @@ class _SettingsState extends State<SettingsPage> {
       firstDate: DateTime(1940, 1, 1),
       lastDate: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day + 1),
     );
-    if (picked != null && picked != _selectedDate)
-    _myAge = (DateTime.now().difference(picked).inDays / 365).round();
-    Firestore.instance.collection('users').document(userID).updateData({'birthday': picked})
-      .then((_){
-        setState(() {
-          _selectedDate = picked;
-          Firestore.instance.collection('users').document(userID).updateData({'age': _myAge});
+    if (picked != null && picked != _selectedDate) {
+      _myAge = (DateTime.now().difference(picked).inDays / 365).round();
+      Firestore.instance.collection('users').document(userID).updateData({'birthday': picked})
+        .then((_){
+          setState(() {
+            _selectedDate = picked;
+            Firestore.instance.collection('users').document(userID).updateData({'age': _myAge});
+        });
       });
-    });
+    } else if (picked == null) {
+      
+    }
   }
 
    // *****************************************************************************
@@ -204,7 +207,25 @@ class _SettingsState extends State<SettingsPage> {
   Widget _buildForm(String infoKey, String update, int maxLength) {
     return Form(
       key: _formKey,
-      child: TextFormField( // name
+      // If email, allow email keyboard
+      child: update.toLowerCase() == "email" ? TextFormField ( 
+            keyboardType: TextInputType.emailAddress,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(maxLength),
+            ],
+            decoration: InputDecoration(
+              icon: Icon(
+                FontAwesomeIcons.angleRight,
+                color: GSColors.darkBlue,
+                size: 30,
+              ),
+              hintText: infoKey,
+              labelText: update,
+            ),
+            onSaved: (name) => _newInfo = name,
+            validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
+          )
+          : TextFormField ( 
             inputFormatters: [
               LengthLimitingTextInputFormatter(maxLength),
             ],

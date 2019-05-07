@@ -29,7 +29,9 @@ Future<void> main() async{
     _defaultHome = MePage();
   }
 
-  await DatabaseHelper.fixWorkoutPlans().then((count) => print('Fixed $count'));
+  await DatabaseHelper.fixWorkoutPlans().then((count) => print('Fixed $count workout plans'));
+  await DatabaseHelper.fixUsers().then((count) => print('Fixed $count users'));
+  await DatabaseHelper.fixWorkouts().then((count) => print('Fixed $count workouts'));
   runApp(GymSpace(_defaultHome));
 }
 
