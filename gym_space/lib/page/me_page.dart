@@ -14,6 +14,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:GymSpace/notification_page.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class MePage extends StatefulWidget {
   User user;
@@ -34,6 +36,23 @@ class _MePageState extends State<MePage> {
   String _challengeKey;
   int _currentTab = 0;
   User user;
+  final localNotify = FlutterLocalNotificationsPlugin();
+  
+  @override
+  void initState() {
+    super.initState();
+    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final settingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: (id, title, body, payload) =>
+        onSelectNotification(payload));
+    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
+      onSelectNotification: onSelectNotification);
+  }
+    Future onSelectNotification(String payload) async  {
+    Navigator.pop(context);
+    print("==============OnSelect WAS CALLED===========");
+    await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
+  } 
 
   @override
   Widget build(BuildContext context) {

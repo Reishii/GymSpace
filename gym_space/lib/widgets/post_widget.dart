@@ -7,7 +7,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
+import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/logic/user.dart';
+import 'dart:async';
 class PostWidget extends StatefulWidget {
   final Post post;
 
@@ -22,7 +24,12 @@ class _PostWidgetState extends State<PostWidget> {
   Post get post => widget.post;
   String get currentUserID => DatabaseHelper.currentUserID;
 
-  void _likePressed() {
+  Future <void> _likePressed() async {
+    User currentUser;
+    User postUser;
+    String userID = DatabaseHelper.currentUserID;
+    var datas = await DatabaseHelper.getUserSnapshot(post.fromUser);
+    postUser = User.jsonToUser(datas.data);
     if (post.likes.contains(currentUserID)) {
       DatabaseHelper.updatePost(post.documentID, {'likes': FieldValue.arrayRemove([currentUserID])})
         .then((_) {
@@ -31,6 +38,13 @@ class _PostWidgetState extends State<PostWidget> {
           });
         });
     } else {
+      DatabaseHelper.getUserSnapshot(userID).then((ds){
+      setState(() {
+        currentUser = User.jsonToUser(ds.data);
+        NotificationPage notify = new NotificationPage();
+        notify.sendPostNotification('Post', '${currentUser.firstName} ${currentUser.lastName} has Liked on your post', '${postUser.fcmToken}', 'post', userID, post.documentID); 
+        });
+      });
       DatabaseHelper.updatePost(post.documentID, {'likes': FieldValue.arrayUnion([currentUserID])})
         .then((_) {
           setState(() {

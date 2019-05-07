@@ -13,8 +13,10 @@ import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/logic/workout_plan.dart';
 import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
-import 'package:random_string/random_string.dart';
 import 'package:clipboard_manager/clipboard_manager.dart';
+import 'package:random_string/random_string.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:GymSpace/notification_page.dart';
 
 class WorkoutPlanHomePage extends StatefulWidget {
   WorkoutPlanHomePage({Key key, this.child}) : super(key: key);
@@ -26,10 +28,31 @@ class WorkoutPlanHomePage extends StatefulWidget {
 
 class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+  final localNotify = FlutterLocalNotificationsPlugin();
+  // Local Notification Plugin
+  @override
+  void initState() {
+    super.initState();
+    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final settingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: (id, title, body, payload) =>
+        onSelectNotification(payload));
+    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
+      onSelectNotification: onSelectNotification);
+  }
+  Future onSelectNotification(String payload) async  {
+    Navigator.pop(context);
+    print("==============OnSelect WAS CALLED===========");
+    await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
+  } 
   final TextEditingController _shareKeyController = TextEditingController();
   List<String> deadWorkoutPlansIDs = List();
   String get currentUserID => DatabaseHelper.currentUserID;
 
+  void _addPressed(BuildContext currentContext) {
+    showDialog(
+      context: currentContext,
   Future<void> _validateShareKey() async {
     if (_shareKeyController.text.length != 6) {
       Fluttertoast.showToast(msg: 'Invalid Key: Must be 6 characters!');

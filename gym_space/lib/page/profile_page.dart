@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/notification_page.dart';
 import 'package:GymSpace/page/buddy_page.dart';
@@ -10,6 +9,7 @@ import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class ProfilePage extends StatefulWidget {
   final String forUserID;
@@ -31,6 +31,7 @@ class _ProfilePageState extends State<ProfilePage> {
   User user;
   Future<List<String>> _listFutureUser;
   List<String> media = [];
+  final localNotify = FlutterLocalNotificationsPlugin();
 
   @override 
   void initState() {
@@ -56,8 +57,18 @@ class _ProfilePageState extends State<ProfilePage> {
         }
       });
     });
+    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final settingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: (id, title, body, payload) =>
+        onSelectNotification(payload));
+    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
+      onSelectNotification: onSelectNotification);
   }
-
+  Future onSelectNotification(String payload) async  {
+    Navigator.pop(context);
+    print("==============OnSelect WAS CALLED===========");
+    await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
+  } 
   void _addPressed() async {
     if (user.buddies.contains(DatabaseHelper.currentUserID)) {
       return;

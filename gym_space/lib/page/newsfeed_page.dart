@@ -17,6 +17,8 @@ import 'package:GymSpace/widgets/page_header.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:GymSpace/notification_page.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NewsfeedPage extends StatefulWidget {
   @override
@@ -30,11 +32,22 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
   bool _isCreatingPost = false;
   String _uploadBody = '';
   File _uploadImage;
-
+  final localNotify = FlutterLocalNotificationsPlugin();
   @override
   void initState() {
     super.initState();
     _fetchPosts();
+    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final settingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: (id, title, body, payload) =>
+        onSelectNotification(payload));
+    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
+      onSelectNotification: onSelectNotification);
+  }
+   Future onSelectNotification(String payload) async  {
+    Navigator.pop(context);
+    print("==============OnSelect WAS CALLED===========");
+    await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
   }
 
   String get currentUserID => DatabaseHelper.currentUserID;

@@ -14,6 +14,7 @@ class Messaging  {
     @required String route,
     @required String fcmToken,
     @required String sender,
+    String postID,
   }) =>
     client.post(
       'https://fcm.googleapis.com/fcm/send',
@@ -29,6 +30,7 @@ class Messaging  {
           'status': 'done',
           'fcmToken': '$fcmToken',
           'sender': '$sender',
+          'postID': '$postID'
         },
         'to': '$fcmToken', 
       }),

@@ -14,6 +14,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:GymSpace/notification_page.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class GroupProfilePage extends StatefulWidget {
   final Group group;
@@ -44,7 +46,8 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
   String newBio = '';
 
   List<User> members = List();
-
+  final localNotify = FlutterLocalNotificationsPlugin();
+  
   Future<void> _likeGroup() async {
     if (group.likes.contains(DatabaseHelper.currentUserID)) {
       await _unlikeGroup().then((_) {
@@ -144,7 +147,20 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
     });
 
     group.likes = group.likes.toList();
+
+    // Local Notification Plugin
+    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final settingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: (id, title, body, payload) =>
+        onSelectNotification(payload));
+    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
+      onSelectNotification: onSelectNotification);
   }
+  Future onSelectNotification(String payload) async  {
+    Navigator.pop(context);
+    print("==============OnSelect WAS CALLED===========");
+    await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
+  } 
 
   @override
   Widget build(BuildContext context) {
