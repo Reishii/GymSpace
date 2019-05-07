@@ -209,9 +209,9 @@ class _AppDrawerState extends State<AppDrawer> {
         ));
           break;
         case 5: // friends
-        Navigator.pushReplacement(context, MaterialPageRoute<void> (
+        Navigator.pushReplacement(context, MaterialPageRoute(
           builder: (BuildContext context) {
-            return BuddyPage(); // Switch to groups when created
+            return BuddyPage.fromUser(null, false); // Switch to groups when created
           }
         ));
           break;

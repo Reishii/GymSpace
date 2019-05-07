@@ -15,9 +15,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class BuddyPage extends StatefulWidget {
   User user;
+  bool fromUser;
 
   BuddyPage({Key key}) : super(key: key);
-  BuddyPage.fromUser(this.user, {Key key}) : super(key: key);
+  BuddyPage.fromUser(this.user, this.fromUser, {Key key}) : super(key: key);
   _BuddyPageState createState() => _BuddyPageState();
 }
 
@@ -32,13 +33,14 @@ class _BuddyPageState extends State<BuddyPage> {
   void initState() {
     super.initState();
 
-    if(widget.user != null) {
+    if(widget.user != null && widget.fromUser == true) {
       user = widget.user;
       user.buddies = user.buddies.toList();
       print("Setting fromUser to true");
       _fromUser = true;
-    } else if(widget.user == null) {
+    } else if(widget.user == null && widget.fromUser == false) {
       print("Keeping fromUser false");
+      _fromUser = false;
     }
   }
 
@@ -104,25 +106,47 @@ class _BuddyPageState extends State<BuddyPage> {
   }
 
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+    // case where user calls buddies themselves
+    child: _fromUser == false ? Scaffold(
+      drawer: AppDrawer(startPage: 5),
       backgroundColor: GSColors.darkBlue,
       appBar: _buildAppBar(),
       body: _buildBody(),
+    ) 
+      : Scaffold(
+        backgroundColor: GSColors.darkBlue,
+        appBar: _buildAppBar(),
+        body: _buildBody(),
+      )
     );
   }
 
   Widget _buildAppBar() {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(100),
-      child: PageHeader(
-        title: 'Buddies', 
-        backgroundColor: Colors.white,
-        showDrawer: true,
-        titleColor: GSColors.darkBlue,
-        showSearch: true,
-        searchFunction: searchPressed,
-      )
-    );  
+    if(_fromUser == true) {
+      return PreferredSize(
+        preferredSize: Size.fromHeight(100),
+        child: PageHeader(
+          title: "${user.firstName}'s Buddies", 
+          backgroundColor: Colors.white,
+          titleColor: GSColors.darkBlue,
+          showSearch: true,
+          searchFunction: searchPressed,
+        )
+      );  
+    } else if(_fromUser == false) {
+      return PreferredSize(
+        preferredSize: Size.fromHeight(100),
+        child: PageHeader(
+          title: "Your Buddies", 
+          backgroundColor: Colors.white,
+          showDrawer: true,
+          titleColor: GSColors.darkBlue,
+          showSearch: true,
+          searchFunction: searchPressed,
+        )
+      );  
+    }
   }
 
   Widget _buildBody() {
