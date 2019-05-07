@@ -60,13 +60,15 @@ class Notifications{
   String receiver;
   String sender;
   String postID;
+  bool read;
   Notifications({
     this.title,
     this.body,
     this.route,
     this.receiver,
     this.sender,
-    this.postID
+    this.postID,
+    this.read
   });
  factory Notifications.fromJSON(Map<dynamic, dynamic> json){
     return Notifications(
@@ -75,7 +77,8 @@ class Notifications{
      route: json['route'],
      receiver: json['fcmToken'],
      sender: json['sender'],
-     postID: json['postID']
+     postID: json['postID'],
+     read: json['read']
     );
   }
 }
