@@ -106,7 +106,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
     _futureUser.then((ds) {
       Firestore.instance.collection('workoutPlans').document(workoutPlan.documentID)
         .updateData({'workouts': FieldValue.arrayUnion([workoutDocument.documentID])});
-        workoutPlan.workouts.add(workout);
+        // workoutPlan.workouts.add(workout);
     });
 
     _futureUser = DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
@@ -188,12 +188,12 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
       itemCount: workoutPlan.workouts.length,
       itemBuilder: (BuildContext context, int i) {
         // print("Currently there are $count workouts in this plan.");
-        Workout workout = workoutPlan.workouts[i];
+        // Workout workout = workoutPlan.workouts[i];
         return InkWell(
           onLongPress: () {
-            _showWorkoutDialog(context, workout);
+            // _showWorkoutDialog(context, workout);
           },
-          child: WorkoutWidget(workout: workout),
+          // child: WorkoutWidget(workout: workout),
         );
       },
     );
