@@ -99,28 +99,43 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
       _fetchingPosts = true;
     });
     
-    if (group != null) { // group mode
-      DatabaseHelper.fetchGroupPosts(group.documentID).then((posts) {
-        print('Fetched ${posts.length} posts');
-      });
-      return null;
-    }
+    // if (group != null) { // group mode
+    //   DatabaseHelper.fetchGroupPosts(group.documentID).then((posts) {
+    //     print('Fetched ${posts.length} posts');
+    //   });
+    //   return null;
+    // }
 
-    DatabaseHelper.fetchPosts().then((posts) {
-      setState(() {
-        print('Fetched ${posts.length} posts');
-        if (posts.isNotEmpty) 
+    List<String> collectedPosts = group == null ? await DatabaseHelper.fetchPosts() : await DatabaseHelper.fetchGroupPosts(group.documentID);
+    setState(() {
+        print('Fetched ${collectedPosts.length} posts');
+        if (collectedPosts.isNotEmpty) 
           _fetchedPosts.clear();
         // build each post
-        posts.sort((String a, String b) => int.parse(a).compareTo(int.parse(b)));
-        for (String postID in posts.reversed) { // build the post 
+        collectedPosts.sort((String a, String b) => int.parse(a).compareTo(int.parse(b)));
+        for (String postID in collectedPosts.reversed) { // build the post 
           _fetchedPosts.add(_buildPost(postID));
         }
         // _fetchedPosts = posts;
         // _fetchedPosts.sort()
         _fetchingPosts = false;
       });
-    });
+
+    // DatabaseHelper.fetchPosts().then((posts) {
+    //   setState(() {
+    //     print('Fetched ${posts.length} posts');
+    //     if (posts.isNotEmpty) 
+    //       _fetchedPosts.clear();
+    //     // build each post
+    //     posts.sort((String a, String b) => int.parse(a).compareTo(int.parse(b)));
+    //     for (String postID in posts.reversed) { // build the post 
+    //       _fetchedPosts.add(_buildPost(postID));
+    //     }
+    //     // _fetchedPosts = posts;
+    //     // _fetchedPosts.sort()
+    //     _fetchingPosts = false;
+    //   });
+    // });
   }
 
   void _addPressed() {
