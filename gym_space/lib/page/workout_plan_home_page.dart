@@ -280,6 +280,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
       context: context,
       builder: (context) {
         return Container(
+          margin: MediaQuery.of(context).viewInsets,
           padding: EdgeInsets.symmetric(vertical: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

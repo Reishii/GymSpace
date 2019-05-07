@@ -197,4 +197,19 @@ class DatabaseHelper {
     return fixed;
   }
 
+  static Future<int> fixUsers() async {
+    int fixed = 0;
+    await Firestore.instance.collection('users').getDocuments()
+      .then((qs) async {
+        for (DocumentSnapshot ds in qs.documents) {
+          if (!ds.data.containsKey('likes')) {
+            await Firestore.instance.collection('users').document(ds.documentID).updateData({
+              'likes': <String>[]
+            }).then((_) => fixed++);
+          }
+        }
+      });
+
+    return fixed;
+  }
 }

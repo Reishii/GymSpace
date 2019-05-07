@@ -160,11 +160,11 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
         ),
       ),
       body: _buildWorkoutsList(),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: workoutPlan.author == currentUserID ? FloatingActionButton(
         onPressed: _addPressed,
         backgroundColor: GSColors.purple,
         child: Icon(Icons.add),
-      ),
+      ) : Container(),
     );
   }
 
@@ -214,12 +214,15 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
   }
 
   void _workoutLongPressed(Workout workout) {
+    if (workoutPlan.author != currentUserID)
+      return; 
+
     showModalBottomSheet(
       context: context,
       builder: (context) {
         return Container(
           padding: EdgeInsets.symmetric(vertical: 10),
-          child: Row(
+          child:  Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               FlatButton.icon(
@@ -227,15 +230,13 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
                 icon: Icon(Icons.delete, color: GSColors.red,),
                 label: Text('Delete'),
                 onPressed: () => _deletePressed(workout),
-                // onPressed: () => _deletePressed(workoutPlan),
               ),
               FlatButton.icon(
                 textColor: GSColors.purple,
                 icon: Icon(Icons.edit,),
                 label: Text('Edit'),
                 onPressed: () => _editPressed(workout),
-                // onPressed: () => _editPressed(workoutPlan),
-              ),
+              )
             ],
           )
         );
@@ -281,7 +282,6 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
       context: context,
       builder: (context) {
         return Container(
-          margin: MediaQuery.of(context).viewInsets,
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: 10),
             child: Column(
@@ -351,7 +351,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
                       margin: EdgeInsets.only(left: 4,),
                       child: ListTile(
                         // onTap: () => _exerciseTapped(workout, exercise),
-                        onLongPress: () => _exerciseLongPressed(workout.documentID, exercise),
+                        onLongPress: () => workoutPlan.author == currentUserID ? _exerciseLongPressed(workout.documentID, exercise) : {}, 
                         title: Text(exercise['name'], style: TextStyle(fontSize: 16)),
                         subtitle: Container(
                           margin: EdgeInsets.only(left: 20),
@@ -370,16 +370,16 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
                     return Divider();
                   },
                 ),
-                Container(
+                workoutPlan.author == currentUserID ? Container(
                   margin: EdgeInsets.only(right: 20),
                   alignment: Alignment.topRight,
                   child: FlatButton.icon(
                     textColor: GSColors.lightBlue,
                     icon: Icon(Icons.add),
                     label: Text('Add'),
-                    onPressed: () => _addExerciseTapped(workout),
+                    onPressed: () => workoutPlan.author == currentUserID ? _addExerciseTapped(workout) : {}
                   ),
-                )
+                ) : Container(),
               ],
             ),
           ),
