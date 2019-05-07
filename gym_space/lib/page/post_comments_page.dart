@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:GymSpace/notification_page.dart';
 
 class PostCommentsPage extends StatefulWidget {
   final String postID;
@@ -196,6 +197,20 @@ class _PostCommentsPageState extends State<PostCommentsPage> {
       FocusScope.of(context).requestFocus(FocusNode());
       _commentController.clear();
     });
+    User currentUser;
+    User postUser;
+    String userID  = DatabaseHelper.currentUserID;
+    var data = await DatabaseHelper.getUserSnapshot(postAuthor);
+    postUser = User.jsonToUser(data.data);
+    if(postAuthor != DatabaseHelper.currentUserID){
+      DatabaseHelper.getUserSnapshot(userID).then((ds){
+      setState(() {
+        currentUser = User.jsonToUser(ds.data);
+        NotificationPage notify = new NotificationPage();
+        notify.sendPostNotification('Post Comment', '${currentUser.firstName} ${currentUser.lastName} has commented on your post', '${postUser.fcmToken}', 'post', userID, postID); 
+        });
+      });
+    }
   }
 
   void _longPressed(String userID, String key) {

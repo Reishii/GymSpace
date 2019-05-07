@@ -10,7 +10,9 @@ class WorkoutPlan {
   String description = "";
   String documentID = "";
   String groupID = "";
-  List<Workout> workouts = List();
+  String shareKey = '';
+  List<String> workouts = List();
+  bool private = false;
 
   WorkoutPlan({
     this.name = "",
@@ -19,6 +21,8 @@ class WorkoutPlan {
     this.description = "",
     this.documentID = "",
     this.groupID = "",
+    this.shareKey = '',
+    this.private = false,
     this.workouts,
   });
 
@@ -29,36 +33,35 @@ class WorkoutPlan {
       'muscleGroup': muscleGroup,
       'description': description,
       'groupID': groupID,
-      'workouts': workouts == null ? [] : workouts,
+      'shareKey': shareKey,
+      'private': private,
+      'workouts': workouts ?? [],
     };
   }
 
-  static Future<List<Workout>> getWorkouts(List<String> workoutIDS) async {
-    List<Workout> workouts = [];
+  // static Future<List<Workout>> getWorkouts(List<String> workoutIDS) async {
+  //   List<Workout> workouts = [];
     
-    for (String id in workoutIDS) {
-      DocumentSnapshot ds = await DatabaseHelper.getWorkoutSnapshot(id);
-      Workout workout = Workout.jsonToWorkout(ds.data);
-      workout.documentID = id;
-      workouts.add(workout);
-    }
+  //   for (String id in workoutIDS) {
+  //     DocumentSnapshot ds = await DatabaseHelper.getWorkoutSnapshot(id);
+  //     Workout workout = Workout.jsonToWorkout(ds.data);
+  //     workout.documentID = id;
+  //     workouts.add(workout);
+  //   }
 
-    return workouts;
-  }
+  //   return workouts;
+  // }
 
-  static Future<WorkoutPlan> jsonToWorkoutPlan(Map<String, dynamic> data, String workoutPlanID) async {
-    // pull workout IDs and make Workout
-    List<String> workoutIDs = data['workouts'].cast<String>();
-    List<Workout> workouts = await getWorkouts(workoutIDs);
-
+  static WorkoutPlan jsonToWorkoutPlan(Map<String, dynamic> data) {
     return WorkoutPlan(
-        author: data['author'],
-        name: data['name'],
-        description: data['description'],
-        muscleGroup: data['muscleGroup'],
-        groupID: data['groupID'],
-        documentID: workoutPlanID,
-        workouts: workouts,
-      );
+      author: data['author'],
+      name: data['name'],
+      description: data['description'],
+      muscleGroup: data['muscleGroup'],
+      groupID: data['groupID'],
+      shareKey: data['shareKey'],
+      private: data['private'],
+      workouts: data['workouts'].cast<String>().toList(),
+    );
   }
 }

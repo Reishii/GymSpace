@@ -14,6 +14,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:GymSpace/notification_page.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class MePage extends StatefulWidget {
   User user;
@@ -34,6 +36,23 @@ class _MePageState extends State<MePage> {
   String _challengeKey;
   int _currentTab = 0;
   User user;
+  final localNotify = FlutterLocalNotificationsPlugin();
+  
+  @override
+  void initState() {
+    super.initState();
+    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final settingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: (id, title, body, payload) =>
+        onSelectNotification(payload));
+    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
+      onSelectNotification: onSelectNotification);
+  }
+    Future onSelectNotification(String payload) async  {
+    Navigator.pop(context);
+    print("==============OnSelect WAS CALLED===========");
+    await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
+  } 
 
   @override
   Widget build(BuildContext context) {
@@ -153,12 +172,12 @@ class _MePageState extends State<MePage> {
                     )),
                     child: Container(
                       margin: EdgeInsets.symmetric(horizontal: 30),
-                      decoration: ShapeDecoration(
-                        shape: Border.all(
-                          color: GSColors.darkCloud,
-                          width: 1.0,
-                        ),
-                      ),
+                      // decoration: ShapeDecoration(
+                      //   shape: Border.all(
+                      //     color: GSColors.darkCloud,
+                      //     width: 1.0,
+                      //   ),
+                      // ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
@@ -1597,24 +1616,32 @@ void _updateChallengeInfo(BuildContext context) async{
             child: const Text('Save'),
             onPressed: (){
 
-            if(protein == null)
+            if(protein != null)
+              macroFromDB[_dietKey][0] = protein;
+            else
               protein = 0;
-            if(carbs == null)
+            if(carbs != null)
+              macroFromDB[_dietKey][1] = carbs;
+            else
               carbs = 0;
-            if(fats == null)
+            if(fats != null)
+              macroFromDB[_dietKey][2] = fats;
+            else
               fats = 0;
-            if(currentCalories == null)
-              currentCalories = 0;
-            if(caloricGoal == null)
-              caloricGoal = -1;
-
-            macroFromDB[_dietKey][0] = protein;
-            macroFromDB[_dietKey][1] = carbs;
-            macroFromDB[_dietKey][2] = fats;
-            macroFromDB[_dietKey][3] = protein * 4 + carbs * 4 + fats * 9;
-            if(caloricGoal != -1)
+            if(caloricGoal != null)
                Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
-              {'caloricGoal': caloricGoal});
+                {'caloricGoal': caloricGoal});
+              //caloricGoal = -1;
+
+            macroFromDB[_dietKey][3] = macroFromDB[_dietKey][0] * 4 + macroFromDB[_dietKey][1] * 4 + macroFromDB[_dietKey][2] * 9;
+
+            // macroFromDB[_dietKey][0] = protein;
+            // macroFromDB[_dietKey][1] = carbs;
+            // macroFromDB[_dietKey][2] = fats;
+            // macroFromDB[_dietKey][3] = protein * 4 + carbs * 4 + fats * 9;
+            // if(caloricGoal != -1)
+            //    Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+            //   {'caloricGoal': caloricGoal});
               // caloriesGoal = caloricGoal;
               //macroFromDB[_dietKey][4] = caloricGoal;
             

@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:GymSpace/page/me_page.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/global.dart';
-import 'package:GymSpace/notification_page.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -84,9 +83,6 @@ class LoginPageState extends State<LoginPage>{
   }
 
 void _addUserToDB(String userID) {  
-    NotificationPage notify = NotificationPage();
-   _messaging.getToken();
-   _messaging.onTokenRefresh.listen(notify.sendTokenToServer);
   
   Firestore.instance.collection('users').document(userID).setData(
     User(

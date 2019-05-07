@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/nutrition_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
@@ -19,7 +18,7 @@ import 'package:GymSpace/page/settings_page.dart';
 import 'package:GymSpace/notification_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 class AppDrawer extends StatefulWidget {
   final Widget child;
   final int startPage;
@@ -32,13 +31,24 @@ class AppDrawer extends StatefulWidget {
 class _AppDrawerState extends State<AppDrawer> {
   int _currentPage = 2; // 0-7 drawer items are assigned pages when they are built
   Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
-
+  
+  final localNotify = FlutterLocalNotificationsPlugin();
   @override
   void initState() {
     super.initState();
     _currentPage = widget.startPage;
+    final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final settingsIOS = IOSInitializationSettings(
+      onDidReceiveLocalNotification: (id, title, body, payload) =>
+        onSelectNotification(payload));
+    localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
+      onSelectNotification: onSelectNotification);
   }
-
+  Future onSelectNotification(String payload) async  {
+    Navigator.pop(context);
+    print("==============OnSelect WAS CALLED===========");
+    await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
+  }
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -216,7 +226,7 @@ class _AppDrawerState extends State<AppDrawer> {
         ));
           break;
         case 6: // Notification
-         Navigator.pushReplacement(context, MaterialPageRoute<void>(
+         Navigator.push(context, new MaterialPageRoute<void>(
             builder: (BuildContext context){
               return NotificationPage();
             }

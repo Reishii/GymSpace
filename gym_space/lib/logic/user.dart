@@ -81,8 +81,6 @@ class User {
   }
 
   static User jsonToUser(Map<String, dynamic> data) {
-    //List<dynamic> list = data['notifications'];
-    //List<Notifications> listNotify = list.map((i) => Notifications.fromJSON(i)).toList();
     return User(
       firstName: data['firstName'],
       lastName: data['lastName'],

@@ -40,6 +40,9 @@ dependencies:
   path_provider: ^0.5.0+1
   liquid_pull_to_refresh: ^1.1.0
   image_form_field: ^0.0.2
+  random_string: ^0.0.2
+  circular_check_box: ^0.0.2
+  clipboard_manager: ^0.0.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

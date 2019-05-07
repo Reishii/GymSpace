@@ -1,74 +1,69 @@
-import 'package:flutter/material.dart';
+import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/workout_plan.dart';
-import 'workout_widget.dart';
-
+import 'package:flutter/material.dart';
 
 class WorkoutPlanWidget extends StatelessWidget {
-  final WorkoutPlan _workoutPlan;
+  String get currentUserID => DatabaseHelper.currentUserID;
+  final WorkoutPlan workoutPlan;
 
-  WorkoutPlanWidget(this._workoutPlan, {Key key}) : super(key: key);
+  const WorkoutPlanWidget({
+    @required this.workoutPlan,
+    Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 80,
-      child: Card (
-        elevation: 3,
-        child: InkWell(
-          onTap: () => _displayWorkoutPlan(context),
-          child: Container(
-            child: Center (
-              child: Text (
-                _workoutPlan.name,
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10)
+        ),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          child: Column(
+            children: <Widget>[
+              Text(
+                workoutPlan.name,
                 style: TextStyle(
-                  letterSpacing: 2,
-                  fontFamily: 'Roboto',
-                  fontSize: 20
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Text(
+                  workoutPlan.description,
+                  style: TextStyle(
+                    height: 1.2
+                    // fontSize: ,
+                  ),
+                ),
+              ),
+              Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Text(
+                      '${workoutPlan.workouts.length} workouts',
+                    ),
+                    FutureBuilder(
+                      future: DatabaseHelper.getUserSnapshot(workoutPlan.author),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return Text('By: ');
+                        }
+
+                        return Container(
+                          child: Text('By: ${snapshot.data.data['firstName']} ${snapshot.data.data['lastName']}'),
+                        );
+                      },
+                    )
+                  ],
                 ),
               )
-            )
-          )
+            ],
+          ),
         ),
-      )
-    );
-  }
-
-  void _displayWorkoutPlan(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => WorkoutPlanPage(_workoutPlan)
-      )
-    );
-  }
-}
-
-class WorkoutPlanPage extends StatelessWidget {
-  final WorkoutPlan _workoutPlan;
-
-  WorkoutPlanPage(this._workoutPlan, {Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_workoutPlan.name),
       ),
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
-    return Container(
-      margin: EdgeInsets.all(20),
-      child: ListView.builder(
-        itemCount: _workoutPlan.workouts.length,
-        itemBuilder: (BuildContext context, int i) {
-          return Container(
-            margin: EdgeInsets.symmetric(vertical: 10),
-            child: WorkoutWidget(workout: _workoutPlan.workouts[i]),
-          );
-        },
-      )
     );
   }
 }

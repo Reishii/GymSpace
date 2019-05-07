@@ -141,24 +141,34 @@ class NutritionWidget extends StatelessWidget {
             child: const Text('Save'),
             onPressed: (){
 
-            if(protein == null)
-              protein = 0;
-            if(carbs == null)
-              carbs = 0;
-            if(fats == null)
-              fats = 0;
-            if(currentCalories == null)
-              currentCalories = 0;
-            if(caloricGoal == null)
-              caloricGoal = -1;
+            // if(protein == null)
+            //   protein = 0;
+            // if(carbs == null)
+            //   carbs = 0;
+            // if(fats == null)
+            //   fats = 0;
+            // if(currentCalories == null)
+            //   currentCalories = 0;
+            // if(caloricGoal == null)
+            //   caloricGoal = -1;
 
-            macroFromDB[_dietKey][0] = protein;
-            macroFromDB[_dietKey][1] = carbs;
-            macroFromDB[_dietKey][2] = fats;
-            macroFromDB[_dietKey][3] = protein * 4 + carbs * 4 + fats * 9;
-            if(caloricGoal != -1)
+            // macroFromDB[_dietKey][0] = protein;
+            // macroFromDB[_dietKey][1] = carbs;
+            // macroFromDB[_dietKey][2] = fats;
+
+            if(protein != null)
+              macroFromDB[_dietKey][0] = protein;
+            if(carbs != null)
+              macroFromDB[_dietKey][1] = carbs;
+            if(fats != null)
+              macroFromDB[_dietKey][2] = fats;
+            if(caloricGoal != null)
                Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
-              {'caloricGoal': caloricGoal});
+                {'caloricGoal': caloricGoal});
+            macroFromDB[_dietKey][3] = macroFromDB[_dietKey][0] * 4 + macroFromDB[_dietKey][1] * 4 + macroFromDB[_dietKey][2] * 9;
+            // if(caloricGoal != -1)
+            //    Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
+            //   {'caloricGoal': caloricGoal});
               // caloriesGoal = caloricGoal;
               //macroFromDB[_dietKey][4] = caloricGoal;
             
