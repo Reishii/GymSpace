@@ -10,6 +10,8 @@ import 'package:GymSpace/logic/user.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ProfilePage extends StatefulWidget {
   final String forUserID;
@@ -29,6 +31,7 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isFriend = false;
   bool _isPrivate = true;
   User user;
+  Stream<DocumentSnapshot> _streamUser;
   Future<List<String>> _listFutureUser;
   List<String> media = [];
   final localNotify = FlutterLocalNotificationsPlugin();
@@ -40,15 +43,15 @@ class _ProfilePageState extends State<ProfilePage> {
     if (widget.user != null) {
       user = widget.user;
       user.buddies = user.buddies.toList();
+      user.likes = user.likes.toList();
       user.media = user.media.toList();
 
       _listFutureUser = DatabaseHelper.getUserMedia(user.documentID);
+      _streamUser = DatabaseHelper.getUserStreamSnapshot(user.documentID);
       _isFriend = user.buddies.contains(DatabaseHelper.currentUserID);
       _isPrivate = user.private;
-      return;
-    }
 
-    DatabaseHelper.getUserSnapshot(widget.forUserID).then((ds) {
+      DatabaseHelper.getUserSnapshot(user.documentID).then((ds) {
       setState(() {
         user = User.jsonToUser(ds.data);
         user.documentID = ds.documentID;
@@ -57,13 +60,16 @@ class _ProfilePageState extends State<ProfilePage> {
         }
       });
     });
+    }
+
     final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
     final settingsIOS = IOSInitializationSettings(
-      onDidReceiveLocalNotification: (id, title, body, payload) =>
+    onDidReceiveLocalNotification: (id, title, body, payload) =>
         onSelectNotification(payload));
     localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
       onSelectNotification: onSelectNotification);
   }
+
   Future onSelectNotification(String payload) async  {
     Navigator.pop(context);
     print("==============OnSelect WAS CALLED===========");
@@ -89,7 +95,8 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         currentUser = User.jsonToUser(ds.data);
         NotificationPage notify = new NotificationPage();
-        user.notification == true ?? notify.sendNotifications('Buddy Request', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}','buddy', userID);
+        if(user.notification == true) 
+          notify.sendNotifications('Buddy Request', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}','buddy', userID);
       });
     });
   
@@ -171,7 +178,7 @@ class _ProfilePageState extends State<ProfilePage> {
       : Scaffold(
         // drawer: AppDrawer(startPage: 0,),
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(400),
+          preferredSize: Size.fromHeight(450),
           child: _buildAppBar(),
         ),
         body: _buildBody(),
@@ -184,7 +191,7 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Stack(
         children: <Widget>[
           Container(
-            height: 320,
+            height: 400,
             child: AppBar(
               // elevation: .5,
               shape: RoundedRectangleBorder(
@@ -210,7 +217,7 @@ class _ProfilePageState extends State<ProfilePage> {
         gradient: LinearGradient(
           begin: FractionalOffset.topCenter,
           end: FractionalOffset.bottomCenter,
-          stops: [.3, .35,],
+          stops: [.32, .35,],
           colors: [GSColors.darkBlue, Colors.white],
         ),
         shape: RoundedRectangleBorder(
@@ -265,18 +272,22 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           ),
-          // Container(
-          //   margin: EdgeInsets.only(top: 5),
-          //   child: Text(
-          //     user.bio,
-          //     style: TextStyle(
-          //       color: Colors.white,
-          //       fontStyle: FontStyle.italic,
-          //     ),
-          //   ),
-          // ),
+          user.bio != null ? Container( // actual bio
+            // color: Colors.red,
+            margin: EdgeInsets.symmetric(vertical: 6),
+            alignment: Alignment.center,
+            child: Text(
+              user.bio,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: GSColors.darkBlue,
+                letterSpacing: 1.2
+              ),
+            ),
+          ) 
+          : Container(),
           Container(
-            margin: EdgeInsets.symmetric(vertical: 10),
+            margin: EdgeInsets.only(bottom: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
@@ -308,49 +319,83 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  void _likePressed() {
+    if (user.likes.contains(DatabaseHelper.currentUserID)) {
+      DatabaseHelper.updateUser(user.documentID, {'likes': FieldValue.arrayRemove([DatabaseHelper.currentUserID])})
+      .then((_) {
+        setState(() {
+          Fluttertoast.showToast(msg: 'Unliked!');
+        });
+      });
+      return;
+    }
+
+    DatabaseHelper.updateUser(user.documentID, {'likes': FieldValue.arrayUnion([DatabaseHelper.currentUserID])})
+      .then((_) {
+        setState(() {
+          Fluttertoast.showToast(msg: 'Liked!');
+        });
+      });
+  }
+
   Widget _buildAvatarStack() {
     return Container(
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: <Widget>[
           Positioned(
-            left: 40,
-            child: Row( // likes
-              children: <Widget> [
-                Icon(Icons.thumb_up, color: GSColors.lightBlue,),
-                Text(' 100 Likes', style: TextStyle(color: GSColors.lightBlue),),
+            left: 60,
+            child: InkWell(
+              onTap: _likePressed,
+              child: Row( // likes
+                children: <Widget> [
+                  Icon(Icons.thumb_up, color: GSColors.lightBlue,),
+                  StreamBuilder(
+                    stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Text(' ${user.likes.length}', style: TextStyle(color: GSColors.lightBlue),);
+                      }
+
+                      return Text(' ${user.likes.length}', style: TextStyle(color: GSColors.lightBlue),);
+                  },
+                ),
               ],
+              ),
             ),
           ),
-          FlatButton(
-            onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
-                  builder: (BuildContext context) {
-                    return ImageWidget(user.photoURL, context, false);
-                  })
-                ),
-            child: Container(
-              alignment: Alignment.center,
+
+          Container(
+            margin: EdgeInsets.only(top: 10),
+            alignment: Alignment.center,
+            child: InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute<void> (
+                builder: (BuildContext context) {
+                  return ImageWidget(user.photoURL, context, false);
+                }),
+              ),
               child: CircleAvatar(
                 radius: 70,
                 backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
                 : AssetImage(Defaults.userPhoto),
               ),
-              decoration: ShapeDecoration(
-                shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
-                shape: CircleBorder(
-                  side: BorderSide(
-                    color: Colors.white,
-                    width: 1,
-                  )
-                ),
+            ),
+            decoration: ShapeDecoration(
+              shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
+              shape: CircleBorder(
+                side: BorderSide(
+                  color: Colors.white,
+                  width: 1,
+                )
               ),
             ),
           ),
+          
           Positioned(
             right: 40,
             child: InkWell(
               onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => BuddyPage.fromUser(user))
+                builder: (context) => BuddyPage.fromUser(user, true))
               ),
               child: Row( // likes
                 children: <Widget> [
@@ -362,17 +407,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
                       }
 
-                      int mutualFriends = 0;
-                      for(String buddyID in user.buddies) {
-                        if (snapshot.data['buddies'].contains(buddyID)) 
-                          mutualFriends++;
-                      }
-
-                      if (mutualFriends == 0) {
-                        return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
-                      }
-
-                      return Text(' $mutualFriends mutual', style: TextStyle(color: GSColors.purple),);
+                      return Text(' ${user.buddies.length} buddies', style: TextStyle(color: GSColors.purple),);
                     },
                   )
                 ],
@@ -388,149 +423,256 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       child: ListView(
         children: <Widget>[
-          _buildBio(),
-          _buildWeightInfo(),
-          _buildMedia(),
+          _isPrivate == true && _isFriend == false ? _buildPrivate()
+            : _buildPublic(),
         ],
       ),
     );
   }
 
-  Widget _buildBio() {
-    return Container(
-      margin: EdgeInsets.only(top: 30),
-      child: Column(
-        children: <Widget>[
-          Container( // label
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    alignment: Alignment.center,
-                    height: 40,
-                    decoration: ShapeDecoration(
-                      color: GSColors.darkBlue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          bottomRight: Radius.circular(20),
-                          topRight: Radius.circular(20),
-                        )
-                      )
-                    ),
-                    child: Text(
-                      'Bio',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        letterSpacing: 1.2
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Container(),
-                )
-              ],
+  Widget _buildPrivate() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget> [
+        Container(
+          margin: EdgeInsets.only(top: 50),
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.lock_outline,
+            size: 80,)
+        ),
+        Container(
+          alignment: Alignment.center,
+          child: Text(
+            "This Account is Private",
+            style: TextStyle(
+              fontSize: 24,
             ),
           ),
-          Container( // actual bio
-            // color: Colors.red,
-            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 40),
-            alignment: Alignment.center,
+        ),
+        Container(
+          alignment: Alignment.center,
+          child: Text(
+            "Try becoming buddies to see their activity!",
+          )
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPublic() {
+    return Column(
+      children: <Widget>[
+        _buildWeightInfo(),
+        _buildMedia(),
+      ],
+    );
+  }
+
+  // Widget _buildBio() {
+  //   return Container(
+  //     margin: EdgeInsets.only(top: 30),
+  //     child: Column(
+  //       children: <Widget>[
+  //         Container( // label
+  //           child: Row(
+  //             children: <Widget>[
+  //               Expanded(
+  //                 flex: 2,
+  //                 child: Container(
+  //                   alignment: Alignment.center,
+  //                   height: 40,
+  //                   decoration: ShapeDecoration(
+  //                     color: GSColors.darkBlue,
+  //                     shape: RoundedRectangleBorder(
+  //                       borderRadius: BorderRadius.only(
+  //                         bottomRight: Radius.circular(20),
+  //                         topRight: Radius.circular(20),
+  //                       )
+  //                     )
+  //                   ),
+  //                   child: Text(
+  //                     'Bio',
+  //                     style: TextStyle(
+  //                       color: Colors.white,
+  //                       fontSize: 14,
+  //                       letterSpacing: 1.2
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //               Expanded(
+  //                 flex: 1,
+  //                 child: Container(),
+  //               )
+  //             ],
+  //           ),
+  //         ),
+  //         Container( // actual bio
+  //           // color: Colors.red,
+  //           margin: EdgeInsets.symmetric(vertical: 10, horizontal: 40),
+  //           alignment: Alignment.center,
+  //           child: Text(
+  //             user.bio,
+  //             textAlign: TextAlign.center,
+  //             style: TextStyle(
+  //               color: GSColors.darkBlue,
+  //               letterSpacing: 1.2
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  Widget _buildWeightInfo() {
+  return Container(
+        margin: EdgeInsets.only(top: 30, left: 10, right: 10),
+        decoration: ShapeDecoration(
+          color: GSColors.darkBlue,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              topLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+              topRight: Radius.circular(20),
+            )
+          )
+        ),
+        child: Stack(
+          children: <Widget>[ 
+            _buildStartingWeight(),
+            _buildCurrentWeight(),
+          ],
+        ),
+    );
+  }
+
+  Widget _buildCurrentWeight() {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          flex: 6,
+          child: Container(
+            margin: EdgeInsets.only(left: 20),
+            padding: EdgeInsets.only(top: 30, bottom: 5),
+            alignment: Alignment.centerLeft,
             child: Text(
-              user.bio,
-              textAlign: TextAlign.center,
+              "Current Weight -",
               style: TextStyle(
-                color: GSColors.darkBlue,
-                letterSpacing: 1.2
+                color: Colors.white,
+                fontSize: 14,
+                letterSpacing: 1.2,
+                fontWeight: FontWeight.w700,
+              )),
+          ),
+        ),
+        Expanded(
+          flex: 4,
+          child: Container(
+            padding: EdgeInsets.only(top: 30, bottom: 5),
+            alignment: Alignment.center,
+            child: StreamBuilder(
+              stream: _streamUser,
+              builder: (context, snapshot) =>
+                Text(
+                  snapshot.hasData ? snapshot.data['currentWeight'].toString() + ' lbs' : '',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14
+                  ),
+                )
               ),
             ),
           ),
-        ],
-      ),
+          Expanded(
+          flex: 4,
+          child: Container(
+            padding: EdgeInsets.only(top: 30, bottom: 5),
+            alignment: Alignment.centerLeft,
+            child: StreamBuilder(
+              stream: _streamUser,
+              builder: (context, snapshot) {
+                double weightLost = snapshot.hasData ? (snapshot.data['startingWeight'] - snapshot.data['currentWeight']) : 0;
+                
+                if(weightLost > 0)
+                  return Row(
+                    children: <Widget>[
+                      Icon(FontAwesomeIcons.caretDown, color: Colors.red, size: 16),
+                      Text(
+                        weightLost.toStringAsFixed(1),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      )
+                    ],
+                  );
+                else if (weightLost < 0) {
+                  return Row(
+                    children: <Widget>[
+                      Icon(FontAwesomeIcons.caretUp, color: GSColors.green, size: 16),
+                      Text(
+                          weightLost.toStringAsFixed(1),
+                          style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      )
+                    ],
+                  );
+                } else 
+                  return Container();
+              }
+            ),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildWeightInfo() {
-    double weightLost = double.parse((user.startingWeight - user.currentWeight).toStringAsFixed(2));
-
-    return Container( // might have to use Exapndeds for proper auto alignment
-      height: 70,
-      decoration: ShapeDecoration(
-        color: GSColors.darkBlue,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(40),
-            topLeft: Radius.circular(40),
+  Widget _buildStartingWeight() {
+      return Row(
+      children: <Widget>[
+        Expanded(
+          flex: 6,
+          child: Container(
+            margin: EdgeInsets.only(left: 20),
+            padding: EdgeInsets.symmetric(vertical: 5),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "Starting Weight -",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                letterSpacing: 1.2,
+                fontWeight: FontWeight.w700,
+              )),
           ),
-        )
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          Container( // Starting Weight
-            margin: EdgeInsets.only(left: 34, right: 84),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  'Starting Weight',
-                  style: TextStyle(
-                    color: Colors.white,
-                    letterSpacing: 1.2
-                  ),
+        ),
+        Expanded(
+          flex: 3,
+          child: Container(
+            margin: EdgeInsets.only(left: 20),
+            child: StreamBuilder(
+              stream: _streamUser,
+              builder: (context, snapshot) =>
+              Text(
+                snapshot.hasData ? snapshot.data['startingWeight'].toString() + " lbs" : "",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14
                 ),
-                Text(
-                  '${user.startingWeight.toStringAsFixed(2)} lbs',
-                  style: TextStyle(
-                    color: Colors.white,
-                    letterSpacing: 1.2
-                  ),
-                ),
-              ],
+              )
             ),
           ),
-          Container( // Current Weight
-          margin: EdgeInsets.only(left: 34, right: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  'Current Weight',
-                  style: TextStyle(
-                    color: Colors.white,
-                    letterSpacing: 1.2
-                  ),
-                ),
-                Row(
-                  children: <Widget>[
-                    Text(
-                      '${user.currentWeight.toStringAsFixed(2)} lbs',
-                      style: TextStyle(
-                        color: Colors.white,
-                        letterSpacing: 1.2
-                      ),
-                    ),
-                    Icon(
-                      weightLost > 0 ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
-                      color: weightLost >= 0 ? Colors.red : Colors.blue,
-                    ),
-                    Text(
-                      '$weightLost lbs',
-                      style: TextStyle(
-                        color: Colors.white,
-                        letterSpacing: 1.2
-                      ),
-                    )
-                  ],
-                )
-              ],
-            ),
-          )
-        ],
-      ),
+        ),
+        Expanded(
+          flex: 4,
+          child: Container(),
+        ),
+      ],
     );
   }
 
@@ -564,7 +706,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           Container( // photo gallery
-            margin: EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 10),
+            margin: EdgeInsets.only(top: 10, left: 15, right: 15, bottom: 10),
             child: FutureBuilder(
               future: _listFutureUser,
               builder: (context, snapshot) {

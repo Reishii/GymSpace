@@ -16,11 +16,11 @@ import 'package:GymSpace/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class BuddyPage extends StatefulWidget {
-  final Widget child;
   User user;
+  bool fromUser;
 
-  BuddyPage({Key key, this.child}) : super(key: key);
-  BuddyPage.fromUser(this.user, {Key key, this.child}) : super(key: key);
+  BuddyPage({Key key}) : super(key: key);
+  BuddyPage.fromUser(this.user, this.fromUser, {Key key}) : super(key: key);
   _BuddyPageState createState() => _BuddyPageState();
 }
 
@@ -35,11 +35,23 @@ class _BuddyPageState extends State<BuddyPage> {
   void initState() {
     super.initState();
 
-    if(widget.user != null) {
+    if(widget.fromUser == true) {
+      print("a");
       user = widget.user;
       user.buddies = user.buddies.toList();
       _fromUser = true;
+
+    // } else if(widget.fromUser == true && widget.fromUser == null) { 
+    //   print("b");
+    //   _fromUser = true; 
+
+    } else {
+      print("c");
+      user = widget.user;
+      user.buddies = user.buddies.toList();
+      _fromUser = false;
     }
+
     final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
     final settingsIOS = IOSInitializationSettings(
       onDidReceiveLocalNotification: (id, title, body, payload) =>
@@ -116,41 +128,61 @@ class _BuddyPageState extends State<BuddyPage> {
 
   Widget build(BuildContext context) {
     return SafeArea(
-      child: _fromUser == true ? Scaffold(
-      //drawer: AppDrawer(startPage: 5,),
+    // case where user calls buddies themselves
+    child: _fromUser == false ? Scaffold(
+      // drawer: AppDrawer(startPage: 5),
       backgroundColor: GSColors.darkBlue,
       appBar: _buildAppBar(),
       body: _buildBody(),
-    ) : Scaffold(
-      drawer: AppDrawer(startPage: 5),
-      backgroundColor: GSColors.darkBlue,
-      appBar: _buildAppBar(),
-      body: _buildBody(),
-      ),
+    ) 
+      : Scaffold(
+        backgroundColor: GSColors.darkBlue,
+        appBar: _buildAppBar(),
+        body: _buildBody(),
+      )
     );
   }
 
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     drawer: AppDrawer(startPage: 5,),
-  //     backgroundColor: GSColors.darkBlue,
-  //     appBar: _buildAppBar(),
-  //     body: _buildBody(),
-  //   );
-  // }
-
   Widget _buildAppBar() {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(100),
-      child: PageHeader(
-        title: 'Buddies', 
-        backgroundColor: Colors.white,
-        showDrawer: true,
-        titleColor: GSColors.darkBlue,
-        showSearch: true,
-        searchFunction: searchPressed,
-      )
-    );  
+    if(_fromUser == true) {
+      print("First");
+      return PreferredSize(
+        preferredSize: Size.fromHeight(100),
+        child: PageHeader(
+          title: "${user.firstName}'s Buddies", 
+          backgroundColor: Colors.white,
+          titleColor: GSColors.darkBlue,
+          showSearch: true,
+          searchFunction: searchPressed,
+        )
+      );  
+    // } else if(_fromUser == false && user == null) {
+    //   print("Second");
+    //   return PreferredSize(
+    //     preferredSize: Size.fromHeight(100),
+    //     child: PageHeader(
+    //       title: "Your Buddies", 
+    //       backgroundColor: Colors.white,
+    //       showDrawer: true,
+    //       titleColor: GSColors.darkBlue,
+    //       showSearch: true,
+    //       searchFunction: searchPressed,
+    //     )
+    //   );  
+    } else {
+      print("Third");
+      return PreferredSize(
+        preferredSize: Size.fromHeight(100),
+        child: PageHeader(
+          title: "Your Buddies", 
+          backgroundColor: Colors.white,
+          //showDrawer: true,
+          titleColor: GSColors.darkBlue,
+          showSearch: true,
+          searchFunction: searchPressed,
+        )
+      );  
+    }
   }
 
   Widget _buildBody() {
@@ -167,8 +199,7 @@ class _BuddyPageState extends State<BuddyPage> {
           ),
           child: Container(
             margin: EdgeInsets.all(15),
-            child: Container(),
-            //_buildBuddyList(),
+            child: _buildBuddyList(),
           )
         ),
       ]
@@ -176,9 +207,9 @@ class _BuddyPageState extends State<BuddyPage> {
   }
 
   Widget _buildBuddyList() {
-    if(!_fromUser) {
+    if(_fromUser == true) {
       return StreamBuilder(
-        stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+        stream: DatabaseHelper.getUserStreamSnapshot(user.documentID),
         builder: (context, snapshot) {
           if(!snapshot.hasData) 
             return Container();
@@ -193,10 +224,14 @@ class _BuddyPageState extends State<BuddyPage> {
                   if(!snapshot.hasData)
                     return Container();
 
-    
                   user = User.jsonToUser(snapshot.data.data);
                   user.documentID = snapshot.data.documentID;
-                  return _buildBuddy(user);
+                  int mutualFriends = 0;
+                  for(String buddyID in user.buddies) {
+                    if (snapshot.data['buddies'].contains(buddyID)) 
+                      mutualFriends++;
+                  }
+                  return _buildBuddy(user, mutualFriends);
                 },
               );
             }, 
@@ -205,25 +240,29 @@ class _BuddyPageState extends State<BuddyPage> {
       );
     } else {
         return StreamBuilder(
-          stream: DatabaseHelper.getUserStreamSnapshot(user.documentID),
+          stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
           builder: (context, snapshot) {
             if(!snapshot.hasData) 
-              return Container();
-                  
+              return Container(); 
+            
             buddies = snapshot.data.data['buddies'].cast<String>();
             return ListView.builder(
               itemCount: buddies.length,
-              itemBuilder: (BuildContext context, int i) {            
+              itemBuilder: (BuildContext context, int i) {           
                 return StreamBuilder(
                   stream: DatabaseHelper.getUserStreamSnapshot(buddies[i]),
                   builder: (context, snapshot) {
                     if(!snapshot.hasData)
                       return Container();
 
-      
                     user = User.jsonToUser(snapshot.data.data);
                     user.documentID = snapshot.data.documentID;
-                    return _buildBuddy(user);
+                    int mutualFriends = 0;
+                    for(String buddyID in user.buddies) {
+                      if (snapshot.data['buddies'].contains(buddyID)) 
+                        mutualFriends++;
+                    }
+                    return _buildBuddy(user, mutualFriends);
                   },
                 );
               }, 
@@ -234,8 +273,10 @@ class _BuddyPageState extends State<BuddyPage> {
   }
 
   // Buddy container
-  Widget _buildBuddy(User user) {
-    if(!_fromUser) {
+  Widget _buildBuddy(User user, int mutualFriends) {
+    bool _isFriend;
+
+    if(_fromUser == false) {
       return Container(
         margin: EdgeInsets.symmetric(vertical: 5),
         child: InkWell(
@@ -369,11 +410,40 @@ class _BuddyPageState extends State<BuddyPage> {
                   ),
                 )
               ),
-              Align(
-                alignment: Alignment.bottomRight,
+              Positioned(
+                right: 8, top: 25,
                 child: Container(
                   margin: EdgeInsets.only(right: 4),
-                  child: Icon(Icons.group, color: GSColors.purple),
+                  child: Column( // likes
+                  children: <Widget> [
+                    Icon(Icons.group, color: GSColors.purple, size: 18,),
+
+                    mutualFriends > 1 
+                      ? Text(
+                      mutualFriends.toString() + ' mutuals', 
+                      style: TextStyle(
+                      color: GSColors.purple,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
+                    )) 
+                    : mutualFriends == 0 
+                      ? Text(
+                      '${user.buddies.length} buddies', 
+                      style: TextStyle(
+                      color: GSColors.purple,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
+                    )) 
+                    : Text(
+                        mutualFriends.toString() + ' mutual', 
+                        style: TextStyle(
+                        color: GSColors.purple,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.2,
+                      )),
+
+                    ],
+                  ),
                 ),
               ),
             ],

@@ -71,7 +71,7 @@ class _NotificationState extends State<NotificationPage> {
         print("onMessage: $message");
         final notification = message['notification'];
         final data = message ['data'];
-        _sendNotificationToDB(notification['title'], notification['body'], data['route'],data['fcmToken'],data['sender']);
+        _sendNotificationToDB(notification['title'], notification['body'], data['route'],data['fcmToken'],data['sender'], data['postID'], false);
         showOngoingNotification(localNotify, id: 0, title: notification['title'], body: notification['body']);
       },
       onLaunch:  (Map<String, dynamic> message) async {
@@ -83,7 +83,7 @@ class _NotificationState extends State<NotificationPage> {
         print("onResume: $message");
         final notification = message['data'];
         //showOngoingNotification(localNotify, id: 0, title: notification['title'], body: notification['body']);
-        _sendNotificationToDB(notification['title'], notification['body'], notification['route'], notification['fcmToken'],notification['sender']);
+        _sendNotificationToDB(notification['title'], notification['body'], notification['route'], notification['fcmToken'],notification['sender'], notification['postID'], false);
         handleResumeRouting('notification');
       }
     );
@@ -107,7 +107,7 @@ class _NotificationState extends State<NotificationPage> {
   Future<void> handleRouting(dynamic notify) async{
     DocumentSnapshot itemCount = await Firestore.instance.collection('users').document(notify.sender).get();
     User userInfo = User.jsonToUser(itemCount.data);
-    Navigator.pop(context);
+    //Navigator.pop(context);
     print(notify.route);
     switch (notify.route){
       case 'buddy':
@@ -121,9 +121,11 @@ class _NotificationState extends State<NotificationPage> {
         );
         break;
       case 'post':
+        print('this is postID: ${notify.postID}');
         Navigator.of(context).push(new MaterialPageRoute(
           builder: (BuildContext context) => PostCommentsPage(postID: notify.postID, postAuthor: DatabaseHelper.currentUserID)
         ));
+        break;
     }
   }
   void handleResumeRouting(String notify){
@@ -132,14 +134,16 @@ class _NotificationState extends State<NotificationPage> {
       new MaterialPageRoute(builder: (BuildContext context) => NotificationPage()));
   }
   
-  Future<void> _sendNotificationToDB(String title, String body, String route, String fcmToken, String sender) async{
-    Map<String, String> notification =
+  Future<void> _sendNotificationToDB(String title, String body, String route, String fcmToken, String sender, String postID, bool read) async{
+    Map<String, dynamic> notification =
      {
       'title': title,
       'body': body,
       'route': route,
       'fcmToken': fcmToken,
       'sender': sender,
+      'postID': postID,
+      'read': read
     };
     
     Firestore.instance.collection('users').document(DatabaseHelper.currentUserID).updateData(
@@ -170,7 +174,7 @@ class _NotificationState extends State<NotificationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      drawer: AppDrawer(startPage: 6),
+      drawer: AppDrawer(startPage: 5),
       backgroundColor: GSColors.darkBlue,
       body: _buildBody(context)
       );
@@ -200,6 +204,7 @@ class _NotificationState extends State<NotificationPage> {
     return ListView(
       padding: const EdgeInsets.only(top: 20),
       children: snapshot.map((data) => _buildListItem(context, data)).toList(),
+      shrinkWrap: true ,
     );
   }
   Widget _buildListItem(BuildContext context, Map<dynamic, dynamic> data){
@@ -207,59 +212,70 @@ class _NotificationState extends State<NotificationPage> {
     Future<DocumentSnapshot> _otherUser =  DatabaseHelper.getUserSnapshot(notify.sender);
     return Padding(
       key: ValueKey(notify.title),
-      padding: const EdgeInsets.symmetric( horizontal: 20, vertical: 8.0),
-      child: GestureDetector(
-        onTap: () {
-          handleRouting(notify);
-        },
-        child: Container(
-          padding: EdgeInsets.all(5.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(3.0),
-          ),
-          child: Row(
-           mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-             FutureBuilder(
-                  future: _otherUser,
-                  builder: (context, snapshot){
-                    return CircleAvatar(radius: 25,
-                      backgroundImage: snapshot.hasData ? CachedNetworkImageProvider(snapshot.data['photoURL']) : AssetImage(Defaults.userPhoto),
-                    );
-                  }
+      padding: const EdgeInsets.symmetric( horizontal: 0, vertical: 0),
+      child: Card(
+        elevation: 8.0 ,
+        color: GSColors.blue,
+          child: GestureDetector(
+          onTap: () {
+            handleRouting(notify);
+            if(notify.read == false){
+            _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver);
+            }
+            _sendNotificationToDB(notify.title, notify.body, notify.route, notify.receiver, notify.sender, notify.postID, true);
+          },
+          child: Card(
+            elevation: 8,
+              child: Container(
+              padding: EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color:(notify.read != true) ? GSColors.darkCloud : GSColors.cloud,
+                border: Border.all(color: GSColors.darkCloud),
+                borderRadius: BorderRadius.circular(5.0),
               ),
-              Expanded(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    FittedBox(
-                     child: Text(notify.title, style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.5),
-                     ),
-                     fit: BoxFit.scaleDown
+              child: Row(
+               mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                 FutureBuilder(
+                      future: _otherUser,
+                      builder: (context, snapshot){
+                        return CircleAvatar(radius: 30,
+                          backgroundImage: snapshot.hasData ? CachedNetworkImageProvider(snapshot.data['photoURL']) : AssetImage(Defaults.userPhoto),
+                        );
+                      }
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        FittedBox(
+                         child: Text(notify.title, style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.5),
+                         ),
+                         fit: BoxFit.scaleDown
+                        ),
+                        FittedBox(
+                          child: Text(notify.body, style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.0)),
+                          fit: BoxFit.scaleDown
+                        )
+                      ],
                     ),
-                    FittedBox(
-                      child: Text(notify.body, style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.0)),
-                      fit: BoxFit.scaleDown
-                    )
-                  ],
-                ),
-              ),
-              RawMaterialButton(
-                onPressed: () => _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver),
-                child: new Icon(
-                  Icons.delete,
-                  color: GSColors.darkCloud,
-                  size: 20.0,
-                ),
-                shape: new CircleBorder(),
-                elevation: 2.0,
-                fillColor: GSColors.darkBlue,
+                  ),
+                  RawMaterialButton(
+                    onPressed: () => _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver),
+                    child: new Icon(
+                      Icons.delete,
+                      color: GSColors.darkCloud,
+                      size: 20.0,
+                    ),
+                    shape: new CircleBorder(),
+                    elevation: 2.0,
+                    fillColor: GSColors.darkBlue,
+                  )
+                ],
               )
-            ],
-          )
+            ),
+          ),
         ),
       ), 
     );

@@ -19,7 +19,12 @@ import 'package:GymSpace/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class WorkoutPlanHomePage extends StatefulWidget {
-  WorkoutPlanHomePage({Key key, this.child}) : super(key: key);
+  final String forGroup;
+  final bool isGroupAdmin;
+  WorkoutPlanHomePage({
+    this.forGroup = '',
+    this.isGroupAdmin = false,
+    Key key, this.child}) : super(key: key);
 
   final Widget child;
 
@@ -31,6 +36,8 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
   final TextEditingController _shareKeyController = TextEditingController();
   List<String> deadWorkoutPlansIDs = List();
   String get currentUserID => DatabaseHelper.currentUserID;
+  String get forGroup => widget.forGroup;
+  bool get isGroupAdmin => widget.isGroupAdmin;
 
   final localNotify = FlutterLocalNotificationsPlugin();
   // Local Notification Plugin
@@ -44,7 +51,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
     localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
       onSelectNotification: onSelectNotification);
   }
-  
+
   Future onSelectNotification(String payload) async  {
     Navigator.pop(context);
     print("==============OnSelect WAS CALLED===========");
@@ -60,22 +67,41 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
     Fluttertoast.showToast(msg: 'Validating key...');
     // search DB for key
     DocumentSnapshot ds = await DatabaseHelper.findWorkoutPlanByKey(_shareKeyController.text);
+    DocumentSnapshot groupSnap = null;
+
+    if (forGroup.isNotEmpty) {
+      groupSnap = await DatabaseHelper.getGroupSnapshot(forGroup);
+    }
+
     if (ds == null) {
       Fluttertoast.showToast(msg: 'Invalid Key: Keys are case sensitive');
       return;
     } else if (ds.data['private']) {
-      Fluttertoast.showToast(msg: 'This workout plan is private (not shareable)');
-      return;
+      if (groupSnap == null) {
+        Fluttertoast.showToast(msg: 'This workout plan is private (not shareable)');
+        return;
+      }
+      
+      if (groupSnap.data['admin'] == ds.data['author'] && groupSnap.data['workoutPlans'].contains(ds.documentID)) {
+        Fluttertoast.showToast(msg: 'Already have workout plan: ${ds.data['name']}');
+        return;
+      }
     } 
     
-    DocumentSnapshot userSnap = await DatabaseHelper.getUserSnapshot(currentUserID);
-    if (userSnap.data['workoutPlans'].contains(ds.documentID)) {
-      Fluttertoast.showToast(msg: 'Already have workout plan: ${ds.data['name']}');
-      return;
+    if (forGroup.isEmpty) {
+      DocumentSnapshot userSnap = await DatabaseHelper.getUserSnapshot(currentUserID);
+      if (userSnap.data['workoutPlans'].contains(ds.documentID)) {
+        Fluttertoast.showToast(msg: 'Already have workout plan: ${ds.data['name']}');
+        return;
+      }
     }
     
     Fluttertoast.showToast(msg: 'Adding workout plan: ${ds.data['name']}');
-    await DatabaseHelper.updateUser(currentUserID, {'workoutPlans': FieldValue.arrayUnion([ds.documentID])});
+    if (forGroup.isEmpty) 
+      await DatabaseHelper.updateUser(currentUserID, {'workoutPlans': FieldValue.arrayUnion([ds.documentID])});
+    else 
+      await DatabaseHelper.updateGroup(forGroup, {'workoutPlans': FieldValue.arrayUnion([ds.documentID])});
+      
     FocusScope.of(context).requestFocus(FocusNode());
     Navigator.pop(context);
   }
@@ -112,7 +138,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
     );
   }
 
-  void _addPressed() {
+  void _addPressed() {    
     WorkoutPlan newWorkoutPlan = WorkoutPlan();
 
     showModalBottomSheet(
@@ -175,12 +201,19 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
   void _addWorkoutPlanToDB(WorkoutPlan workoutPlan) async {
     workoutPlan.shareKey = randomAlphaNumeric(Defaults.SHARE_KEY_LENGTH);
     workoutPlan.author = currentUserID;
+    if (forGroup.isNotEmpty) 
+      workoutPlan.groupID = forGroup;
+
     while (await DatabaseHelper.findWorkoutPlanByKey(workoutPlan.shareKey) != null) {
       workoutPlan.shareKey = randomAlphaNumeric(Defaults.SHARE_KEY_LENGTH);
     }
     
     DocumentReference workoutPlanDocument = await Firestore.instance.collection('workoutPlans').add(workoutPlan.toJSON());
     DatabaseHelper.updateUser(currentUserID, {'workoutPlans': FieldValue.arrayUnion([workoutPlanDocument.documentID])});
+
+    if (forGroup.isNotEmpty) {
+      DatabaseHelper.updateGroup(forGroup, {'workoutPlans': FieldValue.arrayUnion([workoutPlanDocument.documentID])});
+    }
   }
 
   Widget _buildForm(WorkoutPlan workoutPlan) {
@@ -192,6 +225,8 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
         child: Column(
           children: <Widget>[
             TextFormField( // name
+              initialValue: workoutPlan.name,
+              textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
                 hintText: "e.g. Best workout plan!",
                 labelText: "Plan Name",
@@ -199,12 +234,15 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
               onSaved: (name) => workoutPlan.name = name,
               validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
             ),
-            TextFormField( // muscleGroup
+            TextFormField( // description
+              initialValue: workoutPlan.description,
+              textCapitalization: TextCapitalization.sentences,
+              maxLines: 3,
               decoration: InputDecoration(
-                hintText: "e.g. Chest",
-                labelText: "Muscle Group",
+                hintText: "e.g. This is a workout for intense body building",
+                labelText: "Description",
               ),
-              onSaved: (muscleGroup) => workoutPlan.muscleGroup = muscleGroup,
+              onSaved: (desc) => workoutPlan.description = desc,
             ),
           ],
         ),
@@ -216,9 +254,9 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
     return PreferredSize(
       preferredSize: Size.fromHeight(100),
       child: PageHeader(
-        title: 'Workout Plans', 
+        title: forGroup.isEmpty ? 'Workout Plans' : 'Group Workout Plans', 
         backgroundColor: Colors.white,
-        showDrawer: true,
+        showDrawer: forGroup.isEmpty ? true : false,
         titleColor: GSColors.darkBlue,
       ),
     );
@@ -226,7 +264,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
 
   Widget _buildWorkoutPlansList() {
     return StreamBuilder(
-      stream: DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID),
+      stream: forGroup.isEmpty ? DatabaseHelper.getUserStreamSnapshot(DatabaseHelper.currentUserID) : DatabaseHelper.getGroupStreamSnapshot(forGroup),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Container();
@@ -243,8 +281,8 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
               DatabaseHelper.updateUser(currentUserID, {'workoutPlans': FieldValue.arrayRemove(deadWorkoutPlansIDs)});
             }
 
-            return FutureBuilder(
-              future: DatabaseHelper.getWorkoutPlanSnapshot(userWorkoutPlansIDs[i]),
+            return StreamBuilder(
+              stream: DatabaseHelper.getWorkoutPlanStreamSnapshot(userWorkoutPlansIDs[i]),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return Container();
@@ -268,7 +306,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
 
   void _planTapped(WorkoutPlan workoutPlan) {
     Navigator.push(context, MaterialPageRoute(
-      builder: (context) => WorkoutPlanPage(workoutPlan: workoutPlan,)
+      builder: (context) => WorkoutPlanPage(workoutPlan: workoutPlan)
     ));
   }
 
@@ -277,30 +315,87 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
       context: context,
       builder: (context) {
         return Container(
+          margin: MediaQuery.of(context).viewInsets,
           padding: EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              FlatButton.icon(
-                textColor: GSColors.red,
-                icon: Icon(Icons.delete, color: GSColors.red,),
-                label: Text('Delete'),
-                // onPressed: () => _deletePressed(workoutPlan),
-                onPressed: () => _deletePressed(workoutPlan),
-              ),
-              // FlatButton.icon(
-              //   textColor: GSColors.green,
-              //   icon: Icon(Icons.share, color: GSColors.green,),
-              //   label: Text('Remove'),
-              //   onPressed: () {},
-              // ),
-              FlatButton.icon(
-                textColor: GSColors.green,
-                icon: Icon(Icons.share,),
-                label: Text('Share',),
-                onPressed: () => _sharePressed(workoutPlan),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  FlatButton.icon(
+                    textColor: GSColors.red,
+                    icon: Icon(Icons.delete, color: GSColors.red,),
+                    label: Text('Delete'),
+                    // onPressed: () => _deletePressed(workoutPlan),
+                    onPressed: () => _deletePressed(workoutPlan),
+                  ),
+                  workoutPlan.author == currentUserID ? FlatButton.icon(
+                    textColor: GSColors.purple,
+                    icon: Icon(Icons.edit,),
+                    label: Text('Edit'),
+                    onPressed: () => _editPressed(workoutPlan),
+                  ) : Container(),
+                  workoutPlan.author == currentUserID ? FlatButton.icon(
+                    textColor: GSColors.green,
+                    icon: Icon(Icons.share,),
+                    label: Text('Share',),
+                    onPressed: () => _sharePressed(workoutPlan),
+                  ) : Container(),
+                ],
               ),
             ],
+          ),
+        );
+      }
+    );
+  }
+
+  void _editPressed(WorkoutPlan workoutPlan) {
+    Navigator.pop(context);
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          margin: MediaQuery.of(context).viewInsets,
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 10),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  child: _buildForm(workoutPlan),
+                ),
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      FlatButton(
+                        onPressed: () {
+                          if (_formKey.currentState.validate()) {
+                            setState(() {
+                              _formKey.currentState.save();
+                              DatabaseHelper.updateWorkoutPlan(workoutPlan.documentID, {'name': workoutPlan.name, 'description': workoutPlan.description})
+                                .then((_) => Fluttertoast.showToast(msg: 'Workout Plan updated'));
+                              Navigator.pop(context);});
+                          }
+                        },
+                        child: Text(
+                          'Update',
+                          style: TextStyle(
+                            color: GSColors.lightBlue,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                ),
+              ],
+            ),
           ),
         );
       }
@@ -310,16 +405,23 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
   void _sharePressed(WorkoutPlan workoutPlan) {
     Navigator.pop(context);
 
+    // just use the ? and : . Change this is time permits
     List<Widget> items = List();
     if (workoutPlan.private) {
-      items.add(
+      items.addAll([
         FlatButton.icon(
           onPressed: () => _changePlanPrivacy(workoutPlan),
           textColor: GSColors.yellow,
           label: Text('Make plan shareable'),
           icon: Icon(Icons.lock_open),
-        )
-      );
+        ),
+        FlatButton.icon(
+          textColor: GSColors.green,
+          label: Text(' ${workoutPlan.shareKey}'),
+          icon: Icon(Icons.vpn_key),
+          onPressed: () => _copyKeyToClipboard(workoutPlan.shareKey)
+        ),
+      ]);
     } else {
       items.addAll([
         FlatButton.icon(
@@ -384,6 +486,12 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
 
   Future<void> _deleteWorkoutPlan(WorkoutPlan workoutPlan) async {
     Navigator.pop(context);
+
+    if (forGroup.isNotEmpty) {
+      await DatabaseHelper.updateGroup(forGroup, {'workoutPlans': FieldValue.arrayRemove([workoutPlan.documentID])});
+      Fluttertoast.showToast(msg: 'Removed workout plan from group');
+    }
+
     await DatabaseHelper.updateUser(currentUserID, {'workoutPlans': FieldValue.arrayRemove([workoutPlan.documentID])});
     Fluttertoast.showToast(msg: 'Removed workout plan');
 
@@ -428,7 +536,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
       resizeToAvoidBottomPadding: true,
       drawer: AppDrawer(startPage: 1,),
       backgroundColor: GSColors.darkBlue,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: forGroup.isEmpty || isGroupAdmin ? FloatingActionButton(
         child: Icon(
           FontAwesomeIcons.plus,
           size: 14,
@@ -436,7 +544,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
         ),
         backgroundColor: GSColors.purple,
         onPressed: _addPressed,
-      ),
+      ) : Container(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: _buildAppBar(),
       body: Container(

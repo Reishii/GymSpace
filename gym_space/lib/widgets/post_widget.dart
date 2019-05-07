@@ -38,13 +38,15 @@ class _PostWidgetState extends State<PostWidget> {
           });
         });
     } else {
+      if(post.fromUser != userID){
       DatabaseHelper.getUserSnapshot(userID).then((ds){
-      setState(() {
-        currentUser = User.jsonToUser(ds.data);
-        NotificationPage notify = new NotificationPage();
-        notify.sendPostNotification('Post', '${currentUser.firstName} ${currentUser.lastName} has Liked on your post', '${postUser.fcmToken}', 'post', userID, post.documentID); 
+        setState(() {
+          currentUser = User.jsonToUser(ds.data);
+          NotificationPage notify = new NotificationPage();
+          notify.sendPostNotification('Post', '${currentUser.firstName} ${currentUser.lastName} has Liked on your post', '${postUser.fcmToken}', 'post', userID, post.documentID); 
+          });
         });
-      });
+      }
       DatabaseHelper.updatePost(post.documentID, {'likes': FieldValue.arrayUnion([currentUserID])})
         .then((_) {
           setState(() {

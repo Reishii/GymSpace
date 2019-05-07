@@ -4,7 +4,10 @@ import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/page/group_members_page.dart';
+import 'package:GymSpace/page/group_workouts_plans_page.dart';
+import 'package:GymSpace/page/newsfeed_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
+import 'package:GymSpace/page/workout_plan_home_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +19,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:GymSpace/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 
 class GroupProfilePage extends StatefulWidget {
   final Group group;
@@ -243,7 +247,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           _buildPillNavigator(),
           _currentTab == 0 ? _buildOverviewTab() 
             : _currentTab == 1 ? _buildChallengesTab() 
-            : _buildDiscussionTab(),
+            : Container(),
         ],
       ),
     );
@@ -500,7 +504,10 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
             child: MaterialButton( // Discussion
               onPressed: () { 
                 if (_currentTab != 2) {
-                  setState(() => _currentTab = 2);
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => NewsfeedPage(forGroup: group,)
+                  ));
+                  // setState(() => _currentTab = 2);
                 }
               },
               child: Text(
@@ -678,22 +685,14 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
   Widget _buildWorkouts() {
     return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'Workouts',
-            style: TextStyle(
-              fontSize: 24,
-              letterSpacing: 1.2,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          IconButton(
-            icon: Icon(Icons.keyboard_arrow_right),
-            onPressed: () {},
+      child: FlatButton.icon(
+        textColor: GSColors.darkBlue,
+        icon: Icon(Icons.keyboard_arrow_right),
+        label: Text('Workouts', style: TextStyle(fontSize: 24, letterSpacing: 1.2, fontWeight: FontWeight.bold)),
+        onPressed: () => Navigator.push(context, MaterialPageRoute(
+            builder: (context) => WorkoutPlanHomePage(forGroup: group.documentID, isGroupAdmin: group.admin == currentUserID)
           )
-        ],
+        ),
       ),
     );
   }
@@ -836,9 +835,9 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                     Map<String, dynamic> membersMap = Map();
 
                                     for(int i = 0; i < group.members.length; i++)
-                                      {
-                                        membersMap[group.members[i]] = {'points': 0, 'progress' : 0};
-                                      }
+                                    {
+                                      membersMap[group.members[i]] = {'points': 0, 'progress' : 0};
+                                    }
 
                                     newGroupChallenge =  
                                         {'points' : challengePoints, 
@@ -1355,7 +1354,8 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
 
   Widget _buildDiscussionTab() {
     return Container(
-      child: Text('this is disccusion')
+      margin: EdgeInsets.symmetric(horizontal: 20),
+      child: NewsfeedPage(forGroup: group,),
     );
   }
 

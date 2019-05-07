@@ -99,7 +99,7 @@ class MessagesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(
-        startPage: 7,
+        startPage: 6,
       ),
       appBar: _buildAppBar(),
       // floatingActionButton: new FloatingActionButton(

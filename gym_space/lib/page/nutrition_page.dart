@@ -13,8 +13,11 @@ import 'package:GymSpace/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:async';
 class NutritionPage extends StatefulWidget {
+  bool popIt;
   NutritionPage(
     {Key key}) : super(key: key);
+
+  NutritionPage.fromMe(this.popIt, {Key key}) : super(key: key);
 
   _NutritionPage createState() => _NutritionPage();
 }
@@ -33,6 +36,7 @@ class _NutritionPage extends State<NutritionPage> {
   DateTime _sun = DateTime.now();
   String _monKey, _tueKey, _wedKey, _thurKey, _friKey, _satKey, _sunKey;
   bool _selectDay = true;
+  bool popIt = false;
   int _highlightDay;
   external int get weekday;
   final localNotify = FlutterLocalNotificationsPlugin();
@@ -40,6 +44,10 @@ class _NutritionPage extends State<NutritionPage> {
   @override
   void initState() {
     super.initState();
+
+    if(widget.popIt == true) 
+      popIt = true;
+
     final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
     final settingsIOS = IOSInitializationSettings(
       onDidReceiveLocalNotification: (id, title, body, payload) =>
@@ -53,10 +61,10 @@ class _NutritionPage extends State<NutritionPage> {
     await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
   } 
 
-  @override
   Widget build(BuildContext context) {
     _highlightDay = now.weekday;
-    return Scaffold(
+    return SafeArea(
+      child: popIt == false ? Scaffold(
       drawer: AppDrawer(startPage: 3,),
       backgroundColor: GSColors.darkBlue,
       floatingActionButton: FloatingActionButton(
@@ -71,6 +79,23 @@ class _NutritionPage extends State<NutritionPage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: _buildAppBar(),
       body: _buildBody(context),
+      ) // User calling themself not thru app drawer, create a back arrow
+      : Scaffold(
+        //drawer: AppDrawer(startPage: 3,),
+        backgroundColor: GSColors.darkBlue,
+        floatingActionButton: FloatingActionButton(
+          child: Icon(
+            FontAwesomeIcons.plus,
+            size: 14,
+            color: Colors.white
+          ),
+          backgroundColor: GSColors.purple,
+          onPressed: () => NutritionWidget().updateNutritionInfo(context, _dietKey), 
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        appBar: _buildAppBar(),
+        body: _buildBody(context),
+      ),
     );
   }
 
