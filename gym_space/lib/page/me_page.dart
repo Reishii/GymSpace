@@ -345,7 +345,7 @@ class _MePageState extends State<MePage> {
             right: 40,
             child: InkWell(
               onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => BuddyPage())
+                builder: (context) => BuddyPage.fromUser(user, false))
               ),
               child: Row( // likes
                 children: <Widget> [
@@ -798,14 +798,10 @@ class _MePageState extends State<MePage> {
           ],
         )
       ),
-      onTap: () {
-        Navigator.pushReplacement(context, MaterialPageRoute<void>(
-          builder: (BuildContext context){
-          return NutritionPage(); 
-          }   
-        ));
-      },
-      onLongPress:() {_updateNutritionInfo(context);},
+      onTap: () => Navigator.push(context, MaterialPageRoute(
+        builder: (context) => NutritionPage.fromMe(true))
+      ),
+      //onLongPress:() {_updateNutritionInfo(context);},
     );
   }
 
