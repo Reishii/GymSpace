@@ -193,6 +193,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
           children: <Widget>[
             TextFormField( // name
               initialValue: workoutPlan.name,
+              textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
                 hintText: "e.g. Best workout plan!",
                 labelText: "Plan Name",
@@ -200,8 +201,9 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
               onSaved: (name) => workoutPlan.name = name,
               validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
             ),
-            TextFormField( // muscleGroup
+            TextFormField( // description
               initialValue: workoutPlan.description,
+              textCapitalization: TextCapitalization.sentences,
               maxLines: 3,
               decoration: InputDecoration(
                 hintText: "e.g. This is a workout for intense body building",
@@ -281,27 +283,33 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
       builder: (context) {
         return Container(
           margin: MediaQuery.of(context).viewInsets,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          padding: EdgeInsets.symmetric(vertical: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              FlatButton.icon(
-                textColor: GSColors.red,
-                icon: Icon(Icons.delete, color: GSColors.red,),
-                label: Text('Delete'),
-                // onPressed: () => _deletePressed(workoutPlan),
-                onPressed: () => _deletePressed(workoutPlan),
-              ),
-              FlatButton.icon(
-                textColor: GSColors.purple,
-                icon: Icon(Icons.edit,),
-                label: Text('Edit'),
-                onPressed: () => _editPressed(workoutPlan),
-              ),
-              FlatButton.icon(
-                textColor: GSColors.green,
-                icon: Icon(Icons.share,),
-                label: Text('Share',),
-                onPressed: () => _sharePressed(workoutPlan),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  FlatButton.icon(
+                    textColor: GSColors.red,
+                    icon: Icon(Icons.delete, color: GSColors.red,),
+                    label: Text('Delete'),
+                    // onPressed: () => _deletePressed(workoutPlan),
+                    onPressed: () => _deletePressed(workoutPlan),
+                  ),
+                  workoutPlan.author == currentUserID ? FlatButton.icon(
+                    textColor: GSColors.purple,
+                    icon: Icon(Icons.edit,),
+                    label: Text('Edit'),
+                    onPressed: () => _editPressed(workoutPlan),
+                  ) : Container(),
+                  workoutPlan.author == currentUserID ? FlatButton.icon(
+                    textColor: GSColors.green,
+                    icon: Icon(Icons.share,),
+                    label: Text('Share',),
+                    onPressed: () => _sharePressed(workoutPlan),
+                  ) : Container(),
+                ],
               ),
             ],
           ),
@@ -364,16 +372,23 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
   void _sharePressed(WorkoutPlan workoutPlan) {
     Navigator.pop(context);
 
+    // just use the ? and : . Change this is time permits
     List<Widget> items = List();
     if (workoutPlan.private) {
-      items.add(
+      items.addAll([
         FlatButton.icon(
           onPressed: () => _changePlanPrivacy(workoutPlan),
           textColor: GSColors.yellow,
           label: Text('Make plan shareable'),
           icon: Icon(Icons.lock_open),
-        )
-      );
+        ),
+        FlatButton.icon(
+          textColor: GSColors.green,
+          label: Text(' ${workoutPlan.shareKey}'),
+          icon: Icon(Icons.vpn_key),
+          onPressed: () => _copyKeyToClipboard(workoutPlan.shareKey)
+        ),
+      ]);
     } else {
       items.addAll([
         FlatButton.icon(

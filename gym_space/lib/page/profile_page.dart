@@ -11,6 +11,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ProfilePage extends StatefulWidget {
   final String forUserID;
@@ -317,6 +318,20 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  void _likePressed() {
+    if (user.likes.contains(DatabaseHelper.currentUserID)) {
+      Fluttertoast.showToast(msg: 'Already Liked');
+      return;
+    }
+
+    DatabaseHelper.updateUser(user.documentID, {'likes': FieldValue.arrayUnion([DatabaseHelper.currentUserID])})
+      .then((_) {
+        setState(() {
+          Fluttertoast.showToast(msg: 'Liked!');
+        });
+      });
+  }
+
   Widget _buildAvatarStack() {
     return Container(
       child: Stack(
@@ -324,34 +339,34 @@ class _ProfilePageState extends State<ProfilePage> {
         children: <Widget>[
           Positioned(
             left: 40,
-            child: Row( // likes
-              children: <Widget> [
-                Icon(Icons.thumb_up, color: GSColors.lightBlue,),
-                Text(' 100 Likes', style: TextStyle(color: GSColors.lightBlue),),
-              ],
+            child: FlatButton.icon(
+              textColor: GSColors.lightBlue,
+              label: Text('${user.likes.length}'),
+              icon: Icon(Icons.thumb_up),
+              onPressed: _likePressed,
             ),
           ),
-          FlatButton(
-            onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
-                  builder: (BuildContext context) {
-                    return ImageWidget(user.photoURL, context, false);
-                  })
-                ),
-            child: Container(
-              alignment: Alignment.center,
+          Container(
+            alignment: Alignment.center,
+            child: InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute<void> (
+                builder: (BuildContext context) {
+                  return ImageWidget(user.photoURL, context, false);
+                }),
+              ),
               child: CircleAvatar(
                 radius: 70,
                 backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
                 : AssetImage(Defaults.userPhoto),
               ),
-              decoration: ShapeDecoration(
-                shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
-                shape: CircleBorder(
-                  side: BorderSide(
-                    color: Colors.white,
-                    width: 1,
-                  )
-                ),
+            ),
+            decoration: ShapeDecoration(
+              shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
+              shape: CircleBorder(
+                side: BorderSide(
+                  color: Colors.white,
+                  width: 1,
+                )
               ),
             ),
           ),

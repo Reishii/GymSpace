@@ -678,22 +678,11 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
   Widget _buildWorkouts() {
     return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'Workouts',
-            style: TextStyle(
-              fontSize: 24,
-              letterSpacing: 1.2,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          IconButton(
-            icon: Icon(Icons.keyboard_arrow_right),
-            onPressed: () {},
-          )
-        ],
+      child: FlatButton.icon(
+        textColor: GSColors.darkBlue,
+        icon: Icon(Icons.keyboard_arrow_right),
+        label: Text('Workouts', style: TextStyle(fontSize: 24, letterSpacing: 1.2, fontWeight: FontWeight.bold)),
+        onPressed: () {},
       ),
     );
   }

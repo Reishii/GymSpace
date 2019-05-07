@@ -9,6 +9,7 @@ class User {
   String bio = "";
   String documentID = "";
   List<String> buddies = List();
+  List<String> likes = List();
   List<String> media = List();
   int points = 0;
   int age = 0;
@@ -49,7 +50,8 @@ class User {
     this.private = true,
     this.location,
     this.notification = false,
-    this.notifications
+    this.notifications,
+    this.likes,
   });
 
   Map<String, dynamic> toJSON() {
@@ -77,6 +79,7 @@ class User {
       'location' : location,
       'notification': notification,
       'notifications': notifications ?? [],
+      'likes': likes ?? []
     };
   }
 
@@ -105,6 +108,7 @@ class User {
       location: data['location'],
       notification: data['notification'],
       notifications: data['notifications'].cast<Map<dynamic,dynamic>>(),
+      likes: data['likes'].cast<String>(),
     );
   }
 }
