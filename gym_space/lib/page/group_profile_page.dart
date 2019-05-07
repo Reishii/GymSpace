@@ -886,7 +886,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                           StreamBuilder(
                           stream:  DatabaseHelper.getGroupStreamSnapshot(group.documentID),
                           builder: (context, snapshotGroup){
-                            if(snapshotGroup.data == null)
+                            if(snapshotGroup.data == null || snapshotGroup.data.data['challenges'][_challengeKey] == null)
                             {
                               return Container();
                             }
@@ -970,20 +970,14 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   StreamBuilder(
                     stream: DatabaseHelper.getGroupStreamSnapshot(group.documentID),
                     builder: (context, snapshotGroup){
-                      if(!snapshotGroup.hasData)
-                      {
-                        return Container();
-                      }
-                      Map tmpMap = Map();
-                      tmpMap = snapshotGroup.data.data['challenges'];
-                      if(tmpMap.length == 0)
+                      if(!snapshotGroup.hasData || snapshotGroup.data.data['challenges'][_challengeKey] == null)
                       {
                         return Container();
                       }
                       else
                       {
                         List<Widget> challengeList = [];
-                        snapshotGroup.data.data['challenges'][_challengeKey].cast<String, Map>().forEach((title, value)
+                        snapshotGroup.data.data['challenges'][_challengeKey].cast<String, dynamic>().forEach((title, value)
                         {
                           if (_isAdmin) {
                             challengeList.add(
@@ -1231,7 +1225,10 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
             child: StreamBuilder(
               stream:  DatabaseHelper.getGroupStreamSnapshot(group.documentID),
                builder: (context, snapshotGroup){
-                if(!snapshotGroup.hasData)
+               
+                 String _challengeKey = getChallengeKey();
+
+                if(!snapshotGroup.hasData || snapshotGroup.data.data['challenges'][_challengeKey] == null)//snapshotGroup.data.data['challenges'][_challengeKey] != null)
                 {
                   return Container();
                 }
@@ -1242,7 +1239,6 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
                   List<Map> memberPointsList = List(group.members.length);
                   List<Map> finalPointsList = List();
                   //Map<String, int> memberPointsMap = Map();
-                  String _challengeKey = getChallengeKey();
                   int i = 0;
                   int tmpPoints = 0;
 
@@ -1253,7 +1249,7 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
                     memberPointsList[j] = {'userID' : members[j].documentID, 'points' : 0, 'name' : members[j].firstName + " " + members[j].lastName, 'avatar' : members[j].photoURL};
                     print(memberPointsList[j]);
                   }
-
+          
                  snapshotGroup.data.data['challenges'][_challengeKey].cast<String, dynamic>().forEach((title, subMap0){
                    subMap0['members'].cast<String, dynamic>().forEach((memberName, memberInfo) {
                     
