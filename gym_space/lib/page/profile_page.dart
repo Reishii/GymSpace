@@ -24,6 +24,15 @@ class ProfilePage extends StatefulWidget {
   ProfilePage.fromUser(this.user, {this.forUserID = ''});
 
   _ProfilePageState createState() => _ProfilePageState();
+   void addBuddy() async {
+     print('This is the sender in Profile Page: $forUserID');
+    await DatabaseHelper.getUserSnapshot(forUserID).then(
+      (ds) => ds.reference.updateData({'buddies': FieldValue.arrayUnion([DatabaseHelper.currentUserID])})
+    );
+    await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
+      (ds) => ds.reference.updateData({'buddies': FieldValue.arrayUnion([forUserID])})
+    );
+  }
 }
 
 class _ProfilePageState extends State<ProfilePage> {
@@ -70,19 +79,12 @@ class _ProfilePageState extends State<ProfilePage> {
     print("==============OnSelect WAS CALLED===========");
     await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
   } 
+
+ 
   void _addPressed() async {
     if (user.buddies.contains(DatabaseHelper.currentUserID)) {
       return;
     }
-
-    await DatabaseHelper.getUserSnapshot(user.documentID).then(
-      (ds) => ds.reference.updateData({'buddies': FieldValue.arrayUnion([DatabaseHelper.currentUserID])})
-    );
-    
-    await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
-      (ds) => ds.reference.updateData({'buddies': FieldValue.arrayUnion([user.documentID])})
-    );
-    
     // Send Notification for the Buddy Request
     User currentUser;
     String userID = DatabaseHelper.currentUserID;
@@ -90,10 +92,10 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         currentUser = User.jsonToUser(ds.data);
         NotificationPage notify = new NotificationPage();
-        user.notification == true ?? notify.sendNotifications('Buddy Request', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}','buddy', userID);
+        if(user.notification == true)
+          notify.sendNotifications('Buddy Request', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}','buddy', userID);
       });
     });
-  
     setState(() {
       user.buddies.toList().add(DatabaseHelper.currentUserID);
       _isFriend = true;
