@@ -21,6 +21,7 @@ class User {
   List<WorkoutPlan> workoutPlans = List();
   Map challengeStatus = Map();
   int caloricGoal = 0;
+  DateTime birthday = DateTime.now();
   String fcmToken ="";
   bool private = true;
   bool location = true;
@@ -46,6 +47,7 @@ class User {
     this.workoutPlans,
     this.challengeStatus,
     this.caloricGoal = 0,
+    this.birthday,
     this.fcmToken = "",
     this.private = true,
     this.location,
@@ -74,6 +76,7 @@ class User {
       'workoutPlans': workoutPlans == null ? [] : workoutPlans,
       'challengeStatus' : challengeStatus == null ? Map() : challengeStatus,
       'caloricGoal' : caloricGoal,
+      'birthday' : birthday,
       'fcmToken' : fcmToken,
       'private' : private,
       'location' : location,
@@ -103,6 +106,7 @@ class User {
       // workoutPlans: {}}
       challengeStatus: data['challengeStatus'],
       caloricGoal: data['caloricGoal'].round(),
+      birthday: data['birthday'],
       fcmToken: data['fcmToken'],
       private: data['private'],
       location: data['location'],
