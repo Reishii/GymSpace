@@ -144,10 +144,10 @@ class _BuddyPageState extends State<BuddyPage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: GSColors.purple,
         foregroundColor: Colors.white,
-        child: Icon(Icons.add),
+        child: Icon(Icons.search),
         onPressed: () => searchPressed(),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     ) 
       : Scaffold(
         backgroundColor: GSColors.darkBlue,

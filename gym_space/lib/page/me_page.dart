@@ -300,7 +300,8 @@ class _MePageState extends State<MePage> {
           _buildPillNavigator(),
           _currentTab == 0 ? _buildInfoTab(context) 
             : _currentTab == 1 ? mediaTab
-            : _buildPostsTab(context)
+            : Container(),
+            // : _buildPostsTab(context)
         ],
       ),
     );
@@ -357,23 +358,23 @@ class _MePageState extends State<MePage> {
           ), 
 
           // Posts
-          Container(
-            child: MaterialButton( 
-            onPressed: () { 
-              if (_currentTab != 2) {
-                setState(() => _currentTab = 2);
-              }
-            },
-            child: Text(
-              'Posts',
-              style: TextStyle(
-                color: _currentTab == 2 ? Colors.white : Colors.white54,
-                fontSize: 14,
-                letterSpacing: 1.0,
-                fontWeight: FontWeight.w700,
-              )),
-            ),
-          )
+          // Container(
+          //   child: MaterialButton( 
+          //   onPressed: () { 
+          //     if (_currentTab != 2) {
+          //       setState(() => _currentTab = 2);
+          //     }
+          //   },
+          //   child: Text(
+          //     'Posts',
+          //     style: TextStyle(
+          //       color: _currentTab == 2 ? Colors.white : Colors.white54,
+          //       fontSize: 14,
+          //       letterSpacing: 1.0,
+          //       fontWeight: FontWeight.w700,
+          //     )),
+          //   ),
+          // )
         ],
       ),
     );
@@ -422,22 +423,24 @@ class _MePageState extends State<MePage> {
   }
 
   Widget _buildPostsTab(BuildContext context) {
-    return LiquidPullToRefresh(
-      onRefresh: _fetchPosts,
-      color: GSColors.darkBlue,
-      backgroundColor: Colors.white,
-      child: _fetchingPosts ? ListView(
-        children: <Widget>[],
-      )
-      : ListView(
-          cacheExtent: 99999,
-          padding: EdgeInsets.only(top: 20),
-          // shrinkWrap: true,
-          children: _fetchedPosts,
-          // itemExtent: 400,
-        )
+    return Container(
+      //child: _fetchPosts()
     );
-    
+    // return LiquidPullToRefresh(
+    //   onRefresh: _fetchPosts,
+    //   color: GSColors.darkBlue,
+    //   backgroundColor: Colors.white,
+    //   child: _fetchingPosts ? ListView(
+    //     children: <Widget>[],
+    //   )
+    //   : ListView(
+    //       cacheExtent: 99999,
+    //       padding: EdgeInsets.only(top: 20),
+    //       // shrinkWrap: true,
+    //       children: _fetchedPosts,
+    //       // itemExtent: 400,
+    //     )
+    // );
   }
 
   Widget _buildPost(String postID, List<String> joinedGroups) {
