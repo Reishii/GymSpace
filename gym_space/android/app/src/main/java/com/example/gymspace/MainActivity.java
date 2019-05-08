@@ -1,4 +1,4 @@
-package com.example.gymspace;
+package com.gymspace.gymspace;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;

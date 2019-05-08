@@ -10,6 +10,7 @@ NotificationDetails get ongoing {
     'your channel id',
     'your channel name',
     'your channel description',
+    // styleInformation: Style,
     importance: Importance.Max,
     priority: Priority.High,
     //ongoing: true,
