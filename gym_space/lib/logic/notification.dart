@@ -13,7 +13,7 @@ NotificationDetails get ongoing {
     // styleInformation: Style,
     importance: Importance.Max,
     priority: Priority.High,
-    // ongoing: true,
+    //ongoing: true,
     autoCancel: true,
   );
   final iOSChannelSpecifics = IOSNotificationDetails();

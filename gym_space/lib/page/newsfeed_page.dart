@@ -16,7 +16,7 @@ import 'package:GymSpace/widgets/page_header.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NewsfeedPage extends StatefulWidget {
