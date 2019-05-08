@@ -14,11 +14,13 @@ class SearchPage extends StatefulWidget {
   final SearchType searchType;
   final User currentUser;
   final List<Group> groups;
+  final List<String> users;
   
   SearchPage({
     this.searchType,
     this.currentUser,
     this.groups,
+    this.users,
     Key key,
   }) : super(key: key);
 
@@ -29,6 +31,7 @@ class _SearchPageState extends State<SearchPage> {
   SearchType get searchType => widget.searchType;
   List<String> get friends => widget.currentUser.buddies;
   List<Group> get groups => widget.groups;
+  List<String> get allBuddies => widget.users;
   Group _currentGroup;
   bool _isEditing = true;
 

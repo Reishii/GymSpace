@@ -124,7 +124,7 @@ class DatabaseHelper {
   }
 
   // groups
-  static getGroupSnapshot(String groupID) async {
+  static Future<DocumentSnapshot> getGroupSnapshot(String groupID) async {
     return Firestore.instance.collection('groups').document(groupID).get();
   }
 
@@ -152,6 +152,18 @@ class DatabaseHelper {
       postIDS.addAll(queryResults.documents.map((e) => e.documentID).toList());
     });
     return postIDS;
+  }
+
+  static Future<List<String>> fetchGroupPosts(String groupID) async {
+    List<String> postIDs = List();
+    DocumentSnapshot group = await getGroupSnapshot(groupID);
+    
+    await Firestore.instance.collection('posts').where('fromGroup', isEqualTo: groupID).getDocuments()
+      .then((queryResults) {
+        postIDs.addAll(queryResults.documents.map((e) => e.documentID).toList());
+      });
+
+    return postIDs;
   }
 
   static Stream getPostStream(String postID) {
@@ -213,6 +225,8 @@ class DatabaseHelper {
     return fixed;
   }
 
+
+
   static Future<int> fixUsers() async {
     int fixed = 0;
     await Firestore.instance.collection('users').getDocuments()
@@ -221,6 +235,11 @@ class DatabaseHelper {
           if (!ds.data.containsKey('likes')) {
             await Firestore.instance.collection('users').document(ds.documentID).updateData({
               'likes': <String>[]
+            }).then((_) => fixed++);
+          }
+          if (!ds.data.containsKey('birthday')) {
+            await Firestore.instance.collection('users').document(ds.documentID).updateData({
+              'birthday': Timestamp.now()
             }).then((_) => fixed++);
           }
         }

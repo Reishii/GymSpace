@@ -103,7 +103,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
             validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
           ),
           TextFormField( // description
-            maxLines: 3,
+            maxLines: 1,
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
               hintText: "e.g. This workout consists of exercises for back and biceps. The main motion is pulling.",
@@ -123,6 +123,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
         children: <Widget>[
           TextFormField( // name
             textCapitalization: TextCapitalization.words,
+            maxLines: 1,
             decoration: InputDecoration(
               hintText: "e.g. Lat Pulldowns",
               labelText: "Exercise Name",
@@ -132,6 +133,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
           ),
           TextFormField( // muscleGroup
             keyboardType: TextInputType.number,
+            maxLines: 1,
             decoration: InputDecoration(
               hintText: "e.g. 3",
               labelText: "Sets",
@@ -140,6 +142,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
           ),
           TextFormField( // muscleGroup
             keyboardType: TextInputType.number,
+            maxLines: 1,
             decoration: InputDecoration(
               hintText: "e.g. 10",
               labelText: "reps",

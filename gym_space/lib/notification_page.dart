@@ -174,7 +174,7 @@ class _NotificationState extends State<NotificationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      drawer: AppDrawer(startPage: 6),
+      drawer: AppDrawer(startPage: 5),
       backgroundColor: GSColors.darkBlue,
       body: _buildBody(context)
       );

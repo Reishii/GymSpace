@@ -10,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -35,7 +36,7 @@ class _MePageState extends State<MePage> {
   String _dietKey = DateTime.now().toString().substring(0,10);
   String _challengeKey;
   int _currentTab = 0;
-  User user;
+  // User user;
   final localNotify = FlutterLocalNotificationsPlugin();
   
   @override
@@ -122,7 +123,8 @@ class _MePageState extends State<MePage> {
                         child: Icon(
                           Icons.stars,
                           size: 14,
-                          color: GSColors.green,
+                          color: GSColors.yellowCoin
+                          //color: GSColors.green,
                         ),
                       ),
                       Container( // points
@@ -130,7 +132,8 @@ class _MePageState extends State<MePage> {
                         child: Text(
                           user.points.toString(),
                           style: TextStyle(
-                            color: GSColors.green,
+                            color: GSColors.yellowCoin,
+                            //color: GSColors.green,
                             fontSize: 14
                           ),
                         )
@@ -211,48 +214,67 @@ class _MePageState extends State<MePage> {
         alignment: Alignment.bottomCenter,
         children: <Widget>[
           Positioned(
-            left: 40,
-            child: Row( // likes
-              children: <Widget> [
-                Icon(Icons.thumb_up, color: GSColors.lightBlue,),
-                Text(' 100 Likes', style: TextStyle(color: GSColors.lightBlue),),
-              ],
+            left: 60,
+            child: InkWell(
+              onTap: () => Container(),
+              child: Row( // likes
+                children: <Widget> [
+                  Icon(Icons.thumb_up, color: GSColors.lightBlue),
+                  Text(
+                    ' ${user.likes.length}', 
+                    style: TextStyle( 
+                    color: GSColors.lightBlue,
+                  )),
+                ],
+              ),
             ),
           ),
-          FlatButton(
-            onPressed: () => Navigator.push(context, MaterialPageRoute<void> (
-                  builder: (BuildContext context) {
-                    return ImageWidget(user.photoURL, context, false);
-                  })
-                ),
-            child: Container(
-              alignment: Alignment.center,
+
+          Container(
+            margin: EdgeInsets.only(top: 10),
+            alignment: Alignment.center,
+            child: InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute<void> (
+                builder: (BuildContext context) {
+                  return ImageWidget(user.photoURL, context, false);
+                }),
+              ),
               child: CircleAvatar(
                 radius: 70,
                 backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL)
                 : AssetImage(Defaults.userPhoto),
               ),
-              decoration: ShapeDecoration(
-                shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
-                shape: CircleBorder(
-                  side: BorderSide(
-                    color: Colors.white,
-                    width: 1,
-                  )
+            ),
+            decoration: ShapeDecoration(
+              shadows: [BoxShadow(blurRadius: 4, spreadRadius: 2)],
+              shape: CircleBorder(
+                side: BorderSide(
+                  color: Colors.white,
+                  width: 1,
                 ),
               ),
             ),
           ),
+
           Positioned(
             right: 40,
             child: InkWell(
               onTap: () => Navigator.push(context, MaterialPageRoute(
                 builder: (context) => BuddyPage.fromUser(user, false))
               ),
-              child: Row( // likes
+              child: Row( // buddies
                 children: <Widget> [
-                  Icon(Icons.group, color: GSColors.purple),
-                  Text(
+                  user.buddies.length == 0 
+                  ? Icon(Icons.add, color: GSColors.purple)
+                  : Icon(Icons.group, color: GSColors.purple),
+
+                  user.buddies.length == 0 
+                  ? Text('Add buddies', 
+                      style: TextStyle(
+                        color: GSColors.purple,
+                      ),
+                  )
+                  : Text(
                     ' ${user.buddies.length} buddies', 
                     style: TextStyle(
                     color: GSColors.purple
@@ -360,8 +382,8 @@ class _MePageState extends State<MePage> {
           _buildNutritionLabel(),
           _buildNutritionInfo(context),
           _buildWeightInfo(context),
-          _buildTodaysEventsLabel(),
-          _buildTodaysEventsInfo(),
+         // _buildTodaysEventsLabel(),
+         // _buildTodaysEventsInfo(),
           _buildChallengesLabel(),
           _buildChallengesInfo(context),
           _buildChallengeProgess(context)
@@ -722,13 +744,13 @@ class _MePageState extends State<MePage> {
           )
         ),
         child: InkWell(
-        onTap: () => _updateWeightInfo(context),
-        child: Stack(
-          children: <Widget>[ 
-            _buildStartingWeight(),
-            _buildEditButton(),
-            _buildCurrentWeight(),
-          ],
+          onTap: () => _updateWeightInfo(context),
+          child: Stack(
+            children: <Widget>[ 
+              _buildStartingWeight(),
+              _buildEditButton(),
+              _buildCurrentWeight(),
+            ],
         ),
       ),
     );
@@ -818,7 +840,8 @@ class _MePageState extends State<MePage> {
                     children: <Widget>[
                       Icon(FontAwesomeIcons.caretUp, color: GSColors.green, size: 16),
                       Text(
-                          weightLost.toStringAsFixed(1),
+                          
+                          weightLost >= 0 ? weightLost.toStringAsFixed(1) : (-1 * weightLost).toStringAsFixed(1),
                           style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -1258,8 +1281,10 @@ void _updateChallengeInfo(BuildContext context) async{
                     if (snapshotChallenge.data.data == null) 
                       return Container();
                     List<Widget> challengeWidgets = List();
+                    List<int> userStatus = List();
+                    userStatus = user.challengeStatus[_challengeKey].cast<int>(); 
                     for (int challengeIndex = 0; challengeIndex < snapshotChallenge.data.data['title'].length; challengeIndex++) {
-                      challengeWidgets.add(_buildChallenge(snapshotChallenge.data.data, challengeIndex, user));
+                      challengeWidgets.add(_buildChallenge(snapshotChallenge.data.data, challengeIndex, userStatus));
                     }
                     return Column(children: challengeWidgets);
                   },
@@ -1272,7 +1297,8 @@ void _updateChallengeInfo(BuildContext context) async{
     );
   }
 
-  Widget _buildChallenge(Map<String, dynamic> challenge, int i, user) {
+  Widget _buildChallenge(Map<String, dynamic> challenge, int i, List<int> userList) {
+
     return Container(
       child: Column(
         children: <Widget> [
@@ -1281,7 +1307,7 @@ void _updateChallengeInfo(BuildContext context) async{
             children: <Widget>[
               Container(
                 child: Text(
-                  ' $i. ${challenge['title'][i]}'
+                  ' ${challenge['title'][i]}'
                 ),
               ),
               Container(
@@ -1297,11 +1323,11 @@ void _updateChallengeInfo(BuildContext context) async{
           Container(
             child: LinearPercentIndicator(
               lineHeight: 14.0,
-              percent: user.challengeStatus[_challengeKey][i] / challenge['goal'][i],
+              percent: userList[i] / challenge['goal'][i],
               backgroundColor: GSColors.darkCloud,
-              progressColor: user.challengeStatus[i] == challenge['goal'][i] ? GSColors.green : GSColors.lightBlue,
+              progressColor: userList[i] == challenge['goal'][i] ? GSColors.green : GSColors.lightBlue,
               center: Text(
-                (user.challengeStatus[_challengeKey][i] / challenge['goal'][i] * 100).toStringAsFixed(0) + ' %'
+                (userList[i] / challenge['goal'][i] * 100).toStringAsFixed(0) + ' %'
               )
             )
           )
@@ -1602,9 +1628,10 @@ void _updateChallengeInfo(BuildContext context) async{
                 child:  TextField(
                   keyboardType: TextInputType.number,
                   maxLines: 1,
-                  //maxLength: 3,
+                  maxLength: 3,
                   autofocus: true,
                   decoration: InputDecoration(
+                    counterText: "",
                     labelText: 'Current',
                     hintText: '125',
                     labelStyle: TextStyle(
@@ -1627,9 +1654,10 @@ void _updateChallengeInfo(BuildContext context) async{
                 child:  TextField(
                   keyboardType: TextInputType.number,
                   maxLines: 1,
-                  //maxLength: 3,
+                  maxLength: 3,
                   autofocus: true,
                   decoration: InputDecoration(
+                    counterText: "",
                     labelText: 'Starting',
                     hintText: "100",
                     labelStyle: TextStyle(

@@ -120,9 +120,9 @@ class _AppDrawerState extends State<AppDrawer> {
                     _buildDrawerItem("Profile", FontAwesomeIcons.userCircle, 2),
                     _buildDrawerItem("Nutrition", FontAwesomeIcons.utensils, 3),
                     _buildDrawerItem("Groups", FontAwesomeIcons.users, 4),
-                    _buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 5),
-                    _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 6),
-                    _buildDrawerItem("Messages", FontAwesomeIcons.comments, 7),
+                    //_buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 5),
+                    _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 5),
+                    _buildDrawerItem("Messages", FontAwesomeIcons.comments, 6),
                     //_buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 8),
                   ],
                 ),
@@ -218,21 +218,21 @@ class _AppDrawerState extends State<AppDrawer> {
           }
         ));
           break;
-        case 5: // buddies
-        Navigator.pushReplacement(context, MaterialPageRoute(
-          builder: (BuildContext context) {
-            return BuddyPage(); // Switch to buddies when created
-          }
-        ));
-          break;
-        case 6: // Notification
+        // case 5: // buddies
+        // Navigator.pushReplacement(context, MaterialPageRoute(
+        //   builder: (BuildContext context) {
+        //     return BuddyPage(); // Switch to buddies when created
+        //   }
+        // ));
+        //   break;
+        case 5: // Notification
          Navigator.push(context, new MaterialPageRoute<void>(
             builder: (BuildContext context){
               return NotificationPage();
             }
           )); 
           break;
-        case 7: // messages
+        case 6: // messages
           Navigator.pushReplacement(context, MaterialPageRoute<void>(
             builder: (BuildContext context){
               return MessagesPage();

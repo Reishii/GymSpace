@@ -12,4 +12,5 @@ class GSColors {
   static const Color babyPowder   = Color(0xffFDFFFC);
   static const Color red          = Color(0xfff03031);
   static const Color yellow       = Color(0xffFF9F1C);
+  static const Color yellowCoin   = Color(0xfff2d82e);
 }

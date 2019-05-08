@@ -4,7 +4,10 @@ import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/page/group_members_page.dart';
+import 'package:GymSpace/page/group_workouts_plans_page.dart';
+import 'package:GymSpace/page/newsfeed_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
+import 'package:GymSpace/page/workout_plan_home_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +19,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:GymSpace/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 
 class GroupProfilePage extends StatefulWidget {
   final Group group;
@@ -243,7 +247,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           _buildPillNavigator(),
           _currentTab == 0 ? _buildOverviewTab() 
             : _currentTab == 1 ? _buildChallengesTab() 
-            : _buildDiscussionTab(),
+            : Container(),
         ],
       ),
     );
@@ -500,7 +504,10 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
             child: MaterialButton( // Discussion
               onPressed: () { 
                 if (_currentTab != 2) {
-                  setState(() => _currentTab = 2);
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => NewsfeedPage(forGroup: group,)
+                  ));
+                  // setState(() => _currentTab = 2);
                 }
               },
               child: Text(
@@ -678,22 +685,14 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
 
   Widget _buildWorkouts() {
     return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'Workouts',
-            style: TextStyle(
-              fontSize: 24,
-              letterSpacing: 1.2,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          IconButton(
-            icon: Icon(Icons.keyboard_arrow_right),
-            onPressed: () {},
+      child: FlatButton.icon(
+        textColor: GSColors.darkBlue,
+        icon: Icon(Icons.keyboard_arrow_right),
+        label: Text('Workouts', style: TextStyle(fontSize: 24, letterSpacing: 1.2, fontWeight: FontWeight.bold)),
+        onPressed: () => Navigator.push(context, MaterialPageRoute(
+            builder: (context) => WorkoutPlanHomePage(forGroup: group.documentID, isGroupAdmin: group.admin == currentUserID)
           )
-        ],
+        ),
       ),
     );
   }
@@ -836,9 +835,9 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                     Map<String, dynamic> membersMap = Map();
 
                                     for(int i = 0; i < group.members.length; i++)
-                                      {
-                                        membersMap[group.members[i]] = {'points': 0, 'progress' : 0};
-                                      }
+                                    {
+                                      membersMap[group.members[i]] = {'points': 0, 'progress' : 0};
+                                    }
 
                                     newGroupChallenge =  
                                         {'points' : challengePoints, 
@@ -886,7 +885,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                           StreamBuilder(
                           stream:  DatabaseHelper.getGroupStreamSnapshot(group.documentID),
                           builder: (context, snapshotGroup){
-                            if(snapshotGroup.data == null)
+                            if(snapshotGroup.data == null || snapshotGroup.data.data['challenges'][_challengeKey] == null)
                             {
                               return Container();
                             }
@@ -914,7 +913,8 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                       hintStyle: TextStyle(
                                         color: GSColors.lightBlue,
                                         fontWeight: FontWeight.bold,
-                                        ) 
+                                        ),
+                                      counterText: ""
                                       ),
                                       maxLength: 5,
                                       onChanged: (text){
@@ -970,20 +970,14 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   StreamBuilder(
                     stream: DatabaseHelper.getGroupStreamSnapshot(group.documentID),
                     builder: (context, snapshotGroup){
-                      if(!snapshotGroup.hasData)
-                      {
-                        return Container();
-                      }
-                      Map tmpMap = Map();
-                      tmpMap = snapshotGroup.data.data['challenges'];
-                      if(tmpMap.length == 0)
+                      if(!snapshotGroup.hasData || snapshotGroup.data.data['challenges'][_challengeKey] == null)
                       {
                         return Container();
                       }
                       else
                       {
                         List<Widget> challengeList = [];
-                        snapshotGroup.data.data['challenges'][_challengeKey].cast<String, Map>().forEach((title, value)
+                        snapshotGroup.data.data['challenges'][_challengeKey].cast<String, dynamic>().forEach((title, value)
                         {
                           if (_isAdmin) {
                             challengeList.add(
@@ -1231,7 +1225,10 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
             child: StreamBuilder(
               stream:  DatabaseHelper.getGroupStreamSnapshot(group.documentID),
                builder: (context, snapshotGroup){
-                if(!snapshotGroup.hasData)
+               
+                 String _challengeKey = getChallengeKey();
+
+                if(!snapshotGroup.hasData || snapshotGroup.data.data['challenges'][_challengeKey] == null)//snapshotGroup.data.data['challenges'][_challengeKey] != null)
                 {
                   return Container();
                 }
@@ -1242,7 +1239,6 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
                   List<Map> memberPointsList = List(group.members.length);
                   List<Map> finalPointsList = List();
                   //Map<String, int> memberPointsMap = Map();
-                  String _challengeKey = getChallengeKey();
                   int i = 0;
                   int tmpPoints = 0;
 
@@ -1253,7 +1249,7 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
                     memberPointsList[j] = {'userID' : members[j].documentID, 'points' : 0, 'name' : members[j].firstName + " " + members[j].lastName, 'avatar' : members[j].photoURL};
                     print(memberPointsList[j]);
                   }
-
+          
                  snapshotGroup.data.data['challenges'][_challengeKey].cast<String, dynamic>().forEach((title, subMap0){
                    subMap0['members'].cast<String, dynamic>().forEach((memberName, memberInfo) {
                     
@@ -1359,7 +1355,8 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
 
   Widget _buildDiscussionTab() {
     return Container(
-      child: Text('this is disccusion')
+      margin: EdgeInsets.symmetric(horizontal: 20),
+      child: NewsfeedPage(forGroup: group,),
     );
   }
 
