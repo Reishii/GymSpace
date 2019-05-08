@@ -106,9 +106,10 @@ class _SearchPageState extends State<SearchPage> {
           onChanged: (_) {       
             setState(() {
               _isEditing = true;
-              if(searchType == SearchType.group) 
-                _search(_searchController.text);
-                
+              // if(searchType == SearchType.group) 
+              //   _search(_searchController.text);
+              
+              _search(_searchController.text);
             });
           },
           onEditingComplete: () {
@@ -226,7 +227,8 @@ class _SearchPageState extends State<SearchPage> {
                 ),
               ),
               child: CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.userPhoto : user.photoURL, errorListener: () => print('Failed to download')),
+                backgroundImage: user.photoURL.isNotEmpty ? CachedNetworkImageProvider(user.photoURL) : AssetImage(Defaults.userPhoto),
+                // backgroundImage: CachedNetworkImageProvider(user.photoURL.isEmpty ? Defaults.userPhoto : user.photoURL, errorListener: () => print('Failed to download')),
                 radius: 50,
               ),
             ),

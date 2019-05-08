@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:GymSpace/logic/group.dart';
-import 'package:GymSpace/logic/image_input_adapter.dart';
 import 'package:GymSpace/logic/post.dart';
 import 'package:GymSpace/widgets/post_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,7 +8,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:image_form_field/image_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
@@ -146,10 +144,31 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
           
           return Container(
             margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: PostWidget(post: post,),
+            child: InkWell(
+              onLongPress: () => _postLongPressed(post),
+              child: PostWidget(post: post,),
+            ),
           );
         },
       ),
+    );
+  }
+
+  void _postLongPressed(Post post) {
+    showModalBottomSheet(
+      context: context,
+      builder: (bulder) {
+        return Container(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Row(
+                
+              )
+            ],
+          )
+        );
+      } 
     );
   }
 

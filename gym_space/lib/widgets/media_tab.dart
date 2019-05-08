@@ -150,17 +150,15 @@ class _MediaTabState extends State<MediaTab> {
           },
         )
       ),
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: Image.network(media).image,
-            fit: BoxFit.cover
+      child: Card(
+        elevation: 6,
+        child: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: CachedNetworkImageProvider(media),
+              fit: BoxFit.cover
+            ),
           ),
-          border: Border.all(
-            color: GSColors.darkBlue,
-            width: 0.5,
-          )
         ),
       ),
     );
