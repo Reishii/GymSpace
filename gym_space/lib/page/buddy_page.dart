@@ -134,11 +134,25 @@ class _BuddyPageState extends State<BuddyPage> {
       backgroundColor: GSColors.darkBlue,
       appBar: _buildAppBar(),
       body: _buildBody(),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: GSColors.purple,
+        foregroundColor: Colors.white,
+        child: Icon(Icons.add),
+        onPressed: () => searchPressed(),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     ) 
       : Scaffold(
         backgroundColor: GSColors.darkBlue,
         appBar: _buildAppBar(),
         body: _buildBody(),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: GSColors.purple,
+          foregroundColor: Colors.white,
+          child: Icon(Icons.search),
+          onPressed: () => searchPressed(),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       )
     );
   }
@@ -152,8 +166,8 @@ class _BuddyPageState extends State<BuddyPage> {
           title: "${user.firstName}'s Buddies", 
           backgroundColor: Colors.white,
           titleColor: GSColors.darkBlue,
-          showSearch: true,
-          searchFunction: searchPressed,
+          //showSearch: true,
+          //searchFunction: searchPressed,
         )
       );  
     // } else if(_fromUser == false && user == null) {
@@ -178,8 +192,8 @@ class _BuddyPageState extends State<BuddyPage> {
           backgroundColor: Colors.white,
           //showDrawer: true,
           titleColor: GSColors.darkBlue,
-          showSearch: true,
-          searchFunction: searchPressed,
+          //showSearch: true,
+          //searchFunction: searchPressed,
         )
       );  
     }

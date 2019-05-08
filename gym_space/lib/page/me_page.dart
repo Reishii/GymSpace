@@ -260,10 +260,19 @@ class _MePageState extends State<MePage> {
               onTap: () => Navigator.push(context, MaterialPageRoute(
                 builder: (context) => BuddyPage.fromUser(user, false))
               ),
-              child: Row( // likes
+              child: Row( // buddies
                 children: <Widget> [
-                  Icon(Icons.group, color: GSColors.purple),
-                  Text(
+                  user.buddies.length == 0 
+                  ? Icon(Icons.add, color: GSColors.purple)
+                  : Icon(Icons.group, color: GSColors.purple),
+
+                  user.buddies.length == 0 
+                  ? Text('Add buddies', 
+                      style: TextStyle(
+                        color: GSColors.purple,
+                      ),
+                  )
+                  : Text(
                     ' ${user.buddies.length} buddies', 
                     style: TextStyle(
                     color: GSColors.purple
