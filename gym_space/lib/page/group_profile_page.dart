@@ -4,7 +4,7 @@ import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/page/group_members_page.dart';
-import 'package:GymSpace/page/group_workouts_plans_page.dart';
+import 'package:GymSpace/page/newsfeed_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/workout_plan_home_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,7 +16,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 
@@ -79,7 +79,21 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
     }).then((_) => setState(() => group.likes.remove(currentUserID)));
   }
 
-  void _joinGroup() {
+  Future<void> _joinGroup() async {
+    // Send notification to Admin
+    print('group admin: ${group.admin}');
+    User currentUser;
+    User adminUser;
+    var datas = await DatabaseHelper.getUserSnapshot(group.admin);
+    adminUser = User.jsonToUser(datas.data);
+    String userID = DatabaseHelper.currentUserID;
+    DatabaseHelper.getUserSnapshot(userID).then((ds){
+      setState(() {
+        currentUser = User.jsonToUser(ds.data);
+        NotificationPage notify = new NotificationPage();
+        notify.sendNotifications('Joined Group', '${currentUser.firstName} ${currentUser.lastName} has joined ${group.name}', '${adminUser.fcmToken}','group', userID);
+      });
+    });
 
     addNewMemberToWeeklyChallenges();
     Firestore.instance.collection('groups').document(group.documentID).updateData({'members' : FieldValue.arrayUnion([DatabaseHelper.currentUserID])});
@@ -246,7 +260,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           _buildPillNavigator(),
           _currentTab == 0 ? _buildOverviewTab() 
             : _currentTab == 1 ? _buildChallengesTab() 
-            : _buildDiscussionTab(),
+            : Container(),
         ],
       ),
     );
@@ -503,7 +517,10 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
             child: MaterialButton( // Discussion
               onPressed: () { 
                 if (_currentTab != 2) {
-                  setState(() => _currentTab = 2);
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => NewsfeedPage(forGroup: group,)
+                  ));
+                  // setState(() => _currentTab = 2);
                 }
               },
               child: Text(
@@ -686,7 +703,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
         icon: Icon(Icons.keyboard_arrow_right),
         label: Text('Workouts', style: TextStyle(fontSize: 24, letterSpacing: 1.2, fontWeight: FontWeight.bold)),
         onPressed: () => Navigator.push(context, MaterialPageRoute(
-            builder: (context) => WorkoutPlanHomePage(forGroup: group.documentID)
+            builder: (context) => WorkoutPlanHomePage(forGroup: group.documentID, isGroupAdmin: group.admin == currentUserID)
           )
         ),
       ),
@@ -881,7 +898,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                           StreamBuilder(
                           stream:  DatabaseHelper.getGroupStreamSnapshot(group.documentID),
                           builder: (context, snapshotGroup){
-                            if(snapshotGroup.data == null)
+                            if(snapshotGroup.data == null || snapshotGroup.data.data['challenges'][_challengeKey] == null)
                             {
                               return Container();
                             }
@@ -909,7 +926,8 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                       hintStyle: TextStyle(
                                         color: GSColors.lightBlue,
                                         fontWeight: FontWeight.bold,
-                                        ) 
+                                        ),
+                                      counterText: ""
                                       ),
                                       maxLength: 5,
                                       onChanged: (text){
@@ -965,20 +983,14 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                   StreamBuilder(
                     stream: DatabaseHelper.getGroupStreamSnapshot(group.documentID),
                     builder: (context, snapshotGroup){
-                      if(!snapshotGroup.hasData)
-                      {
-                        return Container();
-                      }
-                      Map tmpMap = Map();
-                      tmpMap = snapshotGroup.data.data['challenges'];
-                      if(tmpMap.length == 0)
+                      if(!snapshotGroup.hasData || snapshotGroup.data.data['challenges'][_challengeKey] == null)
                       {
                         return Container();
                       }
                       else
                       {
                         List<Widget> challengeList = [];
-                        snapshotGroup.data.data['challenges'][_challengeKey].cast<String, Map>().forEach((title, value)
+                        snapshotGroup.data.data['challenges'][_challengeKey].cast<String, dynamic>().forEach((title, value)
                         {
                           if (_isAdmin) {
                             challengeList.add(
@@ -1226,7 +1238,10 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
             child: StreamBuilder(
               stream:  DatabaseHelper.getGroupStreamSnapshot(group.documentID),
                builder: (context, snapshotGroup){
-                if(!snapshotGroup.hasData)
+               
+                 String _challengeKey = getChallengeKey();
+
+                if(!snapshotGroup.hasData || snapshotGroup.data.data['challenges'][_challengeKey] == null)//snapshotGroup.data.data['challenges'][_challengeKey] != null)
                 {
                   return Container();
                 }
@@ -1237,7 +1252,6 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
                   List<Map> memberPointsList = List(group.members.length);
                   List<Map> finalPointsList = List();
                   //Map<String, int> memberPointsMap = Map();
-                  String _challengeKey = getChallengeKey();
                   int i = 0;
                   int tmpPoints = 0;
 
@@ -1248,7 +1262,7 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
                     memberPointsList[j] = {'userID' : members[j].documentID, 'points' : 0, 'name' : members[j].firstName + " " + members[j].lastName, 'avatar' : members[j].photoURL};
                     print(memberPointsList[j]);
                   }
-
+          
                  snapshotGroup.data.data['challenges'][_challengeKey].cast<String, dynamic>().forEach((title, subMap0){
                    subMap0['members'].cast<String, dynamic>().forEach((memberName, memberInfo) {
                     
@@ -1354,7 +1368,8 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
 
   Widget _buildDiscussionTab() {
     return Container(
-      child: Text('this is disccusion')
+      margin: EdgeInsets.symmetric(horizontal: 20),
+      child: NewsfeedPage(forGroup: group,),
     );
   }
 

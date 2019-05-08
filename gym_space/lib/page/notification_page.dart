@@ -59,7 +59,6 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationState extends State<NotificationPage> {
-  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
   final FirebaseMessaging _messaging = new FirebaseMessaging();
   final localNotify = FlutterLocalNotificationsPlugin();
 
@@ -125,6 +124,11 @@ class _NotificationState extends State<NotificationPage> {
         Navigator.of(context).push(new MaterialPageRoute(
           builder: (BuildContext context) => PostCommentsPage(postID: notify.postID, postAuthor: DatabaseHelper.currentUserID)
         ));
+        break;
+      case 'group':
+        Navigator.of(context).push(
+          new MaterialPageRoute(builder: (BuildContext context) => ProfilePage.fromUser(userInfo))
+        );
         break;
     }
   }
@@ -210,81 +214,179 @@ class _NotificationState extends State<NotificationPage> {
   Widget _buildListItem(BuildContext context, Map<dynamic, dynamic> data){
     final notify = Notifications.fromJSON(data);
     Future<DocumentSnapshot> _otherUser =  DatabaseHelper.getUserSnapshot(notify.sender);
-    return Padding(
-      key: ValueKey(notify.title),
-      padding: const EdgeInsets.symmetric( horizontal: 0, vertical: 0),
-      child: Card(
-        elevation: 8.0 ,
-        color: GSColors.blue,
-          child: GestureDetector(
-          onTap: () {
-            handleRouting(notify);
-            if(notify.read == false){
-            _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver);
-            }
-            _sendNotificationToDB(notify.title, notify.body, notify.route, notify.receiver, notify.sender, notify.postID, true);
-          },
-          child: Card(
-            elevation: 8,
-              child: Container(
-              padding: EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                color:(notify.read != true) ? GSColors.darkCloud : GSColors.cloud,
-                border: Border.all(color: GSColors.darkCloud),
-                borderRadius: BorderRadius.circular(5.0),
+    ProfilePage otherUsersZ = ProfilePage(forUserID: notify.sender);
+    if(notify.route == 'buddy'){
+      return Padding(
+        key: ValueKey(notify.title),
+        padding: const EdgeInsets.symmetric( horizontal: 0, vertical: 0),
+        child: Card(
+          elevation: 8.0 ,
+          color: GSColors.blue,
+            child: GestureDetector(
+            onTap: () {
+              handleRouting(notify);
+              if(notify.read == false){
+              _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver);
+              }
+              _sendNotificationToDB(notify.title, notify.body, notify.route, notify.receiver, notify.sender, notify.postID, true);
+            },
+            child: Card(
+              elevation: 8,
+                child: Container(
+                padding: EdgeInsets.only(left:10.0, top: 10, bottom: 10,),
+                decoration: BoxDecoration(
+                  color:(notify.read != true) ? GSColors.darkCloud : GSColors.cloud,
+                  border: Border.all(color: GSColors.darkCloud),
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                  FutureBuilder(
+                        future: _otherUser,
+                        builder: (context, snapshot){
+                          return CircleAvatar(radius: 30,
+                            backgroundImage: snapshot.hasData ? CachedNetworkImageProvider(snapshot.data['photoURL']) : AssetImage(Defaults.userPhoto),
+                          );
+                        }
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          FittedBox(
+                          child: Text(notify.title, style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.5),
+                          ),
+                          fit: BoxFit.fill
+                          ),
+                          FittedBox(
+                            child: Text(notify.body, style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.0)),
+                            fit: BoxFit.fill
+                          )
+                        ],
+                      ),
+                    ),
+                    RawMaterialButton(
+                      constraints: BoxConstraints.tight(Size(35,35)),
+                      onPressed: () { otherUsersZ.addBuddy(); _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver);},
+                      child: Icon (
+                        Icons.check_circle,
+                        color: Colors.greenAccent,
+                        size: 20.0
+                      ),
+                      shape: CircleBorder(),
+                      elevation: 10.0,
+                      fillColor: GSColors.darkBlue,
+                    ),
+                    RawMaterialButton(
+                      constraints: BoxConstraints.tight(Size(35,35)),
+                      onPressed: () => _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver),
+                      child: Icon (
+                        Icons.cancel,
+                        color: Colors.redAccent,
+                        size: 20.0
+                      ),
+                      shape: CircleBorder(),
+                      elevation: 10.0,
+                      fillColor: GSColors.darkBlue,
+                    ),
+                    RawMaterialButton(
+                      constraints: BoxConstraints.tight(Size(35,35)),
+                      onPressed: () => _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver),
+                      child: new Icon(
+                        Icons.delete,
+                        color: GSColors.darkCloud,
+                        size: 20.0,
+                      ),
+                      shape: new CircleBorder(),
+                      elevation: 10.0,
+                      fillColor: GSColors.darkBlue,
+                    )
+                  ],
+                )
               ),
-              child: Row(
-               mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                 FutureBuilder(
-                      future: _otherUser,
-                      builder: (context, snapshot){
-                        return CircleAvatar(radius: 30,
-                          backgroundImage: snapshot.hasData ? CachedNetworkImageProvider(snapshot.data['photoURL']) : AssetImage(Defaults.userPhoto),
-                        );
-                      }
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        FittedBox(
-                         child: Text(notify.title, style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.5),
-                         ),
-                         fit: BoxFit.scaleDown
-                        ),
-                        FittedBox(
-                          child: Text(notify.body, style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.0)),
-                          fit: BoxFit.scaleDown
-                        )
-                      ],
-                    ),
-                  ),
-                  RawMaterialButton(
-                    onPressed: () => _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver),
-                    child: new Icon(
-                      Icons.delete,
-                      color: GSColors.darkCloud,
-                      size: 20.0,
-                    ),
-                    shape: new CircleBorder(),
-                    elevation: 2.0,
-                    fillColor: GSColors.darkBlue,
-                  )
-                ],
-              )
             ),
           ),
-        ),
-      ), 
-    );
+        ), 
+      );
+    }
+    else {
+       return Padding(
+        key: ValueKey(notify.title),
+        padding: const EdgeInsets.symmetric( horizontal: 0, vertical: 0),
+        child: Card(
+          elevation: 8.0 ,
+          color: GSColors.blue,
+            child: GestureDetector(
+            onTap: () {
+              handleRouting(notify);
+              if(notify.read == false){
+              _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver);
+              }
+              _sendNotificationToDB(notify.title, notify.body, notify.route, notify.receiver, notify.sender, notify.postID, true);
+            },
+            child: Card(
+              elevation: 8,
+                child: Container(
+                padding: EdgeInsets.only(left: 10, top: 10, bottom: 10),
+                decoration: BoxDecoration(
+                  color:(notify.read != true) ? GSColors.darkCloud : GSColors.cloud,
+                  border: Border.all(color: GSColors.darkCloud),
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                  FutureBuilder(
+                        future: _otherUser,
+                        builder: (context, snapshot){
+                          return CircleAvatar(radius: 30,
+                            backgroundImage: snapshot.hasData ? CachedNetworkImageProvider(snapshot.data['photoURL']) : AssetImage(Defaults.userPhoto),
+                          );
+                        }
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          FittedBox(
+                          child: Text(notify.title, style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.5),
+                          ),
+                          fit: BoxFit.scaleDown
+                          ),
+                          FittedBox(
+                            child: Text(notify.body, style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.0)),
+                            fit: BoxFit.scaleDown
+                          )
+                        ],
+                      ),
+                    ),
+                    RawMaterialButton(
+                      onPressed: () => _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver),
+                      child: new Icon(
+                        Icons.delete,
+                        color: GSColors.darkCloud,
+                        size: 20.0,
+                      ),
+                      shape: new CircleBorder(),
+                      elevation: 10.0,
+                      fillColor: GSColors.darkBlue,
+                    )
+                  ],
+                )
+              ),
+            ),
+          ),
+        ), 
+      );
+    }
   }
   
 
   // Local Notifications Plugin Functions
   Future onSelectNotification(String payload) async  {
-    Navigator.pop(context);
     print("==============OnSelect WAS CALLED===========");
     await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
   }

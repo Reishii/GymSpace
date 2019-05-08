@@ -15,10 +15,11 @@ import 'package:GymSpace/page/messages_page.dart';
 import 'package:GymSpace/page/groups_page.dart';
 import 'package:GymSpace/page/newsfeed_page.dart';
 import 'package:GymSpace/page/settings_page.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:GymSpace/page/leaderboard_page.dart';
 class AppDrawer extends StatefulWidget {
   final Widget child;
   final int startPage;
@@ -123,6 +124,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     //_buildDrawerItem("Buddies", FontAwesomeIcons.userFriends, 5),
                     _buildDrawerItem("Notifications", FontAwesomeIcons.bell, 5),
                     _buildDrawerItem("Messages", FontAwesomeIcons.comments, 6),
+                    _buildDrawerItem("Leader Board", FontAwesomeIcons.star, 7)
                     //_buildDrawerItem("Settings", FontAwesomeIcons.slidersH, 8),
                   ],
                 ),
@@ -246,6 +248,15 @@ class _AppDrawerState extends State<AppDrawer> {
           ));
 
           break;
+        case 7: // leaderboard
+          Navigator.pushReplacement(context, MaterialPageRoute<void>(
+            builder: (BuildContext context){
+              return LeaderBoardPage();
+            }
+          ));
+
+          break;
+
         // case 8: // settings
         //   Navigator.pushReplacement(context, MaterialPageRoute<void>(
         //     builder: (BuildContext context){

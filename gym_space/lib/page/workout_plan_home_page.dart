@@ -15,13 +15,15 @@ import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:random_string/random_string.dart';
 import 'package:clipboard_manager/clipboard_manager.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class WorkoutPlanHomePage extends StatefulWidget {
   final String forGroup;
+  final bool isGroupAdmin;
   WorkoutPlanHomePage({
     this.forGroup = '',
+    this.isGroupAdmin = false,
     Key key, this.child}) : super(key: key);
 
   final Widget child;
@@ -35,6 +37,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
   List<String> deadWorkoutPlansIDs = List();
   String get currentUserID => DatabaseHelper.currentUserID;
   String get forGroup => widget.forGroup;
+  bool get isGroupAdmin => widget.isGroupAdmin;
 
   final localNotify = FlutterLocalNotificationsPlugin();
   // Local Notification Plugin
@@ -64,23 +67,33 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
     Fluttertoast.showToast(msg: 'Validating key...');
     // search DB for key
     DocumentSnapshot ds = await DatabaseHelper.findWorkoutPlanByKey(_shareKeyController.text);
+    DocumentSnapshot groupSnap = null;
+
+    if (forGroup.isNotEmpty) {
+      groupSnap = await DatabaseHelper.getGroupSnapshot(forGroup);
+    }
+
     if (ds == null) {
       Fluttertoast.showToast(msg: 'Invalid Key: Keys are case sensitive');
       return;
     } else if (ds.data['private']) {
-      // only if it is your own
-      if (forGroup.isNotEmpty) {
-        await DatabaseHelper.getGroupSnapshot(forGroup);
+      if (groupSnap == null) {
+        Fluttertoast.showToast(msg: 'This workout plan is private (not shareable)');
+        return;
       }
       
-      Fluttertoast.showToast(msg: 'This workout plan is private (not shareable)');
-      return;
+      if (groupSnap.data['admin'] == ds.data['author'] && groupSnap.data['workoutPlans'].contains(ds.documentID)) {
+        Fluttertoast.showToast(msg: 'Already have workout plan: ${ds.data['name']}');
+        return;
+      }
     } 
     
-    DocumentSnapshot userSnap = await DatabaseHelper.getUserSnapshot(currentUserID);
-    if (userSnap.data['workoutPlans'].contains(ds.documentID)) {
-      Fluttertoast.showToast(msg: 'Already have workout plan: ${ds.data['name']}');
-      return;
+    if (forGroup.isEmpty) {
+      DocumentSnapshot userSnap = await DatabaseHelper.getUserSnapshot(currentUserID);
+      if (userSnap.data['workoutPlans'].contains(ds.documentID)) {
+        Fluttertoast.showToast(msg: 'Already have workout plan: ${ds.data['name']}');
+        return;
+      }
     }
     
     Fluttertoast.showToast(msg: 'Adding workout plan: ${ds.data['name']}');
@@ -125,7 +138,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
     );
   }
 
-  void _addPressed() {
+  void _addPressed() {    
     WorkoutPlan newWorkoutPlan = WorkoutPlan();
 
     showModalBottomSheet(
@@ -224,7 +237,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
             TextFormField( // description
               initialValue: workoutPlan.description,
               textCapitalization: TextCapitalization.sentences,
-              maxLines: 3,
+              maxLines: 1,
               decoration: InputDecoration(
                 hintText: "e.g. This is a workout for intense body building",
                 labelText: "Description",
@@ -473,6 +486,12 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
 
   Future<void> _deleteWorkoutPlan(WorkoutPlan workoutPlan) async {
     Navigator.pop(context);
+
+    if (forGroup.isNotEmpty) {
+      await DatabaseHelper.updateGroup(forGroup, {'workoutPlans': FieldValue.arrayRemove([workoutPlan.documentID])});
+      Fluttertoast.showToast(msg: 'Removed workout plan from group');
+    }
+
     await DatabaseHelper.updateUser(currentUserID, {'workoutPlans': FieldValue.arrayRemove([workoutPlan.documentID])});
     Fluttertoast.showToast(msg: 'Removed workout plan');
 
@@ -517,7 +536,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
       resizeToAvoidBottomPadding: true,
       drawer: AppDrawer(startPage: 1,),
       backgroundColor: GSColors.darkBlue,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: forGroup.isEmpty || isGroupAdmin ? FloatingActionButton(
         child: Icon(
           FontAwesomeIcons.plus,
           size: 14,
@@ -525,7 +544,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
         ),
         backgroundColor: GSColors.purple,
         onPressed: _addPressed,
-      ),
+      ) : Container(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: _buildAppBar(),
       body: Container(

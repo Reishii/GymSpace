@@ -8,11 +8,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
-import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:flutter/widgets.dart';
 import 'package:GymSpace/global.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class BuddyPage extends StatefulWidget {
@@ -66,6 +64,14 @@ class _BuddyPageState extends State<BuddyPage> {
   } 
 
   Future<void> searchPressed() async {
+    List<User> allUsers = List();
+    QuerySnapshot userSnapshots = await Firestore.instance.collection('users').getDocuments();
+    userSnapshots.documents.forEach((ds) {
+      User user = User.jsonToUser(ds.data);
+      user.documentID = ds.documentID;
+      allUsers.add(user);
+    });
+
     User _currentUser;
     await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
       (ds) => _currentUser = User.jsonToUser(ds.data)
@@ -73,7 +79,8 @@ class _BuddyPageState extends State<BuddyPage> {
 
     Navigator.push(context, MaterialPageRoute(
       builder: (context) {
-        return SearchPage(searchType: SearchType.user, currentUser: _currentUser,);
+        return SearchPage(searchType: SearchType.user, 
+          currentUser: _currentUser, users: allUsers);
       } 
     ));
   }
@@ -134,11 +141,25 @@ class _BuddyPageState extends State<BuddyPage> {
       backgroundColor: GSColors.darkBlue,
       appBar: _buildAppBar(),
       body: _buildBody(),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: GSColors.purple,
+        foregroundColor: Colors.white,
+        child: Icon(Icons.add),
+        onPressed: () => searchPressed(),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     ) 
       : Scaffold(
         backgroundColor: GSColors.darkBlue,
         appBar: _buildAppBar(),
         body: _buildBody(),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: GSColors.purple,
+          foregroundColor: Colors.white,
+          child: Icon(Icons.search),
+          onPressed: () => searchPressed(),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       )
     );
   }
@@ -152,8 +173,8 @@ class _BuddyPageState extends State<BuddyPage> {
           title: "${user.firstName}'s Buddies", 
           backgroundColor: Colors.white,
           titleColor: GSColors.darkBlue,
-          showSearch: true,
-          searchFunction: searchPressed,
+          //showSearch: true,
+          //searchFunction: searchPressed,
         )
       );  
     // } else if(_fromUser == false && user == null) {
@@ -178,8 +199,8 @@ class _BuddyPageState extends State<BuddyPage> {
           backgroundColor: Colors.white,
           //showDrawer: true,
           titleColor: GSColors.darkBlue,
-          showSearch: true,
-          searchFunction: searchPressed,
+          //showSearch: true,
+          //searchFunction: searchPressed,
         )
       );  
     }

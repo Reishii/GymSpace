@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
-
 import 'misc/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -29,9 +28,11 @@ Future<void> main() async{
     _defaultHome = MePage();
   }
 
-  await DatabaseHelper.fixWorkoutPlans().then((count) => print('Fixed $count workout plans'));
-  await DatabaseHelper.fixUsers().then((count) => print('Fixed $count users'));
-  await DatabaseHelper.fixWorkouts().then((count) => print('Fixed $count workouts'));
+  // await backupDB();
+
+  // await DatabaseHelper.fixWorkoutPlans().then((count) => print('Fixed $count workout plans'));
+  // await DatabaseHelper.fixUsers().then((count) => print('Fixed $count users'));
+  // await DatabaseHelper.fixWorkouts().then((count) => print('Fixed $count workouts'));
   runApp(GymSpace(_defaultHome));
 }
 

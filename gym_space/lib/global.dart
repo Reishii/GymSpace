@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'package:GymSpace/logic/post.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:GymSpace/logic/auth.dart';
-import 'package:random_string/random_string.dart';
 
 class AuthSettings {
   static Auth auth = Auth();
@@ -146,12 +144,24 @@ class DatabaseHelper {
       await Firestore.instance.collection('posts').where('fromUser', isEqualTo: buddyID).getDocuments().then((queryResults) {
         postIDS.addAll(queryResults.documents.map((e) => e.documentID).toList());
       });
-    };
+    }
 
     await Firestore.instance.collection('posts').where('fromUser', isEqualTo: currentUserID).getDocuments().then((queryResults) {
       postIDS.addAll(queryResults.documents.map((e) => e.documentID).toList());
     });
     return postIDS;
+  }
+
+  static Future<List<String>> fetchGroupPosts(String groupID) async {
+    List<String> postIDs = List();
+    // DocumentSnapshot group = await getGroupSnapshot(groupID);
+    
+    await Firestore.instance.collection('posts').where('fromGroup', isEqualTo: groupID).getDocuments()
+      .then((queryResults) {
+        postIDs.addAll(queryResults.documents.map((e) => e.documentID).toList());
+      });
+
+    return postIDs;
   }
 
   static Stream getPostStream(String postID) {
@@ -172,60 +182,5 @@ class DatabaseHelper {
         
         return qs.documents[0];
       });
-  }
-
-  // FIX OUTDATED WORKOUTPLANS
-  static Future<int> fixWorkoutPlans() async {
-    int fixed = 0;
-    await Firestore.instance.collection('workoutPlans').getDocuments()
-      .then((qs) async {
-        for (DocumentSnapshot ds in qs.documents) {
-          if (!ds.data.containsKey('shareKey')) {
-            await Firestore.instance.collection('workoutPlans').document(ds.documentID).updateData({
-              'shareKey': randomAlphaNumeric(Defaults.SHARE_KEY_LENGTH)
-            }).then((_) => fixed++);
-          }
-
-          if (!ds.data.containsKey('private')) {
-            await Firestore.instance.collection('workoutPlans').document(ds.documentID).updateData({
-              'private': false
-            }).then((_) => fixed++);
-          }
-        }
-      });
-
-    return fixed;
-  }
-
-  static Future<int> fixWorkouts() async {
-    int fixed = 0;
-    await Firestore.instance.collection('workouts').getDocuments()
-      .then((qs) async {
-        for (DocumentSnapshot ds in qs.documents) {
-            DocumentReference workoutRef = Firestore.instance.collection('workouts').document(ds.documentID);
-          if (ds.data['author'].isEmpty) {
-            await workoutRef.delete();
-          }
-            fixed++;
-        }
-      });
-
-    return fixed;
-  }
-
-  static Future<int> fixUsers() async {
-    int fixed = 0;
-    await Firestore.instance.collection('users').getDocuments()
-      .then((qs) async {
-        for (DocumentSnapshot ds in qs.documents) {
-          if (!ds.data.containsKey('likes')) {
-            await Firestore.instance.collection('users').document(ds.documentID).updateData({
-              'likes': <String>[]
-            }).then((_) => fixed++);
-          }
-        }
-      });
-
-    return fixed;
   }
 }

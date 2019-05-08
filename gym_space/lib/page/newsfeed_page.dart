@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:GymSpace/logic/image_input_adapter.dart';
+import 'package:GymSpace/logic/group.dart';
 import 'package:GymSpace/logic/post.dart';
 import 'package:GymSpace/widgets/post_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,7 +8,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:image_form_field/image_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
@@ -17,10 +16,14 @@ import 'package:GymSpace/widgets/page_header.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NewsfeedPage extends StatefulWidget {
+  final Group forGroup;
+
+  NewsfeedPage({this.forGroup});
+
   @override
   _NewsfeedPageState createState() => _NewsfeedPageState();
 }
@@ -33,18 +36,21 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
   String _uploadBody = '';
   File _uploadImage;
   final localNotify = FlutterLocalNotificationsPlugin();
+  Group get group => widget.forGroup;
+
   @override
   void initState() {
     super.initState();
-    _fetchPosts();
     final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
     final settingsIOS = IOSInitializationSettings(
       onDidReceiveLocalNotification: (id, title, body, payload) =>
         onSelectNotification(payload));
     localNotify.initialize(InitializationSettings(settingsAndriod, settingsIOS),
       onSelectNotification: onSelectNotification);
+    _fetchPosts();
   }
-   Future onSelectNotification(String payload) async  {
+
+  Future onSelectNotification(String payload) async  {
     Navigator.pop(context);
     print("==============OnSelect WAS CALLED===========");
     await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
@@ -58,9 +64,9 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
       child: Container(
         color: GSColors.darkBlue,
         child: PageHeader(
-          title: "Newsfeed",
+          title: group == null ? "Newsfeed" : 'Group Newsfeed',
           backgroundColor: GSColors.darkBlue,
-          showDrawer: true,
+          showDrawer: group == null,
           titleColor: Colors.white,
         ),
       ),
@@ -90,22 +96,24 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
       print('Fetching posts...');
       _fetchingPosts = true;
     });
+
+    List<String> collectedPosts = group == null ? await DatabaseHelper.fetchPosts() : await DatabaseHelper.fetchGroupPosts(group.documentID);
     
-    DatabaseHelper.fetchPosts().then((posts) {
-      setState(() {
-        print('Fetched ${posts.length} posts');
-        if (posts.isNotEmpty) 
-          _fetchedPosts.clear();
-        // build each post
-        posts.sort((String a, String b) => int.parse(a).compareTo(int.parse(b)));
-        for (String postID in posts.reversed) { // build the post 
-          _fetchedPosts.add(_buildPost(postID));
-        }
-        // _fetchedPosts = posts;
-        // _fetchedPosts.sort()
+    print('Fetched ${collectedPosts.length} posts');
+    if (collectedPosts.isNotEmpty) 
+      _fetchedPosts.clear();
+
+    DocumentSnapshot userDS = await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+    List<String> joinedGroups = userDS.data['joinedGroups'].cast<String>();
+    // build each post
+    collectedPosts.sort((String a, String b) => int.parse(a).compareTo(int.parse(b)));
+    for (String postID in collectedPosts.reversed) { // build the post 
+      _fetchedPosts.add(_buildPost(postID, joinedGroups));
+    }
+    
+    setState(() {
         _fetchingPosts = false;
       });
-    });
   }
 
   void _addPressed() {
@@ -115,7 +123,7 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
     );
   }
 
-  Widget _buildPost(String postID) {
+  Widget _buildPost(String postID, List<String> joinedGroups) {
     return Container(
       child: StreamBuilder(
         stream: DatabaseHelper.getPostStream(postID),
@@ -129,13 +137,38 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
 
           Post post = Post.jsonToPost(snapshot.data.data);
           post.documentID = snapshot.data.documentID;
+
+          if (post.fromGroup.isNotEmpty && !joinedGroups.contains(post.fromGroup)) {
+            return Container();
+          }
           
           return Container(
             margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: PostWidget(post: post,),
+            child: InkWell(
+              onLongPress: () => _postLongPressed(post),
+              child: PostWidget(post: post,),
+            ),
           );
         },
       ),
+    );
+  }
+
+  void _postLongPressed(Post post) {
+    showModalBottomSheet(
+      context: context,
+      builder: (bulder) {
+        return Container(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Row(
+                
+              )
+            ],
+          )
+        );
+      } 
     );
   }
 
@@ -187,6 +220,7 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
     Post newPost = Post(
       body: _uploadBody,
       fromUser: currentUserID,
+      fromGroup: group == null ? '' : group.documentID,
     );
 
     // upload image to db
@@ -279,6 +313,25 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (group != null) {
+      return Scaffold(
+        appBar: _buildAppBar(),
+        backgroundColor: GSColors.darkBlue,
+        body: _buildBody(),
+        floatingActionButton: FlatButton.icon(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          color: GSColors.green,
+          label: Text('Add Post'),
+          textColor: Colors.white,
+          icon: Icon(Icons.add_circle,),
+          onPressed: _addPressed,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: _buildAppBar(),
       drawer: AppDrawer(startPage: 0,),

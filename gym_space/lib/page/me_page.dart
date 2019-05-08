@@ -1,11 +1,12 @@
 import 'dart:async';
-
+import 'package:GymSpace/logic/post.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/page/nutrition_page.dart';
 import 'package:GymSpace/page/settings_page.dart';
 import 'package:GymSpace/widgets/image_widget.dart';
 import 'package:GymSpace/widgets/media_tab.dart';
+import 'package:GymSpace/widgets/post_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
@@ -14,8 +15,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class MePage extends StatefulWidget {
@@ -36,7 +38,9 @@ class _MePageState extends State<MePage> {
   String _dietKey = DateTime.now().toString().substring(0,10);
   String _challengeKey;
   int _currentTab = 0;
-  User user;
+  bool _fetchingPosts = false;
+  List<Widget> _fetchedPosts = List();
+  // User user;
   final localNotify = FlutterLocalNotificationsPlugin();
   
   @override
@@ -123,7 +127,8 @@ class _MePageState extends State<MePage> {
                         child: Icon(
                           Icons.stars,
                           size: 14,
-                          color: GSColors.green,
+                          color: GSColors.yellowCoin
+                          //color: GSColors.green,
                         ),
                       ),
                       Container( // points
@@ -131,7 +136,8 @@ class _MePageState extends State<MePage> {
                         child: Text(
                           user.points.toString(),
                           style: TextStyle(
-                            color: GSColors.green,
+                            color: GSColors.yellowCoin,
+                            //color: GSColors.green,
                             fontSize: 14
                           ),
                         )
@@ -260,10 +266,19 @@ class _MePageState extends State<MePage> {
               onTap: () => Navigator.push(context, MaterialPageRoute(
                 builder: (context) => BuddyPage.fromUser(user, false))
               ),
-              child: Row( // likes
+              child: Row( // buddies
                 children: <Widget> [
-                  Icon(Icons.group, color: GSColors.purple),
-                  Text(
+                  user.buddies.length == 0 
+                  ? Icon(Icons.add, color: GSColors.purple)
+                  : Icon(Icons.group, color: GSColors.purple),
+
+                  user.buddies.length == 0 
+                  ? Text('Add buddies', 
+                      style: TextStyle(
+                        color: GSColors.purple,
+                      ),
+                  )
+                  : Text(
                     ' ${user.buddies.length} buddies', 
                     style: TextStyle(
                     color: GSColors.purple
@@ -371,8 +386,8 @@ class _MePageState extends State<MePage> {
           _buildNutritionLabel(),
           _buildNutritionInfo(context),
           _buildWeightInfo(context),
-          _buildTodaysEventsLabel(),
-          _buildTodaysEventsInfo(),
+         // _buildTodaysEventsLabel(),
+         // _buildTodaysEventsInfo(),
           _buildChallengesLabel(),
           _buildChallengesInfo(context),
           _buildChallengeProgess(context)
@@ -381,9 +396,81 @@ class _MePageState extends State<MePage> {
     );
   }
 
-  Widget _buildPostsTab(BuildContext context) {
-    return Container();
+  Future<void> _fetchPosts() async {
+    setState(() {
+      print('Fetching posts...');
+      _fetchingPosts = true;
+    });
+
+    List<String> collectedPosts = await DatabaseHelper.fetchPosts();
+    
+    print('Fetched ${collectedPosts.length} posts');
+    if (collectedPosts.isNotEmpty) 
+      _fetchedPosts.clear();
+
+    DocumentSnapshot userDS = await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+    List<String> joinedGroups = userDS.data['joinedGroups'].cast<String>();
+    // build each post
+    collectedPosts.sort((String a, String b) => int.parse(a).compareTo(int.parse(b)));
+    for (String postID in collectedPosts.reversed) { // build the post 
+      _fetchedPosts.add(_buildPost(postID, joinedGroups));
+    }
+    
+    setState(() {
+        _fetchingPosts = false;
+      });
   }
+
+  Widget _buildPostsTab(BuildContext context) {
+    return LiquidPullToRefresh(
+      onRefresh: _fetchPosts,
+      color: GSColors.darkBlue,
+      backgroundColor: Colors.white,
+      child: _fetchingPosts ? ListView(
+        children: <Widget>[],
+      )
+      : ListView(
+          cacheExtent: 99999,
+          padding: EdgeInsets.only(top: 20),
+          // shrinkWrap: true,
+          children: _fetchedPosts,
+          // itemExtent: 400,
+        )
+    );
+    
+  }
+
+  Widget _buildPost(String postID, List<String> joinedGroups) {
+    return Container(
+      child: StreamBuilder(
+        stream: DatabaseHelper.getPostStream(postID),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } 
+          
+          if (!snapshot.hasData) 
+            return Container();
+
+          Post post = Post.jsonToPost(snapshot.data.data);
+          post.documentID = snapshot.data.documentID;
+
+          if (post.fromGroup.isNotEmpty && !joinedGroups.contains(post.fromGroup)) {
+            return Container();
+          }
+          
+          return Container(
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: InkWell(
+              //onLongPress: () => _postLongPressed(post),
+              child: PostWidget(post: post,),
+            ),
+          );
+        },
+      ),
+    );
+  }
+  
 
   Widget _buildNutritionLabel() {
     return Container(
@@ -829,7 +916,8 @@ class _MePageState extends State<MePage> {
                     children: <Widget>[
                       Icon(FontAwesomeIcons.caretUp, color: GSColors.green, size: 16),
                       Text(
-                          weightLost.toStringAsFixed(1),
+                          
+                          weightLost >= 0 ? weightLost.toStringAsFixed(1) : (-1 * weightLost).toStringAsFixed(1),
                           style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -1269,8 +1357,10 @@ void _updateChallengeInfo(BuildContext context) async{
                     if (snapshotChallenge.data.data == null) 
                       return Container();
                     List<Widget> challengeWidgets = List();
+                    List<int> userStatus = List();
+                    userStatus = user.challengeStatus[_challengeKey].cast<int>(); 
                     for (int challengeIndex = 0; challengeIndex < snapshotChallenge.data.data['title'].length; challengeIndex++) {
-                      challengeWidgets.add(_buildChallenge(snapshotChallenge.data.data, challengeIndex, user));
+                      challengeWidgets.add(_buildChallenge(snapshotChallenge.data.data, challengeIndex, userStatus));
                     }
                     return Column(children: challengeWidgets);
                   },
@@ -1283,7 +1373,8 @@ void _updateChallengeInfo(BuildContext context) async{
     );
   }
 
-  Widget _buildChallenge(Map<String, dynamic> challenge, int i, user) {
+  Widget _buildChallenge(Map<String, dynamic> challenge, int i, List<int> userList) {
+
     return Container(
       child: Column(
         children: <Widget> [
@@ -1292,7 +1383,7 @@ void _updateChallengeInfo(BuildContext context) async{
             children: <Widget>[
               Container(
                 child: Text(
-                  ' $i. ${challenge['title'][i]}'
+                  ' ${challenge['title'][i]}'
                 ),
               ),
               Container(
@@ -1308,11 +1399,11 @@ void _updateChallengeInfo(BuildContext context) async{
           Container(
             child: LinearPercentIndicator(
               lineHeight: 14.0,
-              percent: user.challengeStatus[_challengeKey][i] / challenge['goal'][i],
+              percent: userList[i] / challenge['goal'][i],
               backgroundColor: GSColors.darkCloud,
-              progressColor: user.challengeStatus[i] == challenge['goal'][i] ? GSColors.green : GSColors.lightBlue,
+              progressColor: userList[i] == challenge['goal'][i] ? GSColors.green : GSColors.lightBlue,
               center: Text(
-                (user.challengeStatus[_challengeKey][i] / challenge['goal'][i] * 100).toStringAsFixed(0) + ' %'
+                (userList[i] / challenge['goal'][i] * 100).toStringAsFixed(0) + ' %'
               )
             )
           )
@@ -1613,9 +1704,10 @@ void _updateChallengeInfo(BuildContext context) async{
                 child:  TextField(
                   keyboardType: TextInputType.number,
                   maxLines: 1,
-                  //maxLength: 3,
+                  maxLength: 3,
                   autofocus: true,
                   decoration: InputDecoration(
+                    counterText: "",
                     labelText: 'Current',
                     hintText: '125',
                     labelStyle: TextStyle(
@@ -1638,9 +1730,10 @@ void _updateChallengeInfo(BuildContext context) async{
                 child:  TextField(
                   keyboardType: TextInputType.number,
                   maxLines: 1,
-                  //maxLength: 3,
+                  maxLength: 3,
                   autofocus: true,
                   decoration: InputDecoration(
+                    counterText: "",
                     labelText: 'Starting',
                     hintText: "100",
                     labelStyle: TextStyle(
