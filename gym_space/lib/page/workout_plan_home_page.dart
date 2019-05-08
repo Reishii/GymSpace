@@ -15,7 +15,7 @@ import 'package:GymSpace/widgets/page_header.dart';
 import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:random_string/random_string.dart';
 import 'package:clipboard_manager/clipboard_manager.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class WorkoutPlanHomePage extends StatefulWidget {

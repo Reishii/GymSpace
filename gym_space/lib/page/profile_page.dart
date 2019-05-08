@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:GymSpace/global.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/page/message_thread_page.dart';
 import 'package:GymSpace/widgets/image_widget.dart';
