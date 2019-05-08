@@ -66,6 +66,14 @@ class _BuddyPageState extends State<BuddyPage> {
   } 
 
   Future<void> searchPressed() async {
+    List<User> allUsers = List();
+    QuerySnapshot userSnapshots = await Firestore.instance.collection('users').getDocuments();
+    userSnapshots.documents.forEach((ds) {
+      User user = User.jsonToUser(ds.data);
+      user.documentID = ds.documentID;
+      allUsers.add(user);
+    });
+
     User _currentUser;
     await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID).then(
       (ds) => _currentUser = User.jsonToUser(ds.data)
@@ -73,7 +81,8 @@ class _BuddyPageState extends State<BuddyPage> {
 
     Navigator.push(context, MaterialPageRoute(
       builder: (context) {
-        return SearchPage(searchType: SearchType.user, currentUser: _currentUser,);
+        return SearchPage(searchType: SearchType.user, 
+          currentUser: _currentUser,);
       } 
     ));
   }
