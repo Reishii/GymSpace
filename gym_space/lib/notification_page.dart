@@ -125,6 +125,11 @@ class _NotificationState extends State<NotificationPage> {
           builder: (BuildContext context) => PostCommentsPage(postID: notify.postID, postAuthor: DatabaseHelper.currentUserID)
         ));
         break;
+      case 'group':
+        Navigator.of(context).push(
+          new MaterialPageRoute(builder: (BuildContext context) => ProfilePage.fromUser(userInfo))
+        );
+        break;
     }
   }
   void handleResumeRouting(String notify){
