@@ -97,8 +97,7 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         currentUser = User.jsonToUser(ds.data);
         NotificationPage notify = new NotificationPage();
-        if(user.notification == true)
-          notify.sendNotifications('Buddy Request', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}','buddy', userID);
+        notify.sendNotifications('Buddy Request', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}','buddy', userID);
       });
     });
     setState(() {
