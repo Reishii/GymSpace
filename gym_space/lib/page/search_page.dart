@@ -14,7 +14,7 @@ class SearchPage extends StatefulWidget {
   final SearchType searchType;
   final User currentUser;
   final List<Group> groups;
-  final List<String> users;
+  final List<User> users;
   
   SearchPage({
     this.searchType,
@@ -31,13 +31,14 @@ class _SearchPageState extends State<SearchPage> {
   SearchType get searchType => widget.searchType;
   List<String> get friends => widget.currentUser.buddies;
   List<Group> get groups => widget.groups;
-  List<String> get allBuddies => widget.users;
+  List<User> get users => widget.users;
   Group _currentGroup;
   bool _isEditing = true;
 
   TextEditingController _searchController = TextEditingController();
   List<User> usersFound = List();
   List<Group> groupsFound = List();
+  List<User> allUsersFound = List();
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +53,22 @@ class _SearchPageState extends State<SearchPage> {
   void _search(String text) async {
     usersFound.clear();
     groupsFound.clear();
+    allUsersFound.clear();
     
     switch (searchType) {
       case SearchType.user:
-        usersFound = _searchController.text.isEmpty ? List() : await DatabaseHelper.searchDBForUserByName(_searchController.text);
+        for(User user in users) {
+          String name = user.firstName + " " + user.lastName;
+          if(name.toLowerCase().contains(text.toLowerCase())) 
+            allUsersFound.add(user);
+        }
+
+        // if(allUsersFound.isNotEmpty) {
+        //   usersFound = allUsersFound[0];
+        // }
+
+
+        //usersFound = _searchController.text.isEmpty ? List() : await DatabaseHelper.searchDBForUserByName(_searchController.text);
         break;
       case SearchType.group:
         for (Group group in groups) {

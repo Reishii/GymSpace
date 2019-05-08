@@ -82,7 +82,7 @@ class _BuddyPageState extends State<BuddyPage> {
     Navigator.push(context, MaterialPageRoute(
       builder: (context) {
         return SearchPage(searchType: SearchType.user, 
-          currentUser: _currentUser,);
+          currentUser: _currentUser, users: allUsers);
       } 
     ));
   }
