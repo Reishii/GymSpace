@@ -80,7 +80,21 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
     }).then((_) => setState(() => group.likes.remove(currentUserID)));
   }
 
-  void _joinGroup() {
+  Future<void> _joinGroup() async {
+    // Send notification to Admin
+    print('group admin: ${group.admin}');
+    User currentUser;
+    User adminUser;
+    var datas = await DatabaseHelper.getUserSnapshot(group.admin);
+    adminUser = User.jsonToUser(datas.data);
+    String userID = DatabaseHelper.currentUserID;
+    DatabaseHelper.getUserSnapshot(userID).then((ds){
+      setState(() {
+        currentUser = User.jsonToUser(ds.data);
+        NotificationPage notify = new NotificationPage();
+        notify.sendNotifications('Joined Group', '${currentUser.firstName} ${currentUser.lastName} has joined ${group.name}', '${adminUser.fcmToken}','group', userID);
+      });
+    });
 
     addNewMemberToWeeklyChallenges();
     Firestore.instance.collection('groups').document(group.documentID).updateData({'members' : FieldValue.arrayUnion([DatabaseHelper.currentUserID])});
