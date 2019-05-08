@@ -142,13 +142,14 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
     WorkoutPlan newWorkoutPlan = WorkoutPlan();
 
     showModalBottomSheet(
+      isScrollControlled: true,
       context: context,
       builder: (context) {
         return Container(
-          margin: MediaQuery.of(context).viewInsets,
+          // margin: MediaQuery.of(context).viewInsets,
           child: Column(
             // crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+            // mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Container(
                 child: _buildForm(newWorkoutPlan),
@@ -237,7 +238,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
             TextFormField( // description
               initialValue: workoutPlan.description,
               textCapitalization: TextCapitalization.sentences,
-              maxLines: 1,
+              maxLines: null,
               decoration: InputDecoration(
                 hintText: "e.g. This is a workout for intense body building",
                 labelText: "Description",
@@ -356,13 +357,14 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
         return Container(
-          margin: MediaQuery.of(context).viewInsets,
+          // margin: MediaQuery.of(context).viewInsets,
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: 10),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              // mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Container(
                   child: _buildForm(workoutPlan),

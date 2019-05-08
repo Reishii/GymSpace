@@ -1106,7 +1106,7 @@ void _updateChallengeInfo(BuildContext context) async{
       //child: SingleChildScrollView(
         //padding: EdgeInsets.all(5.0),
         child: AlertDialog(
-        title: Text("Update your daily macros"),
+        title: Text("Update your progress"),
         contentPadding: const EdgeInsets.all(16.0),
         content:  
           Container(
@@ -1441,6 +1441,10 @@ void _updateChallengeInfo(BuildContext context) async{
               }
               if (snapshotChallenge.data.data == null) 
                 return Container();
+
+              if (!user.challengeStatus.containsKey(_challengeKey)) {
+                user.challengeStatus[_challengeKey] = [0, 0, 0];
+              }
 
               int totalProgress = user.challengeStatus[_challengeKey][0] + user.challengeStatus[_challengeKey][1] + user.challengeStatus[_challengeKey][2];
               int totalGoal = snapshotChallenge.data['goal'][0] + snapshotChallenge.data['goal'][1] + snapshotChallenge.data['goal'][2];

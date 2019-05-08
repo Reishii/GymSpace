@@ -1,9 +1,12 @@
+import 'dart:ui';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/auth.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:GymSpace/misc/bubblecontroller.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:GymSpace/page/me_page.dart';
@@ -83,7 +86,7 @@ class LoginPageState extends State<LoginPage>{
   }
 
 void _addUserToDB(String userID) async {  
-  Firestore.instance.collection('users').document(userID).setData(
+  await Firestore.instance.collection('users').document(userID).setData(
     User(
       firstName: _firstName,
       lastName: _lastName,
@@ -139,73 +142,73 @@ void moveToRegister() {
         onNotification: (overscroll){
           overscroll.disallowGlow();
         },
-        child:SingleChildScrollView(
+        child: SingleChildScrollView(
           child: Container(
             width:MediaQuery.of(context).size.width,
             height:MediaQuery.of(context).size.height >= 775.0 
               ? MediaQuery.of(context).size.height : 775.0,
             decoration: new BoxDecoration(
-              gradient: new LinearGradient(
-                colors: [
-                  GSColors.darkBlue,
-                  GSColors.darkCloud
-                ],
-                begin: const FractionalOffset(0.0, 0.0),
-                end: const FractionalOffset(5.0, 5.0),
-                stops: [0.0,1.0],
-                tileMode: TileMode.clamp
-              ),
+              image: DecorationImage(
+                colorFilter: ColorFilter.mode(GSColors.darkBlue, BlendMode.overlay),
+                fit: BoxFit.fill,
+                image: AssetImage(
+                  Defaults.groupPhoto,
+                ),
+              )
             ),
-            child: Column (
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                Padding(
-                  padding:EdgeInsets.only(top: 75.0),
-                  child: new Image (
-                    width: 250.0,
-                    height: 191.0,
-                    fit:BoxFit.fill, 
-                    image: new AssetImage("lib/assets/gymspacelogo.png")
-                  ),
-                ),
-                Padding (
-                  padding:  EdgeInsets.only(top: 20.0),
-                  child: _buildSlidingMenuBar(context),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: new Form(
-                    key: formKey,
-                    child: PageView(
-                      controller:_pageController,
-                      onPageChanged: (i) {
-                        if (i == 0){
-                          setState((){
-                            right = Colors.white;
-                            left = Colors.black;
-                          });
-                        }
-                        else if (i == 1){
-                          setState((){
-                            right = Colors.black;
-                            left = Colors.white;
-                          });
-                        }
-                      },
-                      children: <Widget>[
-                        new ConstrainedBox(
-                          constraints: const BoxConstraints.expand(),
-                          child: _buildLogin(context),
-                        ),
-                          new ConstrainedBox(
-                          constraints: const BoxConstraints.expand(),
-                          child: _buildNewUser(context),
-                        ),
-                      ],
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+              child: Column (
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  Padding(
+                    padding:EdgeInsets.only(top: 75.0),
+                    child: new Image (
+                      width: 250.0,
+                      height: 191.0,
+                      fit:BoxFit.fill, 
+                      image: new AssetImage("lib/assets/gymspacelogo.png")
                     ),
+                  ),
+                  Padding (
+                    padding:  EdgeInsets.only(top: 20.0),
+                    child: _buildSlidingMenuBar(context),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: new Form(
+                      key: formKey,
+                      child: PageView(
+                        controller:_pageController,
+                        onPageChanged: (i) {
+                          if (i == 0){
+                            setState((){
+                              right = Colors.white;
+                              left = Colors.black;
+                            });
+                          }
+                          else if (i == 1){
+                            setState((){
+                              right = Colors.black;
+                              left = Colors.white;
+                            });
+                          }
+                        },
+                        children: <Widget>[
+                          new ConstrainedBox(
+                            constraints: const BoxConstraints.expand(),
+                            child: _buildLogin(context),
+                          ),
+                            new ConstrainedBox(
+                            constraints: const BoxConstraints.expand(),
+                            child: _buildNewUser(context),
+                          ),
+                        ],
+                      ),
+                    )
                   )
-                )
-              ],
+                ],
+              )
             )
           )
         )
@@ -218,10 +221,10 @@ void moveToRegister() {
     return Container (
       width: 300.0,
       height: 50.0,
-      decoration:BoxDecoration(
-        color: GSColors.blue,
-        borderRadius: BorderRadius.all(Radius.circular(25.0)),
-      ),
+      // decoration:BoxDecoration(
+      //   color: GSColors.blue,
+      //   borderRadius: BorderRadius.all(Radius.circular(25.0)),
+      // ),
       child:CustomPaint(
         painter: TabIndicationPainter(pageController: _pageController),
         child: Row(
@@ -338,6 +341,19 @@ Widget _buildLogin(BuildContext context) {
                           ),
                         ),
                       ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 10),
+                        child: FlatButton(
+                          onPressed: _forgotPassword,
+                          child: Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              color: GSColors.darkBlue.withAlpha(100),
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -346,28 +362,8 @@ Widget _buildLogin(BuildContext context) {
                 margin: EdgeInsets.only(top: 170.0),
                 decoration: new BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                      color: GSColors.darkBlue,
-                      offset: Offset(1.0, 6.0),
-                      blurRadius: 20.0,
-                    ),
-                    BoxShadow(
-                      color: GSColors.darkCloud,
-                      offset: Offset(1.0, 6.0),
-                      blurRadius: 20.0,
-                    ),
-                  ],
-                  gradient: new LinearGradient(
-                    colors: [
-                      GSColors.blue,
-                      GSColors.darkBlue
-                    ],
-                    begin: const FractionalOffset(0.2, 0.2),
-                    end: const FractionalOffset(1.0, 1.0),
-                    stops: [0.0, 1.0],
-                    tileMode: TileMode.clamp
-                  ),
+                  color: GSColors.darkBlue,
+                  // border: Border.all(color: Colors.white, width: .5),
                 ),
                 child: MaterialButton(
                   highlightColor: Colors.transparent,
@@ -392,6 +388,48 @@ Widget _buildLogin(BuildContext context) {
           ),
         ],
       ),
+    );
+  }
+
+  void _forgotPassword() {
+    // FirebaseAuth.instance.sendPasswordResetEmail();
+    String email = '';
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          margin: MediaQuery.of(context).viewInsets,
+          child: ListTile(
+            title: TextField(
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                hintText: 'Enter your email address',
+              ),
+              onChanged: (text) => email = text,
+            ),
+            trailing: IconButton(
+              icon: Icon(Icons.send), 
+              color: GSColors.lightBlue,
+              onPressed: () {
+                if (email.isEmpty) {
+                  return;
+                }
+
+                // FirebaseAuth.instance.fe
+
+                FirebaseAuth.instance.sendPasswordResetEmail(email: email)
+                  .catchError((e) {
+                    Fluttertoast.showToast(msg: '$e');
+                  })
+                  .then((_) {
+                    Navigator.pop(context);
+                    Fluttertoast.showToast(msg: 'Check your inbox!');
+                  });
+              },
+            ),
+          ),
+        );
+      }
     );
   }
 
@@ -551,28 +589,7 @@ Widget _buildLogin(BuildContext context) {
                 margin: EdgeInsets.only(top: 340.0),
                 decoration: new BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                      color: GSColors.darkBlue,
-                      offset: Offset(1.0, 6.0),
-                      blurRadius: 20.0,
-                    ),
-                    BoxShadow(
-                      color: GSColors.darkCloud,
-                      offset: Offset(1.0, 6.0),
-                      blurRadius: 20.0,
-                    ),
-                  ],
-                  gradient: new LinearGradient(
-                      colors: [
-                        GSColors.darkBlue,
-                        GSColors.blue
-                      ],
-                      begin: const FractionalOffset(0.2, 0.2),
-                      end: const FractionalOffset(1.0, 1.0),
-                      stops: [0.0, 1.0],
-                      tileMode: TileMode.clamp
-                      ),
+                  color: GSColors.darkBlue,
                 ),
                 child: MaterialButton(
                   highlightColor: Colors.transparent,

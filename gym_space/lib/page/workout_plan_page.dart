@@ -34,12 +34,13 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
     Workout newWorkout = Workout();
 
     showModalBottomSheet(
+      isScrollControlled: true,
       context: context,
       builder: (context) {
         return Container(
-          margin: MediaQuery.of(context).viewInsets,
+          // margin: MediaQuery.of(context).viewInsets,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            // mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 10),
@@ -103,7 +104,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
             validator: (value) => value.isEmpty ? "This field cannot be empty" : null,
           ),
           TextFormField( // description
-            maxLines: 1,
+            maxLines: null,
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
               hintText: "e.g. This workout consists of exercises for back and biceps. The main motion is pulling.",
@@ -145,7 +146,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
             maxLines: 1,
             decoration: InputDecoration(
               hintText: "e.g. 10",
-              labelText: "reps",
+              labelText: "Reps",
             ),
             onSaved: (reps) => exercise['reps'] = reps,
           ),
@@ -297,12 +298,13 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
         return Container(
           child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 10),
+            // margin: EdgeInsets.symmetric(horizontal: 10),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              // mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Container(
                   child: _buildForm(workout),
@@ -352,9 +354,10 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
   void _workoutTapped(Workout workout) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
         return Container(
-          margin: MediaQuery.of(context).viewInsets,
+          // margin: MediaQuery.of(context).viewInsets,
           child: Container(
             margin: EdgeInsets.only(top: 20),
             child: Stack(
