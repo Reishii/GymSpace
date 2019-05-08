@@ -4,7 +4,6 @@ import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/page/group_members_page.dart';
-import 'package:GymSpace/page/group_workouts_plans_page.dart';
 import 'package:GymSpace/page/newsfeed_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/workout_plan_home_page.dart';
@@ -17,7 +16,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 
@@ -80,7 +79,21 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
     }).then((_) => setState(() => group.likes.remove(currentUserID)));
   }
 
-  void _joinGroup() {
+  Future<void> _joinGroup() async {
+    // Send notification to Admin
+    print('group admin: ${group.admin}');
+    User currentUser;
+    User adminUser;
+    var datas = await DatabaseHelper.getUserSnapshot(group.admin);
+    adminUser = User.jsonToUser(datas.data);
+    String userID = DatabaseHelper.currentUserID;
+    DatabaseHelper.getUserSnapshot(userID).then((ds){
+      setState(() {
+        currentUser = User.jsonToUser(ds.data);
+        NotificationPage notify = new NotificationPage();
+        notify.sendNotifications('Joined Group', '${currentUser.firstName} ${currentUser.lastName} has joined ${group.name}', '${adminUser.fcmToken}','group', userID);
+      });
+    });
 
     addNewMemberToWeeklyChallenges();
     Firestore.instance.collection('groups').document(group.documentID).updateData({'members' : FieldValue.arrayUnion([DatabaseHelper.currentUserID])});

@@ -59,7 +59,6 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationState extends State<NotificationPage> {
-  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
   final FirebaseMessaging _messaging = new FirebaseMessaging();
   final localNotify = FlutterLocalNotificationsPlugin();
 
@@ -125,6 +124,11 @@ class _NotificationState extends State<NotificationPage> {
         Navigator.of(context).push(new MaterialPageRoute(
           builder: (BuildContext context) => PostCommentsPage(postID: notify.postID, postAuthor: DatabaseHelper.currentUserID)
         ));
+        break;
+      case 'group':
+        Navigator.of(context).push(
+          new MaterialPageRoute(builder: (BuildContext context) => ProfilePage.fromUser(userInfo))
+        );
         break;
     }
   }
@@ -265,7 +269,7 @@ class _NotificationState extends State<NotificationPage> {
                     ),
                     RawMaterialButton(
                       constraints: BoxConstraints.tight(Size(35,35)),
-                      onPressed: () => otherUsersZ.addBuddy(),
+                      onPressed: () { otherUsersZ.addBuddy(); _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver);},
                       child: Icon (
                         Icons.check_circle,
                         color: Colors.greenAccent,

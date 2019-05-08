@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:GymSpace/global.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/page/message_thread_page.dart';
 import 'package:GymSpace/widgets/image_widget.dart';
@@ -100,10 +100,10 @@ class _ProfilePageState extends State<ProfilePage> {
         notify.sendNotifications('Buddy Request', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}','buddy', userID);
       });
     });
-    setState(() {
-      user.buddies.toList().add(DatabaseHelper.currentUserID);
-      _isFriend = true;
-    });
+    // setState(() {
+    //   user.buddies.toList().add(DatabaseHelper.currentUserID);
+    //   _isFriend = true;
+    // });
   }
 
   void _deletePressed() async {

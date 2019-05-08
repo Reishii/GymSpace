@@ -1,11 +1,12 @@
 import 'dart:async';
-
+import 'package:GymSpace/logic/post.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/page/nutrition_page.dart';
 import 'package:GymSpace/page/settings_page.dart';
 import 'package:GymSpace/widgets/image_widget.dart';
 import 'package:GymSpace/widgets/media_tab.dart';
+import 'package:GymSpace/widgets/post_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
@@ -14,8 +15,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class MePage extends StatefulWidget {
@@ -36,6 +38,8 @@ class _MePageState extends State<MePage> {
   String _dietKey = DateTime.now().toString().substring(0,10);
   String _challengeKey;
   int _currentTab = 0;
+  bool _fetchingPosts = false;
+  List<Widget> _fetchedPosts = List();
   // User user;
   final localNotify = FlutterLocalNotificationsPlugin();
   
@@ -392,9 +396,81 @@ class _MePageState extends State<MePage> {
     );
   }
 
-  Widget _buildPostsTab(BuildContext context) {
-    return Container();
+  Future<void> _fetchPosts() async {
+    setState(() {
+      print('Fetching posts...');
+      _fetchingPosts = true;
+    });
+
+    List<String> collectedPosts = await DatabaseHelper.fetchPosts();
+    
+    print('Fetched ${collectedPosts.length} posts');
+    if (collectedPosts.isNotEmpty) 
+      _fetchedPosts.clear();
+
+    DocumentSnapshot userDS = await DatabaseHelper.getUserSnapshot(DatabaseHelper.currentUserID);
+    List<String> joinedGroups = userDS.data['joinedGroups'].cast<String>();
+    // build each post
+    collectedPosts.sort((String a, String b) => int.parse(a).compareTo(int.parse(b)));
+    for (String postID in collectedPosts.reversed) { // build the post 
+      _fetchedPosts.add(_buildPost(postID, joinedGroups));
+    }
+    
+    setState(() {
+        _fetchingPosts = false;
+      });
   }
+
+  Widget _buildPostsTab(BuildContext context) {
+    return LiquidPullToRefresh(
+      onRefresh: _fetchPosts,
+      color: GSColors.darkBlue,
+      backgroundColor: Colors.white,
+      child: _fetchingPosts ? ListView(
+        children: <Widget>[],
+      )
+      : ListView(
+          cacheExtent: 99999,
+          padding: EdgeInsets.only(top: 20),
+          // shrinkWrap: true,
+          children: _fetchedPosts,
+          // itemExtent: 400,
+        )
+    );
+    
+  }
+
+  Widget _buildPost(String postID, List<String> joinedGroups) {
+    return Container(
+      child: StreamBuilder(
+        stream: DatabaseHelper.getPostStream(postID),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } 
+          
+          if (!snapshot.hasData) 
+            return Container();
+
+          Post post = Post.jsonToPost(snapshot.data.data);
+          post.documentID = snapshot.data.documentID;
+
+          if (post.fromGroup.isNotEmpty && !joinedGroups.contains(post.fromGroup)) {
+            return Container();
+          }
+          
+          return Container(
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: InkWell(
+              //onLongPress: () => _postLongPressed(post),
+              child: PostWidget(post: post,),
+            ),
+          );
+        },
+      ),
+    );
+  }
+  
 
   Widget _buildNutritionLabel() {
     return Container(

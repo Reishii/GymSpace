@@ -8,11 +8,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
-import 'package:GymSpace/widgets/app_drawer.dart';
 import 'package:flutter/widgets.dart';
 import 'package:GymSpace/global.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class BuddyPage extends StatefulWidget {
@@ -82,7 +80,7 @@ class _BuddyPageState extends State<BuddyPage> {
     Navigator.push(context, MaterialPageRoute(
       builder: (context) {
         return SearchPage(searchType: SearchType.user, 
-          currentUser: _currentUser,);
+          currentUser: _currentUser, users: allUsers);
       } 
     ));
   }
