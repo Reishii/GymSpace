@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:flutter/widgets.dart';
 import 'package:GymSpace/global.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class BuddyPage extends StatefulWidget {

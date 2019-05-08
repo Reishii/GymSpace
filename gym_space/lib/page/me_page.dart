@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/page/buddy_page.dart';
 import 'package:GymSpace/page/nutrition_page.dart';
@@ -15,7 +14,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:GymSpace/global.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:GymSpace/notification_page.dart';
+import 'package:GymSpace/page/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class MePage extends StatefulWidget {
