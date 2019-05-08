@@ -135,6 +135,10 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
           if (!snapshot.hasData) 
             return Container();
 
+          if (snapshot.data.data == null) {
+            return Container();
+          }
+
           Post post = Post.jsonToPost(snapshot.data.data);
           post.documentID = snapshot.data.documentID;
 
@@ -155,21 +159,65 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
   }
 
   void _postLongPressed(Post post) {
+    if (post.fromUser != currentUserID) {
+      return;
+    }
+
     showModalBottomSheet(
       context: context,
       builder: (bulder) {
         return Container(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Row(
-                
-              )
-            ],
+          child: FlatButton.icon(
+            icon: Icon(Icons.delete),
+            label: Text('Delete Post'),
+            textColor: GSColors.red,
+            onPressed: () => _deletePressed(post),
           )
         );
       } 
     );
+  }
+
+  void _deletePressed(Post post) {
+    Navigator.pop(context);
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Text('Are you sure?'),
+              FlatButton.icon(
+                textColor: GSColors.red,
+                icon: Icon(Icons.cancel),
+                label: Text('No'),
+                onPressed: () {Navigator.pop(context);},
+              ),
+              FlatButton.icon(
+                textColor: GSColors.green,
+                icon: Icon(Icons.check),
+                label: Text('Yes'),
+                onPressed: () => _deletePost(post),    
+              )        
+            ],
+          ),
+        );
+      }
+    );
+  }
+
+  Future<void> _deletePost(Post post) async {
+    Navigator.pop(context);
+
+    await Firestore.instance.collection('posts').document(post.documentID).delete()
+      .then((_) async {
+        _fetchPosts();
+        setState(() {
+          Fluttertoast.showToast(msg: 'Deleted Post');
+        });
+      });
   }
 
   Widget _buildPostContainer() {
@@ -237,7 +285,8 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
     }
 
     // now upload post to db
-    await Firestore.instance.collection('posts').document(DateTime.now().millisecondsSinceEpoch.toString()).setData(newPost.toJSON()).then((_) {
+    await Firestore.instance.collection('posts').document(DateTime.now().millisecondsSinceEpoch.toString()).setData(newPost.toJSON()).then((_) async {
+      _fetchPosts();
       setState(() {
         _uploadBody = '';
         _uploadImage = null;
