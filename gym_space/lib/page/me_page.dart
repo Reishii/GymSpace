@@ -36,7 +36,7 @@ class _MePageState extends State<MePage> {
   String _dietKey = DateTime.now().toString().substring(0,10);
   String _challengeKey;
   int _currentTab = 0;
-  User user;
+  // User user;
   final localNotify = FlutterLocalNotificationsPlugin();
   
   @override
@@ -123,7 +123,8 @@ class _MePageState extends State<MePage> {
                         child: Icon(
                           Icons.stars,
                           size: 14,
-                          color: GSColors.green,
+                          color: GSColors.yellowCoin
+                          //color: GSColors.green,
                         ),
                       ),
                       Container( // points
@@ -131,7 +132,8 @@ class _MePageState extends State<MePage> {
                         child: Text(
                           user.points.toString(),
                           style: TextStyle(
-                            color: GSColors.green,
+                            color: GSColors.yellowCoin,
+                            //color: GSColors.green,
                             fontSize: 14
                           ),
                         )
@@ -829,7 +831,8 @@ class _MePageState extends State<MePage> {
                     children: <Widget>[
                       Icon(FontAwesomeIcons.caretUp, color: GSColors.green, size: 16),
                       Text(
-                          weightLost.toStringAsFixed(1),
+                          
+                          weightLost >= 0 ? weightLost.toStringAsFixed(1) : (-1 * weightLost).toStringAsFixed(1),
                           style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -1269,8 +1272,10 @@ void _updateChallengeInfo(BuildContext context) async{
                     if (snapshotChallenge.data.data == null) 
                       return Container();
                     List<Widget> challengeWidgets = List();
+                    List<int> userStatus = List();
+                    userStatus = user.challengeStatus[_challengeKey].cast<int>(); 
                     for (int challengeIndex = 0; challengeIndex < snapshotChallenge.data.data['title'].length; challengeIndex++) {
-                      challengeWidgets.add(_buildChallenge(snapshotChallenge.data.data, challengeIndex, user));
+                      challengeWidgets.add(_buildChallenge(snapshotChallenge.data.data, challengeIndex, userStatus));
                     }
                     return Column(children: challengeWidgets);
                   },
@@ -1283,7 +1288,8 @@ void _updateChallengeInfo(BuildContext context) async{
     );
   }
 
-  Widget _buildChallenge(Map<String, dynamic> challenge, int i, user) {
+  Widget _buildChallenge(Map<String, dynamic> challenge, int i, List<int> userList) {
+
     return Container(
       child: Column(
         children: <Widget> [
@@ -1292,7 +1298,7 @@ void _updateChallengeInfo(BuildContext context) async{
             children: <Widget>[
               Container(
                 child: Text(
-                  ' $i. ${challenge['title'][i]}'
+                  ' ${challenge['title'][i]}'
                 ),
               ),
               Container(
@@ -1308,11 +1314,11 @@ void _updateChallengeInfo(BuildContext context) async{
           Container(
             child: LinearPercentIndicator(
               lineHeight: 14.0,
-              percent: user.challengeStatus[_challengeKey][i] / challenge['goal'][i],
+              percent: userList[i] / challenge['goal'][i],
               backgroundColor: GSColors.darkCloud,
-              progressColor: user.challengeStatus[i] == challenge['goal'][i] ? GSColors.green : GSColors.lightBlue,
+              progressColor: userList[i] == challenge['goal'][i] ? GSColors.green : GSColors.lightBlue,
               center: Text(
-                (user.challengeStatus[_challengeKey][i] / challenge['goal'][i] * 100).toStringAsFixed(0) + ' %'
+                (userList[i] / challenge['goal'][i] * 100).toStringAsFixed(0) + ' %'
               )
             )
           )
