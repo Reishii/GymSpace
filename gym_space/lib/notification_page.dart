@@ -265,7 +265,7 @@ class _NotificationState extends State<NotificationPage> {
                     ),
                     RawMaterialButton(
                       constraints: BoxConstraints.tight(Size(35,35)),
-                      onPressed: () => otherUsersZ.addBuddy(),
+                      onPressed: () { otherUsersZ.addBuddy(); _deleteNotificationOnDB(notify.sender, notify.route, notify.receiver);},
                       child: Icon (
                         Icons.check_circle,
                         color: Colors.greenAccent,
