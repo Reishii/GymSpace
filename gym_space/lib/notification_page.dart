@@ -59,7 +59,6 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationState extends State<NotificationPage> {
-  Future<DocumentSnapshot> _futureUser =  DatabaseHelper.getUserSnapshot( DatabaseHelper.currentUserID);
   final FirebaseMessaging _messaging = new FirebaseMessaging();
   final localNotify = FlutterLocalNotificationsPlugin();
 

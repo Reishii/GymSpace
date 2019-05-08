@@ -4,7 +4,6 @@ import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/misc/colors.dart';
 import 'package:GymSpace/page/group_members_page.dart';
-import 'package:GymSpace/page/group_workouts_plans_page.dart';
 import 'package:GymSpace/page/newsfeed_page.dart';
 import 'package:GymSpace/page/profile_page.dart';
 import 'package:GymSpace/page/workout_plan_home_page.dart';
