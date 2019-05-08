@@ -373,8 +373,8 @@ class _MePageState extends State<MePage> {
           _buildNutritionLabel(),
           _buildNutritionInfo(context),
           _buildWeightInfo(context),
-          _buildTodaysEventsLabel(),
-          _buildTodaysEventsInfo(),
+         // _buildTodaysEventsLabel(),
+         // _buildTodaysEventsInfo(),
           _buildChallengesLabel(),
           _buildChallengesInfo(context),
           _buildChallengeProgess(context)
@@ -1619,9 +1619,10 @@ void _updateChallengeInfo(BuildContext context) async{
                 child:  TextField(
                   keyboardType: TextInputType.number,
                   maxLines: 1,
-                  //maxLength: 3,
+                  maxLength: 3,
                   autofocus: true,
                   decoration: InputDecoration(
+                    counterText: "",
                     labelText: 'Current',
                     hintText: '125',
                     labelStyle: TextStyle(
@@ -1644,9 +1645,10 @@ void _updateChallengeInfo(BuildContext context) async{
                 child:  TextField(
                   keyboardType: TextInputType.number,
                   maxLines: 1,
-                  //maxLength: 3,
+                  maxLength: 3,
                   autofocus: true,
                   decoration: InputDecoration(
+                    counterText: "",
                     labelText: 'Starting',
                     hintText: "100",
                     labelStyle: TextStyle(
