@@ -48,7 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override 
   void initState() {
     super.initState();
-  
+
     if (widget.user != null) {
       user = widget.user;
       user.buddies = user.buddies.toList();
@@ -64,11 +64,13 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         user = User.jsonToUser(ds.data);
         user.documentID = ds.documentID;
-        if (user.buddies.contains(DatabaseHelper.currentUserID)) {
-          _isFriend = true;
-        }
+          if (user.buddies.contains(DatabaseHelper.currentUserID)) {
+            _isFriend = true;
+          }
+        });
       });
-    });
+    } else {
+      _loadUser();
     }
 
     final settingsAndriod = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -84,6 +86,16 @@ class _ProfilePageState extends State<ProfilePage> {
     print("==============OnSelect WAS CALLED===========");
     await Navigator.push(context, new MaterialPageRoute(builder: (context) => NotificationPage()));
   } 
+
+  Future<void> _loadUser() async {
+    DatabaseHelper.getUserSnapshot(widget.forUserID).then((ds) {
+      setState(() {
+        user = User.jsonToUser(ds.data);
+        user.documentID = widget.forUserID;
+        _isFriend = user.buddies.contains(DatabaseHelper.currentUserID);
+      });
+    });
+  }
 
  
   void _addPressed() async {
@@ -168,10 +180,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return Container(
       child: user == null ? 
       Scaffold(
-        // drawer: AppDrawer(),
         appBar: AppBar(),
         body: Center(child: CircularProgressIndicator()),
       ) 
@@ -423,7 +434,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       child: ListView(
         children: <Widget>[
-          _isPrivate == true && _isFriend == false ? _buildPrivate()
+          _isPrivate && !_isFriend && user.documentID != DatabaseHelper.currentUserID ? _buildPrivate()
             : _buildPublic(),
         ],
       ),

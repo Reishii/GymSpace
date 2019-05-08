@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'group.dart';
 import 'workout_plan.dart';
 class User {
@@ -49,8 +51,8 @@ class User {
     this.caloricGoal = 0,
     this.birthday,
     this.fcmToken = "",
-    this.private = true,
-    this.location,
+    this.private = false,
+    this.location = false,
     this.notification = false,
     this.notifications,
     this.likes,
@@ -76,7 +78,7 @@ class User {
       'workoutPlans': workoutPlans == null ? [] : workoutPlans,
       'challengeStatus' : challengeStatus == null ? Map() : challengeStatus,
       'caloricGoal' : caloricGoal,
-      'birthday' : birthday,
+      'birthday' : birthday ?? Timestamp.now(),
       'fcmToken' : fcmToken,
       'private' : private,
       'location' : location,
@@ -106,7 +108,7 @@ class User {
       // workoutPlans: {}}
       challengeStatus: data['challengeStatus'],
       caloricGoal: data['caloricGoal'].round(),
-      birthday: data['birthday'],
+      birthday:  data['birthday'],
       fcmToken: data['fcmToken'],
       private: data['private'],
       location: data['location'],

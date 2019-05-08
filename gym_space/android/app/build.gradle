@@ -13,12 +13,12 @@ if (flutterRoot == null) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '2'
+    flutterVersionCode = '1'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
-    flutterVersionName = '2.0'
+    flutterVersionName = '1.0'
 }
 
 apply plugin: 'com.android.application'
@@ -40,11 +40,12 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.gymspace.gymspace"
-        minSdkVersion 25
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk.abiFilters "arm64-v8a","x86_64"
     }
     signingConfigs {
         release {

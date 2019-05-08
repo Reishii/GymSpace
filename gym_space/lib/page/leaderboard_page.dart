@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:GymSpace/global.dart';
 import 'package:GymSpace/logic/user.dart';
 import 'package:GymSpace/misc/colors.dart';
+import 'package:GymSpace/page/profile_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -42,11 +43,10 @@ class _LeaderBoardPageState extends State<LeaderBoardPage>{
     );
   }
 
-  Future<void> makeUserList() async{
+  Future<List<User>> makeUserList() async{
     // List<User> userList = List();
     QuerySnapshot userSnapshots = await Firestore.instance.collection('users').getDocuments();
-    userSnapshots.documents.forEach((ds)
-    {
+    userSnapshots.documents.forEach((ds) {
       User user = User.jsonToUser(ds.data);
       user.documentID = ds.documentID;
       userList0.add(user);
@@ -114,11 +114,15 @@ class _LeaderBoardPageState extends State<LeaderBoardPage>{
                         )
                       )
                     ),
-                    child: CircleAvatar(
-                      backgroundImage: CachedNetworkImageProvider(
-                        userList[i].photoURL.isEmpty ? Defaults.userPhoto : userList[i].photoURL
-                        ),
+                    child: InkWell(
+                      onTap: () => Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => ProfilePage.fromUser(userList[i]),
+                      )),
+                      child: CircleAvatar(
+                        backgroundImage: userList[i].photoURL.isNotEmpty ? CachedNetworkImageProvider(userList[i].photoURL)
+                            : AssetImage(Defaults.userPhoto),
                         radius: 20,
+                      ),
                     ),
                   ),
 

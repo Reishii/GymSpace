@@ -82,13 +82,13 @@ class LoginPageState extends State<LoginPage>{
     }
   }
 
-void _addUserToDB(String userID) {  
-  
+void _addUserToDB(String userID) async {  
   Firestore.instance.collection('users').document(userID).setData(
     User(
       firstName: _firstName,
       lastName: _lastName,
-      email: _email
+      email: _email,
+      fcmToken: await _messaging.getToken()
     ).toJSON());
 }
 

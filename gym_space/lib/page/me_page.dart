@@ -88,6 +88,7 @@ class _MePageState extends State<MePage> {
             }
 
             User user = User.jsonToUser(snapshot.data.data);
+            
             return Container(
               decoration: ShapeDecoration(
                 gradient: LinearGradient(

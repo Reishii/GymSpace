@@ -244,9 +244,13 @@ class _NotificationState extends State<NotificationPage> {
                   children: <Widget>[
                   FutureBuilder(
                         future: _otherUser,
-                        builder: (context, snapshot){
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return Container();
+                          }
+
                           return CircleAvatar(radius: 30,
-                            backgroundImage: snapshot.hasData ? CachedNetworkImageProvider(snapshot.data['photoURL']) : AssetImage(Defaults.userPhoto),
+                            backgroundImage: snapshot.data['photoURL'].isNotEmpty ? CachedNetworkImageProvider(snapshot.data['photoURL']) : AssetImage(Defaults.userPhoto),
                           );
                         }
                     ),
