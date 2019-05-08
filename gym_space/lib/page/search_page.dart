@@ -60,7 +60,7 @@ class _SearchPageState extends State<SearchPage> {
         for(User user in users) {
           String name = user.firstName + " " + user.lastName;
           if(name.toLowerCase().contains(text.toLowerCase())) 
-            allUsersFound.add(user);
+            usersFound.add(user);
         }
 
         // if(allUsersFound.isNotEmpty) {
