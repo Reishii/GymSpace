@@ -165,7 +165,7 @@ class _WorkoutPlanHomePageState extends State<WorkoutPlanHomePage> {
                             print("Adding Workout Plan to database");
                             _addWorkoutPlanToDB(newWorkoutPlan);
                             Navigator.pop(context);});
-                          }
+                        }
                       },
                       child: Text(
                         'Create',
