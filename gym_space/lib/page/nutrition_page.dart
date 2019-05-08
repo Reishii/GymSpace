@@ -24,7 +24,7 @@ class NutritionPage extends StatefulWidget {
 
 class _NutritionPage extends State<NutritionPage> {
   String _dietKey = DateTime.now().toString().substring(0,10);
-  final DateTime _currentDay = DateTime.now();
+  final DateTime _constantDay = DateTime.now(); // does not change
   DateTime _week = DateTime.now();
   DateTime now = DateTime.now();
   DateTime _mon = DateTime.now();
@@ -277,7 +277,7 @@ class _NutritionPage extends State<NutritionPage> {
   }
 
   void _checkDay(DateTime _chosenDay) {
-    if(_chosenDay.isAfter(_currentDay)) 
+    if(_chosenDay.isAfter(_constantDay)) 
       setState(() => _selectDay = false);
     else
       setState(() => _selectDay = true);
