@@ -540,6 +540,7 @@ class _ProfilePageState extends State<ProfilePage> {
             )
           )
         ),
+        padding: EdgeInsets.symmetric(vertical: 10),
         child: Stack(
           children: <Widget>[ 
             _buildStartingWeight(),
@@ -551,6 +552,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildCurrentWeight() {
     return Row(
+      // mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         Expanded(
           flex: 6,
@@ -559,7 +561,7 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: EdgeInsets.only(top: 30, bottom: 5),
             alignment: Alignment.centerLeft,
             child: Text(
-              "Current Weight -",
+              "Current Weight",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 14,
@@ -642,7 +644,7 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: EdgeInsets.symmetric(vertical: 5),
             alignment: Alignment.centerLeft,
             child: Text(
-              "Starting Weight -",
+              "Starting Weight",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 14,

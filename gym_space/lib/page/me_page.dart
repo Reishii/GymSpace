@@ -732,6 +732,7 @@ class _MePageState extends State<MePage> {
   Widget _buildWeightInfo(BuildContext context) {
       return Container(
         margin: EdgeInsets.only(top: 30),
+        padding: EdgeInsets.symmetric(vertical: 10),
         decoration: ShapeDecoration(
           color: GSColors.darkBlue,
           shape: RoundedRectangleBorder(
@@ -748,8 +749,8 @@ class _MePageState extends State<MePage> {
           child: Stack(
             children: <Widget>[ 
               _buildStartingWeight(),
-              _buildEditButton(),
               _buildCurrentWeight(),
+              _buildEditButton(),
             ],
         ),
       ),
@@ -785,7 +786,7 @@ class _MePageState extends State<MePage> {
             padding: EdgeInsets.only(top: 30, bottom: 5),
             alignment: Alignment.centerLeft,
             child: Text(
-              "Current Weight -",
+              "Current Weight",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 14,
@@ -869,7 +870,7 @@ class _MePageState extends State<MePage> {
             padding: EdgeInsets.symmetric(vertical: 5),
             alignment: Alignment.centerLeft,
             child: Text(
-              "Starting Weight -",
+              "Starting Weight",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 14,
