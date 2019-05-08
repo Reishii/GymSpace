@@ -100,10 +100,10 @@ class _ProfilePageState extends State<ProfilePage> {
         notify.sendNotifications('Buddy Request', '${currentUser.firstName} ${currentUser.lastName} has sent a Buddy Request', '${user.fcmToken}','buddy', userID);
       });
     });
-    setState(() {
-      user.buddies.toList().add(DatabaseHelper.currentUserID);
-      _isFriend = true;
-    });
+    // setState(() {
+    //   user.buddies.toList().add(DatabaseHelper.currentUserID);
+    //   _isFriend = true;
+    // });
   }
 
   void _deletePressed() async {
