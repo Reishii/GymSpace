@@ -110,7 +110,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
               hintText: "e.g. This workout consists of exercises for back and biceps. The main motion is pulling.",
               labelText: "Description",
             ),
-            onSaved: (muscleGroup) => workout.muscleGroup = muscleGroup,
+            onSaved: (desc) => workout.description = desc,
           ),
         ],
       ),
@@ -162,6 +162,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(100),
         child: PageHeader(
+          fontsize: 16,
           title: workoutPlan.name, 
           backgroundColor: Colors.white,
           titleColor: GSColors.darkBlue,

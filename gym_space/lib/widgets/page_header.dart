@@ -10,10 +10,12 @@ class PageHeader extends StatelessWidget {
   final bool showDrawer;
   final bool showSearch;
   final Function searchFunction;
+  final double fontsize;
 
   PageHeader({
     this.title, 
     this.backgroundColor, 
+    this.fontsize = 26,
     Key key, 
     this.child, 
     this.showDrawer = false, 
@@ -54,9 +56,10 @@ class PageHeader extends StatelessWidget {
             margin: EdgeInsets.only(bottom: 40),
             child: Text(
               title,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 26,
+                fontSize: fontsize,
                 letterSpacing: 4,
                 color: titleColor,
               ),

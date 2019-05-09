@@ -126,8 +126,8 @@ class _MePageState extends State<MePage> {
                         margin: EdgeInsets.only(left: 10),
                         child: Icon(
                           Icons.stars,
-                          size: 14,
-                          color: GSColors.yellowCoin
+                          size: 24,
+                          color: GSColors.darkCloud
                           //color: GSColors.green,
                         ),
                       ),
@@ -136,9 +136,10 @@ class _MePageState extends State<MePage> {
                         child: Text(
                           user.points.toString(),
                           style: TextStyle(
-                            color: GSColors.yellowCoin,
+                            color: GSColors.darkCloud,
                             //color: GSColors.green,
-                            fontSize: 14
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold
                           ),
                         )
                       ),

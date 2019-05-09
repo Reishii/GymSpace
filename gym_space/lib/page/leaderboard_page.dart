@@ -82,20 +82,21 @@ class _LeaderBoardPageState extends State<LeaderBoardPage>{
       List<Widget> leaderList = [];
       for(int i = 0; i < userList.length; i++)
       {
+        // String count = counter.toString().padLeft(2);
         if(userList[i].private == false)
         { 
           counter++;
+          
           leaderList.add(
             Container(
-              margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+              margin: EdgeInsets.symmetric(vertical: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  
                   Container(
                     margin: EdgeInsets.only(left: 10),
                     child: Text(
-                      "${counter.toString()}" + ". ",
+                      counter < 10 ? '$counter.     ' : '$counter.  ',
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: GSColors.cloud,
@@ -106,7 +107,7 @@ class _LeaderBoardPageState extends State<LeaderBoardPage>{
                   ),
 
                   Container(
-                    margin: EdgeInsets.only(left: 4),
+                    // margin: EdgeInsets.only(left: 4),
                     decoration: ShapeDecoration(
                       shape:  CircleBorder(
                         side: BorderSide(
@@ -179,6 +180,7 @@ class _LeaderBoardPageState extends State<LeaderBoardPage>{
   Widget _buildBody() {
     return Container(
         padding: EdgeInsets.only(top: 25),
+        margin: EdgeInsets.only(left: 10),
         child: ListView(
           children: <Widget>[
             _buildLeaderContent(),

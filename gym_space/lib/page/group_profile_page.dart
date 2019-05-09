@@ -343,7 +343,6 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
             ),
             height: 280,
             child: Column(
-              // crossAxisAlignment: CrossAxisAlignment,
               children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1011,6 +1010,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                               )
                             );
                             return Column(
+                              // crossAxisAlignment: CrossAxisAlignment.start,
                               children: challengeList,
                             );
                           }
