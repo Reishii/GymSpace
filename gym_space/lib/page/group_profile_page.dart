@@ -877,6 +877,10 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
           //Container(
           InkWell(
             onTap: (){
+              if (_isAdmin) {
+                return;
+              }
+              
               showDialog(
                 context: context,
                 builder: (BuildContext context)
@@ -1304,7 +1308,7 @@ Future<void> _updateMemberChallengeProgress(List<int> progressList, List<String>
                           ),
                           child: CircleAvatar(
                             backgroundImage: CachedNetworkImageProvider(
-                              memberPointsList[j]['avatar'].isEmpty ? Defaults.userPhoto : memberPointsList[j]['avatar']
+                              memberPointsList[j]['avatar'].isEmpty ? Defaults.userPhotoDB : memberPointsList[j]['avatar']
                               ),
                               radius: 20,
                           ),

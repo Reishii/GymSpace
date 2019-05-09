@@ -14,6 +14,8 @@ import 'package:GymSpace/page/notification_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:async';
 
+import 'package:fluttertoast/fluttertoast.dart';
+
 class GroupsPage extends StatefulWidget {
   final Widget child;
 
@@ -179,6 +181,73 @@ class _GroupsPageState extends State<GroupsPage> {
     );
   }
 
+  void _groupLongPressed(Group group) {
+    if (group.admin != DatabaseHelper.currentUserID) 
+      return;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              FlatButton.icon(
+                icon: Icon(Icons.delete),
+                label: Text('Delete'),
+                textColor: GSColors.red,
+                onPressed: () => _deleteGroupPressed(group),
+              )
+            ],
+          ),
+        );
+      }
+    );
+  }
+
+  void _deleteGroupPressed(Group group) {
+    Navigator.pop(context);
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Text('Are you sure?'),
+                  FlatButton.icon(
+                    icon: Icon(Icons.cancel),
+                    textColor: GSColors.red,
+                    label: Text('No'),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  FlatButton.icon(
+                    icon: Icon(Icons.check),
+                    textColor: GSColors.green,
+                    label: Text('Yes'),
+                    onPressed: () => _deleteGroup(group)
+                  ),
+                ],
+              )
+            ],
+          )
+        );
+      }
+    );
+  }
+
+  void _deleteGroup(Group group) {
+    Navigator.pop(context);
+    Firestore.instance.collection('groups').document(group.documentID).delete()
+      .then((_) => Fluttertoast.showToast(msg: 'Removed Group'));
+    
+    DatabaseHelper.updateUser(DatabaseHelper.currentUserID, {'joinedGroups': FieldValue.arrayRemove([group.documentID])});
+  }
+
   Widget _buildGroupItem(Group group) {
     return Container(
       child: InkWell(
@@ -186,6 +255,7 @@ class _GroupsPageState extends State<GroupsPage> {
             builder: (context) => GroupProfilePage(group: group) 
           )
         ),
+        onLongPress: () => _groupLongPressed(group),
         child: Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)

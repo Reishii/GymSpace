@@ -43,7 +43,16 @@ class DatabaseHelper {
   static Future<List<String>> getCurrentUserGroups() async {
     DocumentSnapshot ds = await getUserSnapshot(currentUserID);
     List<String> groups = ds.data['joinedGroups'].cast<String>().toList();
-    return groups;
+    List<String> revGroups = List();
+    for (String id in groups) {
+      await Firestore.instance.collection('groups').document(id).get().then((ds) {
+        if (ds.exists) {
+          revGroups.add(id);
+        }
+      });
+    }
+
+    return revGroups;;
   }
 
   static Future<DocumentSnapshot> getUserSnapshot(String userID) async {
