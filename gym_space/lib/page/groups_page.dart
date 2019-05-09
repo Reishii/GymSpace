@@ -169,6 +169,11 @@ class _GroupsPageState extends State<GroupsPage> {
                   if (!groupSnap.hasData) {
                     return Container();
                   }
+
+                  if (groupSnap.data.data == null) {
+                    return Container();
+                  }
+
                   Group joinedGroup = Group.jsonToGroup(groupSnap.data.data);
                   joinedGroup.documentID = groupSnap.data.documentID;
                   return _buildGroupItem(joinedGroup);

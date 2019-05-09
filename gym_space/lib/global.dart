@@ -48,6 +48,8 @@ class DatabaseHelper {
       await Firestore.instance.collection('groups').document(id).get().then((ds) {
         if (ds.exists) {
           revGroups.add(id);
+        } else {
+          updateUser(currentUserID, {'joinedGroups': FieldValue.arrayRemove([id])});
         }
       });
     }
