@@ -12,6 +12,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:GymSpace/logic/group.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/rendering.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -737,7 +738,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget> [
                 Text(
-                  'Challenges',
+                  'Weekly Challenges',
                   style: TextStyle(
                     fontSize: 22,
                     letterSpacing: 1.2,
@@ -1005,6 +1006,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                                   style: TextStyle(
                                     color: Colors.white,
                                   ),
+                                  textAlign: TextAlign.left,
                                 ),
                               )
                             );
@@ -1085,7 +1087,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                           }                   
                         });               
                         return Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                          // crossAxisAlignment: CrossAxisAlignment.start,
                           children: challengeList,                                                            
                         );
                       }
