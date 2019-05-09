@@ -17,8 +17,8 @@ Future<void> main() async{
   
   // Paul: disabled to make messages work...
   
-  final Firestore firestore = Firestore(app: app);
-  firestore.settings(timestampsInSnapshotsEnabled: true);
+  // final Firestore firestore = Firestore(app: app);
+  // firestore.settings(timestampsInSnapshotsEnabled: true);
   
   String _userID = await AuthSettings.auth.currentUser();
   Widget _defaultHome = LoginPage(auth: AuthSettings.auth, authStatus: AuthSettings.authStatus,);

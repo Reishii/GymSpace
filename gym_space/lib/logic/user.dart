@@ -53,7 +53,7 @@ class User {
     this.fcmToken = "",
     this.private = false,
     this.location = false,
-    this.notification = false,
+    this.notification = true,
     this.notifications,
     this.likes,
   });

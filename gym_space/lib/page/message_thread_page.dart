@@ -189,26 +189,34 @@ class ChatScreenState extends State<ChatScreen> {
           .collection(groupChatId)
           .document(DateTime.now().millisecondsSinceEpoch.toString());
 
-      Firestore.instance.runTransaction((transaction) async {
-//
-        await transaction.set(
-          documentReference,
-          {
-            'idFrom': id,
-            'idTo': peerId,
-            'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
-            'content': content,
-            'type': type
-          },
-        );
+      Firestore.instance.document(documentReference.path).setData({
+        'idFrom': id,
+        'idTo': peerId,
+        'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+        'content': content,
+        'type': type
       });
+      // var ds = await Firestore.instance.runTransaction((transaction) async {
+      //   await transaction.set(
+      //     documentReference,
+      //     {
+      //       'idFrom': id,
+      //       'idTo': peerId,
+      //       'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+      //       'content': content,
+      //       'type': type
+      //     },
+      //   );
+      // });
+
+      // print(ds);
       listScrollController.animateTo(0.0, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
     } else {
       Fluttertoast.showToast(msg: 'Nothing to send');
     }
   }
 
-  Widget buildItem(int index, DocumentSnapshot document) { // buildMessage()
+  Widget buildItem(int index, Map document) { // buildMessage()
     // _photoController.
     if (document['idFrom'] == id) {
       // Right (my message)
@@ -551,7 +559,7 @@ class ChatScreenState extends State<ChatScreen> {
             //listMessage = snapshot.data.documents;
             return ListView.builder(
               padding: EdgeInsets.all(10.0),
-              itemBuilder: (context, index) => buildItem(index, snapshot.data.documents[index]),
+              itemBuilder: (context, index) => buildItem(index, snapshot.data.documents[index].data),
               itemCount: snapshot.data.documents.length,
               reverse: true,
               controller: listScrollController,
