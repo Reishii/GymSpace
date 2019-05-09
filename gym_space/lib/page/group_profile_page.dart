@@ -1087,7 +1087,7 @@ class _GroupProfilePageState extends State<GroupProfilePage> {
                           }                   
                         });               
                         return Column(
-                          // crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: challengeList,                                                            
                         );
                       }
